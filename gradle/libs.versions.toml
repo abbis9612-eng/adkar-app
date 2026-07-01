@@ -1,0 +1,133 @@
+[versions]
+kotlin              = "2.2.10"
+agp                 = "9.1.1"
+compose-bom         = "2024.12.01"
+sqldelight          = "2.0.2"
+ktor                = "2.3.13"
+koin                = "4.0.0"
+koin-compose        = "4.0.0"
+coroutines          = "1.9.0"
+serialization       = "1.7.3"
+datetime            = "0.6.1"
+navigation          = "2.8.5"
+lifecycle           = "2.8.7"
+media3              = "1.5.1"
+work                = "2.10.0"
+glance              = "1.1.1"
+firebase-bom        = "33.7.0"
+play-location       = "21.3.0"
+security-crypto     = "1.1.0-alpha06"
+app-update          = "2.1.0"
+review              = "2.0.2"
+revenuecat          = "8.12.1"
+splashscreen        = "1.0.1"
+appcompat           = "1.7.0"
+activity            = "1.9.3"
+core-ktx            = "1.15.0"
+datastore           = "1.1.1"
+junit               = "4.13.2"
+turbine             = "1.2.0"
+mockk               = "1.13.13"
+adhan               = "0.0.5"
+
+[plugins]
+kotlinMultiplatform   = { id = "org.jetbrains.kotlin.multiplatform",        version.ref = "kotlin" }
+kotlinAndroid         = { id = "org.jetbrains.kotlin.android",              version.ref = "kotlin" }
+androidApplication    = { id = "com.android.application",                   version.ref = "agp"    }
+androidLibrary        = { id = "com.android.library",                       version.ref = "agp"    }
+androidTest           = { id = "com.android.test",                          version.ref = "agp"    }
+sqldelight            = { id = "app.cash.sqldelight",                       version.ref = "sqldelight" }
+kotlinSerialization   = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+composeCompiler       = { id = "org.jetbrains.kotlin.plugin.compose",       version.ref = "kotlin" }
+googleServices        = { id = "com.google.gms.google-services",            version = "4.4.2"      }
+firebaseCrashlytics   = { id = "com.google.firebase.crashlytics",           version = "3.0.2"      }
+
+[libraries]
+
+# ═══ Kotlin / Coroutines ═══
+kotlinx-coroutines-core    = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",    version.ref = "coroutines"    }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines"    }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-datetime           = { module = "org.jetbrains.kotlinx:kotlinx-datetime",           version.ref = "datetime"      }
+
+# ═══ SQLDelight ═══
+sqldelight-runtime        = { module = "app.cash.sqldelight:runtime",              version.ref = "sqldelight" }
+sqldelight-coroutines     = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver",       version.ref = "sqldelight" }
+sqldelight-native-driver  = { module = "app.cash.sqldelight:native-driver",        version.ref = "sqldelight" }
+
+# ═══ Ktor ═══
+ktor-client-core    = { module = "io.ktor:ktor-client-core",                    version.ref = "ktor" }
+ktor-client-content = { module = "io.ktor:ktor-client-content-negotiation",     version.ref = "ktor" }
+ktor-serialization  = { module = "io.ktor:ktor-serialization-kotlinx-json",     version.ref = "ktor" }
+ktor-client-okhttp  = { module = "io.ktor:ktor-client-okhttp",                  version.ref = "ktor" }
+ktor-client-darwin  = { module = "io.ktor:ktor-client-darwin",                  version.ref = "ktor" }
+
+# ═══ Koin ═══
+koin-core             = { module = "io.insert-koin:koin-core",             version.ref = "koin"         }
+koin-android          = { module = "io.insert-koin:koin-android",          version.ref = "koin"         }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
+
+# ═══ Compose (BOM-managed — no version.ref) ═══
+compose-bom              = { module = "androidx.compose:compose-bom",                    version.ref = "compose-bom" }
+compose-ui               = { module = "androidx.compose.ui:ui"                                                       }
+compose-ui-graphics      = { module = "androidx.compose.ui:ui-graphics"                                             }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"                                    }
+compose-ui-tooling       = { module = "androidx.compose.ui:ui-tooling"                                              }
+compose-material3        = { module = "androidx.compose.material3:material3"                                        }
+compose-material-icons   = { module = "androidx.compose.material:material-icons-extended"                           }
+compose-foundation       = { module = "androidx.compose.foundation:foundation"                                      }
+compose-animation        = { module = "androidx.compose.animation:animation"                                        }
+compose-ui-test-junit4   = { module = "androidx.compose.ui:ui-test-junit4"                                          }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest"                                        }
+
+# ═══ AndroidX ═══
+activity-compose      = { module = "androidx.activity:activity-compose",                 version.ref = "activity"   }
+core-ktx              = { module = "androidx.core:core-ktx",                             version.ref = "core-ktx"   }
+core-splashscreen     = { module = "androidx.core:core-splashscreen",                    version.ref = "splashscreen"}
+navigation-compose    = { module = "androidx.navigation:navigation-compose",             version.ref = "navigation"  }
+lifecycle-viewmodel   = { module = "androidx.lifecycle:lifecycle-viewmodel-compose",     version.ref = "lifecycle"   }
+lifecycle-runtime     = { module = "androidx.lifecycle:lifecycle-runtime-compose",       version.ref = "lifecycle"   }
+lifecycle-savedstate  = { module = "androidx.lifecycle:lifecycle-viewmodel-savedstate",  version.ref = "lifecycle"   }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences",           version.ref = "datastore"   }
+appcompat             = { module = "androidx.appcompat:appcompat",                        version.ref = "appcompat"   }
+
+# ═══ Work Manager ═══
+work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+
+# ═══ Glance (Widgets) ═══
+glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+glance-material3 = { module = "androidx.glance:glance-material3",  version.ref = "glance" }
+
+# ═══ Media3 ═══
+media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+media3-session   = { module = "androidx.media3:media3-session",   version.ref = "media3" }
+media3-ui        = { module = "androidx.media3:media3-ui",        version.ref = "media3" }
+
+# ═══ Location ═══
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-location" }
+
+# ═══ Security ═══
+security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+
+# ═══ In-App ═══
+app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "app-update" }
+review-ktx     = { module = "com.google.android.play:review-ktx",     version.ref = "review"     }
+
+# ═══ Firebase ═══
+firebase-bom         = { module = "com.google.firebase:firebase-bom",             version.ref = "firebase-bom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx"                               }
+
+# ═══ Monetization ═══
+revenuecat    = { module = "com.revenuecat.purchases:purchases",    version.ref = "revenuecat" }
+revenuecat-ui = { module = "com.revenuecat.purchases:purchases-ui", version.ref = "revenuecat" }
+
+# ═══ Testing ═══
+junit                    = { module = "junit:junit",                                              version.ref = "junit"       }
+kotlin-test              = { module = "org.jetbrains.kotlin:kotlin-test",                         version.ref = "kotlin"      }
+kotlinx-coroutines-test  = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test",            version.ref = "coroutines"  }
+turbine                  = { module = "app.cash.turbine:turbine",                                  version.ref = "turbine"     }
+mockk                    = { module = "io.mockk:mockk",                                            version.ref = "mockk"       }
+
+# ═══ Prayer Times ═══
+adhan                    = { module = "com.batoulapps.adhan:adhan2",                               version.ref = "adhan"       }

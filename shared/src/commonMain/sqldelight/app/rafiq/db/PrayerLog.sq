@@ -1,0 +1,42 @@
+CREATE TABLE PrayerLog (
+    id           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    date         TEXT    NOT NULL,
+    prayer_name  TEXT    NOT NULL,
+    prayed       INTEGER NOT NULL DEFAULT 0,
+    marked_at    INTEGER,
+    in_masjid    INTEGER NOT NULL DEFAULT 0,
+    sunnah_done  INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(date, prayer_name)
+);
+
+getByDate:
+SELECT * FROM PrayerLog WHERE date = :date
+ORDER BY
+    CASE prayer_name
+        WHEN 'fajr'    THEN 1
+        WHEN 'dhuhr'   THEN 2
+        WHEN 'asr'     THEN 3
+        WHEN 'maghrib' THEN 4
+        WHEN 'isha'    THEN 5
+    END;
+
+getByDateAndPrayer:
+SELECT * FROM PrayerLog WHERE date = :date AND prayer_name = :prayer_name;
+
+insertNew:
+INSERT OR IGNORE INTO PrayerLog(date, prayer_name, prayed, marked_at, in_masjid, sunnah_done)
+VALUES (:date, :prayer_name, :prayed, :marked_at, :in_masjid, :sunnah_done);
+
+updatePrayed:
+UPDATE PrayerLog
+SET prayed = :prayed, marked_at = :marked_at
+WHERE date = :date AND prayer_name = :prayer_name;
+
+updateSunnah:
+UPDATE PrayerLog
+SET sunnah_done = :sunnah_done
+WHERE date = :date AND prayer_name = :prayer_name;
+
+getPrayedCountInRange:
+SELECT COUNT(*) FROM PrayerLog
+WHERE date BETWEEN :start AND :end AND prayed = 1;

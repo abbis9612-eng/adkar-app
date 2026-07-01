@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rafiq Al-Dhikr</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_home">Home</string>
+    <string name="nav_quran">Quran</string>
+    <string name="nav_tasbeeh">Tasbeeh</string>
+    <string name="nav_dua">Duas</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Home -->
+    <string name="greeting_morning">Good Morning</string>
+    <string name="greeting_evening">Good Evening</string>
+    <string name="next_prayer">Next Prayer</string>
+    <string name="morning_adhkar">Morning Adhkar</string>
+    <string name="evening_adhkar">Evening Adhkar</string>
+
+    <!-- Adhkar -->
+    <string name="adhkar_title">Adhkar</string>
+    <string name="source_label">Source:</string>
+    <string name="remaining_count">%d remaining</string>
+    <string name="completed">Completed</string>
+    <string name="back">Back</string>
+
+    <!-- Tasbeeh -->
+    <string name="tasbeeh_title">Tasbeeh</string>
+    <string name="tap_to_count">Tap to count</string>
+    <string name="reset">Reset</string>
+    <string name="target">Target</string>
+
+    <!-- Prayer -->
+    <string name="prayer_times_title">Prayer Times</string>
+    <string name="fajr">Fajr</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+    <string name="times_approximate">⚠️ Times are approximate — verify with your local mosque</string>
+
+    <!-- Qibla -->
+    <string name="qibla_title">Qibla</string>
+    <string name="qibla_direction">Qibla Direction</string>
+    <string name="calibrate_compass">Calibrate compass by moving your phone in a figure-8 pattern</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">Auto</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="font_size_title">Font Size</string>
+    <string name="prayer_method_title">Calculation Method</string>
+    <string name="about_title">About</string>
+
+    <!-- Errors -->
+    <string name="error_generic">An error occurred, please try again</string>
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_location">Could not determine your location</string>
+    <string name="retry">Retry</string>
+
+    <!-- Permissions -->
+    <string name="permission_notification_title">Prayer Notifications</string>
+    <string name="permission_notification_body">We need your permission to remind you of prayer times</string>
+    <string name="permission_location_title">Location Access</string>
+    <string name="permission_location_body">We need your location to calculate prayer times and Qibla direction</string>
+</resources>

@@ -1,0 +1,78 @@
+CREATE TABLE UserPrefs (
+    id                    INTEGER NOT NULL PRIMARY KEY DEFAULT 1,
+    theme                 TEXT    NOT NULL DEFAULT 'system',
+    dynamic_color         INTEGER NOT NULL DEFAULT 1,
+    font_scale            REAL    NOT NULL DEFAULT 1.0,
+    notifications_enabled INTEGER NOT NULL DEFAULT 1,
+    glass_level           TEXT    NOT NULL DEFAULT 'fake',
+    gamification_visible  INTEGER NOT NULL DEFAULT 1,
+    prayer_method         TEXT    NOT NULL DEFAULT 'mwl',
+    locale                TEXT    NOT NULL DEFAULT 'ar',
+    hijri_offset          INTEGER NOT NULL DEFAULT 0,
+    reduced_motion        INTEGER NOT NULL DEFAULT 0,
+    high_contrast         INTEGER NOT NULL DEFAULT 0,
+    sound_profile         TEXT    NOT NULL DEFAULT 'beads',
+    haptics_enabled       INTEGER NOT NULL DEFAULT 1,
+    last_known_city       TEXT    NOT NULL DEFAULT '',
+    last_known_lat        REAL    NOT NULL DEFAULT 0.0,
+    last_known_lng        REAL    NOT NULL DEFAULT 0.0,
+    onboarding_completed  INTEGER NOT NULL DEFAULT 0,
+    fajr_offset           INTEGER NOT NULL DEFAULT 0,
+    dhuhr_offset          INTEGER NOT NULL DEFAULT 0,
+    asr_offset            INTEGER NOT NULL DEFAULT 0,
+    maghrib_offset        INTEGER NOT NULL DEFAULT 0,
+    isha_offset           INTEGER NOT NULL DEFAULT 0,
+    elevation             REAL    NOT NULL DEFAULT 0.0,
+    madhab                TEXT    NOT NULL DEFAULT 'shafi'
+);
+
+get:
+SELECT * FROM UserPrefs WHERE id = 1;
+
+initIfNeeded:
+INSERT OR IGNORE INTO UserPrefs(id) VALUES (1);
+
+updateTheme:
+UPDATE UserPrefs SET theme = :theme, dynamic_color = :dynamic WHERE id = 1;
+
+updateFontScale:
+UPDATE UserPrefs SET font_scale = :scale WHERE id = 1;
+
+updateNotifications:
+UPDATE UserPrefs SET notifications_enabled = :enabled WHERE id = 1;
+
+updateGlass:
+UPDATE UserPrefs SET glass_level = :level WHERE id = 1;
+
+updateGamification:
+UPDATE UserPrefs SET gamification_visible = :visible WHERE id = 1;
+
+updatePrayerMethod:
+UPDATE UserPrefs SET prayer_method = :method WHERE id = 1;
+
+updateLocale:
+UPDATE UserPrefs SET locale = :locale WHERE id = 1;
+
+updateHijriOffset:
+UPDATE UserPrefs SET hijri_offset = :offset WHERE id = 1;
+
+updateAccessibility:
+UPDATE UserPrefs SET reduced_motion = :motion, high_contrast = :contrast WHERE id = 1;
+
+updateSound:
+UPDATE UserPrefs SET sound_profile = :profile, haptics_enabled = :haptics WHERE id = 1;
+
+updateLocation:
+UPDATE UserPrefs SET last_known_city = :city, last_known_lat = :lat, last_known_lng = :lng WHERE id = 1;
+
+updateOnboarding:
+UPDATE UserPrefs SET onboarding_completed = :completed WHERE id = 1;
+
+updatePrayerOffsets:
+UPDATE UserPrefs SET fajr_offset = :fajr, dhuhr_offset = :dhuhr, asr_offset = :asr, maghrib_offset = :maghrib, isha_offset = :isha WHERE id = 1;
+
+updateElevation:
+UPDATE UserPrefs SET elevation = :elevation WHERE id = 1;
+
+updateMadhab:
+UPDATE UserPrefs SET madhab = :madhab WHERE id = 1;

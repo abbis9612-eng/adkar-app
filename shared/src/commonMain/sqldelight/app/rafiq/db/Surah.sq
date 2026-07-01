@@ -1,0 +1,29 @@
+CREATE TABLE Surah (
+    number       INTEGER NOT NULL PRIMARY KEY,
+    name_ar      TEXT    NOT NULL,
+    name_en      TEXT    NOT NULL,
+    name_translit TEXT   NOT NULL,
+    revelation   TEXT    NOT NULL,
+    ayah_count   INTEGER NOT NULL,
+    juz_start    INTEGER NOT NULL,
+    page_start   INTEGER NOT NULL
+);
+
+getAll:
+SELECT * FROM Surah ORDER BY number;
+
+getByNumber:
+SELECT * FROM Surah WHERE number = :number;
+
+search:
+SELECT * FROM Surah
+WHERE name_ar    LIKE '%' || :query || '%'
+   OR name_en    LIKE '%' || :query || '%'
+   OR name_translit LIKE '%' || :query || '%';
+
+count:
+SELECT COUNT(*) FROM Surah;
+
+insertFull:
+INSERT INTO Surah(number, name_ar, name_en, name_translit, revelation, ayah_count, juz_start, page_start)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);

@@ -1,0 +1,36 @@
+CREATE TABLE Dua (
+    id           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    category     TEXT    NOT NULL,
+    occasion     TEXT    NOT NULL DEFAULT '',
+    text_ar      TEXT    NOT NULL,
+    source       TEXT    NOT NULL,
+    source_grade TEXT    NOT NULL,
+    is_favorite  INTEGER NOT NULL DEFAULT 0,
+    sort_order   INTEGER NOT NULL
+);
+
+CREATE INDEX idx_dua_category ON Dua(category);
+
+getAllByCategory:
+SELECT * FROM Dua WHERE category = :category ORDER BY sort_order;
+
+getFavorites:
+SELECT * FROM Dua WHERE is_favorite = 1 ORDER BY sort_order;
+
+toggleFavorite:
+UPDATE Dua SET is_favorite = :is_favorite WHERE id = :id;
+
+search:
+SELECT * FROM Dua
+WHERE text_ar LIKE '%' || :query || '%'
+ORDER BY sort_order LIMIT 50;
+
+count:
+SELECT COUNT(*) FROM Dua;
+
+getCategories:
+SELECT DISTINCT category FROM Dua ORDER BY category;
+
+insertFull:
+INSERT INTO Dua(category, occasion, text_ar, source, source_grade, is_favorite, sort_order)
+VALUES (?, ?, ?, ?, ?, ?, ?);

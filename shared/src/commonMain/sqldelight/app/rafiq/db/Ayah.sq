@@ -1,0 +1,40 @@
+CREATE TABLE Ayah (
+    id           INTEGER NOT NULL PRIMARY KEY,
+    surah        INTEGER NOT NULL,
+    ayah_number  INTEGER NOT NULL,
+    text_uthmani TEXT    NOT NULL,
+    text_simple  TEXT    NOT NULL,
+    juz          INTEGER NOT NULL,
+    hizb         INTEGER NOT NULL,
+    page         INTEGER NOT NULL,
+    UNIQUE(surah, ayah_number)
+);
+
+CREATE INDEX idx_ayah_surah ON Ayah(surah);
+CREATE INDEX idx_ayah_page  ON Ayah(page);
+CREATE INDEX idx_ayah_juz   ON Ayah(juz);
+
+getBySurah:
+SELECT * FROM Ayah WHERE surah = :surah ORDER BY ayah_number;
+
+getByPage:
+SELECT * FROM Ayah WHERE page = :page ORDER BY surah, ayah_number;
+
+getByJuz:
+SELECT * FROM Ayah WHERE juz = :juz ORDER BY surah, ayah_number;
+
+searchSimple:
+SELECT * FROM Ayah
+WHERE text_simple LIKE '%' || :query || '%'
+ORDER BY surah, ayah_number
+LIMIT 100;
+
+getAyah:
+SELECT * FROM Ayah WHERE surah = :surah AND ayah_number = :ayah;
+
+count:
+SELECT COUNT(*) FROM Ayah;
+
+insertFull:
+INSERT INTO Ayah(id, surah, ayah_number, text_uthmani, text_simple, juz, hizb, page)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);

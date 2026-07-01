@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">رفيق الذكر</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_quran">القرآن</string>
+    <string name="nav_tasbeeh">مسبحة</string>
+    <string name="nav_dua">أدعية</string>
+    <string name="nav_profile">حسابي</string>
+
+    <!-- Home -->
+    <string name="greeting_morning">صباح الخير</string>
+    <string name="greeting_evening">مساء الخير</string>
+    <string name="next_prayer">الصلاة القادمة</string>
+    <string name="morning_adhkar">أذكار الصباح</string>
+    <string name="evening_adhkar">أذكار المساء</string>
+
+    <!-- Adhkar -->
+    <string name="adhkar_title">الأذكار</string>
+    <string name="source_label">المصدر:</string>
+    <string name="remaining_count">باقي %d</string>
+    <string name="completed">اكتمل</string>
+    <string name="back">رجوع</string>
+
+    <!-- Tasbeeh -->
+    <string name="tasbeeh_title">المسبحة</string>
+    <string name="tap_to_count">اضغط للعد</string>
+    <string name="reset">إعادة</string>
+    <string name="target">الهدف</string>
+
+    <!-- Prayer -->
+    <string name="prayer_times_title">مواقيت الصلاة</string>
+    <string name="fajr">الفجر</string>
+    <string name="sunrise">الشروق</string>
+    <string name="dhuhr">الظهر</string>
+    <string name="asr">العصر</string>
+    <string name="maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+    <string name="times_approximate">⚠️ الأوقات تقريبية — تحقق من مسجدك المحلي</string>
+
+    <!-- Qibla -->
+    <string name="qibla_title">القبلة</string>
+    <string name="qibla_direction">اتجاه القبلة</string>
+    <string name="calibrate_compass">قم بمعايرة البوصلة بتحريك الهاتف على شكل 8</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="theme_title">المظهر</string>
+    <string name="theme_system">تلقائي</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+    <string name="notifications_title">الإشعارات</string>
+    <string name="font_size_title">حجم الخط</string>
+    <string name="prayer_method_title">طريقة الحساب</string>
+    <string name="about_title">حول التطبيق</string>
+
+    <!-- Errors -->
+    <string name="error_generic">حدث خطأ، حاول مرة أخرى</string>
+    <string name="error_no_internet">لا يوجد اتصال بالإنترنت</string>
+    <string name="error_location">لم نتمكن من تحديد موقعك</string>
+    <string name="retry">إعادة المحاولة</string>
+
+    <!-- Screens -->
+    <string name="quick_actions">الإجراءات السريعة</string>
+    <string name="today_progress">تقدم اليوم</string>
+    <string name="khatira">خاطرة اليوم</string>
+    <string name="nav_prayer">مواقيت الصلاة</string>
+    <string name="qibla">القبلة</string>
+    <string name="settings">الإعدادات</string>
+    <string name="premium">المميز</string>
+    <string name="about">حول التطبيق</string>
+    <string name="help">المساعدة</string>
+    <string name="adhkar_categories">أقسام الأذكار</string>
+    <string name="notification_settings">إعدادات الإشعارات</string>
+    <string name="theme_settings">إعدادات المظهر</string>
+    <string name="font_settings">إعدادات الخط</string>
+    <string name="accessibility">إمكانية الوصول</string>
+    <string name="prayer_method">طريقة الحساب</string>
+
+    <!-- Permissions -->
+    <string name="permission_notification_title">إشعارات الصلاة</string>
+    <string name="permission_notification_body">نحتاج إذنك لتذكيرك بأوقات الصلاة</string>
+    <string name="permission_location_title">تحديد الموقع</string>
+    <string name="permission_location_body">نحتاج موقعك لحساب مواقيت الصلاة واتجاه القبلة</string>
+</resources>

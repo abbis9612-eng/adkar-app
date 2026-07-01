@@ -1,0 +1,22 @@
+CREATE TABLE TasbeehSession (
+    id               INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    dhikr_text       TEXT    NOT NULL,
+    count            INTEGER NOT NULL,
+    target           INTEGER NOT NULL,
+    completed        INTEGER NOT NULL DEFAULT 0,
+    duration_seconds INTEGER NOT NULL,
+    date             TEXT    NOT NULL,
+    created_at       INTEGER NOT NULL
+);
+
+CREATE INDEX idx_tasbeeh_date ON TasbeehSession(date);
+
+getByDate:
+SELECT * FROM TasbeehSession WHERE date = :date ORDER BY created_at DESC;
+
+getTotalCountByDate:
+SELECT COALESCE(SUM(count), 0) AS total FROM TasbeehSession WHERE date = :date;
+
+insert:
+INSERT INTO TasbeehSession(dhikr_text, count, target, completed, duration_seconds, date, created_at)
+VALUES (:dhikr_text, :count, :target, :completed, :duration_seconds, :date, :created_at);

@@ -1,0 +1,37 @@
+CREATE TABLE DailyProgress (
+    id             INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    date           TEXT    NOT NULL UNIQUE,
+    morning_done   INTEGER NOT NULL DEFAULT 0,
+    evening_done   INTEGER NOT NULL DEFAULT 0,
+    quran_pages    INTEGER NOT NULL DEFAULT 0,
+    tasbeeh_count  INTEGER NOT NULL DEFAULT 0,
+    prayers_logged INTEGER NOT NULL DEFAULT 0,
+    total_minutes  INTEGER NOT NULL DEFAULT 0
+);
+
+getByDate:
+SELECT * FROM DailyProgress WHERE date = :date;
+
+getRange:
+SELECT * FROM DailyProgress WHERE date BETWEEN :start AND :end ORDER BY date;
+
+insertNew:
+INSERT OR IGNORE INTO DailyProgress(date) VALUES (:date);
+
+updateMorning:
+UPDATE DailyProgress SET morning_done = :done WHERE date = :date;
+
+updateEvening:
+UPDATE DailyProgress SET evening_done = :done WHERE date = :date;
+
+updateQuranPages:
+UPDATE DailyProgress SET quran_pages = :pages WHERE date = :date;
+
+updateTasbeeh:
+UPDATE DailyProgress SET tasbeeh_count = :count WHERE date = :date;
+
+updatePrayers:
+UPDATE DailyProgress SET prayers_logged = :count WHERE date = :date;
+
+updateMinutes:
+UPDATE DailyProgress SET total_minutes = :minutes WHERE date = :date;

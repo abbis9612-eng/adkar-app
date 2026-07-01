@@ -1,0 +1,31 @@
+CREATE TABLE Khatira (
+    id              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    day_of_year     INTEGER NOT NULL,
+    verse_or_hadith TEXT    NOT NULL,
+    source          TEXT    NOT NULL,
+    reflection      TEXT    NOT NULL,
+    season          TEXT    NOT NULL DEFAULT 'normal',
+    reviewed        INTEGER NOT NULL DEFAULT 0,
+    reviewer        TEXT,
+    is_remote       INTEGER NOT NULL DEFAULT 0,
+    remote_version  TEXT
+);
+
+getByDayOfYear:
+SELECT * FROM Khatira WHERE day_of_year = :day LIMIT 1;
+
+count:
+SELECT COUNT(*) FROM Khatira;
+
+insertFull:
+INSERT INTO Khatira(day_of_year, verse_or_hadith, source, reflection, season, reviewed, reviewer)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateFromRemote:
+UPDATE Khatira
+SET verse_or_hadith = :text,
+    source          = :source,
+    reflection      = :reflection,
+    is_remote       = 1,
+    remote_version  = :version
+WHERE day_of_year = :day;

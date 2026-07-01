@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Crescent moon shape as a simple Islamic symbol -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M54,24
+                   A26,26,0,1,1,54,80
+                   A20,20,0,1,0,54,24Z" />
+    <!-- Small star -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M68,42 L70,47 L75,47 L71,50 L72.5,55 L68,52 L63.5,55 L65,50 L61,47 L66,47 Z" />
+</vector>

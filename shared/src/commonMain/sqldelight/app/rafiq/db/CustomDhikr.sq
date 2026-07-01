@@ -1,0 +1,16 @@
+CREATE TABLE CustomDhikr (
+    id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    dhikr_text  TEXT    NOT NULL,
+    target      INTEGER NOT NULL,
+    created_at  INTEGER NOT NULL
+);
+
+getAll:
+SELECT * FROM CustomDhikr ORDER BY created_at DESC;
+
+insert:
+INSERT INTO CustomDhikr(dhikr_text, target, created_at)
+VALUES (:dhikr_text, :target, :created_at);
+
+deleteById:
+DELETE FROM CustomDhikr WHERE id = :id;

@@ -1,0 +1,25 @@
+CREATE TABLE QuranBookmark (
+    id         INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    surah      INTEGER NOT NULL,
+    ayah       INTEGER NOT NULL,
+    page       INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL,
+    note       TEXT,
+    UNIQUE(surah, ayah)
+);
+
+getAll:
+SELECT * FROM QuranBookmark ORDER BY created_at DESC;
+
+insert:
+INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note)
+VALUES (:surah, :ayah, :page, :created_at, :note);
+
+delete:
+DELETE FROM QuranBookmark WHERE id = :id;
+
+deleteByPosition:
+DELETE FROM QuranBookmark WHERE surah = :surah AND ayah = :ayah;
+
+exists:
+SELECT COUNT(*) FROM QuranBookmark WHERE surah = :surah AND ayah = :ayah;
