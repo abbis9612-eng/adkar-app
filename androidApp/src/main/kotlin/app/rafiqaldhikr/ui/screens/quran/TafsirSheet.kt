@@ -80,7 +80,8 @@ fun TafsirSheet(
                 Text(
                     ayahText,
                     modifier  = Modifier.fillMaxWidth(),
-                    fontSize = 20.sp,
+                    fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
+                    fontSize = 22.sp,
                     lineHeight = 36.sp,
                     textAlign = TextAlign.Center,
                     color = rc.ink

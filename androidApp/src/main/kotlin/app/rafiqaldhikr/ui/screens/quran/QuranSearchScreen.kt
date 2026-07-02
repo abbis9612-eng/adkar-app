@@ -164,9 +164,9 @@ private fun SearchResultCard(
         Spacer(Modifier.height(8.dp))
         Text(
             ayah.textUthmani,
-            fontSize = 19.sp,
-            fontFamily = UthmaniFamily,
-            lineHeight = 36.sp,
+            fontSize = 20.sp,
+            fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
+            lineHeight = 40.sp,
             color = rc.ink,
             maxLines  = 3,
             overflow  = TextOverflow.Ellipsis
