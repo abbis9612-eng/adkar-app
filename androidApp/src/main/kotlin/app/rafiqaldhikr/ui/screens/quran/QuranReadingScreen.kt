@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -108,16 +109,29 @@ fun QuranReadingScreen(
                                     fontSize = 12.sp,
                                     color = rc.inkLight
                                 )
-                                IconButton(
-                                    onClick  = { viewModel.toggleBookmark(surahNumber, ayah.ayahNumber, ayah.page) },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        if (ayah.ayahNumber in state.bookmarks) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                        contentDescription = "علامة",
-                                        modifier = Modifier.size(20.dp),
-                                        tint = rc.emerald
-                                    )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    IconButton(
+                                        onClick  = { viewModel.showTafsir(ayah) },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.MenuBook,
+                                            contentDescription = "تفسير",
+                                            modifier = Modifier.size(20.dp),
+                                            tint = rc.gold
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick  = { viewModel.toggleBookmark(surahNumber, ayah.ayahNumber, ayah.page) },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            if (ayah.ayahNumber in state.bookmarks) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                            contentDescription = "علامة",
+                                            modifier = Modifier.size(20.dp),
+                                            tint = rc.emerald
+                                        )
+                                    }
                                 }
                             }
                             Divider(color = rc.divider, modifier = Modifier.padding(top = 8.dp))
@@ -126,6 +140,16 @@ fun QuranReadingScreen(
                 }
             }
         }
+    }
+
+    state.tafsir?.let { tafsir ->
+        TafsirSheet(
+            surahNumber = tafsir.ayah.surah,
+            ayahNumber  = tafsir.ayah.ayahNumber,
+            ayahText    = tafsir.ayah.textUthmani,
+            tafsirText  = tafsir.tafsirText,
+            onDismiss   = { viewModel.dismissTafsir() }
+        )
     }
 
     // Save position on leaving

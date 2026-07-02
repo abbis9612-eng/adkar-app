@@ -87,4 +87,10 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
             db.quranBookmarkQueries.exists(surah.toLong(), ayah.toLong())
                 .executeAsOne() > 0L
         }
+
+    override suspend fun getTafsir(surah: Int, ayah: Int): String? =
+        withContext(Dispatchers.IO) {
+            db.tafsirQueries.getByAyah(surah.toLong(), ayah.toLong())
+                .executeAsOneOrNull()
+        }
 }

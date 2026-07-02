@@ -19,10 +19,16 @@ class QuranReadingViewModel(
     private val repository: QuranRepository
 ) : ViewModel() {
 
+    data class TafsirState(
+        val ayah:       AyahInfo,
+        val tafsirText: String
+    )
+
     data class UiState(
         val ayahs:     List<AyahInfo>  = emptyList(),
         val surah:     SurahInfo?      = null,
         val bookmarks: Set<Int>        = emptySet(),
+        val tafsir:    TafsirState?    = null,
         val isLoading: Boolean         = true,
         val error:     String?         = null
     )
@@ -57,6 +63,18 @@ class QuranReadingViewModel(
         viewModelScope.launch {
             repository.saveLastRead(surah, ayah, page, scrollY)
         }
+    }
+
+    fun showTafsir(ayah: AyahInfo) {
+        viewModelScope.launch {
+            val text = repository.getTafsir(ayah.surah, ayah.ayahNumber)
+                ?: "التفسير غير متوفر لهذه الآية"
+            _uiState.update { it.copy(tafsir = TafsirState(ayah, text)) }
+        }
+    }
+
+    fun dismissTafsir() {
+        _uiState.update { it.copy(tafsir = null) }
     }
 
     fun toggleBookmark(surah: Int, ayah: Int, page: Int) {

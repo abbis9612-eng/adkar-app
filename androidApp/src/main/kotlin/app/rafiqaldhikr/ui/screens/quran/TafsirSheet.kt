@@ -26,10 +26,13 @@ fun TafsirSheet(
     surahNumber: Int,
     ayahNumber:  Int,
     ayahText:    String,
+    tafsirText:  String,
     onDismiss:   () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val rc = LocalRafiqColors.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -86,7 +89,6 @@ fun TafsirSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // Tafsir content (simplified - in production would fetch from API/DB)
             Text(
                 "التفسير الميسر",
                 fontSize = 16.sp,
@@ -96,7 +98,7 @@ fun TafsirSheet(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                getTafsirText(surahNumber, ayahNumber),
+                tafsirText,
                 fontSize = 15.sp,
                 lineHeight = 28.sp,
                 textAlign = TextAlign.Start,
@@ -113,17 +115,20 @@ fun TafsirSheet(
                 ActionBtn(
                     text = "نسخ",
                     icon = Icons.Default.ContentCopy,
-                    onClick = { /* Copy tafsir */ }
+                    onClick = {
+                        clipboard.setText(androidx.compose.ui.text.AnnotatedString("$ayahText\n\nالتفسير الميسر:\n$tafsirText"))
+                    }
                 )
                 ActionBtn(
                     text = "مشاركة",
                     icon = Icons.Default.Share,
-                    onClick = { /* Share */ }
-                )
-                ActionBtn(
-                    text = "علامة",
-                    icon = Icons.Default.BookmarkAdd,
-                    onClick = { /* Bookmark */ }
+                    onClick = {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(android.content.Intent.EXTRA_TEXT, "$ayahText\n\nالتفسير الميسر:\n$tafsirText\n\nعبر تطبيق رفيق الذكر 🌙")
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "مشاركة التفسير"))
+                    }
                 )
             }
 
@@ -146,10 +151,3 @@ private fun ActionBtn(text: String, icon: androidx.compose.ui.graphics.vector.Im
     }
 }
 
-private fun getTafsirText(surah: Int, ayah: Int): String {
-    // In production, this would fetch from TafsirRepository
-    // For now, return placeholder text for common ayahs
-    if (surah == 1 && ayah == 1) return "ابتدئ قراءة القرآن بذكر اسم الله. الله: هو المألوه المعبود بحق. الرحمن الرحيم: اسمان من أسمائه تعالى يدلان على أنه سبحانه ذو الرحمة الواسعة."
-    if (surah == 1 && ayah == 2) return "الحمد: هو الثناء على الله بصفات الكمال. رب العالمين: مالك جميع المخلوقات."
-    return "التفسير الميسر لهذه الآية الكريمة. سيتم تحميل التفسير الكامل في تحديث قادم إن شاء الله. يمكنك الاطلاع على تفسير ابن كثير أو تفسير السعدي لمزيد من التفصيل."
-}

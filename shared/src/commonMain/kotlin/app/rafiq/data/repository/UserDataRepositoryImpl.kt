@@ -97,6 +97,7 @@ private data class RafiqExport(
     val customAdhkar: List<ExportedCustomDhikr>,
     val quranLastRead: ExportedLastRead?,
     val favoriteDuas: List<String>,
+    val unlockedAchievements: List<String> = emptyList(),
 )
 
 class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository {
@@ -178,6 +179,7 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
                 ExportedLastRead(it.surah, it.ayah, it.page)
             },
             favoriteDuas = db.duaQueries.getFavorites().executeAsList().map { it.text_ar },
+            unlockedAchievements = db.achievementQueries.getAll().executeAsList().map { it.key },
         )
 
         json.encodeToString(RafiqExport.serializer(), export)
@@ -193,6 +195,7 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             db.quranBookmarkQueries.deleteAll()
             db.quranLastReadQueries.deleteAll()
             db.customDhikrQueries.deleteAll()
+            db.achievementQueries.deleteAll()
             db.duaQueries.clearFavorites()
             db.userPrefsQueries.resetRow()
             db.userPrefsQueries.initIfNeeded()

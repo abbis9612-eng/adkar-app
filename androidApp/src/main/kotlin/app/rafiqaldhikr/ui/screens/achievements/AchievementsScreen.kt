@@ -26,6 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 data class Achievement(
+    val key:         String,
     val emoji:       String,
     val title:       String,
     val description: String,
@@ -38,14 +39,21 @@ fun AchievementsScreen(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val persisted by viewModel.unlockedAchievements.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
 
+    // شرط اليوم يفتح الإنجاز — والمفتوح سابقاً يبقى مفتوحاً للأبد
     val achievements = buildAchievements(
         currentStreak = state.streak.current,
         longestStreak = state.streak.longest,
         todayQuran    = state.todayProgress?.quranPages ?: 0,
         todayTasbeeh  = state.todayProgress?.tasbeehCount ?: 0
-    )
+    ).map { it.copy(unlocked = it.unlocked || it.key in persisted) }
+
+    LaunchedEffect(achievements) {
+        val newlyUnlocked = achievements.filter { it.unlocked && it.key !in persisted }.map { it.key }
+        if (newlyUnlocked.isNotEmpty()) viewModel.persistUnlocked(newlyUnlocked)
+    }
 
     Box(
         Modifier
@@ -176,14 +184,14 @@ private fun buildAchievements(
     currentStreak: Long, longestStreak: Long,
     todayQuran: Long, todayTasbeeh: Long
 ) = listOf(
-    Achievement("🌱", "البداية", "أكمل أول يوم", currentStreak >= 1),
-    Achievement("🔥", "الثبات", "حافظ على سلسلة 3 أيام", longestStreak >= 3),
-    Achievement("⭐", "النجم", "حافظ على سلسلة 7 أيام", longestStreak >= 7),
-    Achievement("🏅", "المثابر", "حافظ على سلسلة 30 يوماً", longestStreak >= 30),
-    Achievement("👑", "الملتزم", "حافظ على سلسلة 100 يوم", longestStreak >= 100),
-    Achievement("📖", "قارئ القرآن", "اقرأ صفحة واحدة اليوم", todayQuran >= 1),
-    Achievement("📚", "حافظ الورد", "اقرأ 5 صفحات في يوم", todayQuran >= 5),
-    Achievement("📕", "ختمة الجزء", "اقرأ 20 صفحة في يوم", todayQuran >= 20),
-    Achievement("📿", "المسبّح", "سبّح 100 مرة اليوم", todayTasbeeh >= 100),
-    Achievement("🌟", "المسبّح الدائم", "سبّح 1000 مرة اليوم", todayTasbeeh >= 1000),
+    Achievement("first_day",     "🌱", "البداية", "أكمل أول يوم", currentStreak >= 1),
+    Achievement("streak_3",      "🔥", "الثبات", "حافظ على سلسلة 3 أيام", longestStreak >= 3),
+    Achievement("streak_7",      "⭐", "النجم", "حافظ على سلسلة 7 أيام", longestStreak >= 7),
+    Achievement("streak_30",     "🏅", "المثابر", "حافظ على سلسلة 30 يوماً", longestStreak >= 30),
+    Achievement("streak_100",    "👑", "الملتزم", "حافظ على سلسلة 100 يوم", longestStreak >= 100),
+    Achievement("quran_1",       "📖", "قارئ القرآن", "اقرأ صفحة واحدة في يوم", todayQuran >= 1),
+    Achievement("quran_5",       "📚", "حافظ الورد", "اقرأ 5 صفحات في يوم", todayQuran >= 5),
+    Achievement("quran_20",      "📕", "ختمة الجزء", "اقرأ 20 صفحة في يوم", todayQuran >= 20),
+    Achievement("tasbeeh_100",   "📿", "المسبّح", "سبّح 100 مرة في يوم", todayTasbeeh >= 100),
+    Achievement("tasbeeh_1000",  "🌟", "المسبّح الدائم", "سبّح 1000 مرة في يوم", todayTasbeeh >= 1000),
 )

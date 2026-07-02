@@ -57,3 +57,10 @@ data class KhatiraJson(
     val reviewed:     Boolean   = false,
     val reviewer:     String?   = null
 )
+
+@kotlinx.serialization.Serializable
+data class TafsirJson(
+    val surah: Int,
+    val ayah:  Int,
+    val text:  String
+)

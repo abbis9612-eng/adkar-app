@@ -15,4 +15,5 @@ interface QuranRepository {
     suspend fun removeBookmark(id: Long)
     suspend fun removeBookmarkByPosition(surah: Int, ayah: Int)
     suspend fun isBookmarked(surah: Int, ayah: Int): Boolean
+    suspend fun getTafsir(surah: Int, ayah: Int): String?
 }

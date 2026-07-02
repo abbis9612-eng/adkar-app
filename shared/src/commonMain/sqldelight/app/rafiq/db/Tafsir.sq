@@ -1,0 +1,15 @@
+CREATE TABLE Tafsir (
+    surah INTEGER NOT NULL,
+    ayah  INTEGER NOT NULL,
+    text  TEXT    NOT NULL,
+    PRIMARY KEY (surah, ayah)
+);
+
+getByAyah:
+SELECT text FROM Tafsir WHERE surah = :surah AND ayah = :ayah;
+
+count:
+SELECT COUNT(*) FROM Tafsir;
+
+insertFull:
+INSERT OR REPLACE INTO Tafsir(surah, ayah, text) VALUES (?, ?, ?);

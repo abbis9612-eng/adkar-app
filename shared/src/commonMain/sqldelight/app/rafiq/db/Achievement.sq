@@ -1,0 +1,13 @@
+CREATE TABLE Achievement (
+    key         TEXT    NOT NULL PRIMARY KEY,
+    unlocked_at INTEGER NOT NULL
+);
+
+getAll:
+SELECT * FROM Achievement;
+
+unlock:
+INSERT OR IGNORE INTO Achievement(key, unlocked_at) VALUES (:key, :unlocked_at);
+
+deleteAll:
+DELETE FROM Achievement;

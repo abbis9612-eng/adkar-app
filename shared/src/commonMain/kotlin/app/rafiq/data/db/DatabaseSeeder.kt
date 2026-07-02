@@ -36,6 +36,25 @@ class DatabaseSeeder(
 
         val khatiraCount = db.khatiraQueries.count().executeAsOne()
         if (khatiraCount == 0L) { seedKhatira() }
+
+        val tafsirCount = db.tafsirQueries.count().executeAsOne()
+        if (tafsirCount == 0L) { seedTafsir() }
+    }
+
+    private suspend fun seedTafsir() {
+        val rawJson = jsonReader.readAsset("tafsir_muyassar.json")
+        val entries: List<TafsirJson> = json.decodeFromString(rawJson)
+        entries.chunked(500).forEach { chunk ->
+            db.transaction {
+                chunk.forEach { t ->
+                    db.tafsirQueries.insertFull(
+                        surah = t.surah.toLong(),
+                        ayah  = t.ayah.toLong(),
+                        text  = t.text
+                    )
+                }
+            }
+        }
     }
 
     private suspend fun seedSurahs() {
