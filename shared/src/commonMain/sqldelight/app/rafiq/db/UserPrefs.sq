@@ -23,7 +23,8 @@ CREATE TABLE UserPrefs (
     maghrib_offset        INTEGER NOT NULL DEFAULT 0,
     isha_offset           INTEGER NOT NULL DEFAULT 0,
     elevation             REAL    NOT NULL DEFAULT 0.0,
-    madhab                TEXT    NOT NULL DEFAULT 'shafi'
+    madhab                TEXT    NOT NULL DEFAULT 'shafi',
+    numerals              TEXT    NOT NULL DEFAULT 'arabic'
 );
 
 get:
@@ -76,6 +77,9 @@ UPDATE UserPrefs SET elevation = :elevation WHERE id = 1;
 
 updateMadhab:
 UPDATE UserPrefs SET madhab = :madhab WHERE id = 1;
+
+updateNumerals:
+UPDATE UserPrefs SET numerals = :numerals WHERE id = 1;
 
 resetRow:
 DELETE FROM UserPrefs;

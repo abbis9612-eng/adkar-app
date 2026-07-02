@@ -25,6 +25,9 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.animations.breathingAnimation
 import app.rafiqaldhikr.ui.components.*
+import app.rafiqaldhikr.ui.theme.NumbersStyle
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlin.math.*
 
 
@@ -69,7 +72,8 @@ private fun NowCard(
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    station.timeLabel + " — ${state.doneCount}/${state.stations.size} محطات اليوم",
+                    (station.timeLabel + " — ${state.doneCount}/${state.stations.size} محطات اليوم")
+                        .localizedDigits(LocalArabicNumerals.current),
                     fontSize = 11.sp, color = rc.inkMed
                 )
             }
@@ -156,10 +160,12 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
         }
         // Center: Title + date
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("رَفِيقُ الذِّكر", fontSize = 22.sp, fontWeight = FontWeight.Bold,
-                color = LocalRafiqColors.current.emerald, letterSpacing = 1.sp)
+            Text("رَفِيقُ الذِّكر", fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                color = LocalRafiqColors.current.emerald, letterSpacing = 0.5.sp)
             Spacer(Modifier.height(4.dp))
-            Text(hijri.ifEmpty { "— هـ" }, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed,
+            Text(hijri.ifEmpty { "— هـ" }.localizedDigits(LocalArabicNumerals.current),
+                fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                color = LocalRafiqColors.current.inkMed,
                 modifier = Modifier.clip(RoundedCornerShape(20.dp))
                     .background(LocalRafiqColors.current.chipBg).padding(horizontal = 12.dp, vertical = 2.dp))
         }
@@ -203,25 +209,26 @@ private fun GreetingCard(greeting: String) {
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
         .clip(RoundedCornerShape(16.dp)).background(rc.card)
         .border(1.dp, rc.divider, RoundedCornerShape(16.dp))) {
-        // Background decoration
-        GeomStar(60.dp, rc.emerald, 0.04f, Modifier.align(Alignment.BottomStart).offset((-8).dp, 8.dp))
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            // RTL: first child(right) = greeting, last child(left) = button
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            // RTL: first child(right) = greeting, last child(left) = badge
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
-                Text("${greeting.ifEmpty { "صَبَاحُ الخَيْر" }} 🌤", fontSize = 12.sp, color = rc.inkMed)
+                Text(greeting.ifEmpty { "صَبَاحُ الخَيْر" }, fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium, color = rc.inkMed)
                 Row(Modifier.clip(RoundedCornerShape(16.dp)).background(rc.emerald)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                    .padding(horizontal = 12.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("🔔", fontSize = 9.sp)
-                    Text("وقت الذِكر", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    IcoBell(11.dp, Color.White)
+                    Text("وقت الذِكر", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
-            Text("وَاذْكُر رَّبَّكَ كَثِيرًا", fontSize = 21.sp, fontWeight = FontWeight.Bold,
+            Text("وَاذْكُر رَّبَّكَ كَثِيرًا", fontSize = 24.sp,
+                fontFamily = app.rafiqaldhikr.ui.theme.QuranFamily,
+                fontWeight = FontWeight.Medium,
                 color = rc.gold, textAlign = TextAlign.Center,
-                lineHeight = 28.sp, modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
-            Text("سورة آل عمران – ٤١", fontSize = 9.sp, color = rc.inkMed,
+                lineHeight = 34.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+            Text("سورة آل عمران – ٤١", fontSize = 10.sp, color = rc.inkMed,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
     }
@@ -234,12 +241,20 @@ private fun GreetingCard(greeting: String) {
 @Composable
 private fun NextPrayerCard(
     name: String, time: String, countdown: String,
+    prevMillis: Long = 0L, nextMillis: Long = 0L,
     onClick: () -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
+    val arabic = LocalArabicNumerals.current
     val tr = rememberInfiniteTransition(label = "dot")
     val da by tr.animateFloat(1f, 0.5f,
         infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "da")
+
+    // نسبة الوقت المنقضي بين الصلاتين — يتحدث كل ثانية مع العداد
+    val progress = if (nextMillis > prevMillis && prevMillis > 0) {
+        ((System.currentTimeMillis() - prevMillis).toFloat() /
+            (nextMillis - prevMillis).toFloat()).coerceIn(0f, 1f)
+    } else 0f
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable(onClick = onClick),
@@ -252,45 +267,106 @@ private fun NextPrayerCard(
             // سماء حية تتبدل ألوانها مع وقت الصلاة (فجر بنفسجي → ظهر أزرق → مغرب برتقالي → ليل)
             PrayerSkyBackground(Modifier.fillMaxWidth()) {
               Box(Modifier.fillMaxWidth()) {
-                // طبقة تعتيم خفيفة تضمن وضوح النص الأبيض في كل الأوقات
-                Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.22f)))
-                // Decoration top-left
-                GeomStar(90.dp, Color.White, 0.07f,
-                    Modifier.align(Alignment.TopStart).offset((-14).dp, (-14).dp))
+                // تدرّج تعتيم من الأسفل — النص واضح والسماء ظاهرة
+                Box(Modifier.matchParentSize().background(
+                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.10f), Color.Black.copy(alpha = 0.38f)))))
                 // Content: RTL → first(right)=name, last(left)=time
                 Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
                         // RIGHT side in RTL: prayer name
                         Column {
-                            Text(name.ifEmpty { "—" }, fontSize = 40.sp, fontWeight = FontWeight.ExtraBold,
-                                color = Color.White, lineHeight = 44.sp)
+                            Text(name.ifEmpty { "—" }, fontSize = 44.sp, fontWeight = FontWeight.ExtraBold,
+                                color = Color.White, lineHeight = 50.sp)
                             Text("باقي على الأذان", fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.7f), modifier = Modifier.padding(top = 4.dp))
-                            Row(Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp))
-                                .background(Color.Black.copy(alpha = 0.2f))
-                                .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(16.dp))
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF4ADE80))
-                                    .graphicsLayer { alpha = da })
-                                Text(countdown.ifEmpty { "—" }, fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                            }
+                                color = Color.White.copy(alpha = 0.75f))
                         }
                         // LEFT side in RTL: time
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(time.ifEmpty { "—" }, fontSize = 34.sp, fontWeight = FontWeight.ExtraBold,
+                            Text(time.ifEmpty { "—" }.localizedDigits(arabic),
+                                style = NumbersStyle, fontSize = 34.sp,
                                 color = rc.goldLight, lineHeight = 38.sp)
-                            Text("وقت الصلاة", fontSize = 12.sp, color = Color.White.copy(alpha = 0.7f),
-                                modifier = Modifier.padding(top = 4.dp))
+                            Text("وقت الصلاة", fontSize = 12.sp, color = Color.White.copy(alpha = 0.75f),
+                                modifier = Modifier.padding(top = 2.dp))
                         }
+                    }
+
+                    Spacer(Modifier.height(14.dp))
+
+                    // ═══ العداد المقسم: ساعة · دقيقة · ثانية ═══
+                    CountdownSegments(countdown = countdown, arabic = arabic, colonAlpha = da)
+
+                    Spacer(Modifier.height(14.dp))
+
+                    // ═══ شريط تقدم الوقت بين الصلاتين ═══
+                    Box(Modifier.fillMaxWidth().height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(Color.White.copy(alpha = 0.18f))) {
+                        Box(Modifier.fillMaxHeight().fillMaxWidth(progress)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(rc.goldLight))
                     }
                 }
               }
             }
         }
     }
+}
+
+/* ═══════════════════════════════════════════════════════
+   COUNTDOWN SEGMENTS — خانات ساعة/دقيقة/ثانية زجاجية
+═══════════════════════════════════════════════════════ */
+
+@Composable
+private fun CountdownSegments(countdown: String, arabic: Boolean, colonAlpha: Float) {
+    val parts = countdown.split(":")
+    val h = parts.getOrNull(0) ?: "--"
+    val m = parts.getOrNull(1) ?: "--"
+    val s = parts.getOrNull(2) ?: "--"
+
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CountdownBox(h, "ساعة", arabic)
+        CountdownColon(colonAlpha)
+        CountdownBox(m, "دقيقة", arabic)
+        CountdownColon(colonAlpha)
+        CountdownBox(s, "ثانية", arabic)
+    }
+}
+
+@Composable
+private fun CountdownBox(value: String, label: String, arabic: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier
+                .widthIn(min = 58.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White.copy(alpha = 0.13f))
+                .border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(12.dp))
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                value.localizedDigits(arabic),
+                style = NumbersStyle, fontSize = 24.sp,
+                color = Color.White,
+            )
+        }
+        Spacer(Modifier.height(3.dp))
+        Text(label, fontSize = 10.sp, color = Color.White.copy(alpha = 0.65f))
+    }
+}
+
+@Composable
+private fun CountdownColon(alpha: Float) {
+    Text(
+        ":", style = NumbersStyle, fontSize = 22.sp,
+        color = Color.White.copy(alpha = alpha),
+        modifier = Modifier.padding(horizontal = 6.dp).offset(y = (-8).dp)
+    )
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -383,9 +459,6 @@ private fun AdhkarItem(
     Box(m.clip(RoundedCornerShape(20.dp)).background(rc.card)
         .border(1.dp, rc.divider, RoundedCornerShape(20.dp))
         .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 20.dp)) {
-        // Background GeomStar decoration
-        GeomStar(72.dp, starColor, 0.06f,
-            Modifier.align(Alignment.BottomStart).offset((-14).dp, 14.dp))
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()) {
             // Icon circle
@@ -441,7 +514,8 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
                     }
                 }
                 // RTL last(left): Time
-                Text(p.time, fontSize = 13.sp, color = rc.inkMed, fontWeight = FontWeight.Medium)
+                Text(p.time.localizedDigits(LocalArabicNumerals.current),
+                    style = NumbersStyle, fontSize = 14.sp, color = rc.inkMed)
             }
             if (i < prayers.lastIndex) {
                 Box(Modifier.fillMaxWidth().padding(horizontal = 18.dp).height(1.dp).background(rc.divider))
@@ -479,7 +553,7 @@ fun HomeScreen(
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-            .statusBarsPadding().navigationBarsPadding()) {
+            .statusBarsPadding()) {
             // 1. Header
             Header(state.hijriDate,
                 onSettings = { navController.navigate(RafiqRoute.Settings.route) },
@@ -497,8 +571,13 @@ fun HomeScreen(
 
             // 4. Next Prayer
             SecLabel("الصلاة القادمة")
-            NextPrayerCard(state.nextPrayerName, state.nextPrayerTime, state.countdown)
-            { navController.navigate(RafiqRoute.PrayerTimes.route) }
+            NextPrayerCard(
+                name = state.nextPrayerName,
+                time = state.nextPrayerTime,
+                countdown = state.countdown,
+                prevMillis = state.prevPrayerMillis,
+                nextMillis = state.nextPrayerMillis,
+            ) { navController.navigate(RafiqRoute.PrayerTimes.route) }
 
             // 5. Wird
             SecLabel("وِرْدُكَ اليومي")

@@ -20,11 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.StationIcon
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.utils.toEasternArabic
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -37,27 +38,11 @@ fun DayCompanionScreen(
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
-            // ═══ HEADER ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        "رفيق اليوم",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = rc.emerald,
-                    )
-                    Text(
-                        "«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» — متفق عليه",
-                        fontSize = 11.sp,
-                        color = rc.inkMed,
-                    )
-                }
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title    = "رفيق اليوم",
+                subtitle = "«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» — متفق عليه",
+                onBack   = { navController.popBackStack() },
+            )
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -82,7 +67,7 @@ fun DayCompanionScreen(
                                     color = Color.White.copy(alpha = 0.85f)
                                 )
                                 Text(
-                                    "${state.doneCount.toEasternArabic()} من ${state.stations.size.toEasternArabic()}",
+                                    "${state.doneCount.localized(LocalArabicNumerals.current)} من ${state.stations.size.localized(LocalArabicNumerals.current)}",
                                     fontSize = 26.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White

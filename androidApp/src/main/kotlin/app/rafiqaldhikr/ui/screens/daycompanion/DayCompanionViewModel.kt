@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -65,9 +66,12 @@ class DayCompanionViewModel(
 
     init {
         load()
-        // تحديث الحالة النشطة كل دقيقة
+        // تحديث الحالة النشطة كل دقيقة — يتوقف تلقائياً حين لا مراقب (خلفية)
         viewModelScope.launch {
             while (true) {
+                if (_uiState.subscriptionCount.value == 0) {
+                    _uiState.subscriptionCount.first { it > 0 }
+                }
                 delay(60_000)
                 refreshTrigger.value++
             }

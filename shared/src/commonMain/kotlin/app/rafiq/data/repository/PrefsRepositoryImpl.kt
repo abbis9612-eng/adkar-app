@@ -26,7 +26,7 @@ class PrefsRepositoryImpl(private val db: RafiqDatabase) : PrefsRepository {
                 lastKnownCity = "", lastKnownLat = 0.0, lastKnownLng = 0.0,
                 onboardingCompleted = false,
                 fajrOffset = 0, dhuhrOffset = 0, asrOffset = 0, maghribOffset = 0, ishaOffset = 0,
-                elevation = 0.0, madhab = "shafi"
+                elevation = 0.0, madhab = "shafi", numerals = "arabic"
             )}
 
     override suspend fun updateTheme(theme: String, dynamic: Boolean) =
@@ -96,6 +96,11 @@ class PrefsRepositoryImpl(private val db: RafiqDatabase) : PrefsRepository {
     override suspend fun updateElevation(elevation: Double) =
         withContext(Dispatchers.IO) {
             db.userPrefsQueries.updateElevation(elevation)
+        }
+
+    override suspend fun updateNumerals(numerals: String) =
+        withContext(Dispatchers.IO) {
+            db.userPrefsQueries.updateNumerals(numerals)
         }
 
     override suspend fun updateMadhab(madhab: String) =

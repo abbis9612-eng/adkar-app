@@ -302,9 +302,9 @@ private fun PrayerCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        formatTime(timeMs),
+                        formatTime(timeMs, app.rafiqaldhikr.ui.utils.LocalArabicNumerals.current),
+                        style = app.rafiqaldhikr.ui.theme.NumbersStyle,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
                         color = if (isNext) rc.emerald
                                 else rc.inkMed
                     )
@@ -333,8 +333,8 @@ private fun PrayerCard(
     }
 }
 
-private fun formatTime(epochMs: Long): String {
-    val sdf = SimpleDateFormat("hh:mm a", Locale("ar"))
+private fun formatTime(epochMs: Long, arabic: Boolean): String {
+    val sdf = SimpleDateFormat("hh:mm a", if (arabic) Locale("ar") else Locale.US)
     return sdf.format(Date(epochMs))
 }
 

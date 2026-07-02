@@ -43,3 +43,16 @@ fun formatCountdownEastern(totalSeconds: Int): String {
     val s = totalSeconds % 60
     return "%02d:%02d:%02d".format(h, m, s).toEasternArabicNumerals()
 }
+
+
+/* ═══ نظام لغة الأرقام — يتبع إعداد المستخدم ═══ */
+
+/** true = أرقام عربية ٠١٢٣ / false = إنجليزية 0123. يوفَّر من MainActivity. */
+val LocalArabicNumerals = androidx.compose.runtime.compositionLocalOf { true }
+
+/** يحوّل أرقام النص حسب الإعداد — النص قادم بأرقام لاتينية خام. */
+fun String.localizedDigits(arabic: Boolean): String =
+    if (arabic) toEasternArabicNumerals() else this
+
+fun Int.localized(arabic: Boolean): String = toString().localizedDigits(arabic)
+fun Long.localized(arabic: Boolean): String = toString().localizedDigits(arabic)

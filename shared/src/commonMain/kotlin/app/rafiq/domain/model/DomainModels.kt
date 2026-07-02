@@ -119,7 +119,8 @@ data class UserPrefsInfo(
     val maghribOffset:        Int,
     val ishaOffset:           Int,
     val elevation:            Double,
-    val madhab:               String
+    val madhab:               String,
+    val numerals:             String
 )
 
 data class LastReadPosition(
@@ -245,7 +246,8 @@ fun UserPrefsEntity.toDomain() = UserPrefsInfo(
     maghribOffset        = maghrib_offset.toInt(),
     ishaOffset           = isha_offset.toInt(),
     elevation            = elevation,
-    madhab               = madhab
+    madhab               = madhab,
+    numerals             = numerals
 )
 
 fun QuranLastReadEntity.toDomain() = LastReadPosition(

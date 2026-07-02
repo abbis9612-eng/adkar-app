@@ -26,7 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.utils.toEasternArabic
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 
@@ -62,11 +63,11 @@ internal val KNOWN_DUA_CATEGORIES = listOf(
 internal fun duaCategoryLabel(key: String): String =
     KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }?.name ?: key
 
-internal fun duaCountLabel(count: Long): String = when {
+internal fun duaCountLabel(count: Long, arabic: Boolean = true): String = when {
     count == 1L        -> "دعاء واحد"
     count == 2L        -> "دعاءان"
-    count in 3..10     -> "${count.toEasternArabic()} أدعية"
-    else               -> "${count.toEasternArabic()} دعاء"
+    count in 3..10     -> "${count.localized(arabic)} أدعية"
+    else               -> "${count.localized(arabic)} دعاء"
 }
 
 @Composable
@@ -231,7 +232,7 @@ private fun DuaCategoryGridCard(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                duaCountLabel(count),
+                duaCountLabel(count, LocalArabicNumerals.current),
                 fontSize = 12.sp, color = LocalRafiqColors.current.inkMed,
             )
         }

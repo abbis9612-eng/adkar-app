@@ -42,6 +42,11 @@ class SettingsViewModel(
         .map { it?.notificationsEnabled ?: true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
+    /** لغة الأرقام: true = عربية ٠١٢٣ / false = إنجليزية 0123 */
+    val arabicNumerals: StateFlow<Boolean> = _prefs
+        .map { (it?.numerals ?: "arabic") == "arabic" }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     val elevation: StateFlow<Double> = _prefs
         .map { it?.elevation ?: 0.0 }
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
@@ -96,6 +101,9 @@ class SettingsViewModel(
     }
     fun setMadhab(madhab: String) {
         viewModelScope.launch { prefsRepo.updateMadhab(madhab) }
+    }
+    fun setNumerals(arabic: Boolean) {
+        viewModelScope.launch { prefsRepo.updateNumerals(if (arabic) "arabic" else "latin") }
     }
     fun setPrayerMethod(method: String) {
         viewModelScope.launch { prefsRepo.updatePrayerMethod(method) }

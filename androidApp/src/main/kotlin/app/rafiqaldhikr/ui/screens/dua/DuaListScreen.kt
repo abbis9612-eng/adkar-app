@@ -24,7 +24,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.EmptyState
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
-import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 @Composable
 fun DuaListScreen(
@@ -46,23 +46,10 @@ fun DuaListScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = duaCategoryLabel(category),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = duaCategoryLabel(category),
+                onBack = { navController.popBackStack() },
+            )
 
             if (!state.isLoading && state.duas.isEmpty()) {
                 EmptyState(message = "لا توجد أدعية في هذا القسم بعد")

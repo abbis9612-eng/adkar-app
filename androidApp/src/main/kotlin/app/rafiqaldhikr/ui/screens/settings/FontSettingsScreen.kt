@@ -106,6 +106,56 @@ fun FontSettingsScreen(
                         Text("أكبر", fontSize = 12.sp, color = rc.inkLight)
                     }
                 }
+
+                Spacer(Modifier.height(24.dp))
+
+                // ═══ لغة الأرقام ═══
+                val arabicNums by vm.arabicNumerals.collectAsState()
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .shadow(3.dp, RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(rc.card)
+                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                ) {
+                    Text(
+                        "لغة الأرقام",
+                        fontSize = 14.sp,
+                        color = rc.inkMed,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+                    )
+                    listOf(
+                        true to "عربية — ٠١٢٣٤٥٦٧٨٩",
+                        false to "إنجليزية — 0123456789",
+                    ).forEachIndexed { index, (isArabic, label) ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { vm.setNumerals(isArabic) }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                label,
+                                fontSize = 16.sp,
+                                color = rc.ink,
+                                modifier = Modifier.weight(1f)
+                            )
+                            RadioButton(
+                                selected = arabicNums == isArabic,
+                                onClick = { vm.setNumerals(isArabic) },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = rc.gold,
+                                    unselectedColor = rc.inkLight
+                                )
+                            )
+                        }
+                        if (index == 0) {
+                            HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
+                        }
+                    }
+                }
             }
         }
     }

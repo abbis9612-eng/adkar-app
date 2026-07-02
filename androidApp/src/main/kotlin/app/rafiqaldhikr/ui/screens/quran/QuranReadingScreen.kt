@@ -35,9 +35,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AyahInfo
 import app.rafiqaldhikr.ui.components.LoadingState
-import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.theme.QuranFamily
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
 import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
 
@@ -70,37 +72,18 @@ fun QuranReadingScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = state.surah?.nameAr ?: "سورة",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = rc.emerald
-                    )
-                    state.surah?.let { s ->
-                        Text(
-                            text = (if (s.revelation == "meccan") "مكية" else "مدنية") +
-                                " · ${s.ayahCount.toEasternArabic()} آية",
-                            fontSize = 12.sp,
-                            color = rc.inkMed
-                        )
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            RafiqTopBar(
+                title    = state.surah?.nameAr ?: "سورة",
+                subtitle = state.surah?.let { s ->
+                    (if (s.revelation == "meccan") "مكية" else "مدنية") +
+                        " · ${s.ayahCount.localized(LocalArabicNumerals.current)} آية"
+                },
+                onBack   = { navController.popBackStack() },
+                actions  = {
                     FontSizeButton("-") { settingsVM.setFontScale((fontScale - 0.1f).coerceAtLeast(0.8f)) }
                     FontSizeButton("+") { settingsVM.setFontScale((fontScale + 0.1f).coerceAtMost(1.5f)) }
-                    RafiqBackButton(onClick = { navController.popBackStack() })
-                }
-            }
+                },
+            )
 
             when {
                 state.isLoading -> LoadingState()

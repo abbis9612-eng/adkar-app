@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -53,6 +54,7 @@ class HomeViewModel(
         val nextPrayerName:  String            = "",
         val nextPrayerTime:  String            = "",
         val nextPrayerMillis: Long             = 0L,
+        val prevPrayerMillis: Long             = 0L,
         val countdown:       String            = "",
         val wirdCurrent:     Int               = 0,
         val wirdTotal:       Int               = 1000,
@@ -108,6 +110,8 @@ class HomeViewModel(
 
                 val prayers = buildPrayerList(prayerResult)
                 var nextPrayer = prayers.firstOrNull { it.active }
+                // آخر صلاة مضى وقتها — أساس شريط تقدم الوقت المتبقي
+                val prevMillis = prayers.lastOrNull { it.done && it.timeMillis > 0 }?.timeMillis ?: 0L
 
                 // ═══ إذا انتهت جميع صلوات اليوم → حساب فجر الغد ═══
                 var nextMillis = nextPrayer?.timeMillis ?: 0L
@@ -131,7 +135,7 @@ class HomeViewModel(
                         nextPrayer = PrayerUi(
                             ar = "الفجر",
                             en = "Fajr",
-                            time = toArabicNumerals(formatMillisToTime(tomorrowResult.fajr)),
+                            time = formatMillisToTime(tomorrowResult.fajr),
                             timeMillis = tomorrowResult.fajr,
                             done = false,
                             active = true
@@ -155,6 +159,7 @@ class HomeViewModel(
                     nextPrayerName  = nextPrayer?.ar ?: "الفجر",
                     nextPrayerTime  = nextPrayer?.time ?: "—",
                     nextPrayerMillis = nextMillis,
+                    prevPrayerMillis = prevMillis,
                     countdown       = "",
                     wirdCurrent     = wirdCurrent,
                     wirdTotal       = wirdTotal,
@@ -168,11 +173,14 @@ class HomeViewModel(
         }
     }
 
-    // ═══ العد التنازلي — يتحدث كل ثانية ═══
+    // ═══ العد التنازلي — يتحدث كل ثانية، ويتوقف تلقائياً حين لا مراقب (خلفية) ═══
     private fun startCountdownTimer() {
         viewModelScope.launch {
             var lastReloadTarget = 0L
             while (true) {
+                if (_uiState.subscriptionCount.value == 0) {
+                    _uiState.subscriptionCount.first { it > 0 }
+                }
                 val current = _uiState.value
                 val targetMillis = current.nextPrayerMillis
                 if (targetMillis > 0) {
@@ -183,9 +191,9 @@ class HomeViewModel(
                         val mins = (diff % 3_600_000) / 60_000
                         val secs = (diff % 60_000) / 1_000
                         val countdownStr = "%02d:%02d:%02d".format(hours, mins, secs)
-                        _uiState.value = current.copy(countdown = toArabicNumerals(countdownStr))
+                        _uiState.value = current.copy(countdown = countdownStr)
                     } else {
-                        _uiState.value = current.copy(countdown = toArabicNumerals("00:00:00"))
+                        _uiState.value = current.copy(countdown = "00:00:00")
                         // وقت الصلاة حان — إعادة حساب الصلاة التالية (مرة واحدة لكل موعد)
                         if (targetMillis != lastReloadTarget) {
                             lastReloadTarget = targetMillis
@@ -220,7 +228,7 @@ class HomeViewModel(
             if (active) foundActive = true
             PrayerUi(
                 ar = ar, en = en,
-                time = toArabicNumerals(formatMillisToTime(millis)),
+                time = formatMillisToTime(millis),
                 timeMillis = millis,
                 done = passed,
                 active = active
@@ -277,7 +285,7 @@ class HomeViewModel(
                 val day   = cal.get(android.icu.util.IslamicCalendar.DAY_OF_MONTH)
                 val month = cal.get(android.icu.util.IslamicCalendar.MONTH)
                 val year  = cal.get(android.icu.util.IslamicCalendar.YEAR)
-                "${toArabicNumerals(day.toString())} ${monthNames[month]} ${toArabicNumerals(year.toString())} هـ"
+                "$day ${monthNames[month]} $year هـ"
             } else {
                 // أجهزة API 23: تقدير حسابي تقريبي
                 approximateHijri(offset, monthNames)
@@ -296,18 +304,13 @@ class HomeViewModel(
         val hijriMonth = ((daysDiff / 29.53) % 12).toInt()
         val hijriDay = ((daysDiff % 29.53) + 1).toInt().coerceIn(1, 30)
         val hijriYear = 1446 + (daysDiff / 354.36).toInt()
-        return "${toArabicNumerals(hijriDay.toString())} ${monthNames[hijriMonth]} ${toArabicNumerals(hijriYear.toString())} هـ"
+        return "$hijriDay ${monthNames[hijriMonth]} $hijriYear هـ"
     }
 
     // ═══ أدوات مساعدة ═══
     private fun formatMillisToTime(millis: Long): String {
         val sdf = SimpleDateFormat("h:mm", Locale.US)
         return sdf.format(Date(millis))
-    }
-
-    private fun toArabicNumerals(str: String): String {
-        val arabicDigits = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
-        return str.map { if (it.isDigit()) arabicDigits[it - '0'] else it }.joinToString("")
     }
 
     fun saveLocation(lat: Double, lng: Double) {

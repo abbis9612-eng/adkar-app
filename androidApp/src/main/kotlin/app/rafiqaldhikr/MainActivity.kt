@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
                 .collectAsStateWithLifecycle()
             val themePref by settingsViewModel.theme
                 .collectAsStateWithLifecycle()
+            val arabicNumerals by settingsViewModel.arabicNumerals
+                .collectAsStateWithLifecycle()
 
             // Don't render until we know onboarding state
             if (onboardingCompleted == null) return@setContent
@@ -53,6 +55,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             RafiqTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
+              androidx.compose.runtime.CompositionLocalProvider(
+                  app.rafiqaldhikr.ui.utils.LocalArabicNumerals provides arabicNumerals
+              ) {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -67,6 +72,8 @@ class MainActivity : AppCompatActivity() {
 
                 Scaffold(
                     containerColor = LocalRafiqColors.current.bg,
+                    // الشاشات تتكفل بـ statusBarsPadding بنفسها — منع ازدواج الحشوة
+                    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         if (showBottomBar) {
                             RafiqBottomBar(navController)
@@ -79,6 +86,7 @@ class MainActivity : AppCompatActivity() {
                         modifier            = Modifier.padding(innerPadding)
                     )
                 }
+              }
             }
         }
     }

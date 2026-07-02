@@ -107,32 +107,14 @@ fun PrayerSkyBackground(
     val rc = LocalRafiqColors.current
     val palette = getSkyPalette(period, rc)
 
+    // أنيميشن واحد فقط (توهّج يتنفس) — كانت 3 أنيميشنات وتوهّجين فتبدو
+    // الطبقات "مطبوعة فوق بعضها" وتستهلك إعادة رسم مستمرة
     val transition = rememberInfiniteTransition(label = "skyAmbient")
-
-    // Ambient light position
-    val ambientX by transition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(12000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "ambientX"
-    )
-    val ambientY by transition.animateFloat(
-        initialValue = 0.1f,
-        targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "ambientY"
-    )
     val ambientAlpha by transition.animateFloat(
         initialValue = 0.06f,
-        targetValue = 0.14f,
+        targetValue = 0.13f,
         animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = FastOutSlowInEasing),
+            animation = tween(6000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "ambientAlpha"
@@ -147,36 +129,19 @@ fun PrayerSkyBackground(
                 )
             )
 
-            // Ambient glow blob (top)
+            // توهّج واحد ثابت الموضع يتنفس بهدوء
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
                         palette.ambientGlow.copy(alpha = ambientAlpha),
                         Color.Transparent
                     ),
-                    center = Offset(size.width * ambientX, size.height * ambientY),
-                    radius = size.width * 0.6f
+                    center = Offset(size.width * 0.75f, size.height * 0.15f),
+                    radius = size.width * 0.55f
                 ),
-                radius = size.width * 0.6f,
-                center = Offset(size.width * ambientX, size.height * ambientY)
+                radius = size.width * 0.55f,
+                center = Offset(size.width * 0.75f, size.height * 0.15f)
             )
-
-            // Secondary glow blob (bottom)
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        palette.accent.copy(alpha = ambientAlpha * 0.5f),
-                        Color.Transparent
-                    ),
-                    center = Offset(size.width * (1f - ambientX), size.height * 0.8f),
-                    radius = size.width * 0.5f
-                ),
-                radius = size.width * 0.5f,
-                center = Offset(size.width * (1f - ambientX), size.height * 0.8f)
-            )
-
-            // ✅ Paper grain removed — was 200 drawCircle calls per frame
-            //    with alpha 0.015f (invisible). Saved ~200 draw calls/frame.
         }
 
         content()

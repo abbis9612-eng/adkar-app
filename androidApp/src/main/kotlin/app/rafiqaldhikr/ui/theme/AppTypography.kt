@@ -47,3 +47,14 @@ val RafiqTypography = Typography(
     labelLarge    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
     labelSmall    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
 )
+
+
+/**
+ * نمط الأرقام الكبيرة (العداد، الأوقات، الإحصائيات):
+ * Cairo Bold مع tnum — كل رقم بعرض ثابت فلا تهتز الأرقام أثناء العد.
+ */
+val NumbersStyle = TextStyle(
+    fontFamily = CairoFamily,
+    fontWeight = FontWeight.Bold,
+    fontFeatureSettings = "tnum",
+)

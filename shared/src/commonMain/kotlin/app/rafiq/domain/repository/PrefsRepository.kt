@@ -18,4 +18,5 @@ interface PrefsRepository {
     suspend fun updatePrayerOffsets(fajr: Int, dhuhr: Int, asr: Int, maghrib: Int, isha: Int)
     suspend fun updateElevation(elevation: Double)
     suspend fun updateMadhab(madhab: String)
+    suspend fun updateNumerals(numerals: String)
 }
