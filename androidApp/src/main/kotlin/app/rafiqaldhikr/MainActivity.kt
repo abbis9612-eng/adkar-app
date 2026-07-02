@@ -60,7 +60,9 @@ class MainActivity : AppCompatActivity() {
                 // Bottom bar visible except on onboarding and celebration
                 val showBottomBar = currentRoute !in listOf(
                     RafiqRoute.Onboarding.route,
-                    RafiqRoute.Celebration.route
+                    RafiqRoute.Celebration.route,
+                    RafiqRoute.QuranReading.route,
+                    RafiqRoute.DhikrReading.route
                 )
 
                 Scaffold(

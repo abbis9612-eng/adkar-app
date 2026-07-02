@@ -36,7 +36,7 @@ import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AyahInfo
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqBackButton
-import app.rafiqaldhikr.ui.theme.AmiriFamily
+import app.rafiqaldhikr.ui.theme.QuranFamily
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
@@ -53,6 +53,8 @@ fun QuranReadingScreen(
     viewModel:     QuranReadingViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val settingsVM: app.rafiqaldhikr.ui.screens.settings.SettingsViewModel = koinViewModel()
+    val fontScale by settingsVM.fontScale.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
     var selectedAyah by remember { mutableStateOf<AyahInfo?>(null) }
 
@@ -93,7 +95,11 @@ fun QuranReadingScreen(
                     }
                 }
 
-                RafiqBackButton(onClick = { navController.popBackStack() })
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FontSizeButton("-") { settingsVM.setFontScale((fontScale - 0.1f).coerceAtLeast(0.8f)) }
+                    FontSizeButton("+") { settingsVM.setFontScale((fontScale + 0.1f).coerceAtMost(1.5f)) }
+                    RafiqBackButton(onClick = { navController.popBackStack() })
+                }
             }
 
             when {
@@ -111,8 +117,9 @@ fun QuranReadingScreen(
                             item {
                                 Text(
                                     text      = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                                    fontSize  = 28.sp,
-                                    fontFamily = AmiriFamily,
+                                    fontSize  = 30.sp,
+                                    fontFamily = QuranFamily,
+                                    fontWeight = FontWeight.Medium,
                                     textAlign = TextAlign.Center,
                                     modifier  = Modifier.fillMaxWidth().padding(vertical = 14.dp),
                                     color     = rc.emerald
@@ -122,37 +129,50 @@ fun QuranReadingScreen(
 
                         pages.forEach { (page, pageAyahs) ->
                             item(key = "page_$page") {
-                                // ═══ صفحة مصحف ═══
+                                // ═══ صفحة مصحف بإطار مذهّب مزدوج ═══
                                 Box(
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = 6.dp)
-                                        .shadow(2.dp, RoundedCornerShape(20.dp))
-                                        .clip(RoundedCornerShape(20.dp))
+                                        .padding(bottom = 4.dp)
+                                        .shadow(3.dp, RoundedCornerShape(24.dp))
+                                        .clip(RoundedCornerShape(24.dp))
                                         .background(rc.card)
-                                        .border(1.dp, rc.gold.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
-                                        .padding(horizontal = 18.dp, vertical = 20.dp)
+                                        .border(2.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
+                                        .padding(5.dp)
+                                        .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(20.dp))
+                                        .padding(horizontal = 16.dp, vertical = 18.dp)
                                 ) {
                                     MushafText(
                                         ayahs        = pageAyahs,
                                         bookmarks    = state.bookmarks,
                                         selectedAyah = selectedAyah?.ayahNumber,
+                                        fontScale    = fontScale,
                                         onAyahTap    = { selectedAyah = it }
                                     )
                                 }
 
-                                // ═══ فاصل الصفحة ═══
+                                // ═══ رقم الصفحة داخل حلية ═══
                                 Row(
-                                    Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
-                                    Text(
-                                        "  الصفحة ${page.toEasternArabic()} · الجزء ${pageAyahs.first().juz.toEasternArabic()}  ",
-                                        fontSize = 12.sp,
-                                        color = rc.gold
-                                    )
+                                    Box(
+                                        Modifier
+                                            .padding(horizontal = 10.dp)
+                                            .clip(CircleShape)
+                                            .background(rc.accentGoldBg)
+                                            .border(1.dp, rc.gold.copy(alpha = 0.4f), CircleShape)
+                                            .padding(horizontal = 14.dp, vertical = 5.dp)
+                                    ) {
+                                        Text(
+                                            "${page.toEasternArabic()} · جزء ${pageAyahs.first().juz.toEasternArabic()}",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = rc.accentGold
+                                        )
+                                    }
                                     Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
                                 }
                             }
@@ -209,11 +229,12 @@ private fun MushafText(
     ayahs:        List<AyahInfo>,
     bookmarks:    Set<Int>,
     selectedAyah: Int?,
+    fontScale:    Float,
     onAyahTap:    (AyahInfo) -> Unit,
 ) {
     val rc = LocalRafiqColors.current
 
-    val annotated: AnnotatedString = remember(ayahs, bookmarks, selectedAyah, rc) {
+    val annotated: AnnotatedString = remember(ayahs, bookmarks, selectedAyah, rc, fontScale) {
         buildAnnotatedString {
             ayahs.forEach { ayah ->
                 val start = length
@@ -221,7 +242,7 @@ private fun MushafText(
                 withStyle(
                     androidx.compose.ui.text.SpanStyle(
                         color = rc.gold,
-                        fontSize = 22.sp,
+                        fontSize = (22 * fontScale).sp,
                     )
                 ) {
                     append(" ﴿${ayah.ayahNumber.toEasternArabic()}﴾ ")
@@ -242,9 +263,10 @@ private fun MushafText(
 
     Text(
         text = annotated,
-        fontSize = 26.sp,
-        fontFamily = AmiriFamily,
-        lineHeight = 58.sp,
+        fontSize = (27 * fontScale).sp,
+        fontFamily = QuranFamily,
+        fontWeight = FontWeight.Medium,
+        lineHeight = (56 * fontScale).sp,
         textAlign = TextAlign.Justify,
         color = rc.ink,
         onTextLayout = { layout = it },
@@ -292,9 +314,10 @@ private fun AyahActionsSheet(
         Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 28.dp)) {
             Text(
                 shareText,
-                fontSize = 20.sp,
-                fontFamily = AmiriFamily,
-                lineHeight = 40.sp,
+                fontSize = 21.sp,
+                fontFamily = QuranFamily,
+                fontWeight = FontWeight.Medium,
+                lineHeight = 42.sp,
                 color = rc.ink,
                 maxLines = 2,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -355,5 +378,21 @@ private fun AyahAction(
         }
         Spacer(Modifier.height(6.dp))
         Text(label, fontSize = 11.sp, color = rc.inkMed)
+    }
+}
+
+@Composable
+private fun FontSizeButton(symbol: String, onClick: () -> Unit) {
+    val rc = LocalRafiqColors.current
+    Box(
+        Modifier
+            .size(36.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(rc.card)
+            .border(1.dp, rc.gold.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(symbol, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
     }
 }

@@ -165,7 +165,7 @@ private fun SearchResultCard(
         Text(
             ayah.textUthmani,
             fontSize = 20.sp,
-            fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
+            fontFamily = app.rafiqaldhikr.ui.theme.QuranFamily,
             lineHeight = 40.sp,
             color = rc.ink,
             maxLines  = 3,

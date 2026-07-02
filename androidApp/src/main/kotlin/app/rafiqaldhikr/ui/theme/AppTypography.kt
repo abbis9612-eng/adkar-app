@@ -9,10 +9,22 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.Font
 import app.rafiqaldhikr.R
 
-val IbmPlexArabic = FontFamily(
-    Font(R.font.ibm_plex_arabic_regular, FontWeight.Normal),
-    Font(R.font.ibm_plex_arabic_medium,  FontWeight.Medium),
-    Font(R.font.ibm_plex_arabic_bold,    FontWeight.Bold),
+/**
+ * خط الواجهة: Cairo — الأوضح والأكثر أُلفة في التطبيقات العربية الحديثة.
+ * خط المصحف: Scheherazade New (SIL) — نسخ قرآني بوزن سميك واضح على الشاشات.
+ */
+val CairoFamily = FontFamily(
+    Font(R.font.cairo_regular,  FontWeight.Normal),
+    Font(R.font.cairo_semibold, FontWeight.Medium),
+    Font(R.font.cairo_semibold, FontWeight.SemiBold),
+    Font(R.font.cairo_bold,     FontWeight.Bold),
+)
+
+val QuranFamily = FontFamily(
+    Font(R.font.scheherazade_regular,  FontWeight.Normal),
+    Font(R.font.scheherazade_semibold, FontWeight.Medium),
+    Font(R.font.scheherazade_semibold, FontWeight.SemiBold),
+    Font(R.font.scheherazade_bold,     FontWeight.Bold),
 )
 
 val AmiriFamily = FontFamily(
@@ -25,13 +37,13 @@ val UthmaniFamily = FontFamily(
 )
 
 val RafiqTypography = Typography(
-    displayLarge  = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
-    headlineLarge = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
-    headlineSmall = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Medium, fontSize = 20.sp),
-    titleLarge    = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Medium, fontSize = 18.sp),
-    titleMedium   = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Medium, fontSize = 16.sp),
-    bodyLarge     = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 28.sp),
-    bodyMedium    = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 24.sp),
-    labelLarge    = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    labelSmall    = TextStyle(fontFamily = IbmPlexArabic, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    displayLarge  = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
+    headlineLarge = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
+    headlineSmall = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 20.sp),
+    titleLarge    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 18.sp),
+    titleMedium   = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp),
+    bodyLarge     = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 30.sp),
+    bodyMedium    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 26.sp),
+    labelLarge    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
+    labelSmall    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
 )
