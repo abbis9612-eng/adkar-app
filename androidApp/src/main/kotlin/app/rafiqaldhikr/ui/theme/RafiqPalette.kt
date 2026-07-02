@@ -75,51 +75,51 @@ data class RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val LightRafiqPalette = RafiqPalette(
-    bg             = Color(0xFFF5F0E8),
-    card           = Color(0xFFFFFFFF),
+    bg             = Color(0xFFF8F4EB),
+    card           = Color(0xFFFFFDF8),
 
-    emerald        = Color(0xFF09472B),
-    emeraldMed     = Color(0xFF0B5E38),
-    emeraldLight   = Color(0xFF0D7446),
-    emeraldPastel  = Color(0xFFE0EFE7),
-    emeraldPastel2 = Color(0xFFC4DFCF),
+    emerald        = Color(0xFF0B4A2F),
+    emeraldMed     = Color(0xFF11603D),
+    emeraldLight   = Color(0xFF177A4E),
+    emeraldPastel  = Color(0xFFE4F1E9),
+    emeraldPastel2 = Color(0xFFCBE3D5),
 
-    gold           = Color(0xFFB07C20),
-    goldLight      = Color(0xFFC99230),
+    gold           = Color(0xFFA97A17),
+    goldLight      = Color(0xFFCC9A33),
 
-    ink            = Color(0xFF1A1408),
-    inkDark        = Color(0xFF33280F),
-    inkMed         = Color(0xFF7A7060),
-    inkLight       = Color(0xFFB5A88E),
+    ink            = Color(0xFF201A0C),
+    inkDark        = Color(0xFF362B11),
+    inkMed         = Color(0xFF75695A),
+    inkLight       = Color(0xFFB1A58C),
 
-    divider        = Color(0x1AB07C20),
+    divider        = Color(0x1FA97A17),
     overlay        = Color(0x08000000),
 
-    heroStart      = Color(0xFF062917),
-    heroMid        = Color(0xFF09472B),
-    heroEnd        = Color(0xFF0B5934),
+    heroStart      = Color(0xFF05301C),
+    heroMid        = Color(0xFF0B4A2F),
+    heroEnd        = Color(0xFF14623C),
 
-    meccanBg       = Color(0xFFFEF8EC),
+    meccanBg       = Color(0xFFFDF6E7),
     meccanText     = Color(0xFF8B6914),
-    madaniBg       = Color(0xFFE0EFE7),
-    madaniText     = Color(0xFF09472B),
+    madaniBg       = Color(0xFFE4F1E9),
+    madaniText     = Color(0xFF0B4A2F),
 
     brownAccent    = Color(0xFF8B6914),
     blueAccent     = Color(0xFF1A3A5C),
 
     success        = Color(0xFF2E7D32),
     warning        = Color(0xFFF9A825),
-    error          = Color(0xFFC62828),
+    error          = Color(0xFFC0392B),
 
-    navGlass       = Color(0xFFFDF8F0),
-    navSelected    = Color(0xFF09472B),
+    navGlass       = Color(0xFFFCF9F2),
+    navSelected    = Color(0xFF0B4A2F),
 
-    purple         = Color(0xFF9B6DBF),
-    purpleSleep    = Color(0xFF7B5EA7),
-    morningRing    = Color(0xFFD4A030),
+    purple         = Color(0xFF8E5FBA),
+    purpleSleep    = Color(0xFF6F55A3),
+    morningRing    = Color(0xFFD9A733),
     eveningRing    = Color(0xFFC5BAE8),
-    sleepRing      = Color(0xFF9B6DBF),
-    istighfarRing  = Color(0xFF4A9E6E),
+    sleepRing      = Color(0xFF8E5FBA),
+    istighfarRing  = Color(0xFF3E9467),
 )
 
 /* ═══════════════════════════════════════════
@@ -127,51 +127,51 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF0F0D08),
-    card           = Color(0xFF1E1A12),
+    bg             = Color(0xFF0C110D),
+    card           = Color(0xFF161F18),
 
-    emerald        = Color(0xFF4CAF7B),
-    emeraldMed     = Color(0xFF3D9B6A),
-    emeraldLight   = Color(0xFF5CC18C),
-    emeraldPastel  = Color(0xFF1A2E24),
-    emeraldPastel2 = Color(0xFF1E3429),
+    emerald        = Color(0xFF57C08C),
+    emeraldMed     = Color(0xFF45AC7A),
+    emeraldLight   = Color(0xFF6BD09D),
+    emeraldPastel  = Color(0xFF1B2E23),
+    emeraldPastel2 = Color(0xFF21382B),
 
-    gold           = Color(0xFFDAA520),
-    goldLight      = Color(0xFFE8B84D),
+    gold           = Color(0xFFDFAB3B),
+    goldLight      = Color(0xFFEDC468),
 
-    ink            = Color(0xFFE8E0D0),
-    inkDark        = Color(0xFFD4C8B4),
-    inkMed         = Color(0xFFA09480),
-    inkLight       = Color(0xFF7A7060),
+    ink            = Color(0xFFECE5D5),
+    inkDark        = Color(0xFFD8CDB8),
+    inkMed         = Color(0xFFA39A87),
+    inkLight       = Color(0xFF7C7463),
 
-    divider        = Color(0x26DAA520),
+    divider        = Color(0x26DFAB3B),
     overlay        = Color(0x15FFFFFF),
 
-    heroStart      = Color(0xFF0A1F14),
-    heroMid        = Color(0xFF0F3322),
-    heroEnd        = Color(0xFF144430),
+    heroStart      = Color(0xFF071F13),
+    heroMid        = Color(0xFF0E3220),
+    heroEnd        = Color(0xFF17462D),
 
-    meccanBg       = Color(0xFF2A2010),
-    meccanText     = Color(0xFFDAA520),
-    madaniBg       = Color(0xFF1A2E24),
-    madaniText     = Color(0xFF4CAF7B),
+    meccanBg       = Color(0xFF2B2312),
+    meccanText     = Color(0xFFDFAB3B),
+    madaniBg       = Color(0xFF1B2E23),
+    madaniText     = Color(0xFF57C08C),
 
-    brownAccent    = Color(0xFFDAA520),
+    brownAccent    = Color(0xFFDFAB3B),
     blueAccent     = Color(0xFF5B8CB8),
 
     success        = Color(0xFF66BB6A),
     warning        = Color(0xFFFFCA28),
     error          = Color(0xFFEF5350),
 
-    navGlass       = Color(0xFF1E1A12),
-    navSelected    = Color(0xFF4CAF7B),
+    navGlass       = Color(0xFF131B15),
+    navSelected    = Color(0xFF57C08C),
 
-    purple         = Color(0xFF7B8BF4),
-    purpleSleep    = Color(0xFFA67DF9),
-    morningRing    = Color(0xFFB89030),
+    purple         = Color(0xFFA98BE0),
+    purpleSleep    = Color(0xFF8E74C9),
+    morningRing    = Color(0xFFC29A38),
     eveningRing    = Color(0xFF6660A0),
-    sleepRing      = Color(0xFF7050A0),
-    istighfarRing  = Color(0xFF3A7050),
+    sleepRing      = Color(0xFF7458A8),
+    istighfarRing  = Color(0xFF3E7D58),
 )
 
 /* ═══════════════════════════════════════════

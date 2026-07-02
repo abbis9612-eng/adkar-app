@@ -55,13 +55,13 @@ fun RafiqBottomBar(navController: NavHostController) {
     // Frosted glass surface
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        color = rc.bg.copy(alpha = 0.92f),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        color = rc.navGlass.copy(alpha = 0.97f),
         tonalElevation = 0.dp,
-        shadowElevation = 8.dp
+        shadowElevation = 10.dp
     ) {
-        // Top gold accent line
         Column {
+            // Top gold accent hairline
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,9 +70,9 @@ fun RafiqBottomBar(navController: NavHostController) {
                         Brush.horizontalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                rc.gold.copy(alpha = 0.3f),
-                                rc.gold.copy(alpha = 0.5f),
-                                rc.gold.copy(alpha = 0.3f),
+                                rc.gold.copy(alpha = 0.35f),
+                                rc.gold.copy(alpha = 0.55f),
+                                rc.gold.copy(alpha = 0.35f),
                                 Color.Transparent
                             )
                         )
@@ -82,7 +82,7 @@ fun RafiqBottomBar(navController: NavHostController) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 6.dp)
+                    .padding(horizontal = 6.dp, vertical = 8.dp)
                     .navigationBarsPadding(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
@@ -114,35 +114,28 @@ private fun BottomBarItemEnhanced(
 ) {
     val rc = LocalRafiqColors.current
 
-    // Animated background
-    val bgColor by animateColorAsState(
-        targetValue = if (isSelected)
-            rc.emerald.copy(alpha = 0.08f)
-        else
-            Color.Transparent,
-        animationSpec = tween(300),
-        label = "navBg"
+    // Active pill: solid emerald behind the icon, white glyph
+    val pillColor by animateColorAsState(
+        targetValue = if (isSelected) rc.navSelected else Color.Transparent,
+        animationSpec = tween(280),
+        label = "navPill"
     )
+    // rc.bg reads as white on the deep-emerald pill in light mode and as
+    // near-black on the bright-emerald pill in dark mode — high contrast in both.
     val iconColor by animateColorAsState(
-        targetValue = if (isSelected)
-            rc.emerald
-        else
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
-        animationSpec = tween(300),
+        targetValue = if (isSelected) rc.bg else rc.inkMed.copy(alpha = 0.75f),
+        animationSpec = tween(280),
         label = "navIcon"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (isSelected)
-            rc.emerald
-        else
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
-        animationSpec = tween(300),
+        targetValue = if (isSelected) rc.navSelected else rc.inkMed.copy(alpha = 0.75f),
+        animationSpec = tween(280),
         label = "navLabel"
     )
 
     // Micro-animation: bounce on select
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1f,
+        targetValue = if (isSelected) 1.06f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -153,32 +146,20 @@ private fun BottomBarItemEnhanced(
     Column(
         modifier = Modifier
             .scale(scale)
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
             )
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Icon container with subtle border
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(bgColor)
-                .then(
-                    if (isSelected) Modifier.background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                rc.emerald.copy(alpha = 0.05f),
-                                rc.emerald.copy(alpha = 0.12f)
-                            )
-                        ),
-                        RoundedCornerShape(12.dp)
-                    ) else Modifier
-                )
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+                .clip(RoundedCornerShape(14.dp))
+                .background(pillColor)
+                .padding(horizontal = 18.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -189,7 +170,7 @@ private fun BottomBarItemEnhanced(
             )
         }
 
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(3.dp))
 
         Text(
             stringResource(item.labelRes),
@@ -199,25 +180,5 @@ private fun BottomBarItemEnhanced(
             ),
             color = labelColor
         )
-
-        // Gold underline dot for active
-        if (isSelected) {
-            Spacer(Modifier.height(3.dp))
-            Box(
-                modifier = Modifier
-                    .width(16.dp)
-                    .height(2.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                rc.gold,
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-        }
     }
 }
