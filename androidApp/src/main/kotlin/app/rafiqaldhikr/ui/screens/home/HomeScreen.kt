@@ -30,6 +30,60 @@ import kotlin.math.*
 /* Colors provided by LocalRafiqColors */
 
 /* ═══════════════════════════════════════════════════════
+   NOW CARD — رفيق اليوم: اقتراح العمل المناسب الآن
+═══════════════════════════════════════════════════════ */
+
+@Composable
+private fun NowCard(
+    navController: NavHostController,
+    vm: app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel = koinViewModel()
+) {
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val rc = LocalRafiqColors.current
+    val station = state.nowStation ?: return
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .shadow(4.dp, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .background(rc.card)
+            .border(1.5.dp, rc.gold.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
+            .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(station.emoji, fontSize = 30.sp)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    station.title,
+                    fontSize = 15.sp, fontWeight = FontWeight.Bold, color = rc.ink
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    station.timeLabel + " — ${state.doneCount}/${state.stations.size} محطات اليوم",
+                    fontSize = 11.sp, color = rc.inkMed
+                )
+            }
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(rc.emerald)
+                    .clickable {
+                        navController.navigate(station.route ?: RafiqRoute.DayCompanion.route)
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("ابدأ", fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                    color = androidx.compose.ui.graphics.Color.White)
+            }
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
    ARC PROGRESS — Circular progress (Wird card)
 ═══════════════════════════════════════════════════════ */
 
@@ -424,6 +478,10 @@ fun HomeScreen(
 
             // 3. Greeting card
             GreetingCard(state.greeting)
+
+            // 3.5 رفيق اليوم — العمل المناسب الآن
+            SecLabel("رفيق اليوم")
+            NowCard(navController)
 
             // 4. Next Prayer
             SecLabel("الصلاة القادمة")

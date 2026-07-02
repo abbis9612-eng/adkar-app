@@ -26,7 +26,15 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val prayerName = intent.getStringExtra("prayer_name") ?: return
         val notifId    = intent.getIntExtra("notif_id", 0)
-        val channelId  = "prayer_channel"
+
+        if (prayerName.startsWith("adhkar_")) {
+            showAdhkarReminder(context, prayerName, notifId)
+            // تذكير النوم هو آخر تنبيه في اليوم — بعده نجدول مواقيت الغد
+            if (prayerName == "adhkar_sleep") rescheduleTomorrow(context)
+            return
+        }
+
+        val channelId = "prayer_channel"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -73,18 +81,58 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             NotificationManagerCompat.from(context).notify(notifId, notification)
         }
 
-        // بعد إشعار العشاء: جدولة مواقيت الغد حتى تستمر الإشعارات بلا فتح التطبيق
-        if (prayerName == "isha") {
-            val pendingResult = goAsync()
-            CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-                try {
-                    GlobalContext.get().get<PrayerRescheduler>().reschedule()
-                } catch (_: Exception) {
-                    // offline أو Koin غير مهيأ — سيُعاد عند فتح التطبيق أو الإقلاع
-                } finally {
-                    pendingResult.finish()
-                }
+    }
+
+    // جدولة مواقيت الغد حتى تستمر الإشعارات بلا فتح التطبيق
+    private fun rescheduleTomorrow(context: Context) {
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                GlobalContext.get().get<PrayerRescheduler>().reschedule()
+            } catch (_: Exception) {
+                // offline أو Koin غير مهيأ — سيُعاد عند فتح التطبيق أو الإقلاع
+            } finally {
+                pendingResult.finish()
             }
+        }
+    }
+
+    private fun showAdhkarReminder(context: Context, type: String, notifId: Int) {
+        val channelId = "adhkar_channel"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId, "تذكير الأذكار", NotificationManager.IMPORTANCE_DEFAULT
+            )
+            context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        }
+
+        val (title, body, target) = when (type) {
+            "adhkar_morning" -> Triple("أذكار الصباح 🌅", "«فَاذْكُرُونِي أَذْكُرْكُمْ» — ابدأ يومك بذكر الله", "morning")
+            "adhkar_evening" -> Triple("أذكار المساء 🌇", "لا تفوّت حصنك اليومي قبل الغروب", "evening")
+            else             -> Triple("أذكار النوم 🌙", "آية الكرسي والمعوذات — نم على ذكر الله", "sleep")
+        }
+
+        val tapPending = PendingIntent.getActivity(
+            context, notifId,
+            Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://rafiqaldhikr.app/adhkar/$target"),
+                context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(tapPending)
+            .build()
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationManagerCompat.from(context).notify(notifId, notification)
         }
     }
 }

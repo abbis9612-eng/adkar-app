@@ -196,6 +196,7 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             db.quranLastReadQueries.deleteAll()
             db.customDhikrQueries.deleteAll()
             db.achievementQueries.deleteAll()
+            db.dayStationLogQueries.deleteAll()
             db.duaQueries.clearFavorites()
             db.userPrefsQueries.resetRow()
             db.userPrefsQueries.initIfNeeded()

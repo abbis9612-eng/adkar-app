@@ -1,0 +1,15 @@
+CREATE TABLE DayStationLog (
+    date         TEXT    NOT NULL,
+    station      TEXT    NOT NULL,
+    completed_at INTEGER NOT NULL,
+    PRIMARY KEY (date, station)
+);
+
+getByDate:
+SELECT station FROM DayStationLog WHERE date = :date;
+
+complete:
+INSERT OR IGNORE INTO DayStationLog(date, station, completed_at) VALUES (:date, :station, :completed_at);
+
+deleteAll:
+DELETE FROM DayStationLog;

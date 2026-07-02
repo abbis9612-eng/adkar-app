@@ -52,6 +52,7 @@ import app.rafiqaldhikr.ui.screens.widget.WidgetSettingsScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
 import app.rafiqaldhikr.ui.screens.deeplink.DeepLinkLandingScreen
+import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionScreen
 
 @Composable
 fun RafiqNavGraph(
@@ -201,6 +202,12 @@ fun RafiqNavGraph(
         // ═══════════════════════════════════════════
         //  M3 — Advanced
         // ═══════════════════════════════════════════
+
+        // Day Companion — رفيق اليوم
+        composable(
+            route     = RafiqRoute.DayCompanion.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/day" })
+        ) { DayCompanionScreen(navController) }
 
         // Language
         composable(RafiqRoute.Language.route) { LanguageScreen(navController) }

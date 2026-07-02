@@ -40,7 +40,9 @@ class PrayerRescheduler(
             ishaOffset    = prefs.isha_offset.toInt()
         )
 
-        val times = if (today.isha > System.currentTimeMillis()) {
+        // نهاية يوم التنبيهات = تذكير النوم (بعد العشاء) — حتى لا نلغي تذكيراً معلقاً
+        val endOfAlarmDay = today.isha + PrayerAlarmManager.SLEEP_DELAY_MS
+        val times = if (endOfAlarmDay > System.currentTimeMillis()) {
             today
         } else {
             calculator.calculateForTomorrow(

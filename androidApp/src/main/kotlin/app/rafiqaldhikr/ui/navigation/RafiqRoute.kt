@@ -70,6 +70,7 @@ sealed class RafiqRoute(val route: String) {
     data object WidgetSettings    : RafiqRoute("widget_settings")
 
     // ═══ M3 — Advanced ═══
+    data object DayCompanion      : RafiqRoute("day_companion")
     data object Language          : RafiqRoute("language")
     data object WhatsNew          : RafiqRoute("whats_new")
     data object DeepLinkLanding   : RafiqRoute("deeplink/{target}") {
