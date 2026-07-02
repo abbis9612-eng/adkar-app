@@ -18,6 +18,13 @@ class RafiqApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // ═══ لغة التطبيق الافتراضية: العربية (المحتوى عربي أولاً) ═══
+        if (androidx.appcompat.app.AppCompatDelegate.getApplicationLocales().isEmpty) {
+            androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                androidx.core.os.LocaleListCompat.forLanguageTags("ar")
+            )
+        }
+
         // ═══ Koin DI ═══
         startKoin {
             androidContext(this@RafiqApplication)

@@ -81,8 +81,8 @@ fun RafiqTheme(
 
     val rafiqPalette = if (darkTheme) DarkRafiqPalette else LightRafiqPalette
 
+    // الاتجاه يتبع لغة التطبيق (RTL للعربية، LTR للإنجليزية) بدل فرض RTL دائماً
     CompositionLocalProvider(
-        LocalLayoutDirection provides LayoutDirection.Rtl,
         LocalRafiqColors provides rafiqPalette,
     ) {
         MaterialTheme(

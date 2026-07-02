@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- AppCompat parent مطلوب لعمل تبديل اللغة (setApplicationLocales) على كل الإصدارات -->
     <style name="Theme.RafiqAlDhikr"
-           parent="android:Theme.Material.Light.NoActionBar">
+           parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/cream_bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
