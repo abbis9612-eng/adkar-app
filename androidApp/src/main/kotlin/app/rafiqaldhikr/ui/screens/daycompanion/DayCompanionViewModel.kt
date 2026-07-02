@@ -57,6 +57,9 @@ class DayCompanionViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    // مهم: يُعلن قبل init — كتلة init تستخدمه عبر load()
+    private val refreshTrigger = MutableStateFlow(0)
+
     private val today: String
         get() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
 
@@ -70,8 +73,6 @@ class DayCompanionViewModel(
             }
         }
     }
-
-    private val refreshTrigger = MutableStateFlow(0)
 
     private fun load() {
         viewModelScope.launch {

@@ -60,10 +60,11 @@ fun RafiqNavGraph(
     onboardingCompleted: Boolean,
     modifier:            Modifier = Modifier
 ) {
-    val startDestination = if (onboardingCompleted)
-        RafiqRoute.Home.route
-    else
-        RafiqRoute.Onboarding.route
+    // تُحسب مرة واحدة لعمر NavHost — تغيّرها بعد إتمام Onboarding مع
+    // navigate() المتزامن يسبب إعادة بناء الرسم البياني وسط الانتقال
+    val startDestination = androidx.compose.runtime.remember {
+        if (onboardingCompleted) RafiqRoute.Home.route else RafiqRoute.Onboarding.route
+    }
 
     NavHost(
         navController      = navController,
