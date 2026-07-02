@@ -27,6 +27,7 @@ import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
 fun StatisticsScreen(
@@ -62,27 +63,7 @@ fun StatisticsScreen(
                     color = rc.emerald
                 )
 
-                // Back Button
-                Box(
-                    Modifier
-                        .size(40.dp)
-                        .shadow(2.dp, RoundedCornerShape(14.dp))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-                        .clickable { navController.popBackStack() },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    androidx.compose.foundation.Canvas(Modifier.size(18.dp)) {
-                        val w = size.width
-                        val h = size.height
-                        drawPath(androidx.compose.ui.graphics.Path().apply {
-                            moveTo(w * 0.35f, h * 0.15f)
-                            lineTo(w * 0.70f, h * 0.50f)
-                            lineTo(w * 0.35f, h * 0.85f)
-                        }, rc.emerald, style = androidx.compose.ui.graphics.drawscope.Stroke(w * 0.10f, cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
-                    }
-                }
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Column(
@@ -99,7 +80,7 @@ fun StatisticsScreen(
                     StatCard(
                         modifier   = Modifier.weight(1f),
                         icon       = Icons.Default.LocalFireDepartment,
-                        iconColor  = Color(0xFFE53935),
+                        iconColor  = rc.error,
                         title      = "السلسلة الحالية",
                         value      = "${state.streak.current}",
                         suffix     = "يوم",

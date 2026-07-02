@@ -40,3 +40,9 @@ WHERE date = :date AND prayer_name = :prayer_name;
 getPrayedCountInRange:
 SELECT COUNT(*) FROM PrayerLog
 WHERE date BETWEEN :start AND :end AND prayed = 1;
+
+getAll:
+SELECT * FROM PrayerLog ORDER BY date;
+
+deleteAll:
+DELETE FROM PrayerLog;

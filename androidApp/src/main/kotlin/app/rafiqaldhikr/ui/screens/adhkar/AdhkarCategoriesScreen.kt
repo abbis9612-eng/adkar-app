@@ -24,6 +24,7 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -31,34 +32,11 @@ import kotlin.math.*
 
 /* General colors provided by LocalRafiqColors */
 
-private object AdhkarCatColors {
-    val morningBg  = Color(0xFFFEF3E2)
-    val morningClr = Color(0xFFB8860B)
-    val eveningBg  = Color(0xFFEEEAF8)
-    val eveningClr = Color(0xFF9B6DBF)
-    val sleepBg    = Color(0xFFF5EEF8)
-    val sleepClr   = Color(0xFF7B5EA7)
-    val prayerBg   = Color(0xFFE8F5EE)
-    val prayerClr  = Color(0xFF1A4731)
-    val miscBg     = Color(0xFFFDF6E8)
-    val miscClr    = Color(0xFF8B6914)
-}
+// ألوان الأقسام تأتي من RafiqPalette (فاتح/داكن) عبر AdhkarAccent
 
 /* ══════════════════════════════════════════════════════════════
    CANVAS ICONS
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconBack(size: Dp = 18.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        drawPath(Path().apply {
-            moveTo(w * 0.35f, h * 0.15f)
-            lineTo(w * 0.70f, h * 0.50f)
-            lineTo(w * 0.35f, h * 0.85f)
-        }, color, style = Stroke(w * 0.10f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
 
 @Composable
 private fun IconArrow(size: Dp = 14.dp, color: Color = LocalRafiqColors.current.inkLight) {
@@ -222,21 +200,34 @@ private fun GeomDecoration(
    CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
+private enum class AdhkarAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN }
+
 private data class AdhkarCatDef(
     val key: String,
     val label: String,
     val description: String,
-    val bgColor: Color,
-    val iconColor: Color,
+    val accent: AdhkarAccent,
     val iconType: Int,
 )
 
+@Composable
+private fun AdhkarAccent.colors(): Pair<Color, Color> {
+    val rc = LocalRafiqColors.current
+    return when (this) {
+        AdhkarAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
+        AdhkarAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
+        AdhkarAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
+        AdhkarAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
+        AdhkarAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
+    }
+}
+
 private val ADHKAR_CATS = listOf(
-    AdhkarCatDef("morning", "أذكار الصباح", "ابدأ يومك بذكر الله", AdhkarCatColors.morningBg, AdhkarCatColors.morningClr, 0),
-    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarCatColors.eveningBg, AdhkarCatColors.eveningClr, 1),
-    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarCatColors.sleepBg, AdhkarCatColors.sleepClr, 2),
-    AdhkarCatDef("istighfar", "الاستغفار",   "استغفر الله العظيم", AdhkarCatColors.prayerBg, AdhkarCatColors.prayerClr, 5),
-    AdhkarCatDef("prayer",  "أذكار الصلاة", "أذكار بعد الصلاة", AdhkarCatColors.prayerBg, AdhkarCatColors.prayerClr, 3),
+    AdhkarCatDef("morning", "أذكار الصباح", "ابدأ يومك بذكر الله", AdhkarAccent.GOLD, 0),
+    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarAccent.INDIGO, 1),
+    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarAccent.PURPLE, 2),
+    AdhkarCatDef("istighfar", "الاستغفار",   "استغفر الله العظيم", AdhkarAccent.GREEN, 5),
+    AdhkarCatDef("prayer",  "أذكار الصلاة", "أذكار بعد الصلاة", AdhkarAccent.GREEN, 3),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -287,16 +278,7 @@ fun AdhkarCategoriesScreen(
                     color = LocalRafiqColors.current.emerald,
                 )
 
-                Box(
-                    Modifier
-                        .size(40.dp)
-                        .shadow(2.dp, RoundedCornerShape(14.dp))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-                        .clickable { navController.popBackStack() },
-                    contentAlignment = Alignment.Center,
-                ) { IconBack() }
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             // Subtitle
@@ -374,7 +356,7 @@ fun AdhkarCategoriesScreen(
             val catsToShow = if (dbCategories.isNotEmpty()) {
                 dbCategories.map { (key, label) ->
                     ADHKAR_CATS.find { it.key == key }
-                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarCatColors.miscBg, AdhkarCatColors.miscClr, 4)
+                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarAccent.BROWN, 4)
                 }
             } else {
                 ADHKAR_CATS
@@ -403,6 +385,7 @@ private fun AdhkarCategoryCard(
     onClick: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
+    val (catBg, catClr) = cat.accent.colors()
     Box(
         Modifier
             .fillMaxWidth()
@@ -423,10 +406,10 @@ private fun AdhkarCategoryCard(
                 Modifier
                     .size(52.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(cat.bgColor),
+                    .background(catBg),
                 contentAlignment = Alignment.Center,
             ) {
-                AdhkarCategoryIcon(cat.iconType, cat.iconColor, 26.dp)
+                AdhkarCategoryIcon(cat.iconType, catClr, 26.dp)
             }
 
             Spacer(Modifier.width(14.dp))

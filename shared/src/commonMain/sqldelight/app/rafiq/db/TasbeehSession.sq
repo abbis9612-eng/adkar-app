@@ -20,3 +20,9 @@ SELECT COALESCE(SUM(count), 0) AS total FROM TasbeehSession WHERE date = :date;
 insert:
 INSERT INTO TasbeehSession(dhikr_text, count, target, completed, duration_seconds, date, created_at)
 VALUES (:dhikr_text, :count, :target, :completed, :duration_seconds, :date, :created_at);
+
+getAll:
+SELECT * FROM TasbeehSession ORDER BY created_at;
+
+deleteAll:
+DELETE FROM TasbeehSession;

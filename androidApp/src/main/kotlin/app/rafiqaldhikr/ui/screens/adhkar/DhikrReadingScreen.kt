@@ -32,24 +32,13 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 /* Colors provided by LocalRafiqColors */
 
 /* ══════════════════════════════════════════════════════════════
    CANVAS ICONS
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconBack(size: Dp = 18.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        drawPath(Path().apply {
-            moveTo(w * 0.35f, h * 0.15f)
-            lineTo(w * 0.70f, h * 0.50f)
-            lineTo(w * 0.35f, h * 0.85f)
-        }, color, style = Stroke(w * 0.10f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION
@@ -173,17 +162,7 @@ fun DhikrReadingScreen(
                             )
                         }
 
-                        // Back button
-                        Box(
-                            Modifier
-                                .size(40.dp)
-                                .shadow(2.dp, RoundedCornerShape(14.dp))
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-                                .clickable { navController.popBackStack() },
-                            contentAlignment = Alignment.Center,
-                        ) { IconBack() }
+                        RafiqBackButton(onClick = { navController.popBackStack() })
                     }
 
                     // ═══ PROGRESS BAR ═══

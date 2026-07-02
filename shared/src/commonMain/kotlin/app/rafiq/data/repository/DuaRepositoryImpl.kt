@@ -24,6 +24,12 @@ class DuaRepositoryImpl(private val db: RafiqDatabase) : DuaRepository {
             .asFlow()
             .mapToList(Dispatchers.IO)
 
+    override fun getCategoryCounts(): Flow<Map<String, Long>> =
+        db.duaQueries.countByCategory()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { rows -> rows.associate { it.category to it.cnt } }
+
     override fun getFavorites(): Flow<List<DuaItem>> =
         db.duaQueries.getFavorites()
             .asFlow()

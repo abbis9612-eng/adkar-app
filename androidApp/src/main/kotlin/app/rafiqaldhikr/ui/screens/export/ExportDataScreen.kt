@@ -20,10 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
-fun ExportDataScreen(navController: NavHostController) {
+fun ExportDataScreen(
+    navController: NavHostController,
+    viewModel: ExportDataViewModel = koinViewModel()
+) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -54,27 +60,7 @@ fun ExportDataScreen(navController: NavHostController) {
                     color = rc.emerald
                 )
 
-                // Back Button
-                Box(
-                    Modifier
-                        .size(40.dp)
-                        .shadow(2.dp, RoundedCornerShape(14.dp))
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-                        .clickable { navController.popBackStack() },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    androidx.compose.foundation.Canvas(Modifier.size(18.dp)) {
-                        val w = size.width
-                        val h = size.height
-                        drawPath(androidx.compose.ui.graphics.Path().apply {
-                            moveTo(w * 0.35f, h * 0.15f)
-                            lineTo(w * 0.70f, h * 0.50f)
-                            lineTo(w * 0.35f, h * 0.85f)
-                        }, rc.emerald, style = androidx.compose.ui.graphics.drawscope.Stroke(w * 0.10f, cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
-                    }
-                }
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             // Content
@@ -128,12 +114,14 @@ fun ExportDataScreen(navController: NavHostController) {
                             .clip(RoundedCornerShape(14.dp))
                             .background(rc.emerald.copy(alpha = 0.1f))
                             .clickable {
-                                val shareText = "// بيانات رفيق الذكر — تصدير\n// سيتم اضافة التصدير الكامل في تحديث قادم"
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, shareText)
+                                viewModel.exportJson { json ->
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "application/json"
+                                        putExtra(Intent.EXTRA_SUBJECT, "بيانات رفيق الذكر")
+                                        putExtra(Intent.EXTRA_TEXT, json)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "تصدير البيانات"))
                                 }
-                                context.startActivity(Intent.createChooser(intent, "تصدير البيانات"))
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -198,7 +186,15 @@ fun ExportDataScreen(navController: NavHostController) {
             containerColor = rc.card,
             confirmButton = {
                 TextButton(
-                    onClick = { showDeleteDialog = false },
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteAllData {
+                            // البيانات صُفّرت — نعود لشاشة البداية من جديد
+                            navController.navigate(RafiqRoute.Onboarding.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    },
                     colors = ButtonDefaults.textButtonColors(contentColor = rc.error)
                 ) { Text("حذف") }
             },

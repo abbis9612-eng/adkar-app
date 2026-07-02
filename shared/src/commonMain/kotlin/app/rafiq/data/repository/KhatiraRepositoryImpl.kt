@@ -15,7 +15,7 @@ class KhatiraRepositoryImpl(
 
     override fun getKhatira(dayOfYear: Int): Flow<Khatira?> = flow {
         // Offline-first: emit local data first
-        val local = db.khatiraQueries.getByDayOfYear(dayOfYear.toLong()).executeAsOneOrNull()
+        val local = findLocal(dayOfYear)
         emit(local?.toDomain())
 
         // Then try remote update
@@ -31,5 +31,15 @@ class KhatiraRepositoryImpl(
             val updated = db.khatiraQueries.getByDayOfYear(dayOfYear.toLong()).executeAsOneOrNull()
             emit(updated?.toDomain())
         }
+    }
+
+    // المحتوى المحلي لا يغطي كل أيام السنة بعد — نلف على المتوفر بدل شاشة فارغة
+    private fun findLocal(dayOfYear: Int): app.rafiq.db.Khatira? {
+        val direct = db.khatiraQueries.getByDayOfYear(dayOfYear.toLong()).executeAsOneOrNull()
+        if (direct != null) return direct
+        val count = db.khatiraQueries.count().executeAsOne()
+        if (count == 0L) return null
+        val wrapped = ((dayOfYear - 1) % count.toInt()) + 1
+        return db.khatiraQueries.getByDayOfYear(wrapped.toLong()).executeAsOneOrNull()
     }
 }

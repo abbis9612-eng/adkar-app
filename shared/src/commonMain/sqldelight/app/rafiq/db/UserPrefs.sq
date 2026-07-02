@@ -76,3 +76,6 @@ UPDATE UserPrefs SET elevation = :elevation WHERE id = 1;
 
 updateMadhab:
 UPDATE UserPrefs SET madhab = :madhab WHERE id = 1;
+
+resetRow:
+DELETE FROM UserPrefs;

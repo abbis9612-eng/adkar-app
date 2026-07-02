@@ -23,3 +23,6 @@ DELETE FROM QuranBookmark WHERE surah = :surah AND ayah = :ayah;
 
 exists:
 SELECT COUNT(*) FROM QuranBookmark WHERE surah = :surah AND ayah = :ayah;
+
+deleteAll:
+DELETE FROM QuranBookmark;

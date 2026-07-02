@@ -14,3 +14,6 @@ VALUES (:dhikr_text, :target, :created_at);
 
 deleteById:
 DELETE FROM CustomDhikr WHERE id = :id;
+
+deleteAll:
+DELETE FROM CustomDhikr;

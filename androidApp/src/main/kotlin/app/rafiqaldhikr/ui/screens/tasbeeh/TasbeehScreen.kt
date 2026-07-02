@@ -137,7 +137,7 @@ private fun ArcProgress(
     max: Int,
     sizeDp: Dp = 200.dp,
     strokeColor: Color,
-    bgColor: Color = Color(0x22000000),
+    bgColor: Color = LocalRafiqColors.current.divider,
     strokeW: Dp = 10.dp,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {},

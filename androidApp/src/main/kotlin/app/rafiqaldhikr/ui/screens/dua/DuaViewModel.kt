@@ -16,11 +16,12 @@ class DuaViewModel(
 ) : ViewModel() {
 
     data class UiState(
-        val categories: List<String>  = emptyList(),
-        val duas:       List<DuaItem> = emptyList(),
-        val favorites:  List<DuaItem> = emptyList(),
-        val isLoading:  Boolean       = true,
-        val error:      String?       = null
+        val categories:     List<String>      = emptyList(),
+        val categoryCounts: Map<String, Long> = emptyMap(),
+        val duas:           List<DuaItem>     = emptyList(),
+        val favorites:      List<DuaItem>     = emptyList(),
+        val isLoading:      Boolean           = true,
+        val error:          String?           = null
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -30,10 +31,11 @@ class DuaViewModel(
         viewModelScope.launch {
             combine(
                 repository.getCategories(),
+                repository.getCategoryCounts(),
                 repository.getFavorites()
-            ) { cats, favs ->
+            ) { cats, counts, favs ->
                 _uiState.update {
-                    it.copy(categories = cats, favorites = favs, isLoading = false)
+                    it.copy(categories = cats, categoryCounts = counts, favorites = favs, isLoading = false)
                 }
             }.collect { }
         }

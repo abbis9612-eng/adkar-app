@@ -3,6 +3,7 @@ package app.rafiqaldhikr.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.PrefsRepository
+import app.rafiqaldhikr.service.PrayerRescheduler
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -10,7 +11,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val prefsRepo: PrefsRepository
+    private val prefsRepo:   PrefsRepository,
+    private val rescheduler: PrayerRescheduler
 ) : ViewModel() {
 
     private val _prefs = prefsRepo.getPrefs()
@@ -34,6 +36,10 @@ class SettingsViewModel(
 
     val gamificationVisible: StateFlow<Boolean> = _prefs
         .map { it?.gamificationVisible ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val notificationsEnabled: StateFlow<Boolean> = _prefs
+        .map { it?.notificationsEnabled ?: true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val elevation: StateFlow<Double> = _prefs
@@ -65,7 +71,11 @@ class SettingsViewModel(
         viewModelScope.launch { prefsRepo.updateFontScale(scale.toDouble()) }
     }
     fun setNotifications(enabled: Boolean) {
-        viewModelScope.launch { prefsRepo.updateNotifications(enabled) }
+        viewModelScope.launch {
+            prefsRepo.updateNotifications(enabled)
+            // reschedule() يلغي التنبيهات عند التعطيل ويجدولها عند التفعيل
+            runCatching { rescheduler.reschedule() }
+        }
     }
     fun setGamification(visible: Boolean) {
         viewModelScope.launch { prefsRepo.updateGamification(visible) }

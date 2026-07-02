@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import app.rafiqaldhikr.ui.navigation.RafiqBottomBar
 import app.rafiqaldhikr.ui.navigation.RafiqNavGraph
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
+import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -38,11 +40,19 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle()
             val dynamicColor by settingsViewModel.dynamicColor
                 .collectAsStateWithLifecycle()
+            val themePref by settingsViewModel.theme
+                .collectAsStateWithLifecycle()
 
             // Don't render until we know onboarding state
             if (onboardingCompleted == null) return@setContent
 
-            RafiqTheme(dynamicColor = dynamicColor) {
+            val darkTheme = when (themePref) {
+                "dark"  -> true
+                "light" -> false
+                else    -> isSystemInDarkTheme()
+            }
+
+            RafiqTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -54,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Scaffold(
-                    containerColor = androidx.compose.ui.graphics.Color(0xFFF4EFE5), // React: #F4EFE5
+                    containerColor = LocalRafiqColors.current.bg,
                     bottomBar = {
                         if (showBottomBar) {
                             RafiqBottomBar(navController)

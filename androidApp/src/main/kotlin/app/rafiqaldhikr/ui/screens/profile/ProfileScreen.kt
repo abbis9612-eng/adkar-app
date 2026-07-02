@@ -29,10 +29,7 @@ import kotlin.math.*
 
 /* Colors provided by LocalRafiqColors */
 
-private object ProfileColors {
-    val orange   = Color(0xFFE8780A)
-    val orangeBg = Color(0xFFFEF3DC)
-}
+/* البرتقالي يأتي من RafiqPalette (accentOrange) */
 
 /* ══════════════════════════════════════════════════════════════
    CANVAS ICONS
@@ -99,7 +96,7 @@ private fun IconTrophy(size: Dp = 22.dp, color: Color = LocalRafiqColors.current
 }
 
 @Composable
-private fun IconFlame(size: Dp = 22.dp, color: Color = ProfileColors.orange) {
+private fun IconFlame(size: Dp = 22.dp, color: Color = LocalRafiqColors.current.accentOrange) {
     Canvas(Modifier.size(size)) {
         val w = this.size.width; val h = this.size.height
         val flame = Path().apply {
@@ -509,14 +506,14 @@ fun ProfileScreen(
                     icon = { IconTrophy(20.dp, rc.goldLight) },
                     value = "${state.streak.longest}",
                     label = "أطول سلسلة",
-                    iconBg = Color(0xFFFEF8EC),
+                    iconBg = LocalRafiqColors.current.accentGoldBg,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    icon = { IconFlame(20.dp, ProfileColors.orange) },
+                    icon = { IconFlame(20.dp, LocalRafiqColors.current.accentOrange) },
                     value = "${state.streak.current}",
                     label = "سلسلة حالية",
-                    iconBg = ProfileColors.orangeBg,
+                    iconBg = LocalRafiqColors.current.accentOrangeBg,
                     modifier = Modifier.weight(1f),
                 )
             }

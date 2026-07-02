@@ -101,7 +101,7 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
             Spacer(Modifier.height(4.dp))
             Text(hijri.ifEmpty { "— هـ" }, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed,
                 modifier = Modifier.clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFEDE8DC)).padding(horizontal = 12.dp, vertical = 2.dp))
+                    .background(LocalRafiqColors.current.chipBg).padding(horizontal = 12.dp, vertical = 2.dp))
         }
         // In RTL: last child = LEFT side → Settings
         PillBtn(onClick = onSettings) { IcoGear(c = LocalRafiqColors.current.emerald) }
@@ -187,7 +187,7 @@ private fun NextPrayerCard(
             // Green gradient part (Top)
             Box(Modifier.fillMaxWidth()) {
                 Box(Modifier.matchParentSize().background(Brush.linearGradient(
-                    listOf(rc.emerald, Color(0xFF2D7A50)),
+                    listOf(rc.heroMid, rc.heroEnd),
                     start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY))))
                 // Decoration top-left
                 GeomStar(90.dp, Color.White, 0.07f,

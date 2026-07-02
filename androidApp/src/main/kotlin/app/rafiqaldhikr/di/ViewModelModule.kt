@@ -16,6 +16,7 @@ import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.dhikr.CustomDhikrViewModel
+import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 
 val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
@@ -32,4 +33,5 @@ val viewModelModule = module {
     viewModelOf(::ProfileViewModel)
     viewModelOf(::PremiumViewModel)
     viewModelOf(::CustomDhikrViewModel)
+    viewModelOf(::ExportDataViewModel)
 }

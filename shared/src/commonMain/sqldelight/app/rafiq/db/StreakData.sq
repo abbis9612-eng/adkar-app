@@ -29,3 +29,9 @@ SET current_streak   = :current_streak,
     longest_streak   = :longest_streak,
     last_active_date = :last_active_date
 WHERE id = 1;
+
+deleteAllStreak:
+DELETE FROM StreakData;
+
+deleteAllHistory:
+DELETE FROM StreakHistory;

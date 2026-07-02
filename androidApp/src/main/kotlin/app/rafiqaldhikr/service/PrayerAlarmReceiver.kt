@@ -16,6 +16,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import app.rafiqaldhikr.MainActivity
 import app.rafiqaldhikr.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.koin.core.context.GlobalContext
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -66,6 +71,20 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             NotificationManagerCompat.from(context).notify(notifId, notification)
+        }
+
+        // بعد إشعار العشاء: جدولة مواقيت الغد حتى تستمر الإشعارات بلا فتح التطبيق
+        if (prayerName == "isha") {
+            val pendingResult = goAsync()
+            CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+                try {
+                    GlobalContext.get().get<PrayerRescheduler>().reschedule()
+                } catch (_: Exception) {
+                    // offline أو Koin غير مهيأ — سيُعاد عند فتح التطبيق أو الإقلاع
+                } finally {
+                    pendingResult.finish()
+                }
+            }
         }
     }
 }

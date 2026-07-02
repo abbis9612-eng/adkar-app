@@ -68,6 +68,21 @@ data class RafiqPalette(
     val eveningRing: Color,
     val sleepRing: Color,
     val istighfarRing: Color,
+
+    /* ── Category Accents (bg/fg pairs) ── */
+    val accentGoldBg: Color,
+    val accentGold: Color,
+    val accentIndigoBg: Color,
+    val accentIndigo: Color,
+    val accentPurpleBg: Color,
+    val accentPurple: Color,
+    val accentBrownBg: Color,
+    val accentBrown: Color,
+    val accentOrangeBg: Color,
+    val accentOrange: Color,
+
+    /* ── Small chip background (hijri date, tags) ── */
+    val chipBg: Color,
 )
 
 /* ═══════════════════════════════════════════
@@ -120,6 +135,19 @@ val LightRafiqPalette = RafiqPalette(
     eveningRing    = Color(0xFFC5BAE8),
     sleepRing      = Color(0xFF9B6DBF),
     istighfarRing  = Color(0xFF4A9E6E),
+
+    accentGoldBg   = Color(0xFFFEF8EC),
+    accentGold     = Color(0xFFB07C20),
+    accentIndigoBg = Color(0xFFEEF0FB),
+    accentIndigo   = Color(0xFF4B5BC4),
+    accentPurpleBg = Color(0xFFF3F0FD),
+    accentPurple   = Color(0xFF7C4DC9),
+    accentBrownBg  = Color(0xFFFDF6E8),
+    accentBrown    = Color(0xFF8B6914),
+    accentOrangeBg = Color(0xFFFEF3DC),
+    accentOrange   = Color(0xFFE8780A),
+
+    chipBg         = Color(0xFFEDE8DC),
 )
 
 /* ═══════════════════════════════════════════
@@ -172,6 +200,19 @@ val DarkRafiqPalette = RafiqPalette(
     eveningRing    = Color(0xFF6660A0),
     sleepRing      = Color(0xFF7050A0),
     istighfarRing  = Color(0xFF3A7050),
+
+    accentGoldBg   = Color(0xFF2A2010),
+    accentGold     = Color(0xFFDAA520),
+    accentIndigoBg = Color(0xFF1B2038),
+    accentIndigo   = Color(0xFF8B96E8),
+    accentPurpleBg = Color(0xFF251C38),
+    accentPurple   = Color(0xFFA98BE8),
+    accentBrownBg  = Color(0xFF2A2210),
+    accentBrown    = Color(0xFFC9A44D),
+    accentOrangeBg = Color(0xFF2E1F0C),
+    accentOrange   = Color(0xFFF09A4A),
+
+    chipBg         = Color(0xFF2A2519),
 )
 
 /* ═══════════════════════════════════════════

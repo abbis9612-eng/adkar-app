@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 
@@ -35,24 +36,51 @@ import kotlin.math.*
    DUA CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
-private data class DuaCategoryDef(
+internal enum class DuaAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN, ORANGE }
+
+internal data class DuaCategoryDef(
     val name: String,
     val key: String,
-    val count: String,
-    val bgColor: Color,
-    val borderColor: Color,
-    val iconColor: Color,
     val iconType: Int, // 0=sun, 1=moon, 2=star, 3=leaf, 4=compass, 5=diamond
+    val accent: DuaAccent,
 )
 
-private val CATEGORY_DEFS = listOf(
-    DuaCategoryDef("أدعية الصباح",    "morning",    "١٢ دعاء", Color(0xFFFEF8EC), Color(0xFFC99230).copy(alpha = 0.14f), Color(0xFFB07C20), 0),
-    DuaCategoryDef("أدعية المساء",    "evening",    "١٠ دعاء", Color(0xFFEEF0FB), Color(0xFF4B5BC4).copy(alpha = 0.14f), Color(0xFF4B5BC4), 1),
-    DuaCategoryDef("أدعية النوم",     "sleep",      "٨ دعاء",  Color(0xFFF3F0FD), Color(0xFF7C4DC9).copy(alpha = 0.14f), Color(0xFF7C4DC9), 2),
-    DuaCategoryDef("أدعية الأكل",     "food",       "٦ دعاء",  Color(0xFFE0EFE7), Color(0xFF09472B).copy(alpha = 0.14f), Color(0xFF09472B), 3),
-    DuaCategoryDef("أدعية السفر",     "travel",     "٩ دعاء",  Color(0xFFFDF6E8), Color(0xFFB07C20).copy(alpha = 0.14f), Color(0xFF8B6914), 4),
-    DuaCategoryDef("دعاء الاستخارة", "istikharah", "١ دعاء",  Color(0xFFFEF3DC), Color(0xFFC99230).copy(alpha = 0.14f), Color(0xFFC99230), 5),
+// كل الأقسام المعروفة — تُعرض فقط التي لها أدعية فعلية في قاعدة البيانات
+internal val KNOWN_DUA_CATEGORIES = listOf(
+    DuaCategoryDef("أدعية الصباح",     "morning",    0, DuaAccent.GOLD),
+    DuaCategoryDef("أدعية المساء",     "evening",    1, DuaAccent.INDIGO),
+    DuaCategoryDef("أدعية النوم",      "sleep",      2, DuaAccent.PURPLE),
+    DuaCategoryDef("أدعية من القرآن",  "quran",      2, DuaAccent.GREEN),
+    DuaCategoryDef("أدعية الطعام",     "food",       3, DuaAccent.GREEN),
+    DuaCategoryDef("أدعية السفر",      "travel",     4, DuaAccent.BROWN),
+    DuaCategoryDef("أدعية الهمّ والقلق", "anxiety",   3, DuaAccent.INDIGO),
+    DuaCategoryDef("أدعية المرض",      "sickness",   3, DuaAccent.PURPLE),
+    DuaCategoryDef("أدعية جامعة",      "general",    2, DuaAccent.BROWN),
+    DuaCategoryDef("دعاء الاستخارة",   "istikharah", 5, DuaAccent.GOLD),
 )
+
+internal fun duaCategoryLabel(key: String): String =
+    KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }?.name ?: key
+
+internal fun duaCountLabel(count: Long): String = when {
+    count == 1L        -> "دعاء واحد"
+    count == 2L        -> "دعاءان"
+    count in 3..10     -> "${count.toEasternArabic()} أدعية"
+    else               -> "${count.toEasternArabic()} دعاء"
+}
+
+@Composable
+private fun DuaAccent.colors(): Pair<Color, Color> {
+    val rc = LocalRafiqColors.current
+    return when (this) {
+        DuaAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
+        DuaAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
+        DuaAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
+        DuaAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
+        DuaAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
+        DuaAccent.ORANGE -> rc.accentOrangeBg to rc.accentOrange
+    }
+}
 
 /* ══════════════════════════════════════════════════════════════
    CANVAS ICONS FOR CATEGORIES
@@ -180,19 +208,21 @@ private fun PillBtn(
 @Composable
 private fun DuaCategoryGridCard(
     def: DuaCategoryDef,
+    count: Long,
     onClick: () -> Unit,
 ) {
+    val (bgColor, iconColor) = def.accent.colors()
     Box(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(def.bgColor)
-            .border(1.5.dp, def.borderColor, RoundedCornerShape(20.dp))
+            .background(bgColor)
+            .border(1.5.dp, iconColor.copy(alpha = 0.14f), RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
             .padding(18.dp)
     ) {
         Column {
-            CategoryIcon(type = def.iconType, color = def.iconColor)
+            CategoryIcon(type = def.iconType, color = iconColor)
             Spacer(Modifier.height(12.dp))
             Text(
                 def.name,
@@ -201,7 +231,7 @@ private fun DuaCategoryGridCard(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                def.count,
+                duaCountLabel(count),
                 fontSize = 12.sp, color = LocalRafiqColors.current.inkMed,
             )
         }
@@ -343,9 +373,11 @@ fun DuaCategoriesScreen(
                 Spacer(Modifier.height(10.dp))
             }
 
-            // ═══ 2×2 CATEGORY GRID ═══
-            // We use pairs to simulate a 2-column grid inside LazyColumn
-            val pairs = CATEGORY_DEFS.chunked(2)
+            // ═══ 2×2 CATEGORY GRID — الأقسام التي لها أدعية فعلية فقط ═══
+            val availableDefs = KNOWN_DUA_CATEGORIES.filter {
+                (state.categoryCounts[it.key] ?: 0L) > 0L
+            }
+            val pairs = availableDefs.chunked(2)
             items(pairs.size) { idx ->
                 val pair = pairs[idx]
                 Row(
@@ -358,6 +390,7 @@ fun DuaCategoriesScreen(
                         Box(Modifier.weight(1f)) {
                             DuaCategoryGridCard(
                                 def = def,
+                                count = state.categoryCounts[def.key] ?: 0L,
                                 onClick = {
                                     navController.navigate(RafiqRoute.DuaList.withCategory(def.key))
                                 }
@@ -373,7 +406,7 @@ fun DuaCategoriesScreen(
 
             // ═══ DYNAMIC CATEGORIES FROM VM ═══
             val dynamicCats = state.categories.filter { cat ->
-                CATEGORY_DEFS.none { it.key == cat }
+                KNOWN_DUA_CATEGORIES.none { it.key == cat }
             }
             if (dynamicCats.isNotEmpty()) {
                 item { Spacer(Modifier.height(8.dp)) }
@@ -402,7 +435,7 @@ fun DuaCategoriesScreen(
                                 }
                                 Spacer(Modifier.width(14.dp))
                                 Text(
-                                    category,
+                                    duaCategoryLabel(category),
                                     fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
                                     color = LocalRafiqColors.current.ink,
                                     modifier = Modifier.weight(1f),

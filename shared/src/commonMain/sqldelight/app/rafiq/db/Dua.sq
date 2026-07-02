@@ -31,6 +31,12 @@ SELECT COUNT(*) FROM Dua;
 getCategories:
 SELECT DISTINCT category FROM Dua ORDER BY category;
 
+countByCategory:
+SELECT category, COUNT(*) AS cnt FROM Dua GROUP BY category;
+
 insertFull:
 INSERT INTO Dua(category, occasion, text_ar, source, source_grade, is_favorite, sort_order)
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+clearFavorites:
+UPDATE Dua SET is_favorite = 0;

@@ -29,6 +29,7 @@ val sharedModule = module {
     single<KhatiraRepository>  { KhatiraRepositoryImpl(get(), get()) }
     single<TasbeehRepository>  { TasbeehRepositoryImpl(get()) }
     single<CustomDhikrRepository> { app.rafiq.data.repository.CustomDhikrRepositoryImpl(get()) }
+    single<UserDataRepository> { UserDataRepositoryImpl(get()) }
 
     // ═══ Use Cases ═══
     factory { GetAdhkarByCategoryUseCase(get()) }

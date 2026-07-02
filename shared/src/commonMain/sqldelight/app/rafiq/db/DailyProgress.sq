@@ -35,3 +35,9 @@ UPDATE DailyProgress SET prayers_logged = :count WHERE date = :date;
 
 updateMinutes:
 UPDATE DailyProgress SET total_minutes = :minutes WHERE date = :date;
+
+getAll:
+SELECT * FROM DailyProgress ORDER BY date;
+
+deleteAll:
+DELETE FROM DailyProgress;
