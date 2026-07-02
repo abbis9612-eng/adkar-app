@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import app.rafiqaldhikr.ui.screens.about.AboutScreen
 import app.rafiqaldhikr.ui.screens.achievements.AchievementsScreen
 import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesScreen
@@ -82,7 +83,8 @@ fun RafiqNavGraph(
         composable(RafiqRoute.AdhkarCategories.route) { AdhkarCategoriesScreen(navController) }
         composable(
             route     = RafiqRoute.DhikrReading.route,
-            arguments = listOf(navArgument("category") { type = NavType.StringType })
+            arguments = listOf(navArgument("category") { type = NavType.StringType }),
+            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/adhkar/{category}" })
         ) { entry ->
             DhikrReadingScreen(
                 category      = entry.arguments?.getString("category") ?: "",
@@ -92,13 +94,17 @@ fun RafiqNavGraph(
         composable(RafiqRoute.Celebration.route) { CelebrationScreen(navController) }
 
         // ═══ Tasbeeh ═══
-        composable(RafiqRoute.Tasbeeh.route) { TasbeehScreen(navController) }
+        composable(
+            route     = RafiqRoute.Tasbeeh.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/tasbeeh" })
+        ) { TasbeehScreen(navController) }
 
         // ═══ Quran ═══
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }
         composable(
             route     = RafiqRoute.QuranReading.route,
-            arguments = listOf(navArgument("surah") { type = NavType.IntType })
+            arguments = listOf(navArgument("surah") { type = NavType.IntType }),
+            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/quran/{surah}" })
         ) { entry ->
             QuranReadingScreen(
                 surahNumber   = entry.arguments?.getInt("surah") ?: 1,
@@ -109,7 +115,10 @@ fun RafiqNavGraph(
         composable(RafiqRoute.QuranBookmarks.route) { QuranBookmarksScreen(navController) }
 
         // ═══ Prayer ═══
-        composable(RafiqRoute.PrayerTimes.route)   { PrayerTimesScreen(navController) }
+        composable(
+            route     = RafiqRoute.PrayerTimes.route,
+            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/prayer" })
+        ) { PrayerTimesScreen(navController) }
         composable(RafiqRoute.PrayerMethod.route)  { PrayerMethodScreen(navController) }
         composable(RafiqRoute.Qibla.route)         { QiblaScreen(navController) }
 

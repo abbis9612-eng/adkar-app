@@ -33,6 +33,7 @@ import app.rafiqaldhikr.ui.theme.RafiqPalette
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.util.rememberPermissionState
 import kotlin.math.*
 
 /* ══════════════════════════════════════════════════════════════
@@ -92,6 +93,18 @@ fun OnboardingScreen(
     val pagerState  = rememberPagerState(pageCount = { PAGES.size })
     val scope       = rememberCoroutineScope()
     val currentPage = pagerState.currentPage
+    val permissions = rememberPermissionState()
+
+    fun finishOnboarding() {
+        // نطلب إذن الإشعارات هنا؛ إذن الموقع يُطلب تلقائياً في الرئيسية
+        if (!permissions.hasNotificationPermission()) {
+            permissions.requestNotificationPermission()
+        }
+        settingsVM.completeOnboarding()
+        navController.navigate(RafiqRoute.Home.route) {
+            popUpTo(RafiqRoute.Onboarding.route) { inclusive = true }
+        }
+    }
 
     Box(
         Modifier
@@ -138,10 +151,7 @@ fun OnboardingScreen(
                     )
                     .clickable {
                         if (isLast) {
-                            settingsVM.completeOnboarding()
-                            navController.navigate(RafiqRoute.Home.route) {
-                                popUpTo(RafiqRoute.Onboarding.route) { inclusive = true }
-                            }
+                            finishOnboarding()
                         } else {
                             scope.launch { pagerState.animateScrollToPage(currentPage + 1) }
                         }
@@ -164,12 +174,7 @@ fun OnboardingScreen(
                     "تخطي",
                     fontSize = 14.sp,
                     color = LocalRafiqColors.current.inkMed,
-                    modifier = Modifier.clickable {
-                        settingsVM.completeOnboarding()
-                        navController.navigate(RafiqRoute.Home.route) {
-                            popUpTo(RafiqRoute.Onboarding.route) { inclusive = true }
-                        }
-                    }
+                    modifier = Modifier.clickable { finishOnboarding() }
                 )
             }
         }

@@ -66,6 +66,9 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    // يُبعث عند حلول وقت الصلاة لإعادة حساب المواقيت والصلاة التالية
+    private val reloadTrigger = MutableStateFlow(0)
+
     init {
         load()
         startCountdownTimer()
@@ -80,8 +83,9 @@ class HomeViewModel(
             combine(
                 progressRepo.getByDate(today),
                 streakRepo.getStreak(),
-                prefsRepo.getPrefs()
-            ) { progress, streak, prefs ->
+                prefsRepo.getPrefs(),
+                reloadTrigger
+            ) { progress, streak, prefs, _ ->
 
                 // ═══ حساب مواقيت الصلاة ═══
                 val lat = prefs.lastKnownLat.takeIf { it != 0.0 } ?: 35.5558
@@ -167,6 +171,7 @@ class HomeViewModel(
     // ═══ العد التنازلي — يتحدث كل ثانية ═══
     private fun startCountdownTimer() {
         viewModelScope.launch {
+            var lastReloadTarget = 0L
             while (true) {
                 val current = _uiState.value
                 val targetMillis = current.nextPrayerMillis
@@ -180,8 +185,12 @@ class HomeViewModel(
                         val countdownStr = "%02d:%02d:%02d".format(hours, mins, secs)
                         _uiState.value = current.copy(countdown = toArabicNumerals(countdownStr))
                     } else {
-                        // وقت الصلاة حان — إعادة تحميل البيانات
                         _uiState.value = current.copy(countdown = toArabicNumerals("00:00:00"))
+                        // وقت الصلاة حان — إعادة حساب الصلاة التالية (مرة واحدة لكل موعد)
+                        if (targetMillis != lastReloadTarget) {
+                            lastReloadTarget = targetMillis
+                            reloadTrigger.value++
+                        }
                     }
                 }
                 delay(1_000)
@@ -246,37 +255,48 @@ class HomeViewModel(
             .toLocalDateTime(TimeZone.currentSystemDefault()).hour
         return when (hour) {
             in 5..11  -> "صباح الخير"
-            in 12..16 -> "مساء الخير"
+            in 12..16 -> "طاب يومك"
             in 17..20 -> "مساء النور"
             else      -> "طابت ليلتك"
         }
     }
 
-    // ═══ تقدير التاريخ الهجري ═══
+    // ═══ التاريخ الهجري (أم القرى عبر ICU — دقيق) ═══
     private fun calculateHijriDate(offset: Long): String {
+        val monthNames = listOf(
+            "محرّم", "صفر", "ربيع الأول", "ربيع الآخر",
+            "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+            "رمضان", "شوّال", "ذو القعدة", "ذو الحجة"
+        )
         return try {
-            // تقدير بسيط بناءً على الفرق بين التقويمين
-            // أم القرى: 1 محرم 1446 = 7 يوليو 2024
-            val umAlQuraEpoch = Calendar.getInstance().apply {
-                set(2024, Calendar.JULY, 7, 0, 0, 0)
-            }.timeInMillis
-
-            val now = System.currentTimeMillis()
-            val daysDiff = ((now - umAlQuraEpoch) / 86_400_000) + offset
-            val hijriMonth = ((daysDiff / 29.53) % 12).toInt()
-            val hijriDay = ((daysDiff % 29.53) + 1).toInt().coerceIn(1, 30)
-            val hijriYear = 1446 + (daysDiff / 354.36).toInt()
-
-            val monthNames = listOf(
-                "محرّم", "صفر", "ربيع الأول", "ربيع الآخر",
-                "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
-                "رمضان", "شوّال", "ذو القعدة", "ذو الحجة"
-            )
-
-            "${toArabicNumerals(hijriDay.toString())} ${monthNames[hijriMonth]} ${toArabicNumerals(hijriYear.toString())} هـ"
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                val cal = android.icu.util.IslamicCalendar().apply {
+                    calculationType = android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA
+                    timeInMillis = System.currentTimeMillis() + offset * 86_400_000L
+                }
+                val day   = cal.get(android.icu.util.IslamicCalendar.DAY_OF_MONTH)
+                val month = cal.get(android.icu.util.IslamicCalendar.MONTH)
+                val year  = cal.get(android.icu.util.IslamicCalendar.YEAR)
+                "${toArabicNumerals(day.toString())} ${monthNames[month]} ${toArabicNumerals(year.toString())} هـ"
+            } else {
+                // أجهزة API 23: تقدير حسابي تقريبي
+                approximateHijri(offset, monthNames)
+            }
         } catch (_: Exception) {
             "— هـ"
         }
+    }
+
+    private fun approximateHijri(offset: Long, monthNames: List<String>): String {
+        // أم القرى: 1 محرم 1446 = 7 يوليو 2024
+        val umAlQuraEpoch = Calendar.getInstance().apply {
+            set(2024, Calendar.JULY, 7, 0, 0, 0)
+        }.timeInMillis
+        val daysDiff = ((System.currentTimeMillis() - umAlQuraEpoch) / 86_400_000) + offset
+        val hijriMonth = ((daysDiff / 29.53) % 12).toInt()
+        val hijriDay = ((daysDiff % 29.53) + 1).toInt().coerceIn(1, 30)
+        val hijriYear = 1446 + (daysDiff / 354.36).toInt()
+        return "${toArabicNumerals(hijriDay.toString())} ${monthNames[hijriMonth]} ${toArabicNumerals(hijriYear.toString())} هـ"
     }
 
     // ═══ أدوات مساعدة ═══
