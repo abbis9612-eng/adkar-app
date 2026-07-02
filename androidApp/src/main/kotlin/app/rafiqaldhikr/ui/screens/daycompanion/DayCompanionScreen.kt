@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.StationIcon
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.toEasternArabic
@@ -44,7 +45,7 @@ fun DayCompanionScreen(
             ) {
                 Column {
                     Text(
-                        "رفيق اليوم 🕌",
+                        "رفيق اليوم",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = rc.emerald,
@@ -177,8 +178,13 @@ private fun StationCard(
                 .padding(14.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(station.emoji, fontSize = 22.sp)
-                Spacer(Modifier.width(8.dp))
+                Box(
+                    Modifier.size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (done) rc.emeraldPastel.copy(alpha = 0.5f) else rc.emeraldPastel),
+                    contentAlignment = Alignment.Center
+                ) { StationIcon(station.id, 24.dp) }
+                Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
                         station.title,

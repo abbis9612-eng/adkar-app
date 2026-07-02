@@ -40,3 +40,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?);
 
 clearFavorites:
 UPDATE Dua SET is_favorite = 0;
+
+deleteAll:
+DELETE FROM Dua;

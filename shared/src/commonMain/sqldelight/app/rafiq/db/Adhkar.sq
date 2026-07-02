@@ -27,3 +27,6 @@ SELECT COUNT(*) FROM Adhkar;
 insertFull:
 INSERT INTO Adhkar(category, text_ar, source, source_grade, virtue, count, audio_file, sort_order)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM Adhkar;

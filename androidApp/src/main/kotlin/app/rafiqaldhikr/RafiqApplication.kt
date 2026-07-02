@@ -36,6 +36,16 @@ class RafiqApplication : Application() {
             )
         }
 
+        // ═══ تعبئة قاعدة البيانات (القرآن والأذكار والأدعية والتفسير) ═══
+        // الشاشات تراقب Flows فتمتلئ تلقائياً فور اكتمال التعبئة
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                GlobalContext.get().get<app.rafiq.data.db.DatabaseSeeder>().seedIfNeeded()
+            } catch (e: Exception) {
+                android.util.Log.e("RafiqSeeder", "فشل تعبئة قاعدة البيانات", e)
+            }
+        }
+
         // ═══ جدولة إشعارات الأذان عند كل فتح للتطبيق ═══
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             try {

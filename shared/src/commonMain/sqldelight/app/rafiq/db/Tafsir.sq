@@ -13,3 +13,6 @@ SELECT COUNT(*) FROM Tafsir;
 
 insertFull:
 INSERT OR REPLACE INTO Tafsir(surah, ayah, text) VALUES (?, ?, ?);
+
+deleteAll:
+DELETE FROM Tafsir;

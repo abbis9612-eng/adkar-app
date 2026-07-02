@@ -74,7 +74,7 @@ fun AchievementsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "الإنجازات 🏆",
+                    text = "الإنجازات",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,

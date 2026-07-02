@@ -71,7 +71,7 @@ fun GardenScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "الحديقة الروحية 🌱",
+                    "الحديقة الروحية",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,

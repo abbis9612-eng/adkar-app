@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.animations.breathingAnimation
 import app.rafiqaldhikr.ui.components.*
 import kotlin.math.*
 
@@ -54,7 +55,12 @@ private fun NowCard(
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(station.emoji, fontSize = 30.sp)
+            Box(
+                Modifier.size(46.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(rc.emeraldPastel),
+                contentAlignment = Alignment.Center
+            ) { StationIcon(station.id, 28.dp) }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -170,13 +176,18 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
 private fun BasmalahSection() {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        GeomStar(60.dp, rc.gold, 0.30f)
+        GeomStar(60.dp, rc.gold, 0.30f, Modifier.breathingAnimation(minScale = 0.96f, maxScale = 1.04f))
         Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(Modifier.width(32.dp).height(1.dp).background(
+            Box(Modifier.width(38.dp).height(1.dp).background(
                 Brush.horizontalGradient(listOf(Color.Transparent, rc.goldLight))))
-            Text("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", fontSize = 15.sp, color = rc.inkMed)
-            Box(Modifier.width(32.dp).height(1.dp).background(
+            Text(
+                "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+                fontSize = 19.sp,
+                fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
+                color = rc.gold,
+            )
+            Box(Modifier.width(38.dp).height(1.dp).background(
                 Brush.horizontalGradient(listOf(rc.goldLight, Color.Transparent))))
         }
     }
@@ -238,11 +249,11 @@ private fun NextPrayerCard(
         border = BorderStroke(1.dp, rc.divider)
     ) {
         Column(Modifier.fillMaxWidth()) {
-            // Green gradient part (Top)
-            Box(Modifier.fillMaxWidth()) {
-                Box(Modifier.matchParentSize().background(Brush.linearGradient(
-                    listOf(rc.heroMid, rc.heroEnd),
-                    start = Offset(0f, 0f), end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY))))
+            // سماء حية تتبدل ألوانها مع وقت الصلاة (فجر بنفسجي → ظهر أزرق → مغرب برتقالي → ليل)
+            PrayerSkyBackground(Modifier.fillMaxWidth()) {
+              Box(Modifier.fillMaxWidth()) {
+                // طبقة تعتيم خفيفة تضمن وضوح النص الأبيض في كل الأوقات
+                Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.22f)))
                 // Decoration top-left
                 GeomStar(90.dp, Color.White, 0.07f,
                     Modifier.align(Alignment.TopStart).offset((-14).dp, (-14).dp))
@@ -276,6 +287,7 @@ private fun NextPrayerCard(
                         }
                     }
                 }
+              }
             }
         }
     }

@@ -38,3 +38,6 @@ SELECT COUNT(*) FROM Ayah;
 insertFull:
 INSERT INTO Ayah(id, surah, ayah_number, text_uthmani, text_simple, juz, hizb, page)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM Ayah;

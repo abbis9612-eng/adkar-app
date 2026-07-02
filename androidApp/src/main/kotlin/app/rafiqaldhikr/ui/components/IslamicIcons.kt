@@ -134,3 +134,102 @@ fun IcoDua(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emeraldMed) {
         drawPath(bt, c, style = st); drawCircle(c, w * 0.04f, Offset(w * 0.50f, h * 0.42f)) 
     } 
 }
+
+/* ═══ أيقونات محطات «رفيق اليوم» — مرسومة يدوياً بهوية التطبيق ═══ */
+
+@Composable
+fun IcoMosque(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        // القبة
+        val dome = Path().apply {
+            moveTo(w * 0.28f, h * 0.55f)
+            cubicTo(w * 0.28f, h * 0.28f, w * 0.72f, h * 0.28f, w * 0.72f, h * 0.55f)
+        }
+        drawPath(dome, c, style = st)
+        // الهلال فوق القبة
+        drawLine(c, Offset(w * 0.5f, h * 0.28f), Offset(w * 0.5f, h * 0.16f), st.width)
+        drawCircle(c, w * 0.045f, Offset(w * 0.5f, h * 0.12f))
+        // القاعدة
+        drawLine(c, Offset(w * 0.16f, h * 0.55f), Offset(w * 0.84f, h * 0.55f), st.width)
+        drawLine(c, Offset(w * 0.20f, h * 0.55f), Offset(w * 0.20f, h * 0.85f), st.width)
+        drawLine(c, Offset(w * 0.80f, h * 0.55f), Offset(w * 0.80f, h * 0.85f), st.width)
+        drawLine(c, Offset(w * 0.14f, h * 0.85f), Offset(w * 0.86f, h * 0.85f), st.width)
+        // الباب
+        val door = Path().apply {
+            moveTo(w * 0.42f, h * 0.85f)
+            lineTo(w * 0.42f, h * 0.70f)
+            cubicTo(w * 0.42f, h * 0.62f, w * 0.58f, h * 0.62f, w * 0.58f, h * 0.70f)
+            lineTo(w * 0.58f, h * 0.85f)
+        }
+        drawPath(door, c, style = st)
+    }
+}
+
+@Composable
+fun IcoSunrise(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.gold) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = w * 0.07f
+        // نصف الشمس فوق الأفق
+        drawArc(c, 180f, 180f, false,
+            Offset(w * 0.30f, h * 0.38f), androidx.compose.ui.geometry.Size(w * 0.40f, w * 0.40f),
+            style = Stroke(st, cap = StrokeCap.Round))
+        // الأشعة
+        for (i in 0 until 5) {
+            val a = (180 + i * 45) * (kotlin.math.PI.toFloat() / 180f)
+            val cx = w * 0.5f; val cy = h * 0.58f
+            drawLine(c,
+                Offset(cx + w * 0.26f * kotlin.math.cos(a), cy + w * 0.26f * kotlin.math.sin(a)),
+                Offset(cx + w * 0.36f * kotlin.math.cos(a), cy + w * 0.36f * kotlin.math.sin(a)),
+                st, StrokeCap.Round)
+        }
+        // الأفق
+        drawLine(c, Offset(w * 0.12f, h * 0.62f), Offset(w * 0.88f, h * 0.62f), st, StrokeCap.Round)
+        drawLine(c.copy(alpha = 0.5f), Offset(w * 0.22f, h * 0.76f), Offset(w * 0.78f, h * 0.76f), st, StrokeCap.Round)
+    }
+}
+
+@Composable
+fun IcoBook(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        // كتاب مفتوح
+        val left = Path().apply {
+            moveTo(w * 0.5f, h * 0.30f)
+            cubicTo(w * 0.38f, h * 0.20f, w * 0.20f, h * 0.20f, w * 0.12f, h * 0.26f)
+            lineTo(w * 0.12f, h * 0.74f)
+            cubicTo(w * 0.20f, h * 0.68f, w * 0.38f, h * 0.68f, w * 0.5f, h * 0.78f)
+            close()
+        }
+        val right = Path().apply {
+            moveTo(w * 0.5f, h * 0.30f)
+            cubicTo(w * 0.62f, h * 0.20f, w * 0.80f, h * 0.20f, w * 0.88f, h * 0.26f)
+            lineTo(w * 0.88f, h * 0.74f)
+            cubicTo(w * 0.80f, h * 0.68f, w * 0.62f, h * 0.68f, w * 0.5f, h * 0.78f)
+            close()
+        }
+        drawPath(left, c.copy(alpha = 0.12f)); drawPath(left, c, style = st)
+        drawPath(right, c.copy(alpha = 0.12f)); drawPath(right, c, style = st)
+    }
+}
+
+/** أيقونة محطة رفيق اليوم حسب معرّفها — بديل الإيموجي */
+@Composable
+fun StationIcon(stationId: String, s: Dp = 28.dp) {
+    val rc = LocalRafiqColors.current
+    when (stationId) {
+        "wake"         -> IcoSunrise(s, rc.morningRing)
+        "fajr_morning" -> IcoSun(s, rc.gold)
+        "duha"         -> IcoSunrise(s, rc.goldLight)
+        "dhuhr"        -> IcoMosque(s, rc.emerald)
+        "asr_evening"  -> IcoStar(s, rc.eveningRing)
+        "maghrib"      -> IcoMosque(s, rc.accentOrange)
+        "isha"         -> IcoMosque(s, rc.purpleSleep)
+        "sleep"        -> IcoMoon(s, rc.sleepRing)
+        "friday_kahf"  -> IcoBook(s, rc.emerald)
+        else           -> IcoDua(s, rc.emeraldMed)
+    }
+}

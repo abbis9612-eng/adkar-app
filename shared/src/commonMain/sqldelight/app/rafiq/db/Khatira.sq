@@ -29,3 +29,6 @@ SET verse_or_hadith = :text,
     is_remote       = 1,
     remote_version  = :version
 WHERE day_of_year = :day;
+
+deleteAll:
+DELETE FROM Khatira;
