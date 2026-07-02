@@ -31,6 +31,9 @@ val sharedModule = module {
     single<CustomDhikrRepository> { app.rafiq.data.repository.CustomDhikrRepositoryImpl(get()) }
     single<UserDataRepository> { UserDataRepositoryImpl(get()) }
 
+    // ═══ Prayer Times (حساب محلي offline — commonMain) ═══
+    single { app.rafiq.domain.model.PrayerTimeCalculator() }
+
     // ═══ Use Cases ═══
     factory { GetAdhkarByCategoryUseCase(get()) }
     factory { GetDailyProgressUseCase(get()) }

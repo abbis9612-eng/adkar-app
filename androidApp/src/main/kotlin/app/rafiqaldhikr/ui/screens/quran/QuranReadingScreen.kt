@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.UthmaniFamily
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
@@ -76,8 +77,8 @@ fun QuranReadingScreen(
                         item {
                             Text(
                                 text      = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ",
-                                fontSize  = 24.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize  = 26.sp,
+                                fontFamily = UthmaniFamily,
                                 textAlign = TextAlign.Center,
                                 modifier  = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                                 color     = rc.emerald
@@ -90,8 +91,9 @@ fun QuranReadingScreen(
                         Column(modifier = Modifier.padding(vertical = 8.dp)) {
                             Text(
                                 text      = ayah.textUthmani + " ﴿${ayah.ayahNumber}﴾",
-                                fontSize  = 22.sp,
-                                lineHeight = 40.sp,
+                                fontSize  = 24.sp,
+                                fontFamily = UthmaniFamily,
+                                lineHeight = 48.sp,
                                 textAlign = TextAlign.End,
                                 color     = rc.ink,
                                 modifier  = Modifier.fillMaxWidth()

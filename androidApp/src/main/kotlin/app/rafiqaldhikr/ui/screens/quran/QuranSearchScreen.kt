@@ -27,6 +27,7 @@ import app.rafiq.domain.usecase.SearchQuranUseCase
 import app.rafiqaldhikr.ui.components.EmptyState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.UthmaniFamily
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.compose.koinInject
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -163,8 +164,9 @@ private fun SearchResultCard(
         Spacer(Modifier.height(8.dp))
         Text(
             ayah.textUthmani,
-            fontSize = 18.sp,
-            lineHeight = 32.sp,
+            fontSize = 19.sp,
+            fontFamily = UthmaniFamily,
+            lineHeight = 36.sp,
             color = rc.ink,
             maxLines  = 3,
             overflow  = TextOverflow.Ellipsis

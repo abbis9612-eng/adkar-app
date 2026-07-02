@@ -36,21 +36,48 @@ fun QuranAudioPlayer(
 ) {
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
-    var currentReciter by remember { mutableStateOf("عبد الباسط عبد الصمد") }
+    var currentReciter by remember { mutableStateOf("مشاري العفاسي") }
     var progress by remember { mutableFloatStateOf(0f) }
     val rc = LocalRafiqColors.current
 
-    val reciters = listOf(
-        "عبد الباسط عبد الصمد",
-        "مشاري العفاسي",
-        "ماهر المعيقلي",
-        "سعود الشريم",
-        "عبد الرحمن السديس"
-    )
+    // معرفات القراء على cdn.islamic.network
+    val reciterIds = remember {
+        linkedMapOf(
+            "مشاري العفاسي"        to "ar.alafasy",
+            "عبد الباسط عبد الصمد" to "ar.abdulbasitmurattal",
+            "ماهر المعيقلي"        to "ar.mahermuaiqly",
+            "سعود الشريم"          to "ar.saoodshuraym",
+            "عبد الرحمن السديس"    to "ar.abdurrahmaansudais",
+        )
+    }
+    val reciters = reciterIds.keys.toList()
 
-    // Build audio URL for the surah
+    // Build audio URL for the surah — يتبع القارئ المختار
     val surahStr = surahNumber.toString().padStart(3, '0')
-    val audioUrl = "https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/$surahStr.mp3"
+    val audioUrl = "https://cdn.islamic.network/quran/audio-surah/128/${reciterIds[currentReciter] ?: "ar.alafasy"}/$surahStr.mp3"
+
+    // MediaController واحد لعمر الشاشة — يتيح الإيقاف المؤقت والاستئناف الفعليين
+    var controller by remember { mutableStateOf<MediaController?>(null) }
+    DisposableEffect(Unit) {
+        val sessionToken = SessionToken(context, ComponentName(context, QuranAudioService::class.java))
+        val future = MediaController.Builder(context, sessionToken).buildAsync()
+        future.addListener({ controller = future.get() }, MoreExecutors.directExecutor())
+        onDispose {
+            runCatching { controller?.release() }
+        }
+    }
+
+    fun playCurrent() {
+        val c = controller ?: return
+        val alreadyLoaded = c.currentMediaItem?.localConfiguration?.uri?.toString() == audioUrl
+        if (alreadyLoaded) {
+            c.play()
+        } else {
+            c.setMediaItem(MediaItem.fromUri(audioUrl))
+            c.prepare()
+            c.play()
+        }
+    }
 
     Box(
         Modifier
@@ -161,9 +188,7 @@ fun QuranAudioPlayer(
                             .background(Brush.radialGradient(listOf(rc.emeraldMed, rc.emerald)))
                             .clickable {
                                 isPlaying = !isPlaying
-                                if (isPlaying) {
-                                    startAudio(context, audioUrl)
-                                }
+                                if (isPlaying) playCurrent() else controller?.pause()
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -211,23 +236,39 @@ fun QuranAudioPlayer(
                 // Reciter picker
                 Text("اختر القارئ", fontSize = 14.sp, color = rc.inkMed)
                 Spacer(Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    reciters.take(3).forEach { name ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (currentReciter == name) rc.emeraldPastel else rc.card)
-                                .border(1.dp, if (currentReciter == name) rc.emerald else rc.gold.copy(alpha=0.1f), RoundedCornerShape(8.dp))
-                                .clickable { currentReciter = name }
-                                .padding(vertical = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(name, fontSize = 12.sp, color = if (currentReciter == name) rc.emerald else rc.inkMed, maxLines = 1)
+                reciters.chunked(3).forEach { rowReciters ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+                    ) {
+                        rowReciters.forEach { name ->
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (currentReciter == name) rc.emeraldPastel else rc.card)
+                                    .border(1.dp, if (currentReciter == name) rc.emerald else rc.gold.copy(alpha=0.1f), RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        val wasPlaying = isPlaying
+                                        currentReciter = name
+                                        if (wasPlaying) {
+                                            // إعادة التشغيل بصوت القارئ الجديد
+                                            controller?.let { c ->
+                                                val id = reciterIds[name] ?: "ar.alafasy"
+                                                val url = "https://cdn.islamic.network/quran/audio-surah/128/$id/$surahStr.mp3"
+                                                c.setMediaItem(MediaItem.fromUri(url))
+                                                c.prepare()
+                                                c.play()
+                                            }
+                                        }
+                                    }
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(name, fontSize = 12.sp, color = if (currentReciter == name) rc.emerald else rc.inkMed, maxLines = 1)
+                            }
                         }
+                        repeat(3 - rowReciters.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
             }
@@ -235,13 +276,3 @@ fun QuranAudioPlayer(
     }
 }
 
-private fun startAudio(context: Context, url: String) {
-    val sessionToken = SessionToken(context, ComponentName(context, QuranAudioService::class.java))
-    val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-    controllerFuture.addListener({
-        val controller = controllerFuture.get()
-        controller.setMediaItem(MediaItem.fromUri(url))
-        controller.prepare()
-        controller.play()
-    }, MoreExecutors.directExecutor())
-}
