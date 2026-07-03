@@ -24,6 +24,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.theme.NumbersStyle
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 
@@ -289,7 +292,8 @@ private fun StatCard(
             contentAlignment = Alignment.Center,
         ) { icon() }
         Spacer(Modifier.height(8.dp))
-        Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+        Text(value.localizedDigits(LocalArabicNumerals.current),
+            style = NumbersStyle, fontSize = 22.sp, color = LocalRafiqColors.current.emerald)
         Text(label, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
     }
 }
@@ -497,7 +501,7 @@ fun ProfileScreen(
             ) {
                 StatCard(
                     icon = { IconMosque(20.dp, rc.emerald) },
-                    value = "${state.todayProgress?.prayersLogged ?: 0}/٥",
+                    value = "${state.todayProgress?.prayersLogged ?: 0}/5",
                     label = "الصلوات",
                     iconBg = LocalRafiqColors.current.emeraldPastel,
                     modifier = Modifier.weight(1f),

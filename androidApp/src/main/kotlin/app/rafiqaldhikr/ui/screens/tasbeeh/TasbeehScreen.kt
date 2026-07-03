@@ -29,6 +29,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.theme.NumbersStyle
 import kotlin.math.*
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
@@ -412,9 +415,9 @@ fun TasbeehScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            "${state.count}",
+                            "${state.count}".localizedDigits(LocalArabicNumerals.current),
+                            style = NumbersStyle,
                             fontSize = 56.sp,
-                            fontWeight = FontWeight.Bold,
                             color = primaryColor,
                         )
                         Text(

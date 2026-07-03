@@ -25,6 +25,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -260,9 +263,9 @@ private fun StatCard(
         Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(28.dp))
         Spacer(Modifier.height(8.dp))
         Text(
-            value,
+            value.localizedDigits(LocalArabicNumerals.current),
+            style = NumbersStyle,
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
             color = iconColor
         )
         if (suffix.isNotEmpty()) {

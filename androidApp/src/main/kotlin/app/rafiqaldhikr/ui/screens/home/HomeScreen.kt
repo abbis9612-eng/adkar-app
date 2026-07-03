@@ -110,7 +110,10 @@ private fun ArcProgress(
             val s = sw.toPx(); val r = (size.minDimension - s * 2) / 2f
             val tl = Offset(size.width / 2f - r, size.height / 2f - r); val sz = Size(r * 2, r * 2)
             drawArc(bg, 0f, 360f, false, tl, sz, style = Stroke(s, cap = StrokeCap.Round))
-            drawArc(stroke, -90f, 360f * anim, false, tl, sz, style = Stroke(s, cap = StrokeCap.Round))
+            // لا نرسم قوس التقدم عند الصفر — الرأس المدور كان يظهر كنقطة غريبة
+            if (anim > 0.005f) {
+                drawArc(stroke, -90f, 360f * anim, false, tl, sz, style = Stroke(s, cap = StrokeCap.Round))
+            }
         }
         content()
     }
@@ -264,12 +267,9 @@ private fun NextPrayerCard(
         border = BorderStroke(1.dp, rc.divider)
     ) {
         Column(Modifier.fillMaxWidth()) {
-            // سماء حية تتبدل ألوانها مع وقت الصلاة (فجر بنفسجي → ظهر أزرق → مغرب برتقالي → ليل)
-            PrayerSkyBackground(Modifier.fillMaxWidth()) {
+            // مشهد سماء يتبع الصلاة القادمة نفسها — لون كل صلاة يميزها
+            PrayerScene(prayerName = name, modifier = Modifier.fillMaxWidth()) {
               Box(Modifier.fillMaxWidth()) {
-                // تدرّج تعتيم من الأسفل — النص واضح والسماء ظاهرة
-                Box(Modifier.matchParentSize().background(
-                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.10f), Color.Black.copy(alpha = 0.38f)))))
                 // Content: RTL → first(right)=name, last(left)=time
                 Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -391,17 +391,15 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
                     Text("على كل حال وفي كل أوان", fontSize = 12.sp, color = rc.inkMed,
                         modifier = Modifier.padding(top = 4.dp))
                 }
-                // Circle progress with green dot
-                Box {
-                    ArcProgress(current, total, 68.dp, rc.goldLight, rc.divider, 5.dp) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("إنجاز", fontSize = 10.sp, color = rc.inkMed)
-                            Text("${toAr(percent)}٪", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.gold)
-                        }
+                // حلقة الإنجاز — مسار واضح ورقم بنمط الأرقام الموحد
+                ArcProgress(current, total, 74.dp, rc.gold, rc.emeraldPastel2, 6.dp) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "$percent٪".localizedDigits(LocalArabicNumerals.current),
+                            style = NumbersStyle, fontSize = 17.sp, color = rc.emerald
+                        )
+                        Text("إنجاز", fontSize = 10.sp, color = rc.inkMed)
                     }
-                    // Green dot decoration (top-left of circle)
-                    Box(Modifier.size(8.dp).align(Alignment.TopStart).offset(x = 4.dp, y = 4.dp)
-                        .clip(CircleShape).background(rc.emerald))
                 }
             }
             Spacer(Modifier.height(14.dp))
@@ -411,9 +409,12 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
                     .clip(RoundedCornerShape(10.dp))
                     .background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
             }
-            Row(Modifier.fillMaxWidth().padding(top = 5.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${toAr(current)} / ${toAr(total)}", fontSize = 11.sp, color = rc.inkMed)
-                Text("${toAr(total)}", fontSize = 11.sp, color = rc.inkMed)
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    "$current / $total".localizedDigits(LocalArabicNumerals.current),
+                    style = NumbersStyle, fontSize = 12.sp, color = rc.inkMed
+                )
+                Text("الهدف اليومي", fontSize = 11.sp, color = rc.inkLight)
             }
         }
     }
@@ -527,11 +528,6 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
 /* ═══════════════════════════════════════════════════════
    HELPER
 ═══════════════════════════════════════════════════════ */
-
-private fun toAr(n: Int): String {
-    val d = charArrayOf('٠','١','٢','٣','٤','٥','٦','٧','٨','٩')
-    return n.toString().map { if (it.isDigit()) d[it - '0'] else it }.joinToString("")
-}
 
 /* ═══════════════════════════════════════════════════════
    HOME SCREEN — Assembly

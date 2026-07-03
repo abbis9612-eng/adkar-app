@@ -68,8 +68,8 @@ fun DayCompanionScreen(
                                 )
                                 Text(
                                     "${state.doneCount.localized(LocalArabicNumerals.current)} من ${state.stations.size.localized(LocalArabicNumerals.current)}",
+                                    style = app.rafiqaldhikr.ui.theme.NumbersStyle,
                                     fontSize = 26.sp,
-                                    fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                             }

@@ -21,6 +21,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -102,9 +105,9 @@ fun AchievementsScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                "$unlocked / ${achievements.size}",
+                                "$unlocked / ${achievements.size}".localizedDigits(LocalArabicNumerals.current),
+                                style = NumbersStyle,
                                 fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold,
                                 color = androidx.compose.ui.graphics.Color.White
                             )
                             Text(
