@@ -100,7 +100,8 @@ fun TafsirSheet(
 
             Text(
                 tafsirText,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
+                fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
                 lineHeight = 28.sp,
                 textAlign = TextAlign.Start,
                 color = rc.inkMed

@@ -225,11 +225,12 @@ fun DhikrReadingScreen(
 
                                 Text(
                                     dhikr.textAr,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 23.sp,
+                                    fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
+                                    fontWeight = FontWeight.Medium,
                                     color = LocalRafiqColors.current.ink,
                                     textAlign = TextAlign.Center,
-                                    lineHeight = 40.sp,
+                                    lineHeight = 46.sp,
                                 )
 
                                 if (dhikr.virtue.isNotBlank()) {

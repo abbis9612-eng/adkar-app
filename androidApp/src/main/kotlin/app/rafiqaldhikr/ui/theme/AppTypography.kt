@@ -27,6 +27,17 @@ val QuranFamily = FontFamily(
     Font(R.font.scheherazade_bold,     FontWeight.Bold),
 )
 
+/**
+ * خط الأذكار والأدعية: Noto Naskh Arabic — نسخ حديث مصمم خصيصاً لوضوح
+ * النص المشكول على الشاشات؛ الحركات مرتبة لا تتزاحم والحروف كبيرة مريحة.
+ */
+val NaskhFamily = FontFamily(
+    Font(R.font.noto_naskh_regular,  FontWeight.Normal),
+    Font(R.font.noto_naskh_semibold, FontWeight.Medium),
+    Font(R.font.noto_naskh_semibold, FontWeight.SemiBold),
+    Font(R.font.noto_naskh_bold,     FontWeight.Bold),
+)
+
 val AmiriFamily = FontFamily(
     Font(R.font.amiri_regular, FontWeight.Normal),
     Font(R.font.amiri_bold,    FontWeight.Bold),

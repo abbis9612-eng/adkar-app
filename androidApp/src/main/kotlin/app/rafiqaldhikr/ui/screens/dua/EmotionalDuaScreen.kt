@@ -92,8 +92,10 @@ fun EmotionalDuaScreen(navController: NavHostController) {
                             Spacer(Modifier.height(10.dp))
                             Text(
                                 dua,
-                                fontSize  = 17.sp,
-                                lineHeight = 30.sp,
+                                fontSize  = 18.sp,
+                                fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
+                                fontWeight = FontWeight.Medium,
+                                lineHeight = 34.sp,
                                 textAlign = TextAlign.End,
                                 color     = rc.ink,
                                 modifier  = Modifier.fillMaxWidth()

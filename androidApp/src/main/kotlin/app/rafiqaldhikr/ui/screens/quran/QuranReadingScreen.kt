@@ -6,9 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -43,10 +46,13 @@ import app.rafiqaldhikr.ui.utils.localized
 import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
 
+private const val BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+
 /**
- * شاشة قراءة بأسلوب المصحف: نص متصل مجرى بالعدل (Justify)،
- * فواصل آيات ذهبية بأرقام عربية، وصفحات حقيقية —
- * والضغط على أي آية يفتح خياراتها (تفسير، علامة، نسخ، مشاركة).
+ * المصحف — يُقلب صفحة صفحة (604 صفحات) مثل المصحف المطبوع:
+ * كل صفحة ورقة بإطار مذهّب مزدوج، رؤوس سور مزخرفة عند بداية كل سورة،
+ * والسحب يمين/يسار يقلب الورق عبر كامل المصحف.
+ * الضغط على أي آية يفتح خياراتها (تفسير، علامة، نسخ، مشاركة).
  */
 @Composable
 fun QuranReadingScreen(
@@ -62,107 +68,69 @@ fun QuranReadingScreen(
 
     LaunchedEffect(surahNumber) { viewModel.loadSurah(surahNumber) }
 
+    val startPage = state.surah?.pageStart ?: 0
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(rc.bg)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-        ) {
-            RafiqTopBar(
-                title    = state.surah?.nameAr ?: "سورة",
-                subtitle = state.surah?.let { s ->
-                    (if (s.revelation == "meccan") "مكية" else "مدنية") +
-                        " · ${s.ayahCount.localized(LocalArabicNumerals.current)} آية"
-                },
-                onBack   = { navController.popBackStack() },
-                actions  = {
-                    FontSizeButton("-") { settingsVM.setFontScale((fontScale - 0.1f).coerceAtLeast(0.8f)) }
-                    FontSizeButton("+") { settingsVM.setFontScale((fontScale + 0.1f).coerceAtMost(1.5f)) }
-                },
+        if (state.isLoading || startPage == 0) {
+            LoadingState()
+        } else {
+            val pagerState = rememberPagerState(
+                initialPage = startPage - 1,
+                pageCount = { QuranReadingViewModel.TOTAL_PAGES }
             )
+            val currentPage = pagerState.currentPage + 1
+            val currentAyahs = state.pages[currentPage]
 
-            when {
-                state.isLoading -> LoadingState()
-                else -> {
-                    val pages = remember(state.ayahs) {
-                        state.ayahs.groupBy { it.page }.toSortedMap()
-                    }
-                    LazyColumn(
-                        modifier       = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
-                    ) {
-                        // البسملة (ما عدا الفاتحة والتوبة)
-                        if (surahNumber != 1 && surahNumber != 9) {
-                            item {
-                                Text(
-                                    text      = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                                    fontSize  = 30.sp,
-                                    fontFamily = QuranFamily,
-                                    fontWeight = FontWeight.Medium,
-                                    textAlign = TextAlign.Center,
-                                    modifier  = Modifier.fillMaxWidth().padding(vertical = 14.dp),
-                                    color     = rc.emerald
-                                )
-                            }
-                        }
+            Column(Modifier.fillMaxSize().statusBarsPadding()) {
+                // ═══ الترويسة تتبع الصفحة الحالية ═══
+                val headerSurah = currentAyahs?.firstOrNull()?.let { state.surahByNumber[it.surah] }
+                RafiqTopBar(
+                    title    = headerSurah?.nameAr ?: state.surah?.nameAr ?: "المصحف",
+                    subtitle = currentAyahs?.firstOrNull()?.let {
+                        "الجزء ${it.juz.localized(LocalArabicNumerals.current)} · صفحة ${currentPage.localized(LocalArabicNumerals.current)}"
+                    },
+                    onBack   = { navController.popBackStack() },
+                    actions  = {
+                        FontSizeButton("-") { settingsVM.setFontScale((fontScale - 0.1f).coerceAtLeast(0.8f)) }
+                        FontSizeButton("+") { settingsVM.setFontScale((fontScale + 0.1f).coerceAtMost(1.5f)) }
+                    },
+                )
 
-                        pages.forEach { (page, pageAyahs) ->
-                            item(key = "page_$page") {
-                                // ═══ صفحة مصحف بإطار مذهّب مزدوج ═══
-                                Box(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 4.dp)
-                                        .shadow(3.dp, RoundedCornerShape(24.dp))
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .background(rc.card)
-                                        .border(2.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(24.dp))
-                                        .padding(5.dp)
-                                        .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(20.dp))
-                                        .padding(horizontal = 16.dp, vertical = 18.dp)
-                                ) {
-                                    MushafText(
-                                        ayahs        = pageAyahs,
-                                        bookmarks    = state.bookmarks,
-                                        selectedAyah = selectedAyah?.ayahNumber,
-                                        fontScale    = fontScale,
-                                        onAyahTap    = { selectedAyah = it }
-                                    )
-                                }
+                // ═══ صفحات المصحف ═══
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f),
+                    beyondViewportPageCount = 1,
+                ) { pageIndex ->
+                    val page = pageIndex + 1
+                    LaunchedEffect(page) { viewModel.loadPage(page) }
+                    MushafPage(
+                        page          = page,
+                        ayahs         = state.pages[page],
+                        surahByNumber = state.surahByNumber,
+                        bookmarks     = state.bookmarks,
+                        selectedAyah  = selectedAyah,
+                        fontScale     = fontScale,
+                        onAyahTap     = { selectedAyah = it },
+                    )
+                }
+            }
 
-                                // ═══ رقم الصفحة داخل حلية ═══
-                                Row(
-                                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
-                                    Box(
-                                        Modifier
-                                            .padding(horizontal = 10.dp)
-                                            .clip(CircleShape)
-                                            .background(rc.accentGoldBg)
-                                            .border(1.dp, rc.gold.copy(alpha = 0.4f), CircleShape)
-                                            .padding(horizontal = 14.dp, vertical = 5.dp)
-                                    ) {
-                                        Text(
-                                            "${page.toEasternArabic()} · جزء ${pageAyahs.first().juz.toEasternArabic()}",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = rc.accentGold
-                                        )
-                                    }
-                                    Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
-                                }
-                            }
-                        }
-
-                        item { Spacer(Modifier.height(80.dp)) }
-                    }
+            // حفظ آخر موضع قراءة عند المغادرة
+            DisposableEffect(Unit) {
+                onDispose {
+                    val ayahs = state.pages[pagerState.currentPage + 1]
+                    val firstAyah = ayahs?.firstOrNull()
+                    viewModel.savePosition(
+                        surah = firstAyah?.surah ?: surahNumber,
+                        ayah  = firstAyah?.ayahNumber ?: 1,
+                        page  = pagerState.currentPage + 1,
+                        scrollY = 0f
+                    )
                 }
             }
         }
@@ -171,14 +139,14 @@ fun QuranReadingScreen(
     // ═══ خيارات الآية المختارة ═══
     selectedAyah?.let { ayah ->
         AyahActionsSheet(
-            ayah        = ayah,
-            isBookmarked = ayah.ayahNumber in state.bookmarks,
-            onTafsir    = { viewModel.showTafsir(ayah); selectedAyah = null },
-            onBookmark  = {
-                viewModel.toggleBookmark(surahNumber, ayah.ayahNumber, ayah.page)
+            ayah         = ayah,
+            isBookmarked = (ayah.surah * 1000 + ayah.ayahNumber).toLong() in state.bookmarks,
+            onTafsir     = { viewModel.showTafsir(ayah); selectedAyah = null },
+            onBookmark   = {
+                viewModel.toggleBookmark(ayah.surah, ayah.ayahNumber, ayah.page)
                 selectedAyah = null
             },
-            onDismiss   = { selectedAyah = null }
+            onDismiss    = { selectedAyah = null }
         )
     }
 
@@ -191,14 +159,140 @@ fun QuranReadingScreen(
             onDismiss   = { viewModel.dismissTafsir() }
         )
     }
+}
 
-    // Save position on leaving
-    DisposableEffect(Unit) {
-        onDispose {
-            val s = state
-            if (s.ayahs.isNotEmpty()) {
-                viewModel.savePosition(surahNumber, 1, s.ayahs.firstOrNull()?.page ?: 1, 0f)
+/* ══════════════════════════════════════════════════════════════
+   ورقة مصحف واحدة — إطار مذهّب، رؤوس سور، نص مجرى، رقم صفحة
+══════════════════════════════════════════════════════════════ */
+
+@Composable
+private fun MushafPage(
+    page:          Int,
+    ayahs:         List<AyahInfo>?,
+    surahByNumber: Map<Int, app.rafiq.domain.model.SurahInfo>,
+    bookmarks:     Set<Long>,
+    selectedAyah:  AyahInfo?,
+    fontScale:     Float,
+    onAyahTap:     (AyahInfo) -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .shadow(3.dp, RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(22.dp))
+            .background(rc.card)
+            .border(2.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(22.dp))
+            .padding(5.dp)
+            .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(18.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        if (ayahs == null) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = rc.gold, strokeWidth = 2.dp)
             }
+            return@Column
+        }
+
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // تقسيم آيات الصفحة إلى مقاطع عند بداية كل سورة
+            val segments = remember(ayahs) { segmentBySurahStart(ayahs) }
+            segments.forEach { segment ->
+                val first = segment.first()
+                if (first.ayahNumber == 1) {
+                    SurahHeaderBand(surahByNumber[first.surah]?.nameAr ?: "")
+                    if (first.surah != 1 && first.surah != 9) {
+                        Text(
+                            text       = BISMILLAH,
+                            fontSize   = (24 * fontScale).sp,
+                            fontFamily = QuranFamily,
+                            fontWeight = FontWeight.Medium,
+                            textAlign  = TextAlign.Center,
+                            modifier   = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                            color      = rc.emerald
+                        )
+                    }
+                }
+                MushafText(
+                    ayahs        = segment,
+                    bookmarks    = bookmarks,
+                    selectedAyah = selectedAyah,
+                    fontScale    = fontScale,
+                    onAyahTap    = onAyahTap
+                )
+            }
+        }
+
+        // ═══ رقم الصفحة في حلية أسفل الورقة ═══
+        Row(
+            Modifier.fillMaxWidth().padding(top = 6.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
+            Box(
+                Modifier
+                    .padding(horizontal = 10.dp)
+                    .clip(CircleShape)
+                    .background(rc.accentGoldBg)
+                    .border(1.dp, rc.gold.copy(alpha = 0.4f), CircleShape)
+                    .padding(horizontal = 14.dp, vertical = 3.dp)
+            ) {
+                Text(
+                    page.toEasternArabic(),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = rc.accentGold
+                )
+            }
+            Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))
+        }
+    }
+}
+
+/** يقسم آيات الصفحة إلى مقاطع تبدأ كل منها ببداية سورة (إن وُجدت) */
+private fun segmentBySurahStart(ayahs: List<AyahInfo>): List<List<AyahInfo>> {
+    val segments = mutableListOf<MutableList<AyahInfo>>()
+    ayahs.forEach { ayah ->
+        if (segments.isEmpty() || ayah.ayahNumber == 1) {
+            segments.add(mutableListOf(ayah))
+        } else {
+            segments.last().add(ayah)
+        }
+    }
+    return segments
+}
+
+/* شريط اسم السورة المزخرف — مثل رأس السورة في المصحف المطبوع */
+@Composable
+private fun SurahHeaderBand(name: String) {
+    val rc = LocalRafiqColors.current
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(rc.emeraldPastel)
+            .border(1.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(14.dp))
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("۞", fontSize = 16.sp, color = rc.gold)
+            Text(
+                "سُورَةُ $name",
+                fontSize = 18.sp,
+                fontFamily = QuranFamily,
+                fontWeight = FontWeight.Bold,
+                color = rc.emerald
+            )
+            Text("۞", fontSize = 16.sp, color = rc.gold)
         }
     }
 }
@@ -210,8 +304,8 @@ fun QuranReadingScreen(
 @Composable
 private fun MushafText(
     ayahs:        List<AyahInfo>,
-    bookmarks:    Set<Int>,
-    selectedAyah: Int?,
+    bookmarks:    Set<Long>,
+    selectedAyah: AyahInfo?,
     fontScale:    Float,
     onAyahTap:    (AyahInfo) -> Unit,
 ) {
@@ -223,19 +317,20 @@ private fun MushafText(
                 val start = length
                 append(ayah.textUthmani)
                 withStyle(
-                    androidx.compose.ui.text.SpanStyle(
+                    SpanStyle(
                         color = rc.gold,
-                        fontSize = (22 * fontScale).sp,
+                        fontSize = (20 * fontScale).sp,
                     )
                 ) {
                     append(" ﴿${ayah.ayahNumber.toEasternArabic()}﴾ ")
                 }
                 val end = length
-                addStringAnnotation("ayah", ayah.ayahNumber.toString(), start, end)
+                addStringAnnotation("ayah", "${ayah.surah}:${ayah.ayahNumber}", start, end)
+                val bookId = (ayah.surah * 1000 + ayah.ayahNumber).toLong()
                 when {
-                    ayah.ayahNumber == selectedAyah ->
+                    selectedAyah?.surah == ayah.surah && selectedAyah.ayahNumber == ayah.ayahNumber ->
                         addStyle(SpanStyle(background = rc.gold.copy(alpha = 0.20f)), start, end)
-                    ayah.ayahNumber in bookmarks ->
+                    bookId in bookmarks ->
                         addStyle(SpanStyle(background = rc.emeraldPastel.copy(alpha = 0.55f)), start, end)
                 }
             }
@@ -246,10 +341,10 @@ private fun MushafText(
 
     Text(
         text = annotated,
-        fontSize = (27 * fontScale).sp,
+        fontSize = (24 * fontScale).sp,
         fontFamily = QuranFamily,
         fontWeight = FontWeight.Medium,
-        lineHeight = (56 * fontScale).sp,
+        lineHeight = (50 * fontScale).sp,
         textAlign = TextAlign.Justify,
         color = rc.ink,
         onTextLayout = { layout = it },
@@ -262,7 +357,8 @@ private fun MushafText(
                     annotated.getStringAnnotations("ayah", offset, offset)
                         .firstOrNull()
                         ?.let { ann ->
-                            ayahs.firstOrNull { it.ayahNumber.toString() == ann.item }
+                            val (s, a) = ann.item.split(":").map { it.toInt() }
+                            ayahs.firstOrNull { it.surah == s && it.ayahNumber == a }
                                 ?.let(onAyahTap)
                         }
                 }

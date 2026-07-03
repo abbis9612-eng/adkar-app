@@ -73,8 +73,10 @@ fun DuaListScreen(
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(
                                 text      = dua.textAr,
-                                fontSize  = 18.sp,
-                                lineHeight = 32.sp,
+                                fontSize  = 19.sp,
+                                fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
+                                fontWeight = FontWeight.Medium,
+                                lineHeight = 38.sp,
                                 textAlign = TextAlign.End,
                                 color     = rc.ink,
                                 modifier  = Modifier.fillMaxWidth()
