@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: 'Noto Sans Arabic', 'Geist', sans-serif;
+  --font-serif: 'Amiri', serif;
+
+  /* ---- Brand Colors ---- */
+  --color-background:   #0B1A2E;
+  --color-surface:      #132240;
+  --color-surface-2:    #1B3155;
+  --color-foreground:   #F0E9D8;
+  --color-muted:        #8FA8C8;
+
+  --color-gold:         #C9A84C;
+  --color-gold-light:   #E8C96A;
+  --color-gold-dim:     #7A6230;
+  --color-emerald:      #2D8A6A;
+  --color-emerald-light:#3FB88A;
+  --color-sky:          #4A90C4;
+  --color-sky-dim:      #1E4A7A;
+
+  /* ---- Prayer Palette ---- */
+  --color-fajr:         #3A5F8A;
+  --color-dhuhr:        #C9943C;
+  --color-asr:          #4A8A6A;
+  --color-maghrib:      #8A4A6A;
+  --color-isha:         #3A3A7A;
+
+  /* ---- Semantics ---- */
+  --color-border:       rgba(201,168,76,0.18);
+  --color-glass:        rgba(19,34,64,0.72);
+  --color-active-glow:  rgba(201,168,76,0.35);
+
+  --radius: 1rem;
+}
+
+/* ---- Base ---- */
+html, body {
+  direction: rtl;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Star field ---- */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 1; }
+}
+@keyframes float-up {
+  0%   { transform: translateY(0px);   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(-120px); opacity: 0; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@keyframes count-down {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes glow-border {
+  0%, 100% { box-shadow: 0 0 8px 1px var(--color-active-glow); }
+  50%       { box-shadow: 0 0 24px 6px var(--color-active-glow); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.star { animation: twinkle var(--dur,3s) ease-in-out infinite; }
+.particle { animation: float-up var(--dur,4s) ease-in infinite; }
+.pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+.section-enter { animation: slide-in-up 0.55s ease both; }
+.glow-border-anim { animation: glow-border 2.8s ease-in-out infinite; }
+
+/* ---- Glassmorphism ---- */
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+}
+
+/* ---- Shimmer progress ---- */
+.shimmer-bar {
+  background: linear-gradient(90deg,
+    var(--color-emerald) 0%,
+    var(--color-gold) 50%,
+    var(--color-emerald) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb { background: var(--color-gold-dim); border-radius: 4px; }
