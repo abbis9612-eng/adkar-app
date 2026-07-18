@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.components.IcoCheck
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 data class LanguageOption(
@@ -140,11 +141,7 @@ fun LanguageScreen(navController: NavHostController) {
                                 )
                             }
                             if (isSelected) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = "مُختار",
-                                    tint = rc.emerald
-                                )
+                                IcoCheck(20.dp, rc.emerald)
                             }
                         }
                         if (index < languages.lastIndex) {

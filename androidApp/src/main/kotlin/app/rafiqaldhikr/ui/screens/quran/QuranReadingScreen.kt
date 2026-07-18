@@ -37,6 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AyahInfo
+import app.rafiqaldhikr.ui.components.IcoBook
+import app.rafiqaldhikr.ui.components.IcoBookmark
+import app.rafiqaldhikr.ui.components.IcoCopy
+import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.theme.QuranFamily
@@ -407,17 +411,17 @@ private fun AyahActionsSheet(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AyahAction("تفسير", Icons.AutoMirrored.Filled.MenuBook, rc.gold, onTafsir)
+                AyahAction("تفسير", { s, c -> IcoBook(s, c) }, rc.gold, onTafsir)
                 AyahAction(
                     if (isBookmarked) "إزالة العلامة" else "علامة",
-                    if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    { s, c -> IcoBookmark(s, c, filled = isBookmarked) },
                     rc.emerald, onBookmark
                 )
-                AyahAction("نسخ", Icons.Default.ContentCopy, rc.inkMed) {
+                AyahAction("نسخ", { s, c -> IcoCopy(s, c) }, rc.inkMed) {
                     clipboard.setText(AnnotatedString(shareText))
                     onDismiss()
                 }
-                AyahAction("مشاركة", Icons.Default.Share, rc.inkMed) {
+                AyahAction("مشاركة", { s, c -> IcoShare(s, c) }, rc.inkMed) {
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, "$shareText\n\nعبر تطبيق رفيق الذكر 🌙")
@@ -433,7 +437,7 @@ private fun AyahActionsSheet(
 @Composable
 private fun AyahAction(
     label:   String,
-    icon:    androidx.compose.ui.graphics.vector.ImageVector,
+    icon:    @Composable (androidx.compose.ui.unit.Dp, Color) -> Unit,
     tint:    Color,
     onClick: () -> Unit,
 ) {
@@ -453,7 +457,7 @@ private fun AyahAction(
                 .border(1.dp, tint.copy(alpha = 0.3f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = label, tint = tint, modifier = Modifier.size(22.dp))
+            icon(22.dp, tint)
         }
         Spacer(Modifier.height(6.dp))
         Text(label, fontSize = 11.sp, color = rc.inkMed)

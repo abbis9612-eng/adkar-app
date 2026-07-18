@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.components.IcoCheck
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -88,7 +89,7 @@ fun PremiumScreen(navController: NavHostController) {
 
                 listOf("إزالة الإعلانات", "مظاهر حصرية", "أصوات مسبحة إضافية", "ويدجت مخصصة", "تقارير أسبوعية").forEach { feature ->
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = rc.emerald, modifier = Modifier.size(20.dp))
+                        IcoCheck(20.dp, rc.emerald)
                         Spacer(Modifier.width(12.dp))
                         Text(feature, fontSize = 16.sp, color = rc.ink)
                     }

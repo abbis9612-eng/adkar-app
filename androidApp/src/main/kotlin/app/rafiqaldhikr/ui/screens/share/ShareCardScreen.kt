@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -156,7 +157,7 @@ fun ShareCardScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Share, contentDescription = null, tint = rc.bg)
+                        IcoShare(20.dp, rc.bg)
                         Spacer(Modifier.width(8.dp))
                         Text("مشاركة البطاقة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.bg)
                     }

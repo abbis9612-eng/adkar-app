@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AyahInfo
 import app.rafiq.domain.usecase.SearchQuranUseCase
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.IcoSearch
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
@@ -76,7 +77,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                     modifier      = Modifier.fillMaxWidth(),
                     placeholder   = { Text("اكتب كلمة أو آية...", color = rc.inkLight) },
                     singleLine    = true,
-                    leadingIcon   = { Icon(Icons.Default.Search, contentDescription = null, tint = rc.emerald) },
+                    leadingIcon   = { IcoSearch(22.dp, rc.emerald) },
                     shape         = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = rc.emerald,

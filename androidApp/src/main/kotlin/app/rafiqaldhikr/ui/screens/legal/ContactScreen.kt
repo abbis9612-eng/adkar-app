@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
+import app.rafiqaldhikr.ui.components.IcoBulb
+import app.rafiqaldhikr.ui.components.IcoMail
+import app.rafiqaldhikr.ui.components.IcoSend
+import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -73,7 +77,7 @@ fun ContactScreen(navController: NavHostController) {
 
                 // Email
                 ContactItem(
-                    icon = Icons.Default.Email,
+                    icon = { s, c -> IcoMail(s, c) },
                     title = "البريد الإلكتروني",
                     desc = "support@rafiqaldhikr.app",
                     rc = rc,
@@ -87,7 +91,7 @@ fun ContactScreen(navController: NavHostController) {
                 )
 
                 ContactItem(
-                    icon = Icons.Default.BugReport,
+                    icon = { s, c -> IcoWarning(s, c) },
                     title = "الإبلاغ عن خطأ",
                     desc = "أخبرنا عن أي خطأ تقني",
                     rc = rc,
@@ -101,7 +105,7 @@ fun ContactScreen(navController: NavHostController) {
                 )
 
                 ContactItem(
-                    icon = Icons.Default.Lightbulb,
+                    icon = { s, c -> IcoBulb(s, c) },
                     title = "اقتراح ميزة",
                     desc = "شاركنا أفكارك لتطوير التطبيق",
                     rc = rc,
@@ -152,7 +156,7 @@ fun ContactScreen(navController: NavHostController) {
                         disabledContainerColor = rc.emerald.copy(alpha = 0.5f)
                     )
                 ) {
-                    Icon(Icons.Default.Send, contentDescription = null)
+                    IcoSend(20.dp, rc.bg)
                     Spacer(Modifier.width(8.dp))
                     Text("إرسال", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
@@ -163,7 +167,7 @@ fun ContactScreen(navController: NavHostController) {
 
 @Composable
 private fun ContactItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.graphics.Color) -> Unit,
     title: String, desc: String, rc: RafiqPalette, onClick: () -> Unit
 ) {
     Row(
@@ -185,7 +189,7 @@ private fun ContactItem(
                 .background(rc.emerald.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = rc.emerald, modifier = Modifier.size(24.dp))
+            icon(24.dp, rc.emerald)
         }
         Spacer(Modifier.width(16.dp))
         Column {

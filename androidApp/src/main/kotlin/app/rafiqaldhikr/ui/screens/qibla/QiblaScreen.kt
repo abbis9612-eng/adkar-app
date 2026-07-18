@@ -34,6 +34,10 @@ import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.cos
 import kotlin.math.sin
+import app.rafiqaldhikr.ui.components.IcoAlert
+import app.rafiqaldhikr.ui.components.IcoCompass
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -195,12 +199,7 @@ private fun QiblaCompassContent(
             color  = rc.emerald.copy(alpha = 0.1f),
             modifier = Modifier.size(60.dp)
         ) {
-            Icon(
-                Icons.Default.Mosque,
-                contentDescription = "اتجاه القبلة",
-                modifier = Modifier.padding(14.dp),
-                tint     = rc.emerald
-            )
+            Box(Modifier.padding(14.dp)) { IcoMosque(24.dp, rc.emerald) }
         }
     }
 
@@ -231,7 +230,7 @@ private fun QiblaCompassContent(
 
 @Composable
 private fun NoCompassContent(rc: RafiqPalette) {
-    Icon(Icons.Default.ExploreOff, contentDescription = null, modifier = Modifier.size(80.dp), tint = rc.error)
+    IcoCompass(80.dp, rc.error, off = true)
     Spacer(Modifier.height(16.dp))
     Text("البوصلة غير متوفرة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
@@ -240,7 +239,7 @@ private fun NoCompassContent(rc: RafiqPalette) {
 
 @Composable
 private fun NoLocationContent(rc: RafiqPalette) {
-    Icon(Icons.Default.LocationOff, contentDescription = null, modifier = Modifier.size(80.dp), tint = rc.gold)
+    IcoPin(80.dp, rc.gold, off = true)
     Spacer(Modifier.height(16.dp))
     Text("الموقع غير محدد", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
@@ -249,7 +248,7 @@ private fun NoLocationContent(rc: RafiqPalette) {
 
 @Composable
 private fun ErrorContent(message: String, rc: RafiqPalette) {
-    Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = rc.error)
+    IcoAlert(64.dp, rc.error)
     Spacer(Modifier.height(16.dp))
     Text(message, fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.ink)
 }

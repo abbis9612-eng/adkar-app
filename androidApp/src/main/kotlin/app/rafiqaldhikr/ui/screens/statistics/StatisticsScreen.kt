@@ -23,6 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.IcoBook
+import app.rafiqaldhikr.ui.components.IcoFlame
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.IcoMoon
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoSun
+import app.rafiqaldhikr.ui.components.IcoTrophy
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.localizedDigits
@@ -82,7 +89,7 @@ fun StatisticsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         modifier   = Modifier.weight(1f),
-                        icon       = Icons.Default.LocalFireDepartment,
+                        icon       = { s, c -> IcoFlame(s, c) },
                         iconColor  = rc.error,
                         title      = "السلسلة الحالية",
                         value      = "${state.streak.current}",
@@ -91,7 +98,7 @@ fun StatisticsScreen(
                     )
                     StatCard(
                         modifier   = Modifier.weight(1f),
-                        icon       = Icons.Default.EmojiEvents,
+                        icon       = { s, c -> IcoTrophy(s, c) },
                         iconColor  = rc.gold,
                         title      = "أطول سلسلة",
                         value      = "${state.streak.longest}",
@@ -110,7 +117,7 @@ fun StatisticsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = Icons.Default.MenuBook,
+                        icon      = { s, c -> IcoBook(s, c) },
                         iconColor = rc.emerald,
                         title     = "صفحات القرآن",
                         value     = "${p?.quranPages ?: 0}",
@@ -119,7 +126,7 @@ fun StatisticsScreen(
                     )
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = Icons.Default.RadioButtonChecked,
+                        icon      = { s, c -> IcoMisbaha(s, c) },
                         iconColor = rc.emerald,
                         title     = "التسبيح",
                         value     = "${p?.tasbeehCount ?: 0}",
@@ -131,8 +138,8 @@ fun StatisticsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = Icons.Default.NightsStay,
-                        iconColor = rc.emerald,
+                        icon      = { s, c -> IcoSun(s, c) },
+                        iconColor = rc.gold,
                         title     = "أذكار الصباح",
                         value     = if (p?.morningDone == true) "✅" else "—",
                         suffix    = "",
@@ -140,8 +147,8 @@ fun StatisticsScreen(
                     )
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = Icons.Default.WbTwilight,
-                        iconColor = rc.gold,
+                        icon      = { s, c -> IcoMoon(s, c) },
+                        iconColor = rc.purpleSleep,
                         title     = "أذكار المساء",
                         value     = if (p?.eveningDone == true) "✅" else "—",
                         suffix    = "",
@@ -223,7 +230,7 @@ fun StatisticsScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Mosque, contentDescription = null, tint = rc.emerald, modifier = Modifier.size(32.dp))
+                    IcoMosque(32.dp, rc.emerald)
                     Spacer(Modifier.width(16.dp))
                     Column {
                         Text("صلوات هذا الأسبوع", fontSize = 12.sp, color = rc.inkMed)
@@ -244,7 +251,7 @@ fun StatisticsScreen(
 @Composable
 private fun StatCard(
     modifier:  Modifier = Modifier,
-    icon:      androidx.compose.ui.graphics.vector.ImageVector,
+    icon:      @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.graphics.Color) -> Unit,
     iconColor: androidx.compose.ui.graphics.Color,
     title:     String,
     value:     String,
@@ -260,7 +267,7 @@ private fun StatCard(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(28.dp))
+        icon(28.dp, iconColor)
         Spacer(Modifier.height(8.dp))
         Text(
             value.localizedDigits(LocalArabicNumerals.current),

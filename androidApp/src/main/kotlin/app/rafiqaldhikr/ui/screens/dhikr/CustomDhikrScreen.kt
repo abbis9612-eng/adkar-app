@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.components.IcoPlus
+import app.rafiqaldhikr.ui.components.IcoTrash
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -114,7 +116,7 @@ fun CustomDhikrScreen(
                             shape    = RoundedCornerShape(12.dp),
                             colors   = ButtonDefaults.buttonColors(containerColor = rc.emerald)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = rc.bg)
+                            IcoPlus(20.dp, rc.bg)
                             Spacer(Modifier.width(8.dp))
                             Text("إضافة ذكر", color = rc.bg, fontWeight = FontWeight.Bold)
                         }
@@ -152,11 +154,7 @@ fun CustomDhikrScreen(
                                 modifier = Modifier.weight(1f)
                             )
                             IconButton(onClick = { viewModel.deleteDhikr(dhikr.id) }) {
-                                Icon(
-                                    Icons.Default.Delete, 
-                                    contentDescription = "حذف", 
-                                    tint = rc.error
-                                )
+                                IcoTrash(22.dp, rc.error)
                             }
                         }
                     }

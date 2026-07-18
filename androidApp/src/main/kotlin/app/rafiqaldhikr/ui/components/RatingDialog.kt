@@ -55,14 +55,12 @@ fun RatingDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     (1..5).forEach { star ->
                         IconButton(onClick = { selectedStars = star }) {
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = "$star نجوم",
-                                tint = if (star <= selectedStars)
+                            IcoStar(
+                                36.dp,
+                                if (star <= selectedStars)
                                     MaterialTheme.colorScheme.primary
                                 else
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                                modifier = Modifier.size(36.dp)
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                             )
                         }
                     }

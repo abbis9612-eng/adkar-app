@@ -27,6 +27,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.ErrorState
+import app.rafiqaldhikr.ui.components.IcoCheck
+import app.rafiqaldhikr.ui.components.IcoCompass
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoPin
+import app.rafiqaldhikr.ui.components.IcoRefresh
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -127,12 +132,7 @@ private fun PrayerTimesContent(
                     Column {
                         if (state.city.isNotEmpty()) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.LocationOn,
-                                    contentDescription = null,
-                                    tint = rc.inkMed,
-                                    modifier = Modifier.size(14.dp)
-                                )
+                                IcoPin(14.dp, rc.inkMed)
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     state.city,
@@ -144,10 +144,10 @@ private fun PrayerTimesContent(
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IconButton(onClick = onRefresh) {
-                            Icon(Icons.Default.Refresh, "تحديث", tint = rc.emerald)
+                            IcoRefresh(22.dp, rc.emerald)
                         }
                         IconButton(onClick = { navController.navigate(RafiqRoute.Qibla.route) }) {
-                            Icon(Icons.Default.Explore, "القبلة", tint = rc.emerald)
+                            IcoCompass(22.dp, rc.emerald)
                         }
                     }
                 }
@@ -267,14 +267,8 @@ private fun PrayerCard(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            if (isPrayed) Icons.Default.Check else Icons.Default.Mosque,
-                            contentDescription = null,
-                            tint = if (isPrayed) rc.emerald
-                                   else if (isNext) rc.emerald
-                                   else rc.inkLight,
-                            modifier = Modifier.size(22.dp)
-                        )
+                        val iconTint = if (isPrayed || isNext) rc.emerald else rc.inkLight
+                        if (isPrayed) IcoCheck(22.dp, iconTint) else IcoMosque(22.dp, iconTint)
                     }
                     Spacer(Modifier.width(14.dp))
                     Column {

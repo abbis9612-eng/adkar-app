@@ -7,12 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,30 +15,36 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.IcoHeart
+import app.rafiqaldhikr.ui.components.IcoHome
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.IcoPerson
+import app.rafiqaldhikr.ui.components.IcoQuran
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 
 data class BottomNavItem(
     val labelRes: Int,
-    val icon:     ImageVector,
+    // أيقونة مخصصة من مكتبة RafiqIcons الموحّدة (حجم، لون)
+    val icon:     @Composable (Dp, Color) -> Unit,
     val route:    RafiqRoute
 )
 
 @Composable
 fun RafiqBottomBar(navController: NavHostController) {
     val items = listOf(
-        BottomNavItem(R.string.nav_home,    Icons.Default.Home,                 RafiqRoute.Home),
-        BottomNavItem(R.string.nav_quran,   Icons.Default.MenuBook,             RafiqRoute.QuranList),
-        BottomNavItem(R.string.nav_tasbeeh, Icons.Default.RadioButtonUnchecked, RafiqRoute.Tasbeeh),
-        BottomNavItem(R.string.nav_dua,     Icons.Default.FavoriteBorder,       RafiqRoute.DuaCategories),
-        BottomNavItem(R.string.nav_profile, Icons.Default.Person,               RafiqRoute.Profile),
+        BottomNavItem(R.string.nav_home,    { s, c -> IcoHome(s, c) },    RafiqRoute.Home),
+        BottomNavItem(R.string.nav_quran,   { s, c -> IcoQuran(s, c) },   RafiqRoute.QuranList),
+        BottomNavItem(R.string.nav_tasbeeh, { s, c -> IcoMisbaha(s, c) }, RafiqRoute.Tasbeeh),
+        BottomNavItem(R.string.nav_dua,     { s, c -> IcoHeart(s, c) },   RafiqRoute.DuaCategories),
+        BottomNavItem(R.string.nav_profile, { s, c -> IcoPerson(s, c) },  RafiqRoute.Profile),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -181,12 +181,7 @@ private fun BottomBarItemEnhanced(
                 .padding(horizontal = 16.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                item.icon,
-                contentDescription = stringResource(item.labelRes),
-                tint = iconColor,
-                modifier = Modifier.size(22.dp)
-            )
+            item.icon(22.dp, iconColor)
         }
 
         Spacer(Modifier.height(2.dp))

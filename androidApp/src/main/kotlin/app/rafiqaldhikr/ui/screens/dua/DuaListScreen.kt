@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.IcoHeart
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqTopBar
@@ -96,12 +97,7 @@ fun DuaListScreen(
                                         .clickable { viewModel.toggleFavorite(dua.id, dua.isFavorite) },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        if (dua.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                        contentDescription = "مفضلة",
-                                        tint     = rc.emerald,
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                                    IcoHeart(20.dp, rc.emerald, filled = dua.isFavorite)
                                 }
                             }
                         }

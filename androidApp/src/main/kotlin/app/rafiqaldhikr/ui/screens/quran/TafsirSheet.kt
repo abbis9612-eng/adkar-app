@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.rafiqaldhikr.ui.components.IcoCopy
+import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,14 +118,14 @@ fun TafsirSheet(
             ) {
                 ActionBtn(
                     text = "نسخ",
-                    icon = Icons.Default.ContentCopy,
+                    icon = { s, c -> IcoCopy(s, c) },
                     onClick = {
                         clipboard.setText(androidx.compose.ui.text.AnnotatedString("$ayahText\n\nالتفسير الميسر:\n$tafsirText"))
                     }
                 )
                 ActionBtn(
                     text = "مشاركة",
-                    icon = Icons.Default.Share,
+                    icon = { s, c -> IcoShare(s, c) },
                     onClick = {
                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                             type = "text/plain"
@@ -140,14 +142,14 @@ fun TafsirSheet(
 }
 
 @Composable
-private fun ActionBtn(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun ActionBtn(text: String, icon: @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.graphics.Color) -> Unit, onClick: () -> Unit) {
     val rc = LocalRafiqColors.current
     OutlinedButton(
         onClick = onClick,
         colors = ButtonDefaults.outlinedButtonColors(contentColor = rc.emerald),
         border = androidx.compose.foundation.BorderStroke(1.dp, rc.emerald.copy(alpha = 0.5f))
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        icon(18.dp, rc.emerald)
         Spacer(Modifier.width(6.dp))
         Text(text)
     }

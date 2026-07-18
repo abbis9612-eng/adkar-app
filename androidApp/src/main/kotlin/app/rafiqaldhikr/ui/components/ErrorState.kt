@@ -1,8 +1,6 @@
 package app.rafiqaldhikr.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,12 +19,7 @@ fun ErrorState(
         verticalArrangement   = Arrangement.Center,
         horizontalAlignment   = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector        = Icons.Default.ErrorOutline,
-            contentDescription = null,
-            modifier           = Modifier.size(64.dp),
-            tint               = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-        )
+        IcoAlert(64.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text      = message,

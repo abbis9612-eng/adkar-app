@@ -23,6 +23,10 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.components.IcoDownload
+import app.rafiqaldhikr.ui.components.IcoTrash
+import app.rafiqaldhikr.ui.components.IcoUpload
+import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -95,7 +99,7 @@ fun ExportDataScreen(
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Upload, contentDescription = null, tint = rc.emerald)
+                        IcoUpload(22.dp, rc.emerald)
                         Spacer(Modifier.width(12.dp))
                         Text("تصدير البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
                     }
@@ -126,7 +130,7 @@ fun ExportDataScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.FileDownload, contentDescription = null, tint = rc.emerald)
+                            IcoDownload(22.dp, rc.emerald)
                             Spacer(Modifier.width(8.dp))
                             Text("تصدير البيانات", color = rc.emerald, fontWeight = FontWeight.Bold)
                         }
@@ -146,7 +150,7 @@ fun ExportDataScreen(
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null, tint = rc.error)
+                        IcoTrash(22.dp, rc.error)
                         Spacer(Modifier.width(12.dp))
                         Text("حذف جميع البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
                     }
@@ -168,7 +172,7 @@ fun ExportDataScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Warning, contentDescription = null, tint = Color.White)
+                            IcoWarning(22.dp, Color.White)
                             Spacer(Modifier.width(8.dp))
                             Text("حذف كل شيء", color = Color.White, fontWeight = FontWeight.Bold)
                         }
