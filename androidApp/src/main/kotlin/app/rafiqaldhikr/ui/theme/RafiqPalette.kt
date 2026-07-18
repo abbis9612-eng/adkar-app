@@ -15,6 +15,8 @@ data class RafiqPalette(
     /* ── Backgrounds ── */
     val bg: Color,
     val card: Color,
+    /** خلفية بطاقة "مؤداة/مكتملة" — لون معتم (لا شفافية) حتى لا يظهر الظِل من خلفها. */
+    val cardPrayed: Color,
 
     /* ── Primary — Emerald Green ── */
     val emerald: Color,
@@ -92,6 +94,7 @@ data class RafiqPalette(
 val LightRafiqPalette = RafiqPalette(
     bg             = Color(0xFFF5F0E8),
     card           = Color(0xFFFFFFFF),
+    cardPrayed     = Color(0xFFE9E8DF), // = emerald@5% مركّب فوق bg، لكن معتماً
 
     emerald        = Color(0xFF09472B),
     emeraldMed     = Color(0xFF0B5E38),
@@ -157,6 +160,7 @@ val LightRafiqPalette = RafiqPalette(
 val DarkRafiqPalette = RafiqPalette(
     bg             = Color(0xFF0F0D08),
     card           = Color(0xFF1E1A12),
+    cardPrayed     = Color(0xFF17231C), // نسخة داكنة معتمة بلمسة خضراء لحالة "مؤداة"
 
     emerald        = Color(0xFF4CAF7B),
     emeraldMed     = Color(0xFF3D9B6A),

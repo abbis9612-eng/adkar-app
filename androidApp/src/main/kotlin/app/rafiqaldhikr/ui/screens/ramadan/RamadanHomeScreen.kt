@@ -126,7 +126,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .shadow(2.dp, RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
-                        .background(rc.emerald.copy(alpha = 0.05f))
+                        .background(rc.cardPrayed)
                         .border(1.dp, rc.emerald.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
