@@ -567,6 +567,10 @@ fun HomeScreen(
 
             // 4. Next Prayer
             SecLabel("الصلاة القادمة")
+            LocationBadge(
+                hasLocation = state.hasLocation,
+                onLocationFetched = { lat, lng -> viewModel.saveLocation(lat, lng) }
+            )
             NextPrayerCard(
                 name = state.nextPrayerName,
                 time = state.nextPrayerTime,

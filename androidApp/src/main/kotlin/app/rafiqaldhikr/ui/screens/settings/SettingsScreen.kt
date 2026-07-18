@@ -209,7 +209,8 @@ private val GROUP_1 = listOf(
 )
 
 private val GROUP_2 = listOf(
-    SettingItem(6,  "المميز",            { it.gold }, badge = "PRO", route = "premium"),
+    // "المميز" (route = "premium") مخفي مؤقتاً حتى يكتمل ربط RevenueCat —
+    // الشاشة الحالية أزرارها غير فعّالة (شراء/استعادة) والمتاجر ترفض ذلك.
     SettingItem(7,  "إعدادات الودجت",    { it.emerald }, route = "widget_settings"),
     SettingItem(8,  "تصدير البيانات",    { it.brownAccent }, route = "export_data"),
 )
