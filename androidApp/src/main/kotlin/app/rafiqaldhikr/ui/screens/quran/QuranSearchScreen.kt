@@ -27,7 +27,6 @@ import app.rafiq.domain.usecase.SearchQuranUseCase
 import app.rafiqaldhikr.ui.components.EmptyState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.theme.UthmaniFamily
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.compose.koinInject
 import app.rafiqaldhikr.ui.components.RafiqBackButton

@@ -43,10 +43,6 @@ val AmiriFamily = FontFamily(
     Font(R.font.amiri_bold,    FontWeight.Bold),
 )
 
-val UthmaniFamily = FontFamily(
-    Font(R.font.kfgqpc_uthmanic_hafs, FontWeight.Normal),
-)
-
 val RafiqTypography = Typography(
     displayLarge  = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
     headlineLarge = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
