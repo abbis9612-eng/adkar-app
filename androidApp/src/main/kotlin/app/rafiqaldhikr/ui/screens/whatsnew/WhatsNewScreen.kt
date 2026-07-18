@@ -109,7 +109,7 @@ fun WhatsNewScreen(navController: NavHostController) {
 @Composable
 private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
     val borderColor = if (entry.isLatest) rc.emerald.copy(alpha = 0.3f) else rc.gold.copy(alpha = 0.08f)
-    val bgColor = if (entry.isLatest) rc.emerald.copy(alpha = 0.05f) else rc.card
+    val bgColor = if (entry.isLatest) rc.cardPrayed else rc.card
     
     Column(
         modifier = Modifier

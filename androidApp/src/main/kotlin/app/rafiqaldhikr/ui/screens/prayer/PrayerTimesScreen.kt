@@ -225,7 +225,7 @@ private fun PrayerCard(
 ) {
     val bgColor by animateColorAsState(
         targetValue = when {
-            isPrayed -> rc.emerald.copy(alpha = 0.05f)
+            isPrayed -> rc.cardPrayed
             isNext   -> rc.card
             else     -> rc.card
         },

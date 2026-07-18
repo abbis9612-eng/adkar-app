@@ -116,7 +116,7 @@ fun PrayerTrackingScreen(
                             .padding(vertical = 6.dp)
                             .shadow(2.dp, RoundedCornerShape(14.dp))
                             .clip(RoundedCornerShape(14.dp))
-                            .background(if (isPrayed) rc.emerald.copy(alpha = 0.05f) else rc.card)
+                            .background(if (isPrayed) rc.cardPrayed else rc.card)
                             .border(
                                 1.dp,
                                 if (isPrayed) rc.emerald else rc.gold.copy(alpha = 0.1f),
