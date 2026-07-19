@@ -46,48 +46,136 @@ private fun NowCard(
     val rc = LocalRafiqColors.current
     val station = state.nowStation ?: return
 
-    Box(
+    // نبضة حيّة كل ثانية لعدّاد نافذة العمل
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(station.id) {
+        while (true) { nowMs = System.currentTimeMillis(); kotlinx.coroutines.delay(1000) }
+    }
+    val remaining = (station.endMillis - nowMs).coerceAtLeast(0L)
+    val hh = remaining / 3_600_000L
+    val mm = (remaining % 3_600_000L) / 60_000L
+    val ss = (remaining % 60_000L) / 1000L
+    val countdown = "%02d:%02d:%02d".format(hh, mm, ss)
+        .localizedDigits(LocalArabicNumerals.current)
+
+    Column(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .shadow(4.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.5.dp, rc.gold.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
+            .shadow(6.dp, RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(22.dp))
+            .background(Brush.verticalGradient(listOf(rc.card, rc.emeraldPastel.copy(alpha = 0.55f))))
+            .border(1.5.dp, rc.gold.copy(alpha = 0.35f), RoundedCornerShape(22.dp))
             .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
-            .padding(16.dp)
+            .padding(18.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(46.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(rc.emeraldPastel),
+                Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center
-            ) { StationIcon(station.id, 28.dp) }
-            Spacer(Modifier.width(12.dp))
+            ) { StationIcon(station.id, 34.dp) }
+            Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(
-                    station.title,
-                    fontSize = 15.sp, fontWeight = FontWeight.Bold, color = rc.ink
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    (station.timeLabel + " — ${state.doneCount}/${state.stations.size} محطات اليوم")
-                        .localizedDigits(LocalArabicNumerals.current),
-                    fontSize = 11.sp, color = rc.inkMed
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                        modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
+                            .padding(horizontal = 9.dp, vertical = 2.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(station.timeLabel, fontSize = 11.sp, color = rc.inkMed)
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(station.title, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                if (station.description.isNotBlank()) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(station.description, fontSize = 12.sp, color = rc.inkMed,
+                        lineHeight = 17.sp, maxLines = 2)
+                }
+            }
+        }
+        if (station.virtue.isNotBlank()) {
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IcoStar(14.dp, rc.gold)
+                Spacer(Modifier.width(6.dp))
+                Text(station.virtue, fontSize = 11.sp, color = rc.gold, lineHeight = 16.sp,
+                    maxLines = 2, modifier = Modifier.weight(1f))
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Column {
+                Text("النافذة تنتهي بعد", fontSize = 10.sp, color = rc.inkMed)
+                Text(countdown, style = NumbersStyle, fontSize = 19.sp, color = rc.emerald)
             }
             Box(
-                Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(rc.emerald)
-                    .clickable {
-                        navController.navigate(station.route ?: RafiqRoute.DayCompanion.route)
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                Modifier.clip(RoundedCornerShape(14.dp))
+                    .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
+                    .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) }
+                    .padding(horizontal = 24.dp, vertical = 11.dp)
             ) {
-                Text("ابدأ", fontSize = 13.sp, fontWeight = FontWeight.Bold,
-                    color = androidx.compose.ui.graphics.Color.White)
+                Text("ابدأ", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
+   DAY PATH — مسار محطات اليوم (خط زمني حيّ)
+═══════════════════════════════════════════════════════ */
+
+@Composable
+private fun DayPath(
+    navController: NavHostController,
+    vm: app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel = koinViewModel()
+) {
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val rc = LocalRafiqColors.current
+    if (state.stations.isEmpty()) return
+
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(20.dp)).background(rc.card)
+            .border(1.dp, rc.divider, RoundedCornerShape(20.dp))
+            .padding(vertical = 14.dp)
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("مسار يومك", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+            Text("${state.doneCount}/${state.stations.size}".localizedDigits(LocalArabicNumerals.current),
+                style = NumbersStyle, fontSize = 13.sp, color = rc.emerald)
+        }
+        Spacer(Modifier.height(12.dp))
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            state.stations.forEachIndexed { i, st ->
+                val done = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.DONE
+                val active = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE
+                Box(
+                    Modifier.size(if (active) 46.dp else 38.dp).clip(CircleShape)
+                        .background(
+                            when {
+                                done   -> rc.emeraldPastel
+                                active -> rc.emerald.copy(alpha = 0.14f)
+                                else   -> rc.divider.copy(alpha = 0.5f)
+                            }
+                        )
+                        .border(if (active) 2.dp else 0.dp,
+                            if (active) rc.gold else Color.Transparent, CircleShape)
+                        .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (done) IcoCheck(18.dp, rc.gold) else StationIcon(st.id, if (active) 24.dp else 20.dp)
+                }
+                if (i < state.stations.lastIndex) {
+                    Box(Modifier.width(16.dp).height(2.dp).clip(RoundedCornerShape(1.dp))
+                        .background(if (done) rc.gold.copy(alpha = 0.5f) else rc.divider))
+                }
             }
         }
     }
@@ -556,9 +644,11 @@ fun HomeScreen(
             // 3. Greeting card
             GreetingCard(state.greeting)
 
-            // 3.5 رفيق اليوم — العمل المناسب الآن
+            // 3.5 رفيق اليوم — العمل المناسب الآن + مسار اليوم
             SecLabel("رفيق اليوم")
             NowCard(navController)
+            Spacer(Modifier.height(10.dp))
+            DayPath(navController)
 
             // 4. Next Prayer
             SecLabel("الصلاة القادمة")
