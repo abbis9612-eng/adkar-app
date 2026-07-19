@@ -541,6 +541,8 @@ fun HomeScreen(
     )
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
+        // خلفية حيّة تتغيّر مع وقت اليوم (خلف كل المحتوى)
+        LivingSkyBackground(Modifier.matchParentSize())
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .statusBarsPadding()) {
             // 1. Header
