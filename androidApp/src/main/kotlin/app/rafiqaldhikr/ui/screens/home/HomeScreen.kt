@@ -295,23 +295,38 @@ private fun BasmalahSection() {
 ═══════════════════════════════════════════════════════ */
 
 @Composable
-private fun GreetingCard(greeting: String) {
+private fun GreetingCard(greeting: String, streak: Long) {
     val rc = LocalRafiqColors.current
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
         .clip(RoundedCornerShape(16.dp)).background(rc.card)
         .border(1.dp, rc.divider, RoundedCornerShape(16.dp))) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            // RTL: first child(right) = greeting, last child(left) = badge
+            // RTL: first child(right) = greeting, last child(left) = badges
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(greeting.ifEmpty { "صَبَاحُ الخَيْر" }, fontSize = 13.sp,
                     fontWeight = FontWeight.Medium, color = rc.inkMed)
-                Row(Modifier.clip(RoundedCornerShape(16.dp)).background(rc.emerald)
-                    .padding(horizontal = 12.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    IcoBell(11.dp, Color.White)
-                    Text("وقت الذِكر", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // شارة السلسلة الحيّة — أيام المواظبة
+                    if (streak > 0) {
+                        Row(Modifier.clip(RoundedCornerShape(16.dp))
+                            .background(rc.gold.copy(alpha = 0.15f))
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            IcoFlame(13.dp, rc.gold)
+                            Text(streak.toString().localizedDigits(LocalArabicNumerals.current),
+                                style = NumbersStyle, fontSize = 12.sp, color = rc.gold)
+                        }
+                    }
+                    Row(Modifier.clip(RoundedCornerShape(16.dp)).background(rc.emerald)
+                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                        IcoBell(11.dp, Color.White)
+                        Text("وقت الذِكر", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
                 }
             }
             Text("وَاذْكُر رَّبَّكَ كَثِيرًا", fontSize = 24.sp,
@@ -641,8 +656,8 @@ fun HomeScreen(
             // 2. Basmalah
             BasmalahSection()
 
-            // 3. Greeting card
-            GreetingCard(state.greeting)
+            // 3. Greeting card + streak
+            GreetingCard(state.greeting, state.streak.current)
 
             // 3.5 رفيق اليوم — العمل المناسب الآن + مسار اليوم
             SecLabel("رفيق اليوم")
