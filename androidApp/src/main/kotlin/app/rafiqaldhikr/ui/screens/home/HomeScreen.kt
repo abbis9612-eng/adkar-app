@@ -516,7 +516,8 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
                 }
                 // RTL last(left): Time
                 Text(p.time.localizedDigits(LocalArabicNumerals.current),
-                    style = NumbersStyle, fontSize = 14.sp, color = rc.inkMed)
+                    style = NumbersStyle, fontSize = 17.sp,
+                    color = if (p.active) rc.emerald else rc.ink)
             }
             if (i < prayers.lastIndex) {
                 Box(Modifier.fillMaxWidth().padding(horizontal = 18.dp).height(1.dp).background(rc.divider))

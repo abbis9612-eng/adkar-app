@@ -298,9 +298,8 @@ private fun PrayerCard(
                     Text(
                         formatTime(timeMs, app.rafiqaldhikr.ui.utils.LocalArabicNumerals.current),
                         style = app.rafiqaldhikr.ui.theme.NumbersStyle,
-                        fontSize = 18.sp,
-                        color = if (isNext) rc.emerald
-                                else rc.inkMed
+                        fontSize = 19.sp,
+                        color = if (isNext) rc.emerald else rc.ink
                     )
                     Spacer(Modifier.width(12.dp))
                     Checkbox(

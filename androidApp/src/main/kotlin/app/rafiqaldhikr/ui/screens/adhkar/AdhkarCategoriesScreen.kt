@@ -24,6 +24,12 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.components.IcoDua
+import app.rafiqaldhikr.ui.components.IcoMoon
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoStar
+import app.rafiqaldhikr.ui.components.IcoSun
+import app.rafiqaldhikr.ui.components.IcoSunset
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 /* ══════════════════════════════════════════════════════════════
@@ -52,107 +58,14 @@ private fun IconArrow(size: Dp = 14.dp, color: Color = LocalRafiqColors.current.
 
 // Category-specific icons
 @Composable
-private fun AdhkarCategoryIcon(type: Int, color: Color, size: Dp = 28.dp) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-
-        when (type) {
-            0 -> { // Sun (morning)
-                drawCircle(color.copy(alpha = 0.15f), w * 0.22f, Offset(cx, cy))
-                drawCircle(color, w * 0.22f, Offset(cx, cy), style = st)
-                for (i in 0 until 8) {
-                    val a = (i * 45) * PI.toFloat() / 180f
-                    drawLine(color, Offset(cx + w * 0.30f * cos(a), cy + w * 0.30f * sin(a)),
-                        Offset(cx + w * 0.42f * cos(a), cy + w * 0.42f * sin(a)), w * 0.05f, StrokeCap.Round)
-                }
-            }
-            1 -> { // Moon (evening)
-                val moonPath = Path().apply {
-                    addOval(
-                        androidx.compose.ui.geometry.Rect(
-                            Offset(cx - w * 0.28f, cy - w * 0.28f), w * 0.28f
-                        )
-                    )
-                }
-                val cutPath = Path().apply {
-                    addOval(
-                        androidx.compose.ui.geometry.Rect(
-                            Offset(cx + w * 0.08f - w * 0.22f, cy - w * 0.05f - w * 0.22f), w * 0.22f
-                        )
-                    )
-                }
-                val crescent = Path().apply { op(moonPath, cutPath, PathOperation.Difference) }
-                drawPath(crescent, color.copy(alpha = 0.15f))
-                drawPath(crescent, color, style = st)
-                drawCircle(color, w * 0.03f, Offset(cx + w * 0.28f, cy - w * 0.22f))
-                drawCircle(color, w * 0.025f, Offset(cx + w * 0.35f, cy - w * 0.08f))
-            }
-            2 -> { // Star (sleep)
-                val points = 5
-                val outer = w * 0.38f; val inner = w * 0.18f
-                val star = Path().apply {
-                    for (i in 0 until points * 2) {
-                        val r = if (i % 2 == 0) outer else inner
-                        val a = (i * 36 - 90) * PI.toFloat() / 180f
-                        val px = cx + r * cos(a); val py = cy + r * sin(a)
-                        if (i == 0) moveTo(px, py) else lineTo(px, py)
-                    }; close()
-                }
-                drawPath(star, color.copy(alpha = 0.12f))
-                drawPath(star, color, style = st)
-            }
-            3 -> { // Mosque (prayer)
-                drawArc(color, 180f, 180f, false,
-                    Offset(w * 0.20f, cy - w * 0.12f), Size(w * 0.60f, w * 0.40f), style = st)
-                drawRect(color.copy(alpha = 0.08f), Offset(w * 0.18f, cy + w * 0.08f), Size(w * 0.64f, w * 0.28f))
-                drawRect(color, Offset(w * 0.18f, cy + w * 0.08f), Size(w * 0.64f, w * 0.28f), style = st)
-                drawCircle(color, w * 0.04f, Offset(cx, cy - w * 0.16f))
-                drawLine(color, Offset(w * 0.10f, cy + w * 0.36f), Offset(w * 0.90f, cy + w * 0.36f), w * 0.05f, StrokeCap.Round)
-            }
-            5 -> { // Dua hands (istighfar) — matches React IcoDua
-                val stH = Stroke(w * 0.055f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-                // Left palm
-                val leftHand = Path().apply {
-                    moveTo(w * 0.29f, w * 0.71f)
-                    cubicTo(w * 0.21f, w * 0.59f, w * 0.21f, w * 0.44f, w * 0.21f, w * 0.38f)
-                    cubicTo(w * 0.21f, w * 0.26f, w * 0.32f, w * 0.21f, w * 0.38f, w * 0.21f)
-                    cubicTo(w * 0.44f, w * 0.21f, w * 0.44f, w * 0.26f, w * 0.44f, w * 0.29f)
-                    lineTo(w * 0.44f, w * 0.56f)
-                }
-                drawPath(leftHand, color, style = stH)
-                // Right palm
-                val rightHand = Path().apply {
-                    moveTo(w * 0.71f, w * 0.71f)
-                    cubicTo(w * 0.79f, w * 0.59f, w * 0.79f, w * 0.44f, w * 0.79f, w * 0.38f)
-                    cubicTo(w * 0.79f, w * 0.26f, w * 0.68f, w * 0.21f, w * 0.62f, w * 0.21f)
-                    cubicTo(w * 0.56f, w * 0.21f, w * 0.56f, w * 0.26f, w * 0.56f, w * 0.29f)
-                    lineTo(w * 0.56f, w * 0.56f)
-                }
-                drawPath(rightHand, color, style = stH)
-                // Connecting cup
-                drawPath(Path().apply {
-                    moveTo(w * 0.44f, w * 0.56f)
-                    cubicTo(w * 0.44f, w * 0.62f, w * 0.56f, w * 0.62f, w * 0.56f, w * 0.56f)
-                }, color, style = stH)
-                // Bottom curve
-                drawPath(Path().apply {
-                    moveTo(w * 0.29f, w * 0.71f)
-                    cubicTo(w * 0.38f, w * 0.82f, w * 0.62f, w * 0.82f, w * 0.71f, w * 0.71f)
-                }, color, style = stH)
-                // Dua dot
-                drawCircle(color, w * 0.04f, Offset(cx, w * 0.42f))
-            }
-            else -> { // Sparkle (misc)
-                drawLine(color, Offset(cx, cy - w * 0.36f), Offset(cx, cy + w * 0.36f), w * 0.06f, StrokeCap.Round)
-                drawLine(color, Offset(cx - w * 0.36f, cy), Offset(cx + w * 0.36f, cy), w * 0.06f, StrokeCap.Round)
-                for (i in 0 until 4) {
-                    val a = (i * 90 + 45) * PI.toFloat() / 180f
-                    drawLine(color, Offset(cx + w * 0.14f * cos(a), cy + w * 0.14f * sin(a)),
-                        Offset(cx + w * 0.28f * cos(a), cy + w * 0.28f * sin(a)), w * 0.05f, StrokeCap.Round)
-                }
-            }
-        }
+private fun AdhkarCategoryIcon(key: String, color: Color, size: Dp = 28.dp) {
+    when (key) {
+        "morning"   -> IcoSun(size, color)      // شمس — أذكار الصباح
+        "evening"   -> IcoSunset(size, color)   // غروب — أذكار المساء
+        "sleep"     -> IcoMoon(size, color)     // هلال — أذكار النوم
+        "istighfar" -> IcoDua(size, color)      // كفّان — الاستغفار
+        "prayer"    -> IcoMosque(size, color)   // مسجد — أذكار الصلاة
+        else        -> IcoStar(size, color)     // نجمة — متنوعة
     }
 }
 
@@ -409,7 +322,7 @@ private fun AdhkarCategoryCard(
                     .background(catBg),
                 contentAlignment = Alignment.Center,
             ) {
-                AdhkarCategoryIcon(cat.iconType, catClr, 26.dp)
+                AdhkarCategoryIcon(cat.key, catClr, 26.dp)
             }
 
             Spacer(Modifier.width(14.dp))

@@ -27,6 +27,15 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.components.IcoCompass
+import app.rafiqaldhikr.ui.components.IcoDua
+import app.rafiqaldhikr.ui.components.IcoFood
+import app.rafiqaldhikr.ui.components.IcoHealth
+import app.rafiqaldhikr.ui.components.IcoHeart
+import app.rafiqaldhikr.ui.components.IcoMoon
+import app.rafiqaldhikr.ui.components.IcoQuran
+import app.rafiqaldhikr.ui.components.IcoStar
+import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
@@ -87,79 +96,21 @@ private fun DuaAccent.colors(): Pair<Color, Color> {
    CANVAS ICONS FOR CATEGORIES
 ══════════════════════════════════════════════════════════════ */
 
+/**
+ * أيقونة تصنيف الأدعية — أيقونة دلالية خاصة لكل قسم من مكتبة RafiqIcons الموحّدة.
+ */
 @Composable
-private fun CategoryIcon(type: Int, color: Color, size: Dp = 32.dp) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-
-        when (type) {
-            0 -> { // Sun
-                drawCircle(color.copy(alpha = 0.15f), w * 0.22f, Offset(cx, cy))
-                drawCircle(color, w * 0.22f, Offset(cx, cy), style = st)
-                for (i in 0 until 8) {
-                    val a = (i * 45) * PI.toFloat() / 180f
-                    drawLine(color, Offset(cx + w * 0.30f * cos(a), cy + w * 0.30f * sin(a)),
-                        Offset(cx + w * 0.42f * cos(a), cy + w * 0.42f * sin(a)), w * 0.05f, StrokeCap.Round)
-                }
-            }
-            1 -> { // Moon
-                val moonPath = Path().apply { addOval(androidx.compose.ui.geometry.Rect(Offset(cx - w * 0.28f, cy - w * 0.28f), w * 0.28f)) }
-                val cutPath = Path().apply { addOval(androidx.compose.ui.geometry.Rect(Offset(cx + w * 0.08f - w * 0.22f, cy - w * 0.05f - w * 0.22f), w * 0.22f)) }
-                val crescent = Path().apply { op(moonPath, cutPath, PathOperation.Difference) }
-                drawPath(crescent, color.copy(alpha = 0.15f))
-                drawPath(crescent, color, style = st)
-                // Stars
-                drawCircle(color, w * 0.03f, Offset(cx + w * 0.28f, cy - w * 0.22f))
-                drawCircle(color, w * 0.025f, Offset(cx + w * 0.35f, cy - w * 0.08f))
-            }
-            2 -> { // 8-pointed star
-                val star = Path().apply {
-                    for (i in 0 until 16) {
-                        val a = (i * 22.5f - 90f) * PI.toFloat() / 180f
-                        val r = if (i % 2 == 0) w * 0.40f else w * 0.22f
-                        val px = cx + r * cos(a); val py = cy + r * sin(a)
-                        if (i == 0) moveTo(px, py) else lineTo(px, py)
-                    }; close()
-                }
-                drawPath(star, color.copy(alpha = 0.12f))
-                drawPath(star, color, style = st)
-            }
-            3 -> { // Leaf
-                val leaf = Path().apply {
-                    moveTo(cx, cy - w * 0.38f)
-                    cubicTo(cx + w * 0.35f, cy - w * 0.20f, cx + w * 0.30f, cy + w * 0.15f, cx, cy + w * 0.38f)
-                    cubicTo(cx - w * 0.30f, cy + w * 0.15f, cx - w * 0.35f, cy - w * 0.20f, cx, cy - w * 0.38f)
-                    close()
-                }
-                drawPath(leaf, color.copy(alpha = 0.12f))
-                drawPath(leaf, color, style = st)
-                drawLine(color.copy(alpha = 0.5f), Offset(cx, cy - w * 0.20f), Offset(cx, cy + w * 0.25f), w * 0.04f, StrokeCap.Round)
-            }
-            4 -> { // Compass
-                drawCircle(color.copy(alpha = 0.08f), w * 0.38f, Offset(cx, cy))
-                drawCircle(color, w * 0.38f, Offset(cx, cy), style = Stroke(w * 0.04f))
-                drawCircle(color, w * 0.06f, Offset(cx, cy))
-                // N-S-E-W
-                for (i in 0 until 4) {
-                    val a = (i * 90 - 90) * PI.toFloat() / 180f
-                    drawLine(color, Offset(cx + w * 0.12f * cos(a), cy + w * 0.12f * sin(a)),
-                        Offset(cx + w * 0.34f * cos(a), cy + w * 0.34f * sin(a)), w * 0.05f, StrokeCap.Round)
-                }
-            }
-            5 -> { // Diamond
-                val diamond = Path().apply {
-                    moveTo(cx, cy - w * 0.38f)
-                    lineTo(cx + w * 0.28f, cy)
-                    lineTo(cx, cy + w * 0.38f)
-                    lineTo(cx - w * 0.28f, cy)
-                    close()
-                }
-                drawPath(diamond, color.copy(alpha = 0.12f))
-                drawPath(diamond, color, style = st)
-                drawLine(color.copy(alpha = 0.4f), Offset(cx - w * 0.28f, cy), Offset(cx + w * 0.28f, cy), w * 0.04f)
-            }
-        }
+private fun CategoryIcon(key: String, color: Color, size: Dp = 32.dp) {
+    when (key) {
+        "morning"    -> IcoSun(size, color)      // شمس — الصباح
+        "sleep"      -> IcoMoon(size, color)     // هلال — النوم
+        "quran"      -> IcoQuran(size, color)    // مصحف — من القرآن
+        "food"       -> IcoFood(size, color)     // صحن — الطعام
+        "travel"     -> IcoCompass(size, color)  // بوصلة — السفر
+        "anxiety"    -> IcoHeart(size, color)    // قلب — الهمّ والقلق
+        "sickness"   -> IcoHealth(size, color)   // قلب بنبضة — المرض
+        "istikharah" -> IcoStar(size, color)     // نجمة هداية — الاستخارة
+        else         -> IcoDua(size, color)      // كفّان — أدعية جامعة/عام
     }
 }
 
@@ -223,7 +174,7 @@ private fun DuaCategoryGridCard(
             .padding(18.dp)
     ) {
         Column {
-            CategoryIcon(type = def.iconType, color = iconColor)
+            CategoryIcon(key = def.key, color = iconColor)
             Spacer(Modifier.height(12.dp))
             Text(
                 def.name,
@@ -432,7 +383,7 @@ fun DuaCategoriesScreen(
                                         .background(rc.emeraldPastel),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    CategoryIcon(type = 3, color = LocalRafiqColors.current.emerald, size = 24.dp)
+                                    CategoryIcon(key = category, color = LocalRafiqColors.current.emerald, size = 24.dp)
                                 }
                                 Spacer(Modifier.width(14.dp))
                                 Text(

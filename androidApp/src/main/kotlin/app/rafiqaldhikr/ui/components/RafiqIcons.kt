@@ -422,6 +422,79 @@ fun IcoTrophy(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.gold) {
     }
 }
 
+/* ── تصنيفات دلالية إضافية ── */
+
+/** طعام — صحن مع بخار (أدعية الطعام) */
+@Composable
+fun IcoFood(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        // صحن نصف دائري
+        val plate = Path().apply {
+            moveTo(w * 0.16f, h * 0.56f)
+            cubicTo(w * 0.16f, h * 0.80f, w * 0.84f, h * 0.80f, w * 0.84f, h * 0.56f)
+            close()
+        }
+        drawPath(plate, c.copy(alpha = 0.12f)); drawPath(plate, c, style = st)
+        drawLine(c, Offset(w * 0.10f, h * 0.56f), Offset(w * 0.90f, h * 0.56f), st.width, StrokeCap.Round)
+        // بخار
+        for (dx in listOf(0.38f, 0.50f, 0.62f)) {
+            val p = Path().apply {
+                moveTo(w * dx, h * 0.44f)
+                cubicTo(w * (dx + 0.05f), h * 0.38f, w * (dx - 0.05f), h * 0.34f, w * dx, h * 0.28f)
+            }
+            drawPath(p, c.copy(alpha = 0.6f), style = Stroke(w * 0.045f, cap = StrokeCap.Round))
+        }
+    }
+}
+
+/** صحة/شفاء — قلب بنبضة (أدعية المرض) */
+@Composable
+fun IcoHealth(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val heart = Path().apply {
+            moveTo(w * 0.50f, h * 0.80f)
+            cubicTo(w * 0.16f, h * 0.54f, w * 0.18f, h * 0.24f, w * 0.38f, h * 0.24f)
+            cubicTo(w * 0.46f, h * 0.24f, w * 0.50f, h * 0.32f, w * 0.50f, h * 0.36f)
+            cubicTo(w * 0.50f, h * 0.32f, w * 0.54f, h * 0.24f, w * 0.62f, h * 0.24f)
+            cubicTo(w * 0.82f, h * 0.24f, w * 0.84f, h * 0.54f, w * 0.50f, h * 0.80f)
+            close()
+        }
+        drawPath(heart, c.copy(alpha = 0.12f)); drawPath(heart, c, style = st)
+        // خط النبض
+        val pulse = Path().apply {
+            moveTo(w * 0.26f, h * 0.50f); lineTo(w * 0.40f, h * 0.50f); lineTo(w * 0.46f, h * 0.40f)
+            lineTo(w * 0.54f, h * 0.60f); lineTo(w * 0.60f, h * 0.50f); lineTo(w * 0.74f, h * 0.50f)
+        }
+        drawPath(pulse, c, style = Stroke(w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/** غروب — شمس نصفها تحت الأفق مع سهم نزول (أذكار المساء) */
+@Composable
+fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.eveningRing) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height
+        val st = w * 0.06f
+        drawArc(c, 180f, 180f, false, Offset(w * 0.32f, h * 0.30f), Size(w * 0.36f, w * 0.36f),
+            style = Stroke(st, cap = StrokeCap.Round))
+        for (i in 0 until 5) {
+            val a = (180 + i * 45) * (PI.toFloat() / 180f)
+            val cx = w * 0.5f; val cy = h * 0.48f
+            drawLine(c, Offset(cx + w * 0.24f * cos(a), cy + w * 0.24f * sin(a)),
+                Offset(cx + w * 0.33f * cos(a), cy + w * 0.33f * sin(a)), st, StrokeCap.Round)
+        }
+        drawLine(c, Offset(w * 0.10f, h * 0.52f), Offset(w * 0.90f, h * 0.52f), st, StrokeCap.Round)
+        // سهم نزول صغير
+        drawLine(c, Offset(w * 0.5f, h * 0.62f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.43f, h * 0.71f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.57f, h * 0.71f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
+    }
+}
+
 @Composable
 fun IcoBulb(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.gold) {
     Canvas(Modifier.size(s)) {

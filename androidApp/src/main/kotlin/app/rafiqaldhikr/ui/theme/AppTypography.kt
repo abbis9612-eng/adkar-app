@@ -43,6 +43,16 @@ val AmiriFamily = FontFamily(
     Font(R.font.amiri_bold,    FontWeight.Bold),
 )
 
+/**
+ * خط الأرقام: IBM Plex Arabic — أرقامه واضحة ومتمايزة (٦ و٧ لا تلتبسان)،
+ * أنسب للأوقات والعدادات من Cairo. يُستخدم في NumbersStyle.
+ */
+val NumbersFamily = FontFamily(
+    Font(R.font.ibm_plex_arabic_regular, FontWeight.Normal),
+    Font(R.font.ibm_plex_arabic_medium,  FontWeight.Medium),
+    Font(R.font.ibm_plex_arabic_bold,    FontWeight.Bold),
+)
+
 val RafiqTypography = Typography(
     displayLarge  = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
     headlineLarge = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
@@ -58,10 +68,10 @@ val RafiqTypography = Typography(
 
 /**
  * نمط الأرقام الكبيرة (العداد، الأوقات، الإحصائيات):
- * Cairo Bold مع tnum — كل رقم بعرض ثابت فلا تهتز الأرقام أثناء العد.
+ * IBM Plex Arabic Bold مع tnum — أرقام واضحة متمايزة بعرض ثابت فلا تهتز أثناء العد.
  */
 val NumbersStyle = TextStyle(
-    fontFamily = CairoFamily,
+    fontFamily = NumbersFamily,
     fontWeight = FontWeight.Bold,
     fontFeatureSettings = "tnum",
 )
