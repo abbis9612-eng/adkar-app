@@ -27,11 +27,18 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 
+      # اسم ملف يحمل رقم البناء ومعرّف الكومِت — يمنع الكاش ويوضّح النسخة
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp androidApp/build/outputs/apk/debug/*.apk \
+             "out/rafiq-aldhikr-${GITHUB_RUN_NUMBER}-${GITHUB_SHA:0:7}.apk"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: rafiq-aldhikr-debug
-          path: androidApp/build/outputs/apk/debug/*.apk
+          path: out/*.apk
 
       # نسخة قابلة للتنزيل المباشر من صفحة Releases (أسهل على الموبايل)
       - name: Publish to debug-latest release
@@ -42,5 +49,11 @@ jobs:
           prerelease: true
           body: |
             نسخة Debug تلقائية من آخر تعديلات الفرع.
-            نزّل ملف الـ APK أدناه وثبّته على جهازك (فعّل "التثبيت من مصادر غير معروفة").
-          files: androidApp/build/outputs/apk/debug/*.apk
+
+            • رقم البناء: ${{ github.run_number }}
+            • الكومِت: ${{ github.sha }}
+
+            نزّل ملف الـ APK أدناه (اسمه يحمل رقم البناء) وثبّته.
+            إذا لم يتحدّث التطبيق: احذف القديم أولاً ثم ثبّت الجديد.
+            للتأكد من النسخة: افتح التطبيق → الإعدادات → حول التطبيق (سيظهر رقم البناء).
+          files: out/*.apk

@@ -61,7 +61,8 @@ fun AboutScreen(navController: NavHostController) {
                 Text("🌙", fontSize = 72.sp)
                 Spacer(Modifier.height(16.dp))
                 Text("رفيق الذكر", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-                Text("الإصدار 1.0.0", fontSize = 14.sp, color = rc.inkMed)
+                Text("الإصدار " + app.rafiqaldhikr.BuildConfig.VERSION_NAME,
+                    fontSize = 14.sp, color = rc.inkMed)
                 Spacer(Modifier.height(24.dp))
                 Text(
                     "رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",

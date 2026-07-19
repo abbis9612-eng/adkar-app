@@ -19,8 +19,12 @@ android {
         applicationId         = "app.rafiqaldhikr"
         minSdk                = 23
         targetSdk             = 35
-        versionCode           = 1
-        versionName           = "1.0.0"
+        // رقم إصدار فريد لكل بناء CI (رقم تشغيل GitHub) حتى يقبل أندرويد التحديث دائماً.
+        // محلياً يبقى 1. الاسم يحمل معرّف الكومِت حتى تُعرف النسخة بالضبط.
+        versionCode           = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1)
+        versionName           = "1.0.0." +
+            (System.getenv("GITHUB_RUN_NUMBER") ?: "dev") +
+            " (" + (System.getenv("GITHUB_SHA")?.take(7) ?: "local") + ")"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
