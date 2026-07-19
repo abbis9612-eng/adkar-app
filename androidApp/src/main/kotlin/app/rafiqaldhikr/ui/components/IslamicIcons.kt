@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
@@ -77,35 +78,43 @@ fun IcoCheck(s: Dp = 14.dp, c: Color = LocalRafiqColors.current.gold) {
     } 
 }
 
+// أسلوب Duotone: تعبئة متدرّجة ناعمة + حدّ واضح (يطابق RafiqIcons).
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.duoFill(path: Path, c: Color) {
+    drawPath(path, Brush.verticalGradient(listOf(c.copy(alpha = 0.26f), c.copy(alpha = 0.07f))))
+}
+
 @Composable
 fun IcoSun(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.gold) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val cx = w / 2f; val cy = w / 2f
-        drawCircle(c, w * 0.18f, Offset(cx, cy), style = Stroke(w * 0.05f, cap = StrokeCap.Round))
+        val disc = Path().apply { addOval(Rect(Offset(cx, cy), w * 0.20f)) }
+        duoFill(disc, c)
+        drawCircle(c, w * 0.195f, Offset(cx, cy), style = Stroke(w * 0.055f, cap = StrokeCap.Round))
         for (i in 0 until 8) { val a = (i * 45) * PI.toFloat() / 180f
-            drawLine(c, Offset(cx + w * 0.28f * cos(a), cy + w * 0.28f * sin(a)),
-                Offset(cx + w * 0.40f * cos(a), cy + w * 0.40f * sin(a)), w * 0.05f, cap = StrokeCap.Round) } 
-    } 
+            drawLine(c, Offset(cx + w * 0.29f * cos(a), cy + w * 0.29f * sin(a)),
+                Offset(cx + w * 0.42f * cos(a), cy + w * 0.42f * sin(a)), w * 0.055f, cap = StrokeCap.Round) }
+    }
 }
 
 @Composable
 fun IcoMoon(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purple) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val cx = w * 0.42f; val cy = w * 0.48f
+        val w = size.width; val cx = w * 0.44f; val cy = w * 0.50f
         val moon = Path().apply { addOval(Rect(Offset(cx, cy), w * 0.34f)) }
-        val cut = Path().apply { addOval(Rect(Offset(cx + w * 0.22f, cy - w * 0.06f), w * 0.26f)) }
+        val cut = Path().apply { addOval(Rect(Offset(cx + w * 0.22f, cy - w * 0.06f), w * 0.28f)) }
         val cr = Path().apply { op(moon, cut, PathOperation.Difference) }
+        duoFill(cr, c)
         drawPath(cr, c, style = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        drawLine(c, Offset(w * 0.76f, w * 0.17f), Offset(w * 0.76f, w * 0.28f), w * 0.04f, cap = StrokeCap.Round)
-        drawLine(c, Offset(w * 0.70f, w * 0.23f), Offset(w * 0.82f, w * 0.23f), w * 0.04f, cap = StrokeCap.Round) 
-    } 
+        // نجمة صغيرة ذهبية بجانب الهلال
+        drawCircle(c, w * 0.035f, Offset(w * 0.78f, w * 0.26f))
+    }
 }
 
 @Composable
 fun IcoStar(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purpleSleep) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         val star = Path().apply {
             val p = listOf(Offset(cx, cy - w * 0.42f), Offset(cx + w * 0.14f, cy - w * 0.14f),
                 Offset(cx + w * 0.42f, cy - w * 0.12f), Offset(cx + w * 0.14f, cy + w * 0.07f),
@@ -113,15 +122,19 @@ fun IcoStar(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purpleSleep) {
                 Offset(cx - w * 0.42f, cy + w * 0.28f), Offset(cx - w * 0.14f, cy + w * 0.07f),
                 Offset(cx - w * 0.42f, cy - w * 0.12f), Offset(cx - w * 0.14f, cy - w * 0.14f))
             moveTo(p[0].x, p[0].y); p.drop(1).forEach { lineTo(it.x, it.y) }; close() }
-        drawPath(star, c.copy(alpha = 0.10f)); drawPath(star, c, style = st)
-        drawCircle(c, w * 0.12f, Offset(cx, cy), style = Stroke(w * 0.045f)) 
-    } 
+        duoFill(star, c); drawPath(star, c, style = st)
+        drawCircle(c, w * 0.06f, Offset(cx, cy))
+    }
 }
 
 @Composable
 fun IcoDua(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emeraldMed) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height; val st = Stroke(w * 0.055f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height
+        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        // هالة ناعمة خلف الكفّين
+        drawCircle(Brush.verticalGradient(listOf(c.copy(alpha = 0.18f), c.copy(alpha = 0.04f))),
+            w * 0.40f, Offset(w * 0.50f, h * 0.50f))
         val l = Path().apply { moveTo(w*0.29f,h*0.71f); cubicTo(w*0.21f,h*0.59f,w*0.21f,h*0.44f,w*0.21f,h*0.38f)
             cubicTo(w*0.21f,h*0.26f,w*0.32f,h*0.21f,w*0.38f,h*0.21f); cubicTo(w*0.44f,h*0.21f,w*0.44f,h*0.26f,w*0.44f,h*0.29f)
             lineTo(w*0.44f,h*0.56f) }; drawPath(l, c, style = st)
@@ -131,41 +144,12 @@ fun IcoDua(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emeraldMed) {
         val cup = Path().apply { moveTo(w*0.44f,h*0.56f); cubicTo(w*0.44f,h*0.62f,w*0.56f,h*0.62f,w*0.56f,h*0.56f) }
         drawPath(cup, c, style = st)
         val bt = Path().apply { moveTo(w*0.29f,h*0.71f); cubicTo(w*0.38f,h*0.82f,w*0.62f,h*0.82f,w*0.71f,h*0.71f) }
-        drawPath(bt, c, style = st); drawCircle(c, w * 0.04f, Offset(w * 0.50f, h * 0.42f)) 
-    } 
+        drawPath(bt, c, style = st); drawCircle(c, w * 0.045f, Offset(w * 0.50f, h * 0.42f))
+    }
 }
 
 /* ═══ أيقونات محطات «رفيق اليوم» — مرسومة يدوياً بهوية التطبيق ═══ */
-
-@Composable
-fun IcoMosque(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // القبة
-        val dome = Path().apply {
-            moveTo(w * 0.28f, h * 0.55f)
-            cubicTo(w * 0.28f, h * 0.28f, w * 0.72f, h * 0.28f, w * 0.72f, h * 0.55f)
-        }
-        drawPath(dome, c, style = st)
-        // الهلال فوق القبة
-        drawLine(c, Offset(w * 0.5f, h * 0.28f), Offset(w * 0.5f, h * 0.16f), st.width)
-        drawCircle(c, w * 0.045f, Offset(w * 0.5f, h * 0.12f))
-        // القاعدة
-        drawLine(c, Offset(w * 0.16f, h * 0.55f), Offset(w * 0.84f, h * 0.55f), st.width)
-        drawLine(c, Offset(w * 0.20f, h * 0.55f), Offset(w * 0.20f, h * 0.85f), st.width)
-        drawLine(c, Offset(w * 0.80f, h * 0.55f), Offset(w * 0.80f, h * 0.85f), st.width)
-        drawLine(c, Offset(w * 0.14f, h * 0.85f), Offset(w * 0.86f, h * 0.85f), st.width)
-        // الباب
-        val door = Path().apply {
-            moveTo(w * 0.42f, h * 0.85f)
-            lineTo(w * 0.42f, h * 0.70f)
-            cubicTo(w * 0.42f, h * 0.62f, w * 0.58f, h * 0.62f, w * 0.58f, h * 0.70f)
-            lineTo(w * 0.58f, h * 0.85f)
-        }
-        drawPath(door, c, style = st)
-    }
-}
+/* ملاحظة: IcoMosque معرّفة الآن بنسخة فاخرة في RafiqIcons.kt (نفس الحزمة). */
 
 @Composable
 fun IcoSunrise(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.gold) {

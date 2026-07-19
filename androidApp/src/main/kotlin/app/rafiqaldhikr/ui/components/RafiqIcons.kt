@@ -6,11 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,66 +25,75 @@ import kotlin.math.sin
 
 /*
  * ═══════════════════════════════════════════════════════════════
- *  RafiqIcons — مكتبة الأيقونات الموحّدة لرفيق الذكر
+ *  RafiqIcons — نظام الأيقونات «Rafiq Duotone»
  *
- *  لغة واحدة لكل أيقونات التطبيق (امتداد لأسلوب IslamicIcons):
- *  خط بسماكة w*0.07 بأطراف دائرية، تعبئة شفافة 12% عند الحاجة،
- *  والألوان من RafiqPalette حصراً.
- *  ممنوع استخدام Icons.Default.* (أسلوب Material يكسر الهوية).
+ *  لغة بصرية واحدة فاخرة لكل التطبيق:
+ *   • جسم ممتلئ بتدرّج لوني ناعم (من اللون → أفتح) يعطي عمقاً
+ *   • حدود واضحة بأطراف دائرية بسماكة w*0.075
+ *   • لمسة إبراز صغيرة (نقطة/خط) تضيف حياة
+ *  الألوان دائماً من RafiqPalette (تتكيّف مع الوضع الفاتح/الداكن).
  * ═══════════════════════════════════════════════════════════════
  */
 
-/* ── شريط التنقل والأساسيات ── */
+/** تعبئة جسم الأيقونة بتدرّج ناعم — أساس أسلوب Duotone. */
+private fun DrawScope.duoFill(path: Path, c: Color) {
+    drawPath(path, Brush.verticalGradient(listOf(c.copy(alpha = 0.26f), c.copy(alpha = 0.07f))))
+}
+
+/** جسم ممتلئ + حدّ واضح — الوصفة الأساسية. */
+private fun DrawScope.duo(path: Path, c: Color, sw: Float) {
+    duoFill(path, c)
+    drawPath(path, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+}
+
+/* ══════════ شريط التنقل والأساسيات ══════════ */
 
 @Composable
 fun IcoHome(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // سقف بقوس إسلامي خفيف
-        val roof = Path().apply {
-            moveTo(w * 0.14f, h * 0.46f)
-            cubicTo(w * 0.24f, h * 0.30f, w * 0.40f, h * 0.16f, w * 0.50f, h * 0.14f)
-            cubicTo(w * 0.60f, h * 0.16f, w * 0.76f, h * 0.30f, w * 0.86f, h * 0.46f)
+        val w = size.width; val h = size.height; val sw = w * 0.075f
+        // جسم البيت بقوس إسلامي مدبّب
+        val body = Path().apply {
+            moveTo(w * 0.20f, h * 0.86f)
+            lineTo(w * 0.20f, h * 0.48f)
+            cubicTo(w * 0.28f, h * 0.34f, w * 0.42f, h * 0.20f, w * 0.50f, h * 0.16f)
+            cubicTo(w * 0.58f, h * 0.20f, w * 0.72f, h * 0.34f, w * 0.80f, h * 0.48f)
+            lineTo(w * 0.80f, h * 0.86f)
+            close()
         }
-        drawPath(roof, c, style = st)
-        // الجدران
-        drawLine(c, Offset(w * 0.22f, h * 0.46f), Offset(w * 0.22f, h * 0.84f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.78f, h * 0.46f), Offset(w * 0.78f, h * 0.84f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.16f, h * 0.84f), Offset(w * 0.84f, h * 0.84f), st.width, StrokeCap.Round)
+        duo(body, c, sw)
         // باب بقوس
         val door = Path().apply {
-            moveTo(w * 0.42f, h * 0.84f); lineTo(w * 0.42f, h * 0.66f)
-            cubicTo(w * 0.42f, h * 0.58f, w * 0.58f, h * 0.58f, w * 0.58f, h * 0.66f)
-            lineTo(w * 0.58f, h * 0.84f)
+            moveTo(w * 0.43f, h * 0.86f); lineTo(w * 0.43f, h * 0.64f)
+            cubicTo(w * 0.43f, h * 0.55f, w * 0.57f, h * 0.55f, w * 0.57f, h * 0.64f)
+            lineTo(w * 0.57f, h * 0.86f)
         }
-        drawPath(door, c, style = st)
+        drawPath(door, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        // هلال صغير أعلى القبة
+        drawCircle(c, w * 0.035f, Offset(w * 0.50f, h * 0.10f))
     }
 }
 
 @Composable
 fun IcoQuran(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.075f
         // غلاف المصحف
-        drawRoundRect(
-            c.copy(alpha = 0.10f),
-            topLeft = Offset(w * 0.20f, h * 0.14f), size = Size(w * 0.60f, h * 0.72f),
-            cornerRadius = CornerRadius(w * 0.08f)
-        )
-        drawRoundRect(
-            c,
-            topLeft = Offset(w * 0.20f, h * 0.14f), size = Size(w * 0.60f, h * 0.72f),
-            cornerRadius = CornerRadius(w * 0.08f), style = st
-        )
-        // زخرفة مركزية — معيّن (نجمة ثمانية مبسطة)
-        val d = Path().apply {
-            moveTo(w * 0.50f, h * 0.36f); lineTo(w * 0.62f, h * 0.50f)
-            lineTo(w * 0.50f, h * 0.64f); lineTo(w * 0.38f, h * 0.50f); close()
+        val cover = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    w * 0.20f, h * 0.16f, w * 0.80f, h * 0.84f,
+                    CornerRadius(w * 0.10f, w * 0.10f)
+                )
+            )
         }
-        drawPath(d, c, style = Stroke(w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        drawCircle(c, w * 0.035f, Offset(w * 0.50f, h * 0.50f))
+        duo(cover, c, sw)
+        // كعب المصحف
+        drawLine(c, Offset(w * 0.50f, h * 0.20f), Offset(w * 0.50f, h * 0.80f),
+            sw * 0.7f, StrokeCap.Round)
+        // نجمة ثمانية ذهبية بالوسط
+        val star = starPath(w * 0.50f, h * 0.50f, w * 0.15f, w * 0.075f, 8)
+        drawPath(star, c, style = Stroke(w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
@@ -88,131 +101,212 @@ fun IcoQuran(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
 fun IcoMisbaha(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height
-        val cx = w * 0.50f; val cy = h * 0.42f; val r = w * 0.28f
-        // حبات السبحة — دائرة حبات مع فتحة أسفل
-        for (i in 0 until 8) {
-            if (i == 4) continue // فتحة عند الأسفل للشرّابة
-            val a = (i * 45 - 90) * PI.toFloat() / 180f
-            drawCircle(c, w * 0.055f, Offset(cx + r * cos(a), cy + r * sin(a)))
+        val cx = w * 0.50f; val cy = h * 0.44f; val r = w * 0.27f
+        // حبات ممتلئة حول حلقة، مع فتحة أسفل للشرّابة
+        for (i in 0 until 9) {
+            if (i == 5) continue
+            val a = (i * 40 - 90) * PI.toFloat() / 180f
+            val bx = cx + r * cos(a); val by = cy + r * sin(a)
+            drawCircle(c.copy(alpha = 0.22f), w * 0.075f, Offset(bx, by))
+            drawCircle(c, w * 0.06f, Offset(bx, by))
         }
         // الشرّابة
-        drawLine(c, Offset(cx, cy + r * 0.82f), Offset(cx, h * 0.82f), w * 0.06f, StrokeCap.Round)
-        drawCircle(c, w * 0.065f, Offset(cx, h * 0.88f))
+        drawLine(c, Offset(cx, cy + r * 0.9f), Offset(cx, h * 0.82f), w * 0.055f, StrokeCap.Round)
+        val tassel = Path().apply {
+            moveTo(cx, h * 0.82f)
+            cubicTo(w * 0.42f, h * 0.90f, w * 0.58f, h * 0.90f, cx, h * 0.94f)
+        }
+        duoFill(tassel, c)
+        drawCircle(c, w * 0.05f, Offset(cx, h * 0.88f))
     }
 }
 
 @Composable
 fun IcoHeart(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald, filled: Boolean = false) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        val p = Path().apply {
-            moveTo(w * 0.50f, h * 0.80f)
-            cubicTo(w * 0.14f, h * 0.52f, w * 0.16f, h * 0.22f, w * 0.38f, h * 0.22f)
-            cubicTo(w * 0.46f, h * 0.22f, w * 0.50f, h * 0.30f, w * 0.50f, h * 0.34f)
-            cubicTo(w * 0.50f, h * 0.30f, w * 0.54f, h * 0.22f, w * 0.62f, h * 0.22f)
-            cubicTo(w * 0.84f, h * 0.22f, w * 0.86f, h * 0.52f, w * 0.50f, h * 0.80f)
-            close()
-        }
-        if (filled) drawPath(p, c) else { drawPath(p, c.copy(alpha = 0.10f)); drawPath(p, c, style = st) }
+        val w = size.width; val h = size.height; val sw = w * 0.075f
+        val p = heartPath(w, h)
+        if (filled) {
+            drawPath(p, Brush.verticalGradient(listOf(c, c.copy(alpha = 0.72f))))
+            drawPath(p, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        } else duo(p, c, sw)
     }
 }
 
 @Composable
 fun IcoPerson(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawCircle(c, w * 0.15f, Offset(w * 0.50f, h * 0.30f), style = st)
-        val sh = Path().apply {
-            moveTo(w * 0.20f, h * 0.82f)
-            cubicTo(w * 0.20f, h * 0.56f, w * 0.80f, h * 0.56f, w * 0.80f, h * 0.82f)
+        val w = size.width; val h = size.height; val sw = w * 0.075f
+        val head = Path().apply { addOval(Rect(Offset(w * 0.35f, h * 0.16f), w * 0.15f)) }
+        duo(head, c, sw)
+        val body = Path().apply {
+            moveTo(w * 0.19f, h * 0.84f)
+            cubicTo(w * 0.19f, h * 0.58f, w * 0.81f, h * 0.58f, w * 0.81f, h * 0.84f)
+            close()
         }
-        drawPath(sh, c, style = st)
+        duo(body, c, sw)
     }
 }
 
-/* ── أدوات عامة ── */
+/* ══════════ تصنيفات دلالية فاخرة ══════════ */
+
+@Composable
+fun IcoFood(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        // صحن مغطّى (dome)
+        val dome = Path().apply {
+            moveTo(w * 0.16f, h * 0.62f)
+            cubicTo(w * 0.16f, h * 0.34f, w * 0.84f, h * 0.34f, w * 0.84f, h * 0.62f)
+            close()
+        }
+        duo(dome, c, sw)
+        drawLine(c, Offset(w * 0.10f, h * 0.62f), Offset(w * 0.90f, h * 0.62f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.18f, h * 0.72f), Offset(w * 0.82f, h * 0.72f), sw, StrokeCap.Round)
+        // مقبض علوي
+        drawCircle(c, w * 0.045f, Offset(w * 0.50f, h * 0.30f))
+    }
+}
+
+@Composable
+fun IcoHealth(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val heart = heartPath(w, h)
+        duo(heart, c, sw)
+        // نبضة بيضاء واضحة داخل القلب
+        val pulse = Path().apply {
+            moveTo(w * 0.26f, h * 0.50f); lineTo(w * 0.40f, h * 0.50f); lineTo(w * 0.46f, h * 0.40f)
+            lineTo(w * 0.54f, h * 0.60f); lineTo(w * 0.60f, h * 0.50f); lineTo(w * 0.74f, h * 0.50f)
+        }
+        drawPath(pulse, c, style = Stroke(w * 0.055f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+@Composable
+fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.eveningRing) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        // قرص الشمس نصفه فوق الأفق — ممتلئ بتدرّج
+        val sun = Path().apply {
+            addArc(Rect(Offset(w * 0.30f, h * 0.28f), Offset(w * 0.70f, h * 0.68f)), 180f, 180f)
+            close()
+        }
+        duoFill(sun, c)
+        drawArc(c, 180f, 180f, false, Offset(w * 0.30f, h * 0.28f), Size(w * 0.40f, w * 0.40f),
+            style = Stroke(sw, cap = StrokeCap.Round))
+        for (i in 0 until 5) {
+            val a = (180 + i * 45) * (PI.toFloat() / 180f)
+            val cx = w * 0.5f; val cy = h * 0.48f
+            drawLine(c, Offset(cx + w * 0.26f * cos(a), cy + w * 0.26f * sin(a)),
+                Offset(cx + w * 0.35f * cos(a), cy + w * 0.35f * sin(a)), sw, StrokeCap.Round)
+        }
+        drawLine(c, Offset(w * 0.10f, h * 0.48f), Offset(w * 0.90f, h * 0.48f), sw, StrokeCap.Round)
+        // سهم نزول
+        drawLine(c, Offset(w * 0.5f, h * 0.64f), Offset(w * 0.5f, h * 0.82f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.42f, h * 0.74f), Offset(w * 0.5f, h * 0.82f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.58f, h * 0.74f), Offset(w * 0.5f, h * 0.82f), sw, StrokeCap.Round)
+    }
+}
+
+@Composable
+fun IcoCompass(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald, off: Boolean = false) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val ring = Path().apply { addOval(Rect(Offset(w * 0.14f, h * 0.14f), Offset(w * 0.86f, h * 0.86f))) }
+        duo(ring, c, sw)
+        // إبرة معيّنية
+        val needle = Path().apply {
+            moveTo(w * 0.50f, h * 0.24f); lineTo(w * 0.60f, h * 0.50f)
+            lineTo(w * 0.50f, h * 0.76f); lineTo(w * 0.40f, h * 0.50f); close()
+        }
+        drawPath(needle, c)
+        drawCircle(c, w * 0.05f, Offset(w * 0.50f, h * 0.50f))
+        if (off) drawLine(c, Offset(w * 0.16f, h * 0.16f), Offset(w * 0.84f, h * 0.84f), sw, StrokeCap.Round)
+    }
+}
+
+/* ══════════ أدوات (أخف — للأزرار) ══════════ */
 
 @Composable
 fun IcoSearch(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        drawCircle(c, w * 0.24f, Offset(w * 0.42f, h * 0.42f), style = Stroke(w * 0.07f, cap = StrokeCap.Round))
-        drawLine(c, Offset(w * 0.60f, h * 0.60f), Offset(w * 0.82f, h * 0.82f), w * 0.07f, StrokeCap.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.08f
+        val lens = Path().apply { addOval(Rect(Offset(w * 0.18f, h * 0.18f), Offset(w * 0.66f, h * 0.66f))) }
+        duoFill(lens, c)
+        drawCircle(c, w * 0.24f, Offset(w * 0.42f, h * 0.42f), style = Stroke(sw, cap = StrokeCap.Round))
+        drawLine(c, Offset(w * 0.60f, h * 0.60f), Offset(w * 0.84f, h * 0.84f), sw, StrokeCap.Round)
     }
 }
 
 @Composable
 fun IcoShare(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round)
-        val a = Offset(w * 0.26f, h * 0.50f); val b = Offset(w * 0.72f, h * 0.22f); val d = Offset(w * 0.72f, h * 0.78f)
-        drawLine(c, a, b, st.width, StrokeCap.Round)
-        drawLine(c, a, d, st.width, StrokeCap.Round)
-        drawCircle(c, w * 0.10f, a, style = st); drawCircle(c, w * 0.10f, b, style = st); drawCircle(c, w * 0.10f, d, style = st)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val a = Offset(w * 0.28f, h * 0.50f); val b = Offset(w * 0.72f, h * 0.24f); val d = Offset(w * 0.72f, h * 0.76f)
+        drawLine(c, a, b, sw, StrokeCap.Round)
+        drawLine(c, a, d, sw, StrokeCap.Round)
+        for (pt in listOf(a, b, d)) {
+            drawCircle(c.copy(alpha = 0.22f), w * 0.11f, pt)
+            drawCircle(c, w * 0.06f, pt)
+        }
     }
 }
 
 @Composable
 fun IcoCopy(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawRoundRect(c, topLeft = Offset(w * 0.32f, h * 0.14f), size = Size(w * 0.48f, h * 0.54f),
-            cornerRadius = CornerRadius(w * 0.07f), style = st)
-        drawRoundRect(c.copy(alpha = 0.10f), topLeft = Offset(w * 0.18f, h * 0.32f), size = Size(w * 0.48f, h * 0.54f),
-            cornerRadius = CornerRadius(w * 0.07f))
-        drawRoundRect(c, topLeft = Offset(w * 0.18f, h * 0.32f), size = Size(w * 0.48f, h * 0.54f),
-            cornerRadius = CornerRadius(w * 0.07f), style = st)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val back = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(w * 0.32f, h * 0.14f, w * 0.82f, h * 0.68f, CornerRadius(w * 0.08f, w * 0.08f))) }
+        drawPath(back, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        val front = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(w * 0.18f, h * 0.32f, w * 0.68f, h * 0.86f, CornerRadius(w * 0.08f, w * 0.08f))) }
+        duo(front, c, sw)
     }
 }
 
 @Composable
 fun IcoBookmark(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.gold, filled: Boolean = false) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.075f
         val p = Path().apply {
             moveTo(w * 0.28f, h * 0.16f); lineTo(w * 0.72f, h * 0.16f); lineTo(w * 0.72f, h * 0.84f)
             lineTo(w * 0.50f, h * 0.66f); lineTo(w * 0.28f, h * 0.84f); close()
         }
-        if (filled) drawPath(p, c) else { drawPath(p, c.copy(alpha = 0.10f)); drawPath(p, c, style = st) }
+        if (filled) {
+            drawPath(p, Brush.verticalGradient(listOf(c, c.copy(alpha = 0.7f))))
+            drawPath(p, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        } else duo(p, c, sw)
     }
 }
 
 @Composable
 fun IcoTrash(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.error) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawLine(c, Offset(w * 0.22f, h * 0.28f), Offset(w * 0.78f, h * 0.28f), st.width, StrokeCap.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val body = Path().apply {
+            moveTo(w * 0.28f, h * 0.30f); lineTo(w * 0.32f, h * 0.84f)
+            lineTo(w * 0.68f, h * 0.84f); lineTo(w * 0.72f, h * 0.30f); close()
+        }
+        duo(body, c, sw)
+        drawLine(c, Offset(w * 0.20f, h * 0.28f), Offset(w * 0.80f, h * 0.28f), sw, StrokeCap.Round)
         val handle = Path().apply {
             moveTo(w * 0.42f, h * 0.28f); lineTo(w * 0.44f, h * 0.16f)
             lineTo(w * 0.56f, h * 0.16f); lineTo(w * 0.58f, h * 0.28f)
         }
-        drawPath(handle, c, style = st)
-        val body = Path().apply {
-            moveTo(w * 0.28f, h * 0.28f); lineTo(w * 0.32f, h * 0.84f)
-            lineTo(w * 0.68f, h * 0.84f); lineTo(w * 0.72f, h * 0.28f)
-        }
-        drawPath(body, c, style = st)
-        drawLine(c, Offset(w * 0.44f, h * 0.40f), Offset(w * 0.45f, h * 0.72f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.56f, h * 0.40f), Offset(w * 0.55f, h * 0.72f), st.width, StrokeCap.Round)
+        drawPath(handle, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawLine(c, Offset(w * 0.44f, h * 0.42f), Offset(w * 0.45f, h * 0.72f), sw * 0.8f, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.56f, h * 0.42f), Offset(w * 0.55f, h * 0.72f), sw * 0.8f, StrokeCap.Round)
     }
 }
 
 @Composable
 fun IcoRefresh(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = w * 0.07f
+        val w = size.width; val h = size.height; val sw = w * 0.08f
         drawArc(c, -45f, 270f, false, Offset(w * 0.20f, h * 0.20f), Size(w * 0.60f, h * 0.60f),
-            style = Stroke(st, cap = StrokeCap.Round))
-        // رأس السهم عند بداية القوس
-        drawLine(c, Offset(w * 0.71f, h * 0.29f), Offset(w * 0.84f, h * 0.31f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.71f, h * 0.29f), Offset(w * 0.73f, h * 0.15f), st, StrokeCap.Round)
+            style = Stroke(sw, cap = StrokeCap.Round))
+        drawLine(c, Offset(w * 0.71f, h * 0.29f), Offset(w * 0.86f, h * 0.31f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.71f, h * 0.29f), Offset(w * 0.73f, h * 0.13f), sw, StrokeCap.Round)
     }
 }
 
@@ -220,8 +314,8 @@ fun IcoRefresh(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
 fun IcoPlus(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height
-        drawLine(c, Offset(w * 0.50f, h * 0.20f), Offset(w * 0.50f, h * 0.80f), w * 0.08f, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.20f, h * 0.50f), Offset(w * 0.80f, h * 0.50f), w * 0.08f, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.50f, h * 0.20f), Offset(w * 0.50f, h * 0.80f), w * 0.09f, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.20f, h * 0.50f), Offset(w * 0.80f, h * 0.50f), w * 0.09f, StrokeCap.Round)
     }
 }
 
@@ -229,285 +323,236 @@ fun IcoPlus(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
 fun IcoClose(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.inkMed) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height
-        drawLine(c, Offset(w * 0.26f, h * 0.26f), Offset(w * 0.74f, h * 0.74f), w * 0.08f, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.74f, h * 0.26f), Offset(w * 0.26f, h * 0.74f), w * 0.08f, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.26f, h * 0.26f), Offset(w * 0.74f, h * 0.74f), w * 0.09f, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.74f, h * 0.26f), Offset(w * 0.26f, h * 0.74f), w * 0.09f, StrokeCap.Round)
     }
 }
 
 @Composable
 fun IcoSend(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
         val p = Path().apply {
-            moveTo(w * 0.16f, h * 0.46f); lineTo(w * 0.84f, h * 0.18f)
-            lineTo(w * 0.60f, h * 0.84f); lineTo(w * 0.46f, h * 0.56f); close()
+            moveTo(w * 0.14f, h * 0.46f); lineTo(w * 0.86f, h * 0.16f)
+            lineTo(w * 0.58f, h * 0.86f); lineTo(w * 0.46f, h * 0.56f); close()
         }
-        drawPath(p, c.copy(alpha = 0.10f)); drawPath(p, c, style = st)
-        drawLine(c, Offset(w * 0.46f, h * 0.56f), Offset(w * 0.84f, h * 0.18f), st.width, StrokeCap.Round)
+        duo(p, c, sw)
+        drawLine(c, Offset(w * 0.46f, h * 0.56f), Offset(w * 0.86f, h * 0.16f), sw, StrokeCap.Round)
     }
 }
 
 @Composable
 fun IcoMail(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawRoundRect(c, topLeft = Offset(w * 0.14f, h * 0.24f), size = Size(w * 0.72f, h * 0.52f),
-            cornerRadius = CornerRadius(w * 0.08f), style = st)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val env = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(w * 0.14f, h * 0.24f, w * 0.86f, h * 0.76f, CornerRadius(w * 0.08f, w * 0.08f))) }
+        duo(env, c, sw)
         val flap = Path().apply {
-            moveTo(w * 0.16f, h * 0.30f); lineTo(w * 0.50f, h * 0.54f); lineTo(w * 0.84f, h * 0.30f)
+            moveTo(w * 0.17f, h * 0.30f); lineTo(w * 0.50f, h * 0.54f); lineTo(w * 0.83f, h * 0.30f)
         }
-        drawPath(flap, c, style = st)
+        drawPath(flap, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
-/* ── حالات ورسائل ── */
+/* ══════════ حالات ورسائل ══════════ */
 
 @Composable
 fun IcoWarning(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.warning) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.075f
         val tri = Path().apply {
-            moveTo(w * 0.50f, h * 0.16f); lineTo(w * 0.88f, h * 0.80f); lineTo(w * 0.12f, h * 0.80f); close()
+            moveTo(w * 0.50f, h * 0.14f); lineTo(w * 0.90f, h * 0.82f); lineTo(w * 0.10f, h * 0.82f); close()
         }
-        drawPath(tri, c.copy(alpha = 0.10f)); drawPath(tri, c, style = st)
-        drawLine(c, Offset(w * 0.50f, h * 0.38f), Offset(w * 0.50f, h * 0.58f), st.width, StrokeCap.Round)
-        drawCircle(c, w * 0.045f, Offset(w * 0.50f, h * 0.70f))
+        duo(tri, c, sw)
+        drawLine(c, Offset(w * 0.50f, h * 0.40f), Offset(w * 0.50f, h * 0.60f), sw, StrokeCap.Round)
+        drawCircle(c, w * 0.05f, Offset(w * 0.50f, h * 0.71f))
     }
 }
 
 @Composable
 fun IcoAlert(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.error) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        drawCircle(c, w * 0.36f, Offset(w * 0.50f, h * 0.50f), style = Stroke(w * 0.07f, cap = StrokeCap.Round))
-        drawLine(c, Offset(w * 0.50f, h * 0.30f), Offset(w * 0.50f, h * 0.54f), w * 0.07f, StrokeCap.Round)
-        drawCircle(c, w * 0.045f, Offset(w * 0.50f, h * 0.68f))
+        val w = size.width; val h = size.height; val sw = w * 0.075f
+        val ring = Path().apply { addOval(Rect(Offset(w * 0.14f, h * 0.14f), Offset(w * 0.86f, h * 0.86f))) }
+        duo(ring, c, sw)
+        drawLine(c, Offset(w * 0.50f, h * 0.30f), Offset(w * 0.50f, h * 0.55f), sw, StrokeCap.Round)
+        drawCircle(c, w * 0.05f, Offset(w * 0.50f, h * 0.68f))
     }
 }
 
 @Composable
 fun IcoInbox(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.inkLight) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
         val box = Path().apply {
-            moveTo(w * 0.14f, h * 0.52f); lineTo(w * 0.22f, h * 0.24f); lineTo(w * 0.78f, h * 0.24f)
+            moveTo(w * 0.14f, h * 0.52f); lineTo(w * 0.24f, h * 0.24f); lineTo(w * 0.76f, h * 0.24f)
             lineTo(w * 0.86f, h * 0.52f); lineTo(w * 0.86f, h * 0.80f); lineTo(w * 0.14f, h * 0.80f); close()
         }
-        drawPath(box, c, style = st)
+        duo(box, c, sw)
         val tray = Path().apply {
             moveTo(w * 0.14f, h * 0.52f); lineTo(w * 0.34f, h * 0.52f); lineTo(w * 0.40f, h * 0.62f)
             lineTo(w * 0.60f, h * 0.62f); lineTo(w * 0.66f, h * 0.52f); lineTo(w * 0.86f, h * 0.52f)
         }
-        drawPath(tray, c, style = st)
+        drawPath(tray, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
-/* ── موقع وقبلة ── */
+/* ══════════ موقع ══════════ */
 
 @Composable
 fun IcoPin(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald, off: Boolean = false) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawCircle(c, w * 0.20f, Offset(w * 0.50f, h * 0.36f), style = st)
-        drawCircle(c, w * 0.07f, Offset(w * 0.50f, h * 0.36f))
-        drawLine(c, Offset(w * 0.34f, h * 0.50f), Offset(w * 0.50f, h * 0.84f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.66f, h * 0.50f), Offset(w * 0.50f, h * 0.84f), st.width, StrokeCap.Round)
-        if (off) drawLine(c, Offset(w * 0.16f, h * 0.16f), Offset(w * 0.84f, h * 0.84f), st.width, StrokeCap.Round)
-    }
-}
-
-@Composable
-fun IcoCompass(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald, off: Boolean = false) {
-    Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawCircle(c, w * 0.36f, Offset(w * 0.50f, h * 0.50f), style = st)
-        val needle = Path().apply {
-            moveTo(w * 0.50f, h * 0.26f); lineTo(w * 0.58f, h * 0.50f)
-            lineTo(w * 0.50f, h * 0.74f); lineTo(w * 0.42f, h * 0.50f); close()
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val pin = Path().apply {
+            moveTo(w * 0.50f, h * 0.86f)
+            cubicTo(w * 0.24f, h * 0.60f, w * 0.22f, h * 0.44f, w * 0.22f, h * 0.38f)
+            cubicTo(w * 0.22f, h * 0.20f, w * 0.78f, h * 0.20f, w * 0.78f, h * 0.38f)
+            cubicTo(w * 0.78f, h * 0.44f, w * 0.76f, h * 0.60f, w * 0.50f, h * 0.86f)
+            close()
         }
-        drawPath(needle, c.copy(alpha = 0.12f)); drawPath(needle, c, style = st)
-        drawCircle(c, w * 0.04f, Offset(w * 0.50f, h * 0.50f))
-        if (off) drawLine(c, Offset(w * 0.16f, h * 0.16f), Offset(w * 0.84f, h * 0.84f), st.width, StrokeCap.Round)
+        duo(pin, c, sw)
+        drawCircle(c, w * 0.08f, Offset(w * 0.50f, h * 0.38f))
+        if (off) drawLine(c, Offset(w * 0.16f, h * 0.16f), Offset(w * 0.84f, h * 0.84f), sw, StrokeCap.Round)
     }
 }
 
-/* ── بيانات وملفات ── */
+/* ══════════ بيانات ══════════ */
 
 @Composable
 fun IcoDownload(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = w * 0.07f
-        drawLine(c, Offset(w * 0.50f, h * 0.14f), Offset(w * 0.50f, h * 0.60f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.34f, h * 0.46f), Offset(w * 0.50f, h * 0.62f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.66f, h * 0.46f), Offset(w * 0.50f, h * 0.62f), st, StrokeCap.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.08f
+        drawLine(c, Offset(w * 0.50f, h * 0.14f), Offset(w * 0.50f, h * 0.60f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.34f, h * 0.46f), Offset(w * 0.50f, h * 0.62f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.66f, h * 0.46f), Offset(w * 0.50f, h * 0.62f), sw, StrokeCap.Round)
         val tray = Path().apply {
             moveTo(w * 0.18f, h * 0.66f); lineTo(w * 0.18f, h * 0.84f)
             lineTo(w * 0.82f, h * 0.84f); lineTo(w * 0.82f, h * 0.66f)
         }
-        drawPath(tray, c, style = Stroke(st, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawPath(tray, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
 @Composable
 fun IcoUpload(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = w * 0.07f
-        drawLine(c, Offset(w * 0.50f, h * 0.62f), Offset(w * 0.50f, h * 0.16f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.34f, h * 0.30f), Offset(w * 0.50f, h * 0.14f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.66f, h * 0.30f), Offset(w * 0.50f, h * 0.14f), st, StrokeCap.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.08f
+        drawLine(c, Offset(w * 0.50f, h * 0.62f), Offset(w * 0.50f, h * 0.16f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.34f, h * 0.30f), Offset(w * 0.50f, h * 0.14f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.66f, h * 0.30f), Offset(w * 0.50f, h * 0.14f), sw, StrokeCap.Round)
         val tray = Path().apply {
             moveTo(w * 0.18f, h * 0.66f); lineTo(w * 0.18f, h * 0.84f)
             lineTo(w * 0.82f, h * 0.84f); lineTo(w * 0.82f, h * 0.66f)
         }
-        drawPath(tray, c, style = Stroke(st, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawPath(tray, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 
-/* ── إنجاز وحماس ── */
+/* ══════════ إنجاز ══════════ */
 
 @Composable
 fun IcoFlame(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.accentOrange) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
         val p = Path().apply {
-            moveTo(w * 0.50f, h * 0.12f)
-            cubicTo(w * 0.62f, h * 0.28f, w * 0.80f, h * 0.42f, w * 0.80f, h * 0.60f)
-            cubicTo(w * 0.80f, h * 0.78f, w * 0.66f, h * 0.88f, w * 0.50f, h * 0.88f)
-            cubicTo(w * 0.34f, h * 0.88f, w * 0.20f, h * 0.78f, w * 0.20f, h * 0.60f)
-            cubicTo(w * 0.20f, h * 0.48f, w * 0.30f, h * 0.36f, w * 0.38f, h * 0.28f)
-            cubicTo(w * 0.42f, h * 0.24f, w * 0.46f, h * 0.18f, w * 0.50f, h * 0.12f)
+            moveTo(w * 0.50f, h * 0.10f)
+            cubicTo(w * 0.64f, h * 0.28f, w * 0.82f, h * 0.42f, w * 0.82f, h * 0.60f)
+            cubicTo(w * 0.82f, h * 0.79f, w * 0.67f, h * 0.90f, w * 0.50f, h * 0.90f)
+            cubicTo(w * 0.33f, h * 0.90f, w * 0.18f, h * 0.79f, w * 0.18f, h * 0.60f)
+            cubicTo(w * 0.18f, h * 0.47f, w * 0.30f, h * 0.36f, w * 0.38f, h * 0.26f)
+            cubicTo(w * 0.43f, h * 0.20f, w * 0.47f, h * 0.16f, w * 0.50f, h * 0.10f)
             close()
         }
-        drawPath(p, c.copy(alpha = 0.12f)); drawPath(p, c, style = st)
-        // لهب داخلي
+        duo(p, c, sw)
         val inner = Path().apply {
-            moveTo(w * 0.50f, h * 0.52f)
-            cubicTo(w * 0.58f, h * 0.60f, w * 0.60f, h * 0.68f, w * 0.56f, h * 0.74f)
-            cubicTo(w * 0.52f, h * 0.80f, w * 0.44f, h * 0.78f, w * 0.42f, h * 0.70f)
+            moveTo(w * 0.50f, h * 0.54f)
+            cubicTo(w * 0.60f, h * 0.62f, w * 0.62f, h * 0.72f, w * 0.56f, h * 0.78f)
+            cubicTo(w * 0.50f, h * 0.83f, w * 0.42f, h * 0.79f, w * 0.42f, h * 0.70f)
         }
-        drawPath(inner, c, style = Stroke(w * 0.05f, cap = StrokeCap.Round))
+        drawPath(inner, c, style = Stroke(w * 0.055f, cap = StrokeCap.Round))
     }
 }
 
 @Composable
 fun IcoTrophy(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.gold) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // الكأس
+        val w = size.width; val h = size.height; val sw = w * 0.07f
         val cup = Path().apply {
-            moveTo(w * 0.30f, h * 0.16f); lineTo(w * 0.70f, h * 0.16f); lineTo(w * 0.68f, h * 0.42f)
-            cubicTo(w * 0.64f, h * 0.56f, w * 0.36f, h * 0.56f, w * 0.32f, h * 0.42f)
+            moveTo(w * 0.30f, h * 0.16f); lineTo(w * 0.70f, h * 0.16f); lineTo(w * 0.67f, h * 0.44f)
+            cubicTo(w * 0.63f, h * 0.58f, w * 0.37f, h * 0.58f, w * 0.33f, h * 0.44f)
             close()
         }
-        drawPath(cup, c.copy(alpha = 0.10f)); drawPath(cup, c, style = st)
-        // المقبضان
+        duo(cup, c, sw)
         drawArc(c, -90f, -160f, false, Offset(w * 0.12f, h * 0.18f), Size(w * 0.20f, h * 0.24f),
-            style = Stroke(st.width, cap = StrokeCap.Round))
+            style = Stroke(sw, cap = StrokeCap.Round))
         drawArc(c, -90f, 160f, false, Offset(w * 0.68f, h * 0.18f), Size(w * 0.20f, h * 0.24f),
-            style = Stroke(st.width, cap = StrokeCap.Round))
-        // الساق والقاعدة
-        drawLine(c, Offset(w * 0.50f, h * 0.56f), Offset(w * 0.50f, h * 0.70f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.36f, h * 0.76f), Offset(w * 0.64f, h * 0.76f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.30f, h * 0.84f), Offset(w * 0.70f, h * 0.84f), st.width, StrokeCap.Round)
-    }
-}
-
-/* ── تصنيفات دلالية إضافية ── */
-
-/** طعام — صحن مع بخار (أدعية الطعام) */
-@Composable
-fun IcoFood(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // صحن نصف دائري
-        val plate = Path().apply {
-            moveTo(w * 0.16f, h * 0.56f)
-            cubicTo(w * 0.16f, h * 0.80f, w * 0.84f, h * 0.80f, w * 0.84f, h * 0.56f)
-            close()
-        }
-        drawPath(plate, c.copy(alpha = 0.12f)); drawPath(plate, c, style = st)
-        drawLine(c, Offset(w * 0.10f, h * 0.56f), Offset(w * 0.90f, h * 0.56f), st.width, StrokeCap.Round)
-        // بخار
-        for (dx in listOf(0.38f, 0.50f, 0.62f)) {
-            val p = Path().apply {
-                moveTo(w * dx, h * 0.44f)
-                cubicTo(w * (dx + 0.05f), h * 0.38f, w * (dx - 0.05f), h * 0.34f, w * dx, h * 0.28f)
-            }
-            drawPath(p, c.copy(alpha = 0.6f), style = Stroke(w * 0.045f, cap = StrokeCap.Round))
-        }
-    }
-}
-
-/** صحة/شفاء — قلب بنبضة (أدعية المرض) */
-@Composable
-fun IcoHealth(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        val heart = Path().apply {
-            moveTo(w * 0.50f, h * 0.80f)
-            cubicTo(w * 0.16f, h * 0.54f, w * 0.18f, h * 0.24f, w * 0.38f, h * 0.24f)
-            cubicTo(w * 0.46f, h * 0.24f, w * 0.50f, h * 0.32f, w * 0.50f, h * 0.36f)
-            cubicTo(w * 0.50f, h * 0.32f, w * 0.54f, h * 0.24f, w * 0.62f, h * 0.24f)
-            cubicTo(w * 0.82f, h * 0.24f, w * 0.84f, h * 0.54f, w * 0.50f, h * 0.80f)
-            close()
-        }
-        drawPath(heart, c.copy(alpha = 0.12f)); drawPath(heart, c, style = st)
-        // خط النبض
-        val pulse = Path().apply {
-            moveTo(w * 0.26f, h * 0.50f); lineTo(w * 0.40f, h * 0.50f); lineTo(w * 0.46f, h * 0.40f)
-            lineTo(w * 0.54f, h * 0.60f); lineTo(w * 0.60f, h * 0.50f); lineTo(w * 0.74f, h * 0.50f)
-        }
-        drawPath(pulse, c, style = Stroke(w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
-
-/** غروب — شمس نصفها تحت الأفق مع سهم نزول (أذكار المساء) */
-@Composable
-fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.eveningRing) {
-    Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = w * 0.06f
-        drawArc(c, 180f, 180f, false, Offset(w * 0.32f, h * 0.30f), Size(w * 0.36f, w * 0.36f),
-            style = Stroke(st, cap = StrokeCap.Round))
-        for (i in 0 until 5) {
-            val a = (180 + i * 45) * (PI.toFloat() / 180f)
-            val cx = w * 0.5f; val cy = h * 0.48f
-            drawLine(c, Offset(cx + w * 0.24f * cos(a), cy + w * 0.24f * sin(a)),
-                Offset(cx + w * 0.33f * cos(a), cy + w * 0.33f * sin(a)), st, StrokeCap.Round)
-        }
-        drawLine(c, Offset(w * 0.10f, h * 0.52f), Offset(w * 0.90f, h * 0.52f), st, StrokeCap.Round)
-        // سهم نزول صغير
-        drawLine(c, Offset(w * 0.5f, h * 0.62f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.43f, h * 0.71f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.57f, h * 0.71f), Offset(w * 0.5f, h * 0.78f), st, StrokeCap.Round)
+            style = Stroke(sw, cap = StrokeCap.Round))
+        drawLine(c, Offset(w * 0.50f, h * 0.58f), Offset(w * 0.50f, h * 0.70f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.36f, h * 0.76f), Offset(w * 0.64f, h * 0.76f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.30f, h * 0.84f), Offset(w * 0.70f, h * 0.84f), sw, StrokeCap.Round)
     }
 }
 
 @Composable
 fun IcoBulb(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.gold) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawCircle(c, w * 0.22f, Offset(w * 0.50f, h * 0.38f), style = st)
-        drawLine(c, Offset(w * 0.42f, h * 0.58f), Offset(w * 0.42f, h * 0.72f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.58f, h * 0.58f), Offset(w * 0.58f, h * 0.72f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.42f, h * 0.72f), Offset(w * 0.58f, h * 0.72f), st.width, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.45f, h * 0.80f), Offset(w * 0.55f, h * 0.80f), st.width, StrokeCap.Round)
-        // شعاع خفيف
-        drawLine(c, Offset(w * 0.50f, h * 0.08f), Offset(w * 0.50f, h * 0.02f + h * 0.10f), st.width * 0.8f, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.22f, h * 0.20f), Offset(w * 0.17f, h * 0.15f), st.width * 0.8f, StrokeCap.Round)
-        drawLine(c, Offset(w * 0.78f, h * 0.20f), Offset(w * 0.83f, h * 0.15f), st.width * 0.8f, StrokeCap.Round)
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        val glass = Path().apply { addOval(Rect(Offset(w * 0.28f, h * 0.16f), Offset(w * 0.72f, h * 0.60f))) }
+        duo(glass, c, sw)
+        drawLine(c, Offset(w * 0.42f, h * 0.60f), Offset(w * 0.42f, h * 0.74f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.58f, h * 0.60f), Offset(w * 0.58f, h * 0.74f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.42f, h * 0.74f), Offset(w * 0.58f, h * 0.74f), sw, StrokeCap.Round)
+        drawLine(c, Offset(w * 0.45f, h * 0.82f), Offset(w * 0.55f, h * 0.82f), sw, StrokeCap.Round)
     }
+}
+
+/* ══════════ مسجد (نسخة فاخرة تُستخدم بالتصنيفات) ══════════ */
+
+@Composable
+fun IcoMosque(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        val w = size.width; val h = size.height; val sw = w * 0.07f
+        // قبة + جسم المسجد ممتلئ
+        val body = Path().apply {
+            moveTo(w * 0.22f, h * 0.86f)
+            lineTo(w * 0.22f, h * 0.52f)
+            cubicTo(w * 0.22f, h * 0.34f, w * 0.78f, h * 0.34f, w * 0.78f, h * 0.52f)
+            lineTo(w * 0.78f, h * 0.86f)
+            close()
+        }
+        duo(body, c, sw)
+        drawLine(c, Offset(w * 0.14f, h * 0.86f), Offset(w * 0.86f, h * 0.86f), sw, StrokeCap.Round)
+        // هلال أعلى القبة
+        drawLine(c, Offset(w * 0.50f, h * 0.34f), Offset(w * 0.50f, h * 0.22f), sw, StrokeCap.Round)
+        drawCircle(c, w * 0.045f, Offset(w * 0.50f, h * 0.17f))
+        // باب بقوس (فتحة)
+        val door = Path().apply {
+            moveTo(w * 0.43f, h * 0.86f); lineTo(w * 0.43f, h * 0.66f)
+            cubicTo(w * 0.43f, h * 0.57f, w * 0.57f, h * 0.57f, w * 0.57f, h * 0.66f)
+            lineTo(w * 0.57f, h * 0.86f)
+        }
+        drawPath(door, c, style = Stroke(sw * 0.85f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/* ══════════ أدوات هندسية مشتركة ══════════ */
+
+private fun heartPath(w: Float, h: Float): Path = Path().apply {
+    moveTo(w * 0.50f, h * 0.82f)
+    cubicTo(w * 0.14f, h * 0.54f, w * 0.16f, h * 0.22f, w * 0.38f, h * 0.22f)
+    cubicTo(w * 0.46f, h * 0.22f, w * 0.50f, h * 0.30f, w * 0.50f, h * 0.34f)
+    cubicTo(w * 0.50f, h * 0.30f, w * 0.54f, h * 0.22f, w * 0.62f, h * 0.22f)
+    cubicTo(w * 0.84f, h * 0.22f, w * 0.86f, h * 0.54f, w * 0.50f, h * 0.82f)
+    close()
+}
+
+/** نجمة إسلامية بعدد رؤوس محدد (للمصحف والزخارف). */
+private fun starPath(cx: Float, cy: Float, outer: Float, inner: Float, points: Int): Path = Path().apply {
+    for (i in 0 until points * 2) {
+        val r = if (i % 2 == 0) outer else inner
+        val a = (i * (180f / points) - 90f) * PI.toFloat() / 180f
+        val px = cx + r * cos(a); val py = cy + r * sin(a)
+        if (i == 0) moveTo(px, py) else lineTo(px, py)
+    }
+    close()
 }
