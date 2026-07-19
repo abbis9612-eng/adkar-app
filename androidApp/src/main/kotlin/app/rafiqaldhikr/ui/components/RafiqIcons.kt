@@ -137,7 +137,7 @@ fun IcoHeart(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald, filled:
 fun IcoPerson(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height; val sw = w * 0.075f
-        val head = Path().apply { addOval(Rect(Offset(w * 0.35f, h * 0.16f), w * 0.15f)) }
+        val head = Path().apply { addOval(Rect(Offset(w * 0.50f, h * 0.30f), w * 0.15f)) }
         duo(head, c, sw)
         val body = Path().apply {
             moveTo(w * 0.19f, h * 0.84f)
