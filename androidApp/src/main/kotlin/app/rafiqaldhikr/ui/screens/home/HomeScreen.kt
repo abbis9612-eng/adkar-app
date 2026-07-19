@@ -57,67 +57,81 @@ private fun NowCard(
     val ss = (remaining % 60_000L) / 1000L
     val countdown = "%02d:%02d:%02d".format(hh, mm, ss)
         .localizedDigits(LocalArabicNumerals.current)
+    // تقدّم النافذة الزمنية الحالية (0..1)
+    val windowLen = (station.endMillis - station.startMillis).coerceAtLeast(1L)
+    val windowProgress = ((nowMs - station.startMillis).toFloat() / windowLen).coerceIn(0f, 1f)
 
     Column(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .shadow(6.dp, RoundedCornerShape(22.dp))
-            .clip(RoundedCornerShape(22.dp))
-            .background(Brush.verticalGradient(listOf(rc.card, rc.emeraldPastel.copy(alpha = 0.55f))))
-            .border(1.5.dp, rc.gold.copy(alpha = 0.35f), RoundedCornerShape(22.dp))
+            .shadow(5.dp, RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .background(rc.card)
+            .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(24.dp))
             .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
             .padding(18.dp)
     ) {
+        // ─── الرأس: ميدالية + العنوان ───
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(rc.emeraldPastel),
-                contentAlignment = Alignment.Center
-            ) { StationIcon(station.id, 34.dp) }
+            OrnamentMedallion(size = 58.dp) { s, c -> StationIcon(station.id, s, tint = c) }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         "الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White,
                         modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
-                            .padding(horizontal = 9.dp, vertical = 2.dp)
+                            .padding(horizontal = 10.dp, vertical = 3.dp)
                     )
-                    Spacer(Modifier.width(8.dp))
                     Text(station.timeLabel, fontSize = 11.sp, color = rc.inkMed)
                 }
-                Spacer(Modifier.height(4.dp))
-                Text(station.title, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-                if (station.description.isNotBlank()) {
-                    Spacer(Modifier.height(2.dp))
-                    Text(station.description, fontSize = 12.sp, color = rc.inkMed,
-                        lineHeight = 17.sp, maxLines = 2)
-                }
+                Spacer(Modifier.height(5.dp))
+                Text(station.title, fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                    color = rc.ink, lineHeight = 24.sp)
             }
         }
+
+        // ─── الفضل بدليله — شريط ذهبي ناعم كامل العرض ───
         if (station.virtue.isNotBlank()) {
             Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .background(rc.gold.copy(alpha = 0.10f))
+                    .padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IcoStar(14.dp, rc.gold)
-                Spacer(Modifier.width(6.dp))
-                Text(station.virtue, fontSize = 11.sp, color = rc.gold, lineHeight = 16.sp,
-                    maxLines = 2, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(8.dp))
+                Text(station.virtue, fontSize = 11.5.sp, color = rc.brownAccent,
+                    lineHeight = 17.sp, maxLines = 2, modifier = Modifier.weight(1f))
             }
         }
+
+        // ─── شريط تقدّم النافذة + العدّاد (صف مستقل — لا يُقص أبداً) ───
         Spacer(Modifier.height(14.dp))
+        Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+            .background(rc.divider)) {
+            Box(Modifier.fillMaxHeight().fillMaxWidth(windowProgress)
+                .clip(RoundedCornerShape(3.dp))
+                .background(Brush.horizontalGradient(listOf(rc.gold, rc.emerald))))
+        }
+        Spacer(Modifier.height(6.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
-            Column {
-                Text("النافذة تنتهي بعد", fontSize = 10.sp, color = rc.inkMed)
-                Text(countdown, style = NumbersStyle, fontSize = 19.sp, color = rc.emerald)
-            }
-            Box(
-                Modifier.clip(RoundedCornerShape(14.dp))
-                    .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
-                    .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) }
-                    .padding(horizontal = 24.dp, vertical = 11.dp)
-            ) {
-                Text("ابدأ", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
+            Text("تنتهي النافذة بعد", fontSize = 11.sp, color = rc.inkMed)
+            Text(countdown, style = NumbersStyle, fontSize = 17.sp, color = rc.emerald)
+        }
+
+        // ─── زر ابدأ — كامل العرض، فخم ───
+        Spacer(Modifier.height(12.dp))
+        Box(
+            Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(15.dp))
+                .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
+                .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) },
+            contentAlignment = Alignment.Center
+        ) {
+            Text("ابدأ الآن", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }
@@ -135,46 +149,105 @@ private fun DayPath(
     val rc = LocalRafiqColors.current
     if (state.stations.isEmpty()) return
 
+    // نبض المحطة الحالية — هالة تتنفّس
+    val pulse by rememberInfiniteTransition(label = "path").animateFloat(
+        0.35f, 1f,
+        infiniteRepeatable(tween(1100, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "pulse",
+    )
+    val progress = state.doneCount.toFloat() / state.stations.size
+
     Column(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(20.dp)).background(rc.card)
             .border(1.dp, rc.divider, RoundedCornerShape(20.dp))
             .padding(vertical = 14.dp)
     ) {
+        // الترويسة + شريط تقدّم اليوم
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
-            Text("مسار يومك", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-            Text("${state.doneCount}/${state.stations.size}".localizedDigits(LocalArabicNumerals.current),
-                style = NumbersStyle, fontSize = 13.sp, color = rc.emerald)
+            Text("رحلة يومك", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+            Text(
+                "${state.doneCount}/${state.stations.size} محطة".localizedDigits(LocalArabicNumerals.current),
+                style = NumbersStyle, fontSize = 12.sp, color = rc.emerald,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(4.dp)
+            .clip(RoundedCornerShape(2.dp)).background(rc.divider)) {
+            Box(Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
+                .clip(RoundedCornerShape(2.dp))
+                .background(Brush.horizontalGradient(listOf(rc.gold, rc.emerald))))
         }
         Spacer(Modifier.height(12.dp))
+
+        // العُقد — كل محطة باسمها، والخط يمتلئ ذهبياً بعد المحطات المكتملة
         Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.Top
         ) {
             state.stations.forEachIndexed { i, st ->
                 val done = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.DONE
                 val active = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE
-                Box(
-                    Modifier.size(if (active) 46.dp else 38.dp).clip(CircleShape)
-                        .background(
-                            when {
-                                done   -> rc.emeraldPastel
-                                active -> rc.emerald.copy(alpha = 0.14f)
-                                else   -> rc.divider.copy(alpha = 0.5f)
-                            }
-                        )
-                        .border(if (active) 2.dp else 0.dp,
-                            if (active) rc.gold else Color.Transparent, CircleShape)
-                        .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) },
-                    contentAlignment = Alignment.Center
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.width(64.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) }
+                        .padding(vertical = 2.dp)
                 ) {
-                    if (done) IcoCheck(18.dp, rc.gold) else StationIcon(st.id, if (active) 24.dp else 20.dp)
+                    // منطقة الدائرة بارتفاع موحّد (للخط الواصل)
+                    Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                        // هالة نابضة للمحطة الحالية
+                        if (active) {
+                            Box(Modifier.size(48.dp).clip(CircleShape)
+                                .background(rc.gold.copy(alpha = 0.20f * pulse)))
+                        }
+                        Box(
+                            Modifier.size(if (active) 44.dp else 36.dp).clip(CircleShape)
+                                .background(
+                                    when {
+                                        done   -> rc.emerald
+                                        active -> rc.card
+                                        else   -> rc.divider.copy(alpha = 0.45f)
+                                    }
+                                )
+                                .border(
+                                    width = if (active) 2.dp else 1.dp,
+                                    color = when {
+                                        active -> rc.gold
+                                        done   -> rc.emerald
+                                        else   -> rc.divider
+                                    },
+                                    shape = CircleShape,
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (done) IcoCheck(16.dp, Color.White)
+                            else StationIcon(st.id, if (active) 24.dp else 19.dp)
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        st.title.substringBefore(" و").substringBefore(" —"),
+                        fontSize = 9.5.sp,
+                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                        color = when {
+                            active -> rc.emerald
+                            done   -> rc.ink
+                            else   -> rc.inkLight
+                        },
+                        maxLines = 1,
+                    )
                 }
                 if (i < state.stations.lastIndex) {
-                    Box(Modifier.width(16.dp).height(2.dp).clip(RoundedCornerShape(1.dp))
-                        .background(if (done) rc.gold.copy(alpha = 0.5f) else rc.divider))
+                    // خط واصل بمحاذاة مركز الدوائر — ذهبي بعد المكتملة
+                    Box(Modifier.padding(top = 23.dp).width(10.dp).height(2.5.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(if (done) rc.gold else rc.divider))
                 }
             }
         }

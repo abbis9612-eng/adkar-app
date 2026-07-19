@@ -200,20 +200,21 @@ fun IcoBook(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
     }
 }
 
-/** أيقونة محطة رفيق اليوم حسب معرّفها — بديل الإيموجي */
+/** أيقونة محطة رفيق اليوم حسب معرّفها — بديل الإيموجي.
+ *  [tint] اختياري لتوحيد اللون (مثلاً ذهبي داخل الميدالية). */
 @Composable
-fun StationIcon(stationId: String, s: Dp = 28.dp) {
+fun StationIcon(stationId: String, s: Dp = 28.dp, tint: Color? = null) {
     val rc = LocalRafiqColors.current
     when (stationId) {
-        "wake"         -> IcoSunrise(s, rc.morningRing)
-        "fajr_morning" -> IcoSun(s, rc.gold)
-        "duha"         -> IcoSunrise(s, rc.goldLight)
-        "dhuhr"        -> IcoMosque(s, rc.emerald)
-        "asr_evening"  -> IcoStar(s, rc.eveningRing)
-        "maghrib"      -> IcoMosque(s, rc.accentOrange)
-        "isha"         -> IcoMosque(s, rc.purpleSleep)
-        "sleep"        -> IcoMoon(s, rc.sleepRing)
-        "friday_kahf"  -> IcoBook(s, rc.emerald)
-        else           -> IcoDua(s, rc.emeraldMed)
+        "wake"         -> IcoSunrise(s, tint ?: rc.morningRing)
+        "fajr_morning" -> IcoSun(s, tint ?: rc.gold)
+        "duha"         -> IcoSunrise(s, tint ?: rc.goldLight)
+        "dhuhr"        -> IcoMosque(s, tint ?: rc.emerald)
+        "asr_evening"  -> IcoStar(s, tint ?: rc.eveningRing)
+        "maghrib"      -> IcoMosque(s, tint ?: rc.accentOrange)
+        "isha"         -> IcoMosque(s, tint ?: rc.purpleSleep)
+        "sleep"        -> IcoMoon(s, tint ?: rc.sleepRing)
+        "friday_kahf"  -> IcoBook(s, tint ?: rc.emerald)
+        else           -> IcoDua(s, tint ?: rc.emeraldMed)
     }
 }

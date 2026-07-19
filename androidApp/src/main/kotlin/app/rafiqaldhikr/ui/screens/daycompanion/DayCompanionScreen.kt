@@ -49,41 +49,65 @@ fun DayCompanionScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                // ═══ ملخص التقدم ═══
+                // ═══ ملخص التقدم — بطل الصفحة بحلقة تقدّم ═══
                 item {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .shadow(3.dp, RoundedCornerShape(20.dp))
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(rc.emerald)
-                            .padding(16.dp)
+                            .shadow(4.dp, RoundedCornerShape(22.dp))
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(
+                                androidx.compose.ui.graphics.Brush.linearGradient(
+                                    listOf(rc.heroStart, rc.heroMid, rc.heroEnd)
+                                )
+                            )
+                            .padding(18.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text(
-                                    "محطات يومك",
-                                    fontSize = 14.sp,
-                                    color = Color.White.copy(alpha = 0.85f)
-                                )
-                                Text(
-                                    "${state.doneCount.localized(LocalArabicNumerals.current)} من ${state.stations.size.localized(LocalArabicNumerals.current)}",
-                                    style = app.rafiqaldhikr.ui.theme.NumbersStyle,
-                                    fontSize = 26.sp,
+                                    "رحلة يومك مع الذكر",
+                                    fontSize = 15.sp, fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    if (state.doneCount == 0) "ابدأ أول محطة — خطوة صغيرة تفتح يوماً عظيماً"
+                                    else if (state.doneCount == state.stations.size) "ما شاء الله! أتممت رحلة اليوم كاملة 🌙"
+                                    else "أحسنت — واصل، بقيت ${(state.stations.size - state.doneCount).localized(LocalArabicNumerals.current)} محطات",
+                                    fontSize = 12.sp, lineHeight = 18.sp,
+                                    color = Color.White.copy(alpha = 0.85f)
+                                )
                             }
-                            if (state.stations.isNotEmpty()) {
-                                LinearProgressIndicator(
-                                    progress = { state.doneCount / state.stations.size.toFloat() },
-                                    modifier = Modifier.width(90.dp).height(8.dp).clip(RoundedCornerShape(4.dp)),
-                                    color = rc.goldLight,
-                                    trackColor = Color.White.copy(alpha = 0.25f)
+                            Spacer(Modifier.width(12.dp))
+                            // حلقة تقدّم دائرية
+                            Box(contentAlignment = Alignment.Center) {
+                                androidx.compose.foundation.Canvas(Modifier.size(72.dp)) {
+                                    val sw = 7.dp.toPx()
+                                    val r = (size.minDimension - sw) / 2f
+                                    val tl = androidx.compose.ui.geometry.Offset(
+                                        size.width / 2f - r, size.height / 2f - r)
+                                    val sz = androidx.compose.ui.geometry.Size(r * 2, r * 2)
+                                    drawArc(Color.White.copy(alpha = 0.22f), 0f, 360f, false, tl, sz,
+                                        style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                            sw, cap = androidx.compose.ui.graphics.StrokeCap.Round))
+                                    val frac = if (state.stations.isEmpty()) 0f
+                                        else state.doneCount / state.stations.size.toFloat()
+                                    if (frac > 0.005f) {
+                                        drawArc(rc.goldLight, -90f, 360f * frac, false, tl, sz,
+                                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                                sw, cap = androidx.compose.ui.graphics.StrokeCap.Round))
+                                    }
+                                }
+                                Text(
+                                    "${state.doneCount.localized(LocalArabicNumerals.current)}/${state.stations.size.localized(LocalArabicNumerals.current)}",
+                                    style = app.rafiqaldhikr.ui.theme.NumbersStyle,
+                                    fontSize = 16.sp, color = Color.White
                                 )
                             }
                         }
                     }
-                    Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(16.dp))
                 }
 
                 items(state.stations) { station ->
@@ -110,51 +134,65 @@ private fun StationCard(
     val active = station.status == StationStatus.ACTIVE
     val done   = station.status == StationStatus.DONE
 
+    val passed = station.status == StationStatus.PASSED
+
     Row(Modifier.height(IntrinsicSize.Min)) {
-        // ═══ خط الزمن ═══
+        // ═══ خط الزمن — عقدة أيقونية واضحة ═══
         Column(
-            Modifier.width(28.dp).fillMaxHeight(),
+            Modifier.width(44.dp).fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 Modifier
-                    .size(16.dp)
+                    .size(34.dp)
                     .clip(CircleShape)
                     .background(
                         when {
                             done   -> rc.emerald
-                            active -> rc.gold
-                            else   -> rc.divider
+                            active -> rc.card
+                            else   -> rc.divider.copy(alpha = 0.45f)
                         }
+                    )
+                    .border(
+                        width = if (active) 2.dp else 1.dp,
+                        color = when {
+                            active -> rc.gold
+                            done   -> rc.emerald
+                            else   -> rc.divider
+                        },
+                        shape = CircleShape,
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                if (done) Text("✓", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                if (done) app.rafiqaldhikr.ui.components.IcoCheck(15.dp, Color.White)
+                else StationIcon(station.id, 19.dp)
             }
             if (!isLast) {
                 Box(
                     Modifier
-                        .width(2.dp)
+                        .width(2.5.dp)
                         .weight(1f)
-                        .background(if (done) rc.emerald.copy(alpha = 0.4f) else rc.divider)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(if (done) rc.gold.copy(alpha = 0.6f) else rc.divider)
                 )
             }
         }
 
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(10.dp))
 
         // ═══ بطاقة المحطة ═══
         Column(
             Modifier
                 .weight(1f)
                 .padding(bottom = 14.dp)
-                .shadow(if (active) 4.dp else 1.dp, RoundedCornerShape(18.dp))
+                .shadow(if (active) 5.dp else 1.dp, RoundedCornerShape(18.dp))
                 .clip(RoundedCornerShape(18.dp))
                 .background(rc.card)
+                .background(if (active) rc.gold.copy(alpha = 0.06f) else Color.Transparent)
                 .border(
                     width = if (active) 1.5.dp else 1.dp,
                     color = when {
-                        active -> rc.gold.copy(alpha = 0.5f)
+                        active -> rc.gold.copy(alpha = 0.55f)
                         done   -> rc.emerald.copy(alpha = 0.25f)
                         else   -> rc.divider
                     },
@@ -163,48 +201,60 @@ private fun StationCard(
                 .padding(14.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(if (done) rc.emeraldPastel.copy(alpha = 0.5f) else rc.emeraldPastel),
-                    contentAlignment = Alignment.Center
-                ) { StationIcon(station.id, 24.dp) }
-                Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
                         station.title,
-                        fontSize = 15.sp,
+                        fontSize = 15.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (done) rc.inkMed else rc.ink
+                        color = if (done || passed) rc.inkMed else rc.ink
                     )
+                    Spacer(Modifier.height(2.dp))
                     Text(station.timeLabel, fontSize = 11.sp, color = rc.inkLight)
                 }
-                if (active) {
-                    Box(
-                        Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(rc.gold.copy(alpha = 0.15f))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                when {
+                    active -> Box(
+                        Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("الآن", fontSize = 11.sp, color = rc.gold, fontWeight = FontWeight.Bold)
+                        Text("الآن", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
+                    done -> Text("تمّت ✓", fontSize = 11.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
+                    passed -> Text("فاتت", fontSize = 11.sp, color = rc.inkLight)
+                    else -> {}
                 }
             }
 
             if (!done) {
                 Spacer(Modifier.height(8.dp))
-                Text(station.description, fontSize = 13.sp, lineHeight = 22.sp, color = rc.inkMed)
-                Spacer(Modifier.height(6.dp))
-                Text(station.virtue, fontSize = 11.sp, lineHeight = 19.sp, color = rc.gold.copy(alpha = 0.9f))
+                Text(station.description, fontSize = 13.sp, lineHeight = 21.sp, color = rc.inkMed)
+                if (station.virtue.isNotBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                            .background(rc.gold.copy(alpha = 0.10f))
+                            .padding(horizontal = 10.dp, vertical = 7.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        app.rafiqaldhikr.ui.components.IcoStar(12.dp, rc.gold)
+                        Spacer(Modifier.width(6.dp))
+                        Text(station.virtue, fontSize = 11.sp, lineHeight = 17.sp,
+                            color = rc.brownAccent, modifier = Modifier.weight(1f))
+                    }
+                }
                 Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (station.route != null) {
                         Box(
                             Modifier
+                                .weight(1f)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(rc.emerald)
+                                .background(
+                                    androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                        listOf(rc.emerald, rc.emeraldMed))
+                                )
                                 .clickable(onClick = onStart)
-                                .padding(horizontal = 18.dp, vertical = 8.dp)
+                                .padding(vertical = 10.dp),
+                            contentAlignment = Alignment.Center
                         ) {
                             Text("ابدأ", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
                         }
@@ -212,9 +262,9 @@ private fun StationCard(
                     Box(
                         Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(rc.emeraldPastel)
+                            .border(1.2.dp, rc.emerald.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
                             .clickable(onClick = onDone)
-                            .padding(horizontal = 18.dp, vertical = 8.dp)
+                            .padding(horizontal = 18.dp, vertical = 10.dp)
                     ) {
                         Text("تمّ ✓", fontSize = 13.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
                     }
