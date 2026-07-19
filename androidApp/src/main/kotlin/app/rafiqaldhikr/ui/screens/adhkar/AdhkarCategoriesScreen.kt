@@ -26,6 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.IcoDua
 import app.rafiqaldhikr.ui.components.IcoMoon
+import app.rafiqaldhikr.ui.components.OrnamentMedallion
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoStar
 import app.rafiqaldhikr.ui.components.IcoSun
@@ -314,16 +315,8 @@ private fun AdhkarCategoryCard(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Icon circle
-            Box(
-                Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(catBg),
-                contentAlignment = Alignment.Center,
-            ) {
-                AdhkarCategoryIcon(cat.key, catClr, 26.dp)
-            }
+            // ميدالية زخرفية موحّدة
+            OrnamentMedallion(size = 54.dp) { s, c -> AdhkarCategoryIcon(cat.key, c, s) }
 
             Spacer(Modifier.width(14.dp))
 

@@ -1,8 +1,10 @@
 package app.rafiqaldhikr.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -532,6 +534,51 @@ fun IcoMosque(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
             lineTo(w * 0.57f, h * 0.86f)
         }
         drawPath(door, c, style = Stroke(sw * 0.85f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/* ══════════ ميدالية زخرفية إسلامية (أسلوب التصنيفات) ══════════ */
+
+/**
+ * ميدالية زمردية فاتحة بإطار ذهبي زخرفي (نجمة ثمانية + نقاط) والرمز ذهبي بداخلها.
+ * تُستخدم لأيقونات أقسام الأذكار والأدعية لإعطاء فخامة تراثية موحّدة.
+ */
+@Composable
+fun OrnamentMedallion(
+    size: Dp = 56.dp,
+    glyph: @Composable (Dp, Color) -> Unit
+) {
+    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(size)) {
+            val w = this.size.width
+            val cx = w / 2f; val cy = w / 2f
+            val d = w * 0.96f
+            // قرص زمردي فاتح بتدرّج
+            drawCircle(
+                Brush.verticalGradient(listOf(Color(0xFF13976C), Color(0xFF0C6B49))),
+                radius = d / 2f, center = Offset(cx, cy)
+            )
+            // حلقة داخلية فاتحة خفيفة
+            drawCircle(Color.White.copy(alpha = 0.15f), d * 0.42f, Offset(cx, cy),
+                style = Stroke(w * 0.012f))
+            // إطار زخرفي ذهبي — نجمة ثمانية
+            val gold = Color(0xFFEBC65E)
+            val ring = Path()
+            for (i in 0 until 16) {
+                val r = if (i % 2 == 0) d * 0.47f else d * 0.41f
+                val a = (i * 22.5f - 90f) * PI.toFloat() / 180f
+                val x = cx + r * cos(a); val y = cy + r * sin(a)
+                if (i == 0) ring.moveTo(x, y) else ring.lineTo(x, y)
+            }
+            ring.close()
+            drawPath(ring, gold, style = Stroke(w * 0.02f, join = StrokeJoin.Round))
+            // نقاط ذهبية على المحيط
+            for (i in 0 until 12) {
+                val a = i * 30f * PI.toFloat() / 180f
+                drawCircle(gold, w * 0.017f, Offset(cx + d * 0.44f * cos(a), cy + d * 0.44f * sin(a)))
+            }
+        }
+        glyph(size * 0.46f, Color(0xFFF3D584))
     }
 }
 

@@ -34,6 +34,7 @@ import app.rafiqaldhikr.ui.components.IcoHealth
 import app.rafiqaldhikr.ui.components.IcoHeart
 import app.rafiqaldhikr.ui.components.IcoMoon
 import app.rafiqaldhikr.ui.components.IcoQuran
+import app.rafiqaldhikr.ui.components.OrnamentMedallion
 import app.rafiqaldhikr.ui.components.IcoStar
 import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.utils.localized
@@ -174,7 +175,7 @@ private fun DuaCategoryGridCard(
             .padding(18.dp)
     ) {
         Column {
-            CategoryIcon(key = def.key, color = iconColor)
+            OrnamentMedallion(size = 58.dp) { s, c -> CategoryIcon(key = def.key, color = c, size = s) }
             Spacer(Modifier.height(12.dp))
             Text(
                 def.name,
