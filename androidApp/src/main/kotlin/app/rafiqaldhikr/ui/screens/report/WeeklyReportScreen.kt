@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
@@ -88,7 +90,7 @@ fun WeeklyReportScreen(
                 ) {
                     Text("🌙", fontSize = 48.sp)
                     Spacer(Modifier.height(8.dp))
-                    Text("$activeDays / 7 أيام نشطة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                    Text("$activeDays / 7 أيام نشطة".localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
                     Spacer(Modifier.height(4.dp))
                     Text(
                         if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
@@ -145,8 +147,8 @@ fun WeeklyReportScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (day.morningDone) Text("🌅", fontSize = 16.sp)
                                 if (day.eveningDone) Text("🌆", fontSize = 16.sp)
-                                if (day.quranPages > 0) Text("📖${day.quranPages}", fontSize = 14.sp, color = rc.ink)
-                                if (day.prayersLogged > 0) Text("🕌${day.prayersLogged}", fontSize = 14.sp, color = rc.ink)
+                                if (day.quranPages > 0) Text("📖${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                if (day.prayersLogged > 0) Text("🕌${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
                             }
                         }
                         if (index < week.size - 1) {

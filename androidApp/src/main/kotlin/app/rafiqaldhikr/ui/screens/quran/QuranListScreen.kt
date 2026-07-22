@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.LoadingState
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
@@ -328,13 +330,13 @@ private fun SurahCard(
                 Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("$number", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("$number".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(nameAr, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.ink)
                 Spacer(Modifier.height(2.dp))
-                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}", fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
+                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
             }
             Box(
                 Modifier.clip(RoundedCornerShape(8.dp))

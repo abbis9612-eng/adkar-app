@@ -26,6 +26,9 @@ import androidx.media3.session.SessionToken
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.service.QuranAudioService
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.NumbersStyle
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import com.google.common.util.concurrent.MoreExecutors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
@@ -124,7 +127,7 @@ fun QuranAudioPlayer(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("سورة", fontSize = 16.sp, color = rc.inkMed)
-                        Text("$surahNumber", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                        Text("$surahNumber".localizedDigits(LocalArabicNumerals.current), style = NumbersStyle, fontSize = 48.sp, color = rc.emerald)
                     }
                 }
 
