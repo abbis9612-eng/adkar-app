@@ -41,9 +41,9 @@ fun ShareCardScreen(
     var selectedCard by remember { mutableIntStateOf(0) }
 
     val cards = listOf(
-        ShareCardData("🔥 سلسلتي", "${state.streak.current} يوم متواصل!", "الحمد لله على التوفيق"),
-        ShareCardData("📖 ختمتي", "${state.todayProgress?.quranPages ?: 0} صفحات اليوم", "خير ما يجالسه المرء"),
-        ShareCardData("📿 تسبيحي", "${state.todayProgress?.tasbeehCount ?: 0} تسبيحة", "وسبح بحمد ربك")
+        ShareCardData("سلسلتي", "${state.streak.current} يوم متواصل!", "الحمد لله على التوفيق"),
+        ShareCardData("ختمتي", "${state.todayProgress?.quranPages ?: 0} صفحات اليوم", "خير ما يجالسه المرء"),
+        ShareCardData("تسبيحي", "${state.todayProgress?.tasbeehCount ?: 0} تسبيحة", "وسبح بحمد ربك")
     )
 
     Box(
@@ -103,7 +103,7 @@ fun ShareCardScreen(
                         Spacer(Modifier.height(8.dp))
                         Text(card.subtitle, fontSize = 14.sp, color = rc.bg.copy(alpha = 0.8f))
                         Spacer(Modifier.height(16.dp))
-                        Text("رفيق الذكر 🌙", fontSize = 12.sp, color = rc.bg.copy(alpha = 0.6f))
+                        Text("رفيق الذكر", fontSize = 12.sp, color = rc.bg.copy(alpha = 0.6f))
                     }
                 }
 
@@ -146,7 +146,7 @@ fun ShareCardScreen(
                         .clip(RoundedCornerShape(16.dp))
                         .background(rc.emerald)
                         .clickable {
-                            val shareText = "${cards[selectedCard].title}\n${cards[selectedCard].value}\n${cards[selectedCard].subtitle}\n\nعبر تطبيق رفيق الذكر 🌙"
+                            val shareText = "${cards[selectedCard].title}\n${cards[selectedCard].value}\n${cards[selectedCard].subtitle}\n\nعبر تطبيق رفيق الذكر"
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, shareText)

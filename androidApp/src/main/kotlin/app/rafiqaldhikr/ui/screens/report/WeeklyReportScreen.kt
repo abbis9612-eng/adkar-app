@@ -26,6 +26,10 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.IcoMosque
 
 @Composable
 fun WeeklyReportScreen(
@@ -64,7 +68,7 @@ fun WeeklyReportScreen(
                 RafiqBackButton(onClick = { navController.popBackStack() })
 
                 Text(
-                    text = "التقرير الأسبوعي 📊",
+                    text = "التقرير الأسبوعي",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
@@ -88,7 +92,7 @@ fun WeeklyReportScreen(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🌙", fontSize = 48.sp)
+                    RafiqIcon(RIcon.Moon, 44.dp, rc.emerald)
                     Spacer(Modifier.height(8.dp))
                     Text("$activeDays / 7 أيام نشطة".localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
                     Spacer(Modifier.height(4.dp))
@@ -106,18 +110,18 @@ fun WeeklyReportScreen(
 
                 // Stats
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), "📖", "$totalQuran", "صفحات قرآن", rc)
-                    ReportStatCard(Modifier.weight(1f), "📿", "$totalTasbeeh", "تسبيح", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Book, 26.dp, rc.emerald) }, "$totalQuran", "صفحات قرآن", rc)
+                    ReportStatCard(Modifier.weight(1f), { IcoMisbaha(26.dp, rc.emerald) }, "$totalTasbeeh", "تسبيح", rc)
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), "🕌", "$totalPrayers", "صلوات", rc)
-                    ReportStatCard(Modifier.weight(1f), "🌅", "$morningDays / 7", "أذكار صباح", rc)
+                    ReportStatCard(Modifier.weight(1f), { IcoMosque(26.dp, rc.emerald) }, "$totalPrayers", "صلوات", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunrise, 26.dp, rc.gold) }, "$morningDays / 7", "أذكار صباح", rc)
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), "🌆", "$eveningDays / 7", "أذكار مساء", rc)
-                    ReportStatCard(Modifier.weight(1f), "🔥", "${state.streak.current}", "سلسلة حالية", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.eveningRing) }, "$eveningDays / 7", "أذكار مساء", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.accentOrange) }, "${state.streak.current}", "سلسلة حالية", rc)
                 }
 
                 Spacer(Modifier.height(32.dp))
@@ -144,11 +148,17 @@ fun WeeklyReportScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(day.date, fontSize = 14.sp, color = rc.inkMed)
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (day.morningDone) Text("🌅", fontSize = 16.sp)
-                                if (day.eveningDone) Text("🌆", fontSize = 16.sp)
-                                if (day.quranPages > 0) Text("📖${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
-                                if (day.prayersLogged > 0) Text("🕌${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
+                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.eveningRing)
+                                if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
+                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                }
+                                if (day.prayersLogged > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    IcoMosque(14.dp, rc.emerald)
+                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                }
                             }
                         }
                         if (index < week.size - 1) {
@@ -163,7 +173,7 @@ fun WeeklyReportScreen(
 }
 
 @Composable
-private fun ReportStatCard(modifier: Modifier, emoji: String, value: String, label: String, rc: RafiqPalette) {
+private fun ReportStatCard(modifier: Modifier, icon: @Composable () -> Unit, value: String, label: String, rc: RafiqPalette) {
     Column(
         modifier = modifier
             .shadow(2.dp, RoundedCornerShape(16.dp))
@@ -173,9 +183,9 @@ private fun ReportStatCard(modifier: Modifier, emoji: String, value: String, lab
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(emoji, fontSize = 28.sp)
+        icon()
         Spacer(Modifier.height(8.dp))
-        Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+        Text(value.localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
         Spacer(Modifier.height(4.dp))
         Text(label, fontSize = 12.sp, color = rc.inkMed)
     }

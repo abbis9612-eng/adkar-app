@@ -36,7 +36,6 @@ class DayCompanionViewModel(
 
     data class StationUi(
         val id:          String,
-        val emoji:       String,
         val title:       String,
         val description: String,
         val virtue:      String,          // الفضل الوارد بدليله
@@ -144,7 +143,7 @@ class DayCompanionViewModel(
 
         return listOf(
             StationUi(
-                id = "wake", emoji = "🌅",
+                id = "wake",
                 title = "الاستيقاظ",
                 description = "«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك",
                 virtue = "هدي النبي ﷺ عند الاستيقاظ — رواه البخاري",
@@ -153,7 +152,7 @@ class DayCompanionViewModel(
                 route = null,
             ),
             StationUi(
-                id = "fajr_morning", emoji = "☀️",
+                id = "fajr_morning",
                 title = "الفجر وأذكار الصباح",
                 description = "صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس",
                 virtue = "«من صلى الغداة في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كانت له كأجر حجة وعمرة تامة تامة تامة» — الترمذي (حسن)",
@@ -162,7 +161,7 @@ class DayCompanionViewModel(
                 route = "dhikr_reading/morning",
             ),
             StationUi(
-                id = "duha", emoji = "🌤",
+                id = "duha",
                 title = "صلاة الضحى",
                 description = "ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك",
                 virtue = "«يصبح على كل سُلامى من أحدكم صدقة... ويجزئ من ذلك ركعتان يركعهما من الضحى» — رواه مسلم",
@@ -171,7 +170,7 @@ class DayCompanionViewModel(
                 route = null,
             ),
             StationUi(
-                id = "dhuhr", emoji = "🕌",
+                id = "dhuhr",
                 title = "الظهر وأذكار بعد الصلاة",
                 description = "الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي",
                 virtue = "«من سبّح الله دبر كل صلاة... غُفرت خطاياه وإن كانت مثل زبد البحر» — رواه مسلم",
@@ -180,7 +179,7 @@ class DayCompanionViewModel(
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
-                id = "asr_evening", emoji = "🌇",
+                id = "asr_evening",
                 title = "العصر وأذكار المساء",
                 description = "صلاة العصر ثم أذكار المساء قبل الغروب",
                 virtue = "اختار ابن القيم في الوابل الصيّب أن وقت أذكار المساء بين العصر والغروب",
@@ -189,7 +188,7 @@ class DayCompanionViewModel(
                 route = "dhikr_reading/evening",
             ),
             StationUi(
-                id = "maghrib", emoji = "🌆",
+                id = "maghrib",
                 title = "المغرب وأذكار بعد الصلاة",
                 description = "الصلاة وأذكارها" + if (friday) " — وأكثر من الدعاء فآخر ساعة من الجمعة ساعة إجابة" else "",
                 virtue = "«لا مانع لما أعطيت ولا معطي لما منعت» — متفق عليه",
@@ -198,7 +197,7 @@ class DayCompanionViewModel(
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
-                id = "isha", emoji = "🌃",
+                id = "isha",
                 title = "العشاء والوتر",
                 description = "صلاة العشاء ثم الوتر ولو بركعة",
                 virtue = "«اجعلوا آخر صلاتكم بالليل وتراً» — متفق عليه",
@@ -207,7 +206,7 @@ class DayCompanionViewModel(
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
-                id = "sleep", emoji = "🌙",
+                id = "sleep",
                 title = "أذكار النوم",
                 description = "الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح",
                 virtue = "«إذا أويت إلى فراشك فاقرأ آية الكرسي... لن يزال عليك من الله حافظ ولا يقربك شيطان حتى تصبح» — رواه البخاري",
@@ -217,7 +216,7 @@ class DayCompanionViewModel(
             ),
         ) + if (friday) listOf(
             StationUi(
-                id = "friday_kahf", emoji = "📖",
+                id = "friday_kahf",
                 title = "سورة الكهف والصلاة على النبي ﷺ",
                 description = "قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة",
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",

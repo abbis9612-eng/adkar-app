@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
@@ -42,7 +43,7 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 @Composable
 fun StatisticsScreen(
     navController: NavHostController,
-    // ✅ يشارك ProfileViewModel — لا حاجة لـ ViewModel جديد في M1
+    // يشارك ProfileViewModel — لا حاجة لـ ViewModel جديد في M1
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -141,7 +142,7 @@ fun StatisticsScreen(
                         icon      = { s, c -> IcoSun(s, c) },
                         iconColor = rc.gold,
                         title     = "أذكار الصباح",
-                        value     = if (p?.morningDone == true) "✅" else "—",
+                        value     = if (p?.morningDone == true) "تم" else "—",
                         suffix    = "",
                         rc = rc
                     )
@@ -150,7 +151,7 @@ fun StatisticsScreen(
                         icon      = { s, c -> IcoMoon(s, c) },
                         iconColor = rc.purpleSleep,
                         title     = "أذكار المساء",
-                        value     = if (p?.eveningDone == true) "✅" else "—",
+                        value     = if (p?.eveningDone == true) "تم" else "—",
                         suffix    = "",
                         rc = rc
                     )
@@ -189,13 +190,15 @@ fun StatisticsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                val emoji = when {
-                                    score >= 5 -> "🟢"
-                                    score >= 2 -> "🟡"
-                                    else       -> "⚪"
+                                val dotColor = when {
+                                    score >= 5 -> rc.emerald
+                                    score >= 2 -> rc.gold
+                                    else       -> rc.divider
                                 }
-                                Text(emoji, fontSize = 16.sp)
-                                Text(dayLabel, fontSize = 12.sp, color = rc.inkMed)
+                                Box(
+                                    Modifier.size(14.dp).clip(CircleShape).background(dotColor)
+                                )
+                                Text(dayLabel.localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = rc.inkMed)
                             }
                         }
                     }

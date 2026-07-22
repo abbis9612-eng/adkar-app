@@ -24,6 +24,11 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.IcoDua
 
 @Composable
 fun RamadanHomeScreen(navController: NavHostController) {
@@ -48,7 +53,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "وضع رمضان 🌙",
+                    text = "وضع رمضان",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
@@ -75,9 +80,10 @@ fun RamadanHomeScreen(navController: NavHostController) {
                         modifier = Modifier.padding(24.dp).fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🌙", fontSize = 48.sp)
+                        RafiqIcon(RIcon.Moon, 44.dp, Color.White)
+                        Spacer(Modifier.height(8.dp))
                         Text(
-                            "رمضان كريم", 
+                            "رمضان كريم",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -102,19 +108,19 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 )
                 Spacer(Modifier.height(16.dp))
 
-                RamadanActionCard("📖", "ورد القرآن اليومي", "اقرأ 20 صفحة لختم القرآن في رمضان", rc) {
+                RamadanActionCard({ RafiqIcon(RIcon.Book, 28.dp, rc.emerald) }, "ورد القرآن اليومي", "اقرأ 20 صفحة لختم القرآن في رمضان", rc) {
                     navController.navigate(RafiqRoute.QuranList.route)
                 }
-                RamadanActionCard("🤲", "أدعية الصائم", "أدعية الإفطار والسحور", rc) {
+                RamadanActionCard({ IcoDua(28.dp, rc.emerald) }, "أدعية الصائم", "أدعية الإفطار والسحور", rc) {
                     navController.navigate(RafiqRoute.DuaCategories.route)
                 }
-                RamadanActionCard("🕌", "مواقيت الصلاة", "الإمساك والإفطار", rc) {
+                RamadanActionCard({ IcoMosque(28.dp, rc.emerald) }, "مواقيت الصلاة", "الإمساك والإفطار", rc) {
                     navController.navigate(RafiqRoute.PrayerTimes.route)
                 }
-                RamadanActionCard("📿", "التسبيح", "استغل وقت ما قبل الإفطار", rc) {
+                RamadanActionCard({ IcoMisbaha(28.dp, rc.emerald) }, "التسبيح", "استغل وقت ما قبل الإفطار", rc) {
                     navController.navigate(RafiqRoute.Tasbeeh.route)
                 }
-                RamadanActionCard("🌅", "أذكار الصباح", "لا تنسَ أذكارك", rc) {
+                RamadanActionCard({ RafiqIcon(RIcon.Sunrise, 28.dp, rc.gold) }, "أذكار الصباح", "لا تنسَ أذكارك", rc) {
                     navController.navigate(RafiqRoute.DhikrReading.withCategory("morning"))
                 }
 
@@ -130,12 +136,15 @@ fun RamadanHomeScreen(navController: NavHostController) {
                         .border(1.dp, rc.emerald.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text(
-                            "💡 نصيحة رمضانية", 
-                            fontSize = 16.sp, 
-                            fontWeight = FontWeight.Bold,
-                            color = rc.emerald
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
+                            Text(
+                                "نصيحة رمضانية",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = rc.emerald
+                            )
+                        }
                         Spacer(Modifier.height(8.dp))
                         Text(
                             "\"خيركم من تعلم القرآن وعلمه\" — حديث البخاري",
@@ -152,7 +161,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun RamadanActionCard(emoji: String, title: String, desc: String, rc: RafiqPalette, onClick: () -> Unit) {
+private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc: String, rc: RafiqPalette, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,7 +183,7 @@ private fun RamadanActionCard(emoji: String, title: String, desc: String, rc: Ra
                     .background(rc.emerald.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(emoji, fontSize = 28.sp)
+                icon()
             }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {

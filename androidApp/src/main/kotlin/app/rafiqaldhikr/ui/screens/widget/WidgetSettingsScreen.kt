@@ -18,6 +18,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.IcoMisbaha
 
 @Composable
 fun WidgetSettingsScreen(navController: NavHostController) {
@@ -62,7 +66,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     .padding(20.dp)
             ) {
                 Text(
-                    "الأدوات المصغّرة 📱",
+                    "الأدوات المصغّرة",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.ink
@@ -85,7 +89,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                         .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
                 ) {
                     WidgetOption(
-                        emoji   = "🕌",
+                        icon    = { IcoMosque(24.dp, rc.emerald) },
                         title   = "مواقيت الصلاة Widget",
                         desc    = "يعرض الصلاة القادمة ووقتها",
                         enabled = prayerWidgetEnabled,
@@ -95,7 +99,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
 
                     WidgetOption(
-                        emoji   = "📿",
+                        icon    = { IcoMisbaha(24.dp, rc.emerald) },
                         title   = "المسبحة Widget",
                         desc    = "عداد سريع من الشاشة الرئيسية",
                         enabled = tasbeehWidgetEnabled,
@@ -105,7 +109,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
 
                     WidgetOption(
-                        emoji   = "📜",
+                        icon    = { RafiqIcon(RIcon.Document, 24.dp, rc.emerald) },
                         title   = "ذكر اليوم Widget",
                         desc    = "يعرض ذكراً متجدداً كل ساعة",
                         enabled = adhkarWidgetEnabled,
@@ -125,7 +129,10 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                         .padding(16.dp)
                 ) {
                     Column {
-                        Text("💡 ملاحظة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
+                            Text("ملاحظة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                        }
                         Spacer(Modifier.height(4.dp))
                         Text(
                             "widget مواقيت الصلاة يتحدث تلقائياً كل 30 دقيقة. قد تختلف النتائج قليلاً عن التطبيق.",
@@ -141,7 +148,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
 
 @Composable
 private fun WidgetOption(
-    emoji: String, title: String, desc: String,
+    icon: @Composable () -> Unit, title: String, desc: String,
     enabled: Boolean, onToggle: (Boolean) -> Unit,
     rc: app.rafiqaldhikr.ui.theme.RafiqPalette
 ) {
@@ -152,7 +159,7 @@ private fun WidgetOption(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(emoji, fontSize = 24.sp)
+        icon()
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
