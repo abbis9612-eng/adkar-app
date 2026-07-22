@@ -29,6 +29,8 @@ import org.koin.compose.koinInject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 
 @Composable
@@ -121,14 +123,15 @@ private fun BookmarkCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "صفحة ${bookmark.page}",
+                    "صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
                     fontSize = 14.sp,
                     color = rc.inkMed
                 )
                 if (bookmark.createdAt > 0) {
                     Spacer(Modifier.height(8.dp))
-                    val dateStr = SimpleDateFormat("yyyy/MM/dd", Locale("ar"))
+                    val dateStr = SimpleDateFormat("yyyy/MM/dd", Locale.US)
                         .format(Date(bookmark.createdAt))
+                        .localizedDigits(LocalArabicNumerals.current)
                     Text(
                         dateStr,
                         fontSize = 12.sp,
