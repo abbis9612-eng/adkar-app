@@ -73,7 +73,7 @@ fun DayCompanionScreen(
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     if (state.doneCount == 0) "ابدأ أول محطة — خطوة صغيرة تفتح يوماً عظيماً"
-                                    else if (state.doneCount == state.stations.size) "ما شاء الله! أتممت رحلة اليوم كاملة 🌙"
+                                    else if (state.doneCount == state.stations.size) "ما شاء الله! أتممت رحلة اليوم كاملة"
                                     else "أحسنت — واصل، بقيت ${(state.stations.size - state.doneCount).localized(LocalArabicNumerals.current)} محطات",
                                     fontSize = 12.sp, lineHeight = 18.sp,
                                     color = Color.White.copy(alpha = 0.85f)
@@ -218,7 +218,7 @@ private fun StationCard(
                     ) {
                         Text("الآن", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
-                    done -> Text("تمّت ✓", fontSize = 11.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
+                    done -> Text("تمّت", fontSize = 11.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
                     passed -> Text("فاتت", fontSize = 11.sp, color = rc.inkLight)
                     else -> {}
                 }
@@ -266,7 +266,7 @@ private fun StationCard(
                             .clickable(onClick = onDone)
                             .padding(horizontal = 18.dp, vertical = 10.dp)
                     ) {
-                        Text("تمّ ✓", fontSize = 13.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
+                        Text("تمّ", fontSize = 13.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
                     }
                 }
             }

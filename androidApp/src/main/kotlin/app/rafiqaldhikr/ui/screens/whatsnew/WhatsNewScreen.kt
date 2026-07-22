@@ -34,31 +34,31 @@ fun WhatsNewScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
     val changelog = listOf(
         ChangelogEntry("1.2.0", "رمضان 1447", listOf(
-            "🌙 وضع رمضان — برنامج يومي مخصص",
-            "🧘 التنفس والذكر — تمارين تأمل مع الأذكار",
-            "🌱 الحديقة الروحية — نبتة تنمو بأعمالك",
-            "🏆 نظام الإنجازات",
-            "📊 التقرير الأسبوعي التفصيلي",
-            "🎴 بطاقات المشاركة",
-            "📿 ذكر مخصص",
-            "🔒 سياسة الخصوصية وشروط الاستخدام"
+            "وضع رمضان — برنامج يومي مخصص",
+            "التنفس والذكر — تمارين تأمل مع الأذكار",
+            "الحديقة الروحية — نبتة تنمو بأعمالك",
+            "نظام الإنجازات",
+            "التقرير الأسبوعي التفصيلي",
+            "بطاقات المشاركة",
+            "ذكر مخصص",
+            "سياسة الخصوصية وشروط الاستخدام"
         ), isLatest = true),
         ChangelogEntry("1.1.0", "محرم 1447", listOf(
-            "🎧 مشغل صوت القرآن مع اختيار القارئ",
-            "📖 تفسير الآيات",
-            "🕌 متابعة الصلاة اليومية",
-            "📱 إعدادات الـ Widgets",
-            "📤 تصدير وإدارة البيانات"
+            "مشغل صوت القرآن مع اختيار القارئ",
+            "تفسير الآيات",
+            "متابعة الصلاة اليومية",
+            "إعدادات الـ Widgets",
+            "تصدير وإدارة البيانات"
         )),
         ChangelogEntry("1.0.0", "ذو الحجة 1446", listOf(
-            "🚀 الإصدار الأول!",
-            "📖 القرآن الكريم مع البحث والعلامات",
-            "📿 المسبحة الإلكترونية",
-            "🤲 الأدعية والأذكار",
-            "🕌 مواقيت الصلاة واتجاه القبلة",
-            "📊 الإحصائيات والملف الشخصي",
-            "🎨 المظهر الداكن والفاتح",
-            "💡 خاطرة اليوم"
+            "الإصدار الأول!",
+            "القرآن الكريم مع البحث والعلامات",
+            "المسبحة الإلكترونية",
+            "الأدعية والأذكار",
+            "مواقيت الصلاة واتجاه القبلة",
+            "الإحصائيات والملف الشخصي",
+            "المظهر الداكن والفاتح",
+            "خاطرة اليوم"
         ))
     )
 
@@ -81,7 +81,7 @@ fun WhatsNewScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "ما الجديد ✨",
+                    text = "ما الجديد",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
@@ -154,13 +154,25 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
         Spacer(Modifier.height(16.dp))
         
         entry.changes.forEach { change ->
-            Text(
-                change,
-                fontSize = 14.sp,
-                color = rc.inkMed,
+            Row(
                 modifier = Modifier.padding(vertical = 4.dp),
-                lineHeight = 22.sp
-            )
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    Modifier
+                        .padding(top = 7.dp)
+                        .size(6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(rc.gold)
+                )
+                Text(
+                    change,
+                    fontSize = 14.sp,
+                    color = rc.inkMed,
+                    lineHeight = 22.sp
+                )
+            }
         }
     }
 }
