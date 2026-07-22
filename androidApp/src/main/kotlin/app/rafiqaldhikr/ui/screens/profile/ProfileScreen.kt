@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.localizedDigits
@@ -33,119 +36,6 @@ import kotlin.math.*
 /* Colors provided by LocalRafiqColors */
 
 /* البرتقالي يأتي من RafiqPalette (accentOrange) */
-
-/* ══════════════════════════════════════════════════════════════
-   CANVAS ICONS
-══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconSettings(size: Dp = 17.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.065f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        val hex = Path().apply {
-            for (i in 0 until 6) {
-                val a = (i * 60 - 30) * PI.toFloat() / 180f; val r = w * 0.42f
-                if (i == 0) moveTo(cx + r * cos(a), cy + r * sin(a))
-                else lineTo(cx + r * cos(a), cy + r * sin(a))
-            }; close()
-        }
-        drawPath(hex, color, style = st)
-        drawCircle(color, w * 0.13f, Offset(cx, cy), style = Stroke(w * 0.065f))
-    }
-}
-
-@Composable
-private fun IconMosque(size: Dp = 22.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // Dome
-        drawArc(color, 180f, 180f, false,
-            Offset(w * 0.20f, h * 0.22f), Size(w * 0.60f, h * 0.50f), style = st)
-        // Body
-        drawRect(color.copy(alpha = 0.08f), Offset(w * 0.15f, h * 0.47f), Size(w * 0.70f, h * 0.40f))
-        drawRect(color, Offset(w * 0.15f, h * 0.47f), Size(w * 0.70f, h * 0.40f), style = st)
-        // Crescent
-        drawCircle(color, w * 0.05f, Offset(w * 0.50f, h * 0.18f))
-        drawLine(color, Offset(w * 0.50f, h * 0.23f), Offset(w * 0.50f, h * 0.13f), w * 0.04f, StrokeCap.Round)
-        // Base
-        drawLine(color, Offset(w * 0.08f, h * 0.87f), Offset(w * 0.92f, h * 0.87f), w * 0.06f, StrokeCap.Round)
-    }
-}
-
-@Composable
-private fun IconTrophy(size: Dp = 22.dp, color: Color = LocalRafiqColors.current.goldLight) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // Cup body
-        val cup = Path().apply {
-            moveTo(w * 0.22f, h * 0.15f)
-            lineTo(w * 0.78f, h * 0.15f)
-            lineTo(w * 0.70f, h * 0.55f)
-            cubicTo(w * 0.65f, h * 0.65f, w * 0.35f, h * 0.65f, w * 0.30f, h * 0.55f)
-            close()
-        }
-        drawPath(cup, color.copy(alpha = 0.12f))
-        drawPath(cup, color, style = st)
-        // Handles
-        drawArc(color, 270f, 180f, false, Offset(w * 0.08f, h * 0.22f), Size(w * 0.18f, h * 0.22f), style = st)
-        drawArc(color, 90f, 180f, false, Offset(w * 0.74f, h * 0.22f), Size(w * 0.18f, h * 0.22f), style = st)
-        // Stem + base
-        drawLine(color, Offset(w * 0.50f, h * 0.62f), Offset(w * 0.50f, h * 0.78f), w * 0.06f, StrokeCap.Round)
-        drawLine(color, Offset(w * 0.32f, h * 0.82f), Offset(w * 0.68f, h * 0.82f), w * 0.06f, StrokeCap.Round)
-    }
-}
-
-@Composable
-private fun IconFlame(size: Dp = 22.dp, color: Color = LocalRafiqColors.current.accentOrange) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val flame = Path().apply {
-            moveTo(w * 0.50f, h * 0.08f)
-            cubicTo(w * 0.30f, h * 0.30f, w * 0.15f, h * 0.55f, w * 0.22f, h * 0.75f)
-            cubicTo(w * 0.28f, h * 0.90f, w * 0.72f, h * 0.90f, w * 0.78f, h * 0.75f)
-            cubicTo(w * 0.85f, h * 0.55f, w * 0.70f, h * 0.30f, w * 0.50f, h * 0.08f)
-            close()
-        }
-        drawPath(flame, color.copy(alpha = 0.15f))
-        drawPath(flame, color, style = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        // Inner flame
-        val inner = Path().apply {
-            moveTo(w * 0.50f, h * 0.40f)
-            cubicTo(w * 0.40f, h * 0.55f, w * 0.38f, h * 0.70f, w * 0.42f, h * 0.78f)
-            cubicTo(w * 0.46f, h * 0.82f, w * 0.54f, h * 0.82f, w * 0.58f, h * 0.78f)
-            cubicTo(w * 0.62f, h * 0.70f, w * 0.60f, h * 0.55f, w * 0.50f, h * 0.40f)
-            close()
-        }
-        drawPath(inner, color.copy(alpha = 0.3f))
-    }
-}
-
-@Composable
-private fun IconArrow(size: Dp = 14.dp, color: Color = LocalRafiqColors.current.inkLight) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        drawPath(Path().apply {
-            moveTo(w * 0.65f, h * 0.15f)
-            lineTo(w * 0.30f, h * 0.50f)
-            lineTo(w * 0.65f, h * 0.85f)
-        }, color, style = Stroke(w * 0.10f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
-
-@Composable
-private fun IconCheck(size: Dp = 13.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        drawPath(Path().apply {
-            moveTo(w * 0.17f, h * 0.54f)
-            lineTo(w * 0.38f, h * 0.75f)
-            lineTo(w * 0.83f, h * 0.25f)
-        }, color, style = Stroke(w * 0.12f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION
@@ -332,7 +222,7 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
             Box(
                 Modifier.size(22.dp).clip(CircleShape).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
-            ) { IconCheck(11.dp, rc.emerald) }
+            ) { RafiqIcon(RIcon.Check, 11.dp, rc.emerald) }
         } else {
             Text(
                 value,
@@ -391,7 +281,7 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                     contentAlignment = Alignment.Center,
                 ) {
                     if (filled) {
-                        IconCheck(12.dp, Color.White)
+                        RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
                         Text(
                             "$score",
@@ -449,7 +339,7 @@ private fun QuickLinkCard(
                 label, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                 color = LocalRafiqColors.current.ink, modifier = Modifier.weight(1f),
             )
-            IconArrow(14.dp, rc.inkLight)
+            RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
         }
     }
 }
@@ -484,7 +374,7 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 PillBtn(onClick = { navController.navigate(RafiqRoute.Settings.route) }) {
-                    IconSettings()
+                    RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
                 Text("حسابي", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             }
@@ -500,21 +390,21 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 StatCard(
-                    icon = { IconMosque(20.dp, rc.emerald) },
+                    icon = { IcoMosque(20.dp, rc.emerald) },
                     value = "${state.todayProgress?.prayersLogged ?: 0}/5",
                     label = "الصلوات",
                     iconBg = LocalRafiqColors.current.emeraldPastel,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    icon = { IconTrophy(20.dp, rc.goldLight) },
+                    icon = { RafiqIcon(RIcon.Trophy, 20.dp, rc.goldLight) },
                     value = "${state.streak.longest}",
                     label = "أطول سلسلة",
                     iconBg = LocalRafiqColors.current.accentGoldBg,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    icon = { IconFlame(20.dp, LocalRafiqColors.current.accentOrange) },
+                    icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.accentOrange) },
                     value = "${state.streak.current}",
                     label = "سلسلة حالية",
                     iconBg = LocalRafiqColors.current.accentOrangeBg,

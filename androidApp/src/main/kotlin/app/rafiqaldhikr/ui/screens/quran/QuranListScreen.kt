@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.LoadingState
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
@@ -33,94 +35,6 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
-
-/* ══════════════════════════════════════════════════════════════
-   CANVAS ICONS
-══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconSearch(size: Dp = 17.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width
-        val st = Stroke(w * 0.08f, cap = StrokeCap.Round)
-        drawCircle(color, w * 0.30f, Offset(w * 0.42f, w * 0.42f), style = st)
-        drawLine(color, Offset(w * 0.62f, w * 0.62f), Offset(w * 0.88f, w * 0.88f), w * 0.08f, StrokeCap.Round)
-    }
-}
-
-@Composable
-private fun IconBookmark(size: Dp = 17.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val bm = Path().apply {
-            moveTo(w * 0.22f, h * 0.12f)
-            lineTo(w * 0.78f, h * 0.12f)
-            lineTo(w * 0.78f, h * 0.88f)
-            lineTo(w * 0.50f, h * 0.68f)
-            lineTo(w * 0.22f, h * 0.88f)
-            close()
-        }
-        drawPath(bm, color.copy(alpha = 0.10f))
-        drawPath(bm, color, style = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
-
-@Composable
-private fun IconPlay(size: Dp = 22.dp, color: Color = Color.White) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val tri = Path().apply {
-            moveTo(w * 0.28f, h * 0.15f)
-            lineTo(w * 0.82f, h * 0.50f)
-            lineTo(w * 0.28f, h * 0.85f)
-            close()
-        }
-        drawPath(tri, color)
-    }
-}
-
-@Composable
-private fun IconPrev(size: Dp = 16.dp, color: Color = Color.White) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val tri = Path().apply {
-            moveTo(w * 0.65f, h * 0.20f)
-            lineTo(w * 0.25f, h * 0.50f)
-            lineTo(w * 0.65f, h * 0.80f)
-            close()
-        }
-        drawPath(tri, color)
-        drawLine(color, Offset(w * 0.22f, h * 0.20f), Offset(w * 0.22f, h * 0.80f), w * 0.07f)
-    }
-}
-
-@Composable
-private fun IconNext(size: Dp = 16.dp, color: Color = Color.White) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val tri = Path().apply {
-            moveTo(w * 0.35f, h * 0.20f)
-            lineTo(w * 0.75f, h * 0.50f)
-            lineTo(w * 0.35f, h * 0.80f)
-            close()
-        }
-        drawPath(tri, color)
-        drawLine(color, Offset(w * 0.78f, h * 0.20f), Offset(w * 0.78f, h * 0.80f), w * 0.07f)
-    }
-}
-
-@Composable
-private fun IconArrowLeft(size: Dp = 14.dp, color: Color = LocalRafiqColors.current.inkLight) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        val arrow = Path().apply {
-            moveTo(w * 0.65f, h * 0.15f)
-            lineTo(w * 0.30f, h * 0.50f)
-            lineTo(w * 0.65f, h * 0.85f)
-        }
-        drawPath(arrow, color, style = Stroke(w * 0.10f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION (reused from HomeScreen pattern)
@@ -243,11 +157,11 @@ private fun DailyRecitationCard() {
             Spacer(Modifier.height(16.dp))
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { IconPrev(16.dp) }
+                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipBack, 16.dp, Color.White) }
                 Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.goldLight).clickable { }, contentAlignment = Alignment.Center) { IconPlay(22.dp) }
+                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.goldLight).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.Play, 22.dp, Color.White) }
                 Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { IconNext(16.dp) }
+                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipForward, 16.dp, Color.White) }
             }
 
             Spacer(Modifier.height(14.dp))
@@ -283,7 +197,7 @@ private fun QuranSearchBar(
             Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkLight, fontSize = 14.sp)
         },
         leadingIcon = {
-            IconSearch(17.dp, rc.inkMed)
+            RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)
         },
         singleLine = true,
         shape = RoundedCornerShape(16.dp),
@@ -350,7 +264,7 @@ private fun SurahCard(
                 )
             }
             Spacer(Modifier.width(8.dp))
-            IconArrowLeft(14.dp, rc.inkLight)
+            RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
         }
     }
 }
@@ -383,10 +297,10 @@ fun QuranListScreen(
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PillBtn(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }) {
-                        IconBookmark()
+                        RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
                     }
                     PillBtn(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }) {
-                        IconSearch()
+                        RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
                     }
                 }
                 Text("القرآن الكريم", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)

@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -66,69 +69,6 @@ private fun DhikrOption.resolveColors(): Pair<Color, Color> {
     }
 }
 
-
-/* ══════════════════════════════════════════════════════════════
-   CANVAS ICONS
-══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconReset(size: Dp = 18.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.08f, cap = StrokeCap.Round)
-        // Circular arrow
-        drawArc(color, -30f, 300f, false,
-            Offset(cx - w * 0.35f, cy - w * 0.35f),
-            Size(w * 0.7f, w * 0.7f), style = st)
-        // Arrow head
-        val a = (-30f) * PI.toFloat() / 180f
-        val ax = cx + w * 0.35f * cos(a); val ay = cy + w * 0.35f * sin(a)
-        drawLine(color, Offset(ax, ay), Offset(ax + w * 0.12f, ay + w * 0.08f), w * 0.08f, StrokeCap.Round)
-        drawLine(color, Offset(ax, ay), Offset(ax + w * 0.02f, ay + w * 0.15f), w * 0.08f, StrokeCap.Round)
-    }
-}
-
-@Composable
-private fun IconEdit(size: Dp = 18.dp, color: Color = LocalRafiqColors.current.emerald) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val st = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        // Pencil body
-        val pencil = Path().apply {
-            moveTo(w * 0.72f, w * 0.14f)
-            lineTo(w * 0.86f, w * 0.28f)
-            lineTo(w * 0.35f, w * 0.79f)
-            lineTo(w * 0.14f, w * 0.86f)
-            lineTo(w * 0.21f, w * 0.65f)
-            close()
-        }
-        drawPath(pencil, color.copy(alpha = 0.10f))
-        drawPath(pencil, color, style = st)
-        // Top cap
-        drawLine(color, Offset(w * 0.60f, w * 0.14f), Offset(w * 0.86f, w * 0.14f), w * 0.07f, StrokeCap.Round)
-    }
-}
-
-@Composable
-private fun IconMisbaha(size: Dp = 40.dp, color: Color = Color.White) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val cx = w / 2f; val cy = w / 2f
-        val st = Stroke(w * 0.05f, cap = StrokeCap.Round)
-        // Circle of beads
-        val beadCount = 12
-        for (i in 0 until beadCount) {
-            val a = (i * 30 - 90) * PI.toFloat() / 180f
-            val bx = cx + w * 0.34f * cos(a)
-            val by = cy + w * 0.34f * sin(a)
-            drawCircle(color.copy(alpha = 0.8f), w * 0.05f, Offset(bx, by))
-        }
-        // Center ornament
-        drawCircle(color.copy(alpha = 0.25f), w * 0.14f, Offset(cx, cy))
-        drawCircle(color, w * 0.14f, Offset(cx, cy), style = st)
-        // String/tassel at top
-        drawLine(color.copy(alpha = 0.6f), Offset(cx, cy - w * 0.34f), Offset(cx, cy - w * 0.48f), w * 0.04f, StrokeCap.Round)
-        drawCircle(color.copy(alpha = 0.5f), w * 0.035f, Offset(cx, cy - w * 0.48f))
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    ARC PROGRESS — Circular Canvas progress indicator
@@ -236,16 +176,9 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     contentAlignment = Alignment.Center,
                 ) {
                     if (done) {
-                        Canvas(Modifier.size(12.dp)) {
-                            val w = size.width; val h = size.height
-                            drawPath(Path().apply {
-                                moveTo(w * 0.17f, h * 0.54f)
-                                lineTo(w * 0.38f, h * 0.75f)
-                                lineTo(w * 0.83f, h * 0.25f)
-                            }, Color.White, style = Stroke(w * 0.14f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                        }
+                        RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text("$m", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
                     }
                 }
 
@@ -272,13 +205,16 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     }
                 }
 
-                // Status text
-                Text(
-                    if (done) "✓" else "${count}/$m",
-                    fontSize = 11.sp,
-                    fontWeight = if (done) FontWeight.Bold else FontWeight.Normal,
-                    color = if (done) accentColor else rc.inkMed,
-                )
+                // Status
+                if (done) {
+                    RafiqIcon(RIcon.Check, 14.dp, accentColor)
+                } else {
+                    Text(
+                        "${count}/$m".localizedDigits(LocalArabicNumerals.current),
+                        fontSize = 11.sp,
+                        color = rc.inkMed,
+                    )
+                }
             }
         }
     }
@@ -341,8 +277,8 @@ fun TasbeehScreen(
                     PillBtn(onClick = {
                         viewModel.saveSession()
                         viewModel.reset()
-                    }) { IconReset() }
-                    PillBtn(onClick = { showDhikrPicker = true }) { IconEdit() }
+                    }) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
+                    PillBtn(onClick = { showDhikrPicker = true }) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
                 }
 
                 // Title
@@ -490,7 +426,7 @@ fun TasbeehScreen(
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconMisbaha(40.dp, Color.White)
+                        IcoMisbaha(40.dp, Color.White)
                         Spacer(Modifier.height(4.dp))
                         Text(
                             "اضغط",
@@ -518,14 +454,7 @@ fun TasbeehScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Canvas(Modifier.size(16.dp)) {
-                            val w = size.width; val h = size.height
-                            drawPath(Path().apply {
-                                moveTo(w * 0.17f, h * 0.54f)
-                                lineTo(w * 0.38f, h * 0.75f)
-                                lineTo(w * 0.83f, h * 0.25f)
-                            }, primaryColor, style = Stroke(w * 0.14f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                        }
+                        RafiqIcon(RIcon.Check, 16.dp, primaryColor)
                         Text(
                             "أحسنت! اكتمل الذكر",
                             fontSize = 14.sp,
