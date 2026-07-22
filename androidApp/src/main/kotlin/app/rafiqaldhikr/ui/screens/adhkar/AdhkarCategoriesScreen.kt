@@ -32,6 +32,8 @@ import app.rafiqaldhikr.ui.components.IcoStar
 import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.components.IcoSunset
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -335,7 +337,7 @@ private fun AdhkarCategoryCard(
                 )
             }
 
-            IconArrow()
+            RafiqIcon(RIcon.ChevronLeft, 16.dp, LocalRafiqColors.current.inkLight)
         }
     }
 }

@@ -23,6 +23,8 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 
 /* ══════════════════════════════════════════════════════════════
    SETTING-SPECIFIC ICON BACKGROUNDS
@@ -192,7 +194,7 @@ private fun SettingIcon(type: Int, size: Dp = 20.dp, color: Color = LocalRafiqCo
 ══════════════════════════════════════════════════════════════ */
 
 private data class SettingItem(
-    val iconType: Int,
+    val icon: RIcon,
     val label: String,
     val baseColor: (app.rafiqaldhikr.ui.theme.RafiqPalette) -> Color,
     val badge: String? = null,
@@ -200,28 +202,28 @@ private data class SettingItem(
 )
 
 private val GROUP_1 = listOf(
-    SettingItem(0,  "إعدادات المظهر",    { it.gold }, route = "theme_settings"),
-    SettingItem(1,  "إعدادات الخط",      { it.emerald }, route = "font_settings"),
-    SettingItem(2,  "إعدادات الإشعارات", { it.inkMed }, route = "notification_settings"),
-    SettingItem(3,  "طريقة حساب الصلاة", { it.brownAccent }, route = "prayer_method"),
-    SettingItem(4,  "إمكانية الوصول",    { it.emerald }, route = "accessibility_settings"),
-    SettingItem(5,  "اللغة",             { it.gold }, route = "language"),
+    SettingItem(RIcon.Palette,  "إعدادات المظهر",    { it.gold }, route = "theme_settings"),
+    SettingItem(RIcon.Font,     "إعدادات الخط",      { it.emerald }, route = "font_settings"),
+    SettingItem(RIcon.Bell,     "إعدادات الإشعارات", { it.inkMed }, route = "notification_settings"),
+    SettingItem(RIcon.Clock,    "طريقة حساب الصلاة", { it.brownAccent }, route = "prayer_method"),
+    SettingItem(RIcon.User,     "إمكانية الوصول",    { it.emerald }, route = "accessibility_settings"),
+    SettingItem(RIcon.Globe,    "اللغة",             { it.gold }, route = "language"),
 )
 
 private val GROUP_2 = listOf(
     // "المميز" (route = "premium") مخفي مؤقتاً حتى يكتمل ربط RevenueCat —
     // الشاشة الحالية أزرارها غير فعّالة (شراء/استعادة) والمتاجر ترفض ذلك.
-    SettingItem(7,  "إعدادات الودجت",    { it.emerald }, route = "widget_settings"),
-    SettingItem(8,  "تصدير البيانات",    { it.brownAccent }, route = "export_data"),
+    SettingItem(RIcon.Widget,   "إعدادات الودجت",    { it.emerald }, route = "widget_settings"),
+    SettingItem(RIcon.Upload,   "تصدير البيانات",    { it.brownAccent }, route = "export_data"),
 )
 
 private val GROUP_3 = listOf(
-    SettingItem(9,  "حول التطبيق",       { it.inkMed }, route = "about"),
-    SettingItem(10, "المساعدة",          { it.brownAccent }, route = "help"),
-    SettingItem(11, "ما الجديد",         { it.emerald }, route = "whats_new"),
-    SettingItem(12, "سياسة الخصوصية",    { it.gold }, route = "privacy_policy"),
-    SettingItem(13, "شروط الاستخدام",    { it.inkMed }, route = "terms"),
-    SettingItem(14, "تواصل معنا",        { it.gold }, route = "contact"),
+    SettingItem(RIcon.Info,      "حول التطبيق",       { it.inkMed }, route = "about"),
+    SettingItem(RIcon.Help,      "المساعدة",          { it.brownAccent }, route = "help"),
+    SettingItem(RIcon.Sparkles,  "ما الجديد",         { it.emerald }, route = "whats_new"),
+    SettingItem(RIcon.Shield,    "سياسة الخصوصية",    { it.gold }, route = "privacy_policy"),
+    SettingItem(RIcon.Document,  "شروط الاستخدام",    { it.inkMed }, route = "terms"),
+    SettingItem(RIcon.Mail,      "تواصل معنا",        { it.gold }, route = "contact"),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -257,7 +259,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                         .background(baseCol.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    SettingIcon(type = item.iconType, size = 18.dp, color = baseCol)
+                    RafiqIcon(item.icon, 18.dp, baseCol)
                 }
 
                 Spacer(Modifier.width(14.dp))
@@ -282,8 +284,8 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                     Spacer(Modifier.width(8.dp))
                 }
 
-                // Arrow
-                IconArrow(14.dp, rc.inkLight)
+                // Arrow (chevron يسار — اتجاه الدخول في RTL)
+                RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
             }
 
             // Separator

@@ -35,6 +35,8 @@ import app.rafiqaldhikr.ui.components.IcoHeart
 import app.rafiqaldhikr.ui.components.IcoMoon
 import app.rafiqaldhikr.ui.components.IcoQuran
 import app.rafiqaldhikr.ui.components.OrnamentMedallion
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoStar
 import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.utils.localized
@@ -259,7 +261,7 @@ fun DuaCategoriesScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PillBtn(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }) {
-                        IconSettings()
+                        RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("الأدعية", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
