@@ -23,11 +23,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import app.rafiqaldhikr.R
-import app.rafiqaldhikr.ui.components.IcoHeart
-import app.rafiqaldhikr.ui.components.IcoHome
 import app.rafiqaldhikr.ui.components.IcoMisbaha
-import app.rafiqaldhikr.ui.components.IcoPerson
-import app.rafiqaldhikr.ui.components.IcoQuran
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 
 data class BottomNavItem(
@@ -40,11 +38,11 @@ data class BottomNavItem(
 @Composable
 fun RafiqBottomBar(navController: NavHostController) {
     val items = listOf(
-        BottomNavItem(R.string.nav_home,    { s, c -> IcoHome(s, c) },    RafiqRoute.Home),
-        BottomNavItem(R.string.nav_quran,   { s, c -> IcoQuran(s, c) },   RafiqRoute.QuranList),
-        BottomNavItem(R.string.nav_tasbeeh, { s, c -> IcoMisbaha(s, c) }, RafiqRoute.Tasbeeh),
-        BottomNavItem(R.string.nav_dua,     { s, c -> IcoHeart(s, c) },   RafiqRoute.DuaCategories),
-        BottomNavItem(R.string.nav_profile, { s, c -> IcoPerson(s, c) },  RafiqRoute.Profile),
+        BottomNavItem(R.string.nav_home,    { s, c -> RafiqIcon(RIcon.Home, s, c) },     RafiqRoute.Home),
+        BottomNavItem(R.string.nav_quran,   { s, c -> RafiqIcon(RIcon.Book, s, c) },     RafiqRoute.QuranList),
+        BottomNavItem(R.string.nav_tasbeeh, { s, c -> IcoMisbaha(s, c) },             RafiqRoute.Tasbeeh),
+        BottomNavItem(R.string.nav_dua,     { s, c -> RafiqIcon(RIcon.Heart, s, c) }, RafiqRoute.DuaCategories),
+        BottomNavItem(R.string.nav_profile, { s, c -> RafiqIcon(RIcon.User, s, c) },  RafiqRoute.Profile),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
