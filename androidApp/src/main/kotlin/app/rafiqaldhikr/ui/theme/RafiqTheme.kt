@@ -2,7 +2,9 @@ package app.rafiqaldhikr.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -89,7 +91,12 @@ fun RafiqTheme(
             colorScheme = colorScheme,
             typography  = RafiqTypography,
             shapes      = RafiqShapes,
-            content     = content
-        )
+        ) {
+            // فرض خط الواجهة الموحّد على كل نص لا يحدّد خطاً صراحةً —
+            // بدون هذا يبقى معظم التطبيق على خط النظام الافتراضي.
+            ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = UiFamily)) {
+                content()
+            }
+        }
     }
 }
