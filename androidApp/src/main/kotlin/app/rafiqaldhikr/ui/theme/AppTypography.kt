@@ -10,16 +10,17 @@ import androidx.compose.ui.text.font.Font
 import app.rafiqaldhikr.R
 
 /**
- * خط الواجهة: Cairo — الأوضح والأكثر أُلفة في التطبيقات العربية الحديثة.
- * خط المصحف: Scheherazade New (SIL) — نسخ قرآني بوزن سميك واضح على الشاشات.
+ * خط الواجهة الموحّد: Noto Sans Arabic — خط عربي اعتيادي واضح ومألوف،
+ * يُستخدم لكل نصوص الواجهة والأرقام. (استبدل Cairo وIBM Plex).
  */
-val CairoFamily = FontFamily(
-    Font(R.font.cairo_regular,  FontWeight.Normal),
-    Font(R.font.cairo_semibold, FontWeight.Medium),
-    Font(R.font.cairo_semibold, FontWeight.SemiBold),
-    Font(R.font.cairo_bold,     FontWeight.Bold),
+val UiFamily = FontFamily(
+    Font(R.font.noto_sans_arabic_regular, FontWeight.Normal),
+    Font(R.font.noto_sans_arabic_medium,  FontWeight.Medium),
+    Font(R.font.noto_sans_arabic_medium,  FontWeight.SemiBold),
+    Font(R.font.noto_sans_arabic_bold,    FontWeight.Bold),
 )
 
+/** خط المصحف: Scheherazade New — نسخ قرآني واضح على الشاشات. */
 val QuranFamily = FontFamily(
     Font(R.font.scheherazade_regular,  FontWeight.Normal),
     Font(R.font.scheherazade_semibold, FontWeight.Medium),
@@ -28,8 +29,8 @@ val QuranFamily = FontFamily(
 )
 
 /**
- * خط الأذكار والأدعية: Noto Naskh Arabic — نسخ حديث مصمم خصيصاً لوضوح
- * النص المشكول على الشاشات؛ الحركات مرتبة لا تتزاحم والحروف كبيرة مريحة.
+ * خط الأذكار والأدعية المشكولة: Noto Naskh Arabic — الحركات مرتبة لا تتزاحم.
+ * (يبقى مخصصاً للنص المشكول فقط، وباقي الواجهة على UiFamily).
  */
 val NaskhFamily = FontFamily(
     Font(R.font.noto_naskh_regular,  FontWeight.Normal),
@@ -38,40 +39,30 @@ val NaskhFamily = FontFamily(
     Font(R.font.noto_naskh_bold,     FontWeight.Bold),
 )
 
+/** خط البسملة الزخرفي: Amiri — لعبارة البسملة فقط (نص قرآني قصير). */
 val AmiriFamily = FontFamily(
     Font(R.font.amiri_regular, FontWeight.Normal),
     Font(R.font.amiri_bold,    FontWeight.Bold),
 )
 
-/**
- * خط الأرقام: IBM Plex Arabic — أرقامه واضحة ومتمايزة (٦ و٧ لا تلتبسان)،
- * أنسب للأوقات والعدادات من Cairo. يُستخدم في NumbersStyle.
- */
-val NumbersFamily = FontFamily(
-    Font(R.font.ibm_plex_arabic_regular, FontWeight.Normal),
-    Font(R.font.ibm_plex_arabic_medium,  FontWeight.Medium),
-    Font(R.font.ibm_plex_arabic_bold,    FontWeight.Bold),
-)
-
 val RafiqTypography = Typography(
-    displayLarge  = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
-    headlineLarge = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
-    headlineSmall = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 20.sp),
-    titleLarge    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 18.sp),
-    titleMedium   = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp),
-    bodyLarge     = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 30.sp),
-    bodyMedium    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 26.sp),
-    labelLarge    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    labelSmall    = TextStyle(fontFamily = CairoFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    displayLarge  = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
+    headlineLarge = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
+    headlineSmall = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 20.sp),
+    titleLarge    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 18.sp),
+    titleMedium   = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp),
+    bodyLarge     = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 28.sp),
+    bodyMedium    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 24.sp),
+    labelLarge    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
+    labelSmall    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
 )
 
-
 /**
- * نمط الأرقام الكبيرة (العداد، الأوقات، الإحصائيات):
- * IBM Plex Arabic Bold مع tnum — أرقام واضحة متمايزة بعرض ثابت فلا تهتز أثناء العد.
+ * نمط الأرقام (العدّادات، الأوقات، الإحصائيات): نفس خط الواجهة الاعتيادي
+ * مع tnum — أرقام بعرض ثابت فلا تهتز أثناء العدّ.
  */
 val NumbersStyle = TextStyle(
-    fontFamily = NumbersFamily,
+    fontFamily = UiFamily,
     fontWeight = FontWeight.Bold,
     fontFeatureSettings = "tnum",
 )

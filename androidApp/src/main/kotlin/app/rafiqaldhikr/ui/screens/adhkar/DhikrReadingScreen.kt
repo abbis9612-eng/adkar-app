@@ -30,6 +30,9 @@ import app.rafiqaldhikr.ui.components.ErrorState
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.NumbersStyle
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -156,7 +159,9 @@ fun DhikrReadingScreen(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                "${uiState.currentIndex + 1} / ${uiState.adhkar.size}",
+                                "${uiState.currentIndex + 1} / ${uiState.adhkar.size}"
+                                    .localizedDigits(LocalArabicNumerals.current),
+                                style = NumbersStyle,
                                 fontSize = 13.sp,
                                 color = LocalRafiqColors.current.inkMed,
                             )
@@ -317,13 +322,15 @@ fun DhikrReadingScreen(
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    "${uiState.currentCount}",
+                                    uiState.currentCount.toString()
+                                        .localizedDigits(LocalArabicNumerals.current),
+                                    style = NumbersStyle,
                                     fontSize = 44.sp,
-                                    fontWeight = FontWeight.Bold,
                                     color = Color.White,
                                 )
                                 Text(
-                                    "/ ${dhikr.count}",
+                                    "/ ${dhikr.count}".localizedDigits(LocalArabicNumerals.current),
+                                    style = NumbersStyle,
                                     fontSize = 16.sp,
                                     color = Color.White.copy(alpha = 0.6f),
                                 )
