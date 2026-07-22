@@ -73,14 +73,14 @@ fun QiblaScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text(
                     text = stringResource(R.string.qibla_title),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Column(

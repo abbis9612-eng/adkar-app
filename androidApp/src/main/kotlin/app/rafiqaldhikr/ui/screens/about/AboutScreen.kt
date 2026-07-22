@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
 
 @Composable
 fun AboutScreen(navController: NavHostController) {
@@ -41,14 +43,14 @@ fun AboutScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text(
                     text = "حول التطبيق",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Column(
@@ -58,7 +60,7 @@ fun AboutScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("🌙", fontSize = 72.sp)
+                RafiqIcon(RIcon.Moon, 64.dp, rc.emerald)
                 Spacer(Modifier.height(16.dp))
                 Text("رفيق الذكر", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
                 Text("الإصدار " + app.rafiqaldhikr.BuildConfig.VERSION_NAME,

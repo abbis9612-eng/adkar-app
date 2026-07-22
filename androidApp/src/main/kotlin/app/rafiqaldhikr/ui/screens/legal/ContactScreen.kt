@@ -52,14 +52,14 @@ fun ContactScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text(
                     text = "تواصل معنا",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Column(

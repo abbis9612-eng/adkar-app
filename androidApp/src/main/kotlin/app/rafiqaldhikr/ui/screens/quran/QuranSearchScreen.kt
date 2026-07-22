@@ -60,14 +60,14 @@ fun QuranSearchScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text(
                     text = "بحث في القرآن",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Column(modifier = Modifier.padding(16.dp)) {

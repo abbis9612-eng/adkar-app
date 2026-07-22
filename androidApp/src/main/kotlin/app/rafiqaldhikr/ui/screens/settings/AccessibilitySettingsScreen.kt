@@ -45,14 +45,14 @@ fun AccessibilitySettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text(
                     text = "إمكانية الوصول",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             // Content

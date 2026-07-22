@@ -174,9 +174,9 @@ fun SettingsScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RafiqBackButton(onClick = { navController.popBackStack() })
-
                 Text("الإعدادات", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+
+                RafiqBackButton(onClick = { navController.popBackStack() })
             }
 
             Spacer(Modifier.height(8.dp))
