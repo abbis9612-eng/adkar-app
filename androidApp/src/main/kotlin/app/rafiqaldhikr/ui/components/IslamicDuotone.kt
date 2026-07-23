@@ -61,6 +61,17 @@ fun stationDrawable(id: String): Int = when (id) {
     else            -> R.drawable.ic_st_dua
 }
 
+/** أيقونة المسبحة الاحترافية (للشريط السفلي وغيره). */
+@Composable
+fun MisbahaIcon(size: Dp = 24.dp, tint: androidx.compose.ui.graphics.Color = LocalRafiqColors.current.emerald) {
+    androidx.compose.material3.Icon(
+        painter = painterResource(R.drawable.ic_st_tasbeeh),
+        contentDescription = null,
+        tint = tint,
+        modifier = Modifier.size(size),
+    )
+}
+
 /** أيقونة المحطة فقط، بلون محدد (للسياقات التي توفّر خلفيتها). */
 @Composable
 fun StationGlyph(id: String, size: Dp = 26.dp, tint: androidx.compose.ui.graphics.Color = LocalRafiqColors.current.emerald) {

@@ -1,21 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
-    <!-- Dark background circle -->
-    <path
-        android:fillColor="#1A1A2E"
-        android:pathData="M24,24m-24,0a24,24,0,1,1,48,0a24,24,0,1,1,-48,0" />
-    <!-- Crescent moon -->
-    <path
-        android:fillColor="#D4AF37"
-        android:pathData="M24,8
-                   A14,14,0,1,1,24,40
-                   A10.5,10.5,0,1,0,24,8Z" />
-    <!-- Star -->
-    <path
-        android:fillColor="#D4AF37"
-        android:pathData="M32,18 L33,21 L36,21 L33.5,23 L34.5,26 L32,24 L29.5,26 L30.5,23 L28,21 L31,21 Z" />
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+  <path android:fillColor="#FF0F6047" android:pathData="M24,24m-24,0a24,24,0,1,1,48,0a24,24,0,1,1,-48,0"/>
+  <group android:scaleX="0.105" android:scaleY="0.105" android:translateX="10.5" android:translateY="10.5">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M235.54,150.21a104.84,104.84,0,0,1-37,52.91A104,104,0,0,1,32,120,103.09,103.09,0,0,1,52.88,57.48a104.84,104.84,0,0,1,52.91-37,8,8,0,0,1,10,10,88.08,88.08,0,0,0,109.8,109.8,8,8,0,0,1,10,10Z"/>
+  </group>
+  <path android:fillColor="#FFE4C97A"
+      android:pathData="M33,15 l1.1,2.5 l2.7,0.2 l-2.1,1.8 l0.7,2.7 l-2.4,-1.5 l-2.4,1.5 l0.7,-2.7 l-2.1,-1.8 l2.7,-0.2 z"/>
 </vector>

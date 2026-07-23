@@ -1,17 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- Crescent moon shape as a simple Islamic symbol -->
-    <path
-        android:fillColor="#D4AF37"
-        android:pathData="M54,24
-                   A26,26,0,1,1,54,80
-                   A20,20,0,1,0,54,24Z" />
-    <!-- Small star -->
-    <path
-        android:fillColor="#D4AF37"
-        android:pathData="M68,42 L70,47 L75,47 L71,50 L72.5,55 L68,52 L63.5,55 L65,50 L61,47 L66,47 Z" />
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+  <group android:scaleX="0.235" android:scaleY="0.235" android:translateX="24" android:translateY="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M235.54,150.21a104.84,104.84,0,0,1-37,52.91A104,104,0,0,1,32,120,103.09,103.09,0,0,1,52.88,57.48a104.84,104.84,0,0,1,52.91-37,8,8,0,0,1,10,10,88.08,88.08,0,0,0,109.8,109.8,8,8,0,0,1,10,10Z"/>
+  </group>
+  <path android:fillColor="#FFE4C97A"
+      android:pathData="M74,34 l2.2,5.1 l5.5,0.5 l-4.2,3.6 l1.3,5.4 l-4.8,-2.9 l-4.8,2.9 l1.3,-5.4 l-4.2,-3.6 l5.5,-0.5 z"/>
 </vector>
