@@ -165,7 +165,7 @@ private fun StationCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (done) app.rafiqaldhikr.ui.components.IcoCheck(15.dp, Color.White)
-                else StationIcon(station.id, 19.dp)
+                else app.rafiqaldhikr.ui.components.StationGlyph(station.id, if (active) 20.dp else 18.dp, tint = if (active) rc.emerald else rc.inkLight)
             }
             if (!isLast) {
                 Box(

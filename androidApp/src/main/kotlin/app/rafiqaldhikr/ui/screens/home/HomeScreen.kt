@@ -91,7 +91,7 @@ private fun NowCard(
         Column(Modifier.padding(18.dp)) {
             // ─── الرأس: ميدالية + العنوان ───
             Row(verticalAlignment = Alignment.CenterVertically) {
-                OrnamentMedallion(size = 58.dp) { s, c -> StationIcon(station.id, s, tint = c) }
+                StationTile(station.id, 58.dp)
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically,
@@ -255,7 +255,7 @@ private fun DayPath(
                             contentAlignment = Alignment.Center
                         ) {
                             if (done) IcoCheck(16.dp, Color.White)
-                            else StationIcon(st.id, if (active) 24.dp else 19.dp)
+                            else StationGlyph(st.id, if (active) 22.dp else 18.dp, tint = if (active) rc.emerald else rc.inkLight)
                         }
                     }
                     Spacer(Modifier.height(4.dp))
