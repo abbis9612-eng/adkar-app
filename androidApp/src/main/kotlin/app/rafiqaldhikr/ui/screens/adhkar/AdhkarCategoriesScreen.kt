@@ -317,8 +317,9 @@ private fun AdhkarCategoryCard(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // ميدالية زخرفية موحّدة
-            OrnamentMedallion(size = 54.dp) { s, c -> AdhkarCategoryIcon(cat.key, c, s) }
+            // شارة تصنيف احترافية نظيفة
+            app.rafiqaldhikr.ui.components.CategoryBadge(
+                app.rafiqaldhikr.ui.components.adhkarCatDrawable(cat.key), 54.dp)
 
             Spacer(Modifier.width(14.dp))
 

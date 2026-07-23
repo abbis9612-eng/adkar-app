@@ -177,7 +177,8 @@ private fun DuaCategoryGridCard(
             .padding(18.dp)
     ) {
         Column {
-            OrnamentMedallion(size = 58.dp) { s, c -> CategoryIcon(key = def.key, color = c, size = s) }
+            app.rafiqaldhikr.ui.components.CategoryBadge(
+                app.rafiqaldhikr.ui.components.duaCatDrawable(def.key), 58.dp)
             Spacer(Modifier.height(12.dp))
             Text(
                 def.name,
@@ -386,7 +387,13 @@ fun DuaCategoriesScreen(
                                         .background(rc.emeraldPastel),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    CategoryIcon(key = category, color = LocalRafiqColors.current.emerald, size = 24.dp)
+                                    androidx.compose.material3.Icon(
+                                        painter = androidx.compose.ui.res.painterResource(
+                                            app.rafiqaldhikr.ui.components.duaCatDrawable(category)),
+                                        contentDescription = null,
+                                        tint = LocalRafiqColors.current.emerald,
+                                        modifier = Modifier.size(24.dp),
+                                    )
                                 }
                                 Spacer(Modifier.width(14.dp))
                                 Text(

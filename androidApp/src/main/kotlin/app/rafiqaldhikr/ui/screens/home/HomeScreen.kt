@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -634,17 +635,17 @@ private fun AdhkarGrid(nav: NavHostController) {
     Column(Modifier.padding(horizontal = 16.dp)) {
         // Top row: Morning + Evening
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            AdhkarItem("أذكار الصباح", { s, c -> IcoSun(s, c) }, Modifier.weight(1f))
+            AdhkarItem("أذكار الصباح", R.drawable.ic_sun, Modifier.weight(1f))
             { nav.navigate(RafiqRoute.DhikrReading.withCategory("morning")) }
-            AdhkarItem("أذكار المساء", { s, c -> IcoSunset(s, c) }, Modifier.weight(1f))
+            AdhkarItem("أذكار المساء", R.drawable.ic_sunset, Modifier.weight(1f))
             { nav.navigate(RafiqRoute.DhikrReading.withCategory("evening")) }
         }
         Spacer(Modifier.height(12.dp))
         // Bottom row: Sleep + Istighfar
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            AdhkarItem("أذكار النوم", { s, c -> IcoMoon(s, c) }, Modifier.weight(1f))
+            AdhkarItem("أذكار النوم", R.drawable.ic_moon, Modifier.weight(1f))
             { nav.navigate(RafiqRoute.DhikrReading.withCategory("sleep")) }
-            AdhkarItem("الاستغفار", { s, c -> IcoDua(s, c) }, Modifier.weight(1f))
+            AdhkarItem("الاستغفار", R.drawable.ic_st_dua, Modifier.weight(1f))
             { nav.navigate(RafiqRoute.Tasbeeh.route) }
         }
     }
@@ -652,7 +653,7 @@ private fun AdhkarGrid(nav: NavHostController) {
 
 @Composable
 private fun AdhkarItem(
-    label: String, glyph: @Composable (Dp, Color) -> Unit,
+    label: String, iconRes: Int,
     m: Modifier = Modifier, onClick: () -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
@@ -661,7 +662,7 @@ private fun AdhkarItem(
         .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 20.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()) {
-            OrnamentMedallion(size = 56.dp, glyph = glyph)
+            CategoryBadge(iconRes, 56.dp)
             Spacer(Modifier.height(10.dp))
             Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.ink, lineHeight = 20.sp)
         }

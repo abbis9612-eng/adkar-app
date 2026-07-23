@@ -61,6 +61,57 @@ fun stationDrawable(id: String): Int = when (id) {
     else            -> R.drawable.ic_st_dua
 }
 
+/** شارة تصنيف نظيفة بأسلوب آبل: دائرة زمرّدية متدرّجة + أيقونة بيضاء احترافية. */
+@Composable
+fun CategoryBadge(@DrawableRes iconRes: Int, size: Dp = 54.dp) {
+    Box(
+        Modifier
+            .size(size)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .background(
+                androidx.compose.ui.graphics.Brush.linearGradient(
+                    listOf(
+                        androidx.compose.ui.graphics.Color(0xFF23976E),
+                        androidx.compose.ui.graphics.Color(0xFF0C5E43),
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        androidx.compose.material3.Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = androidx.compose.ui.graphics.Color.White,
+            modifier = Modifier.size(size * 0.50f),
+        )
+    }
+}
+
+/** خريطة تصنيفات الأذكار → أيقونة احترافية. */
+@DrawableRes
+fun adhkarCatDrawable(key: String): Int = when (key) {
+    "morning"   -> R.drawable.ic_sun
+    "evening"   -> R.drawable.ic_sunset
+    "sleep"     -> R.drawable.ic_moon
+    "istighfar" -> R.drawable.ic_st_dua
+    "prayer"    -> R.drawable.ic_st_mosque
+    else        -> R.drawable.ic_star
+}
+
+/** خريطة تصنيفات الأدعية → أيقونة احترافية. */
+@DrawableRes
+fun duaCatDrawable(key: String): Int = when (key) {
+    "morning"    -> R.drawable.ic_sun
+    "sleep"      -> R.drawable.ic_moon
+    "quran"      -> R.drawable.ic_st_book
+    "food"       -> R.drawable.ic_food
+    "travel"     -> R.drawable.ic_compass
+    "anxiety"    -> R.drawable.ic_heart
+    "sickness"   -> R.drawable.ic_health
+    "istikharah" -> R.drawable.ic_star
+    else         -> R.drawable.ic_st_dua
+}
+
 /** أيقونة المسبحة الاحترافية (للشريط السفلي وغيره). */
 @Composable
 fun MisbahaIcon(size: Dp = 24.dp, tint: androidx.compose.ui.graphics.Color = LocalRafiqColors.current.emerald) {
