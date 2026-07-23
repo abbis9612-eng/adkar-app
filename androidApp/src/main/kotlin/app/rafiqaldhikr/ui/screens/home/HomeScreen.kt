@@ -25,6 +25,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import org.koin.androidx.compose.koinViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.animations.breathingAnimation
 import app.rafiqaldhikr.ui.components.*
@@ -184,99 +187,143 @@ private fun DayPath(
         infiniteRepeatable(tween(1100, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "pulse",
     )
-    val progress = state.doneCount.toFloat() / state.stations.size
+    // المحطة الحالية (لاسم «الآن» وخلفية الوقت)
+    val nowSt = state.nowStation
+        ?: state.stations.firstOrNull { it.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE }
+        ?: state.stations.first()
+    val nowTitle = nowSt.title.substringBefore(" و").substringBefore(" —")
 
-    Column(
+    // الأذان القادم — أول محطة صلاة قادمة بوقتها
+    val prayerNames = mapOf(
+        "fajr_morning" to "الفجر", "dhuhr" to "الظهر",
+        "asr_evening" to "العصر", "maghrib" to "المغرب", "isha" to "العشاء",
+    )
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { nowMs = System.currentTimeMillis(); kotlinx.coroutines.delay(1000) } }
+    val nextPrayer = state.stations
+        .filter { it.id in prayerNames.keys && it.startMillis > nowMs }
+        .minByOrNull { it.startMillis }
+        ?: state.stations.firstOrNull { it.id in prayerNames.keys }
+    val azanTime = nextPrayer?.let {
+        SimpleDateFormat("h:mm", Locale.US).format(Date(it.startMillis)).localizedDigits(LocalArabicNumerals.current)
+    }
+    val azanRemain = nextPrayer?.let {
+        val d = (it.startMillis - nowMs).coerceAtLeast(0L)
+        val h = d / 3_600_000L; val m = (d % 3_600_000L) / 60_000L
+        (if (h > 0) "${h} س ${m} د" else "${m} د").localizedDigits(LocalArabicNumerals.current)
+    }
+
+    Box(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(20.dp)).background(rc.card)
-            .border(1.dp, rc.divider, RoundedCornerShape(20.dp))
-            .padding(vertical = 14.dp)
+            .shadow(6.dp, RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .border(1.dp, rc.gold.copy(alpha = 0.25f), RoundedCornerShape(24.dp))
     ) {
-        // الترويسة + شريط تقدّم اليوم
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Text("رحلة يومك", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-            Text(
-                "${state.doneCount}/${state.stations.size} محطة".localizedDigits(LocalArabicNumerals.current),
-                style = NumbersStyle, fontSize = 12.sp, color = rc.emerald,
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(4.dp)
-            .clip(RoundedCornerShape(2.dp)).background(rc.divider)) {
-            Box(Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
-                .clip(RoundedCornerShape(2.dp))
-                .background(Brush.horizontalGradient(listOf(rc.gold, rc.emerald))))
-        }
-        Spacer(Modifier.height(12.dp))
+        // خلفية سينمائية حسب وقت المحطة الحالية
+        Image(
+            painter = painterResource(stationBackground(nowSt.id)),
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop,
+        )
+        Box(Modifier.matchParentSize().background(
+            Brush.verticalGradient(listOf(Color(0xCC04160E), Color(0xE60A2F27)))))
 
-        // العُقد — كل محطة باسمها، والخط يمتلئ ذهبياً بعد المحطات المكتملة
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            state.stations.forEachIndexed { i, st ->
-                val done = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.DONE
-                val active = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(64.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) }
-                        .padding(vertical = 2.dp)
-                ) {
-                    // منطقة الدائرة بارتفاع موحّد (للخط الواصل)
-                    Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                        // هالة نابضة للمحطة الحالية
-                        if (active) {
-                            Box(Modifier.size(48.dp).clip(CircleShape)
-                                .background(rc.gold.copy(alpha = 0.20f * pulse)))
-                        }
-                        Box(
-                            Modifier.size(if (active) 44.dp else 36.dp).clip(CircleShape)
-                                .background(
-                                    when {
-                                        done   -> rc.emerald
-                                        active -> rc.card
-                                        else   -> rc.divider.copy(alpha = 0.45f)
-                                    }
-                                )
-                                .border(
-                                    width = if (active) 2.dp else 1.dp,
-                                    color = when {
-                                        active -> rc.gold
-                                        done   -> rc.emerald
-                                        else   -> rc.divider
-                                    },
-                                    shape = CircleShape,
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (done) IcoCheck(16.dp, Color.White)
-                            else StationGlyph(st.id, if (active) 22.dp else 18.dp, tint = if (active) rc.emerald else rc.inkLight)
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        st.title.substringBefore(" و").substringBefore(" —"),
-                        fontSize = 9.5.sp,
-                        fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
-                        color = when {
-                            active -> rc.emerald
-                            done   -> rc.ink
-                            else   -> rc.inkLight
-                        },
-                        maxLines = 1,
-                    )
+        Column(Modifier.padding(15.dp)) {
+            // ─── الرأس: العنوان + الآن + عدّاد المحطات ───
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                Column {
+                    Text("رحلة يومك", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("الآن · $nowTitle", fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
+                        color = Color(0xFFF7E7AE))
                 }
-                if (i < state.stations.lastIndex) {
-                    // خط واصل بمحاذاة مركز الدوائر — ذهبي بعد المكتملة
-                    Box(Modifier.padding(top = 23.dp).width(10.dp).height(2.5.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(if (done) rc.gold else rc.divider))
+                Text(
+                    "${state.doneCount} / ${state.stations.size} محطة".localizedDigits(LocalArabicNumerals.current),
+                    style = NumbersStyle, fontSize = 11.5.sp, color = Color(0xFFF7E7AE),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.White.copy(alpha = 0.14f))
+                        .border(1.dp, Color(0xFFF7E7AE).copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                )
+            }
+            Spacer(Modifier.height(14.dp))
+
+            // ─── الخطّ الزمني ───
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.Top
+            ) {
+                state.stations.forEachIndexed { i, st ->
+                    val done = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.DONE
+                    val active = st.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.width(58.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) }
+                            .padding(vertical = 2.dp)
+                    ) {
+                        Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                            if (active) Box(Modifier.size(44.dp).clip(CircleShape)
+                                .background(Color(0xFFF7E7AE).copy(alpha = 0.22f * pulse)))
+                            Box(
+                                Modifier.size(if (active) 40.dp else 34.dp).clip(CircleShape)
+                                    .background(
+                                        when {
+                                            done   -> Brush.linearGradient(listOf(Color(0xFFE4C97A), Color(0xFFEBD48F)))
+                                            active -> Brush.linearGradient(listOf(rc.emeraldMed, rc.emerald))
+                                            else   -> Brush.linearGradient(listOf(Color.White.copy(alpha = 0.16f), Color.White.copy(alpha = 0.10f)))
+                                        }
+                                    )
+                                    .then(if (active) Modifier.border(2.dp, Color(0xFFF7E7AE), CircleShape) else Modifier),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (done) IcoCheck(15.dp, Color(0xFF0C4A37))
+                                else StationGlyph(st.id, if (active) 21.dp else 17.dp,
+                                    tint = if (active) Color.White else Color.White.copy(alpha = 0.82f))
+                            }
+                        }
+                        Spacer(Modifier.height(5.dp))
+                        Text(
+                            st.title.substringBefore(" و").substringBefore(" —"),
+                            fontSize = 9.5.sp,
+                            fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
+                            color = when {
+                                active -> Color(0xFFF7E7AE)
+                                else   -> Color.White.copy(alpha = 0.82f)
+                            },
+                            maxLines = 1,
+                        )
+                    }
+                    if (i < state.stations.lastIndex) {
+                        Box(Modifier.padding(top = 21.dp).width(8.dp).height(2.5.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(if (done) Color(0xFFE4C97A) else Color.White.copy(alpha = 0.28f)))
+                    }
+                }
+            }
+
+            // ─── شريط الأذان القادم (زجاجي) ───
+            if (nextPrayer != null && azanTime != null) {
+                Spacer(Modifier.height(14.dp))
+                Row(
+                    Modifier.fillMaxWidth()
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color.White.copy(alpha = 0.12f))
+                        .border(1.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(15.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("الأذان القادم", fontSize = 11.sp, color = Color.White.copy(alpha = 0.70f))
+                        Text("${prayerNames[nextPrayer.id]} $azanTime", fontSize = 14.5.sp,
+                            fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                    Text("متبقٍ $azanRemain", style = NumbersStyle, fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold, color = Color(0xFFF7E7AE))
                 }
             }
         }
