@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.IcoBook
+import app.rafiqaldhikr.ui.components.IcoDuo
+import app.rafiqaldhikr.ui.components.DuotoneIcon
 import app.rafiqaldhikr.ui.components.IcoFlame
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoMoon
@@ -118,7 +120,7 @@ fun StatisticsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = { s, c -> IcoBook(s, c) },
+                        icon      = { _, _ -> DuotoneIcon(IcoDuo.Quran, 30.dp) },
                         iconColor = rc.emerald,
                         title     = "صفحات القرآن",
                         value     = "${p?.quranPages ?: 0}",
@@ -127,7 +129,7 @@ fun StatisticsScreen(
                     )
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = { s, c -> IcoMisbaha(s, c) },
+                        icon      = { _, _ -> DuotoneIcon(IcoDuo.Tasbeeh, 30.dp) },
                         iconColor = rc.emerald,
                         title     = "التسبيح",
                         value     = "${p?.tasbeehCount ?: 0}",
@@ -139,7 +141,7 @@ fun StatisticsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = { s, c -> IcoSun(s, c) },
+                        icon      = { _, _ -> DuotoneIcon(IcoDuo.Sun, 30.dp) },
                         iconColor = rc.gold,
                         title     = "أذكار الصباح",
                         value     = if (p?.morningDone == true) "تم" else "—",
@@ -148,7 +150,7 @@ fun StatisticsScreen(
                     )
                     StatCard(
                         modifier  = Modifier.weight(1f),
-                        icon      = { s, c -> IcoMoon(s, c) },
+                        icon      = { _, _ -> DuotoneIcon(IcoDuo.Crescent, 30.dp) },
                         iconColor = rc.purpleSleep,
                         title     = "أذكار المساء",
                         value     = if (p?.eveningDone == true) "تم" else "—",
@@ -233,7 +235,7 @@ fun StatisticsScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IcoMosque(32.dp, rc.emerald)
+                    DuotoneIcon(IcoDuo.Mosque, 34.dp)
                     Spacer(Modifier.width(16.dp))
                     Column {
                         Text("صلوات هذا الأسبوع", fontSize = 12.sp, color = rc.inkMed)
