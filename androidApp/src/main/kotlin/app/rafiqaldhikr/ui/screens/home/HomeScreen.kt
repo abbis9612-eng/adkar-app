@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
@@ -61,79 +63,105 @@ private fun NowCard(
     val windowLen = (station.endMillis - station.startMillis).coerceAtLeast(1L)
     val windowProgress = ((nowMs - station.startMillis).toFloat() / windowLen).coerceIn(0f, 1f)
 
-    Column(
+    Box(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .shadow(5.dp, RoundedCornerShape(24.dp))
             .clip(RoundedCornerShape(24.dp))
-            .background(rc.card)
             .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(24.dp))
             .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
-            .padding(18.dp)
     ) {
-        // ─── الرأس: ميدالية + العنوان ───
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OrnamentMedallion(size = 58.dp) { s, c -> StationIcon(station.id, s, tint = c) }
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        "الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White,
-                        modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
-                            .padding(horizontal = 10.dp, vertical = 3.dp)
-                    )
-                    Text(station.timeLabel, fontSize = 11.sp, color = rc.inkMed)
-                }
-                Spacer(Modifier.height(5.dp))
-                Text(station.title, fontSize = 18.sp, fontWeight = FontWeight.Bold,
-                    color = rc.ink, lineHeight = 24.sp)
-            }
-        }
-
-        // ─── الفضل بدليله — شريط ذهبي ناعم كامل العرض ───
-        if (station.virtue.isNotBlank()) {
-            Spacer(Modifier.height(12.dp))
-            Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                    .background(rc.gold.copy(alpha = 0.10f))
-                    .padding(horizontal = 12.dp, vertical = 9.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IcoStar(14.dp, rc.gold)
-                Spacer(Modifier.width(8.dp))
-                Text(station.virtue, fontSize = 11.5.sp, color = rc.brownAccent,
-                    lineHeight = 17.sp, maxLines = 2, modifier = Modifier.weight(1f))
-            }
-        }
-
-        // ─── شريط تقدّم النافذة + العدّاد (صف مستقل — لا يُقص أبداً) ───
-        Spacer(Modifier.height(14.dp))
-        Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
-            .background(rc.divider)) {
-            Box(Modifier.fillMaxHeight().fillMaxWidth(windowProgress)
-                .clip(RoundedCornerShape(3.dp))
-                .background(Brush.horizontalGradient(listOf(rc.gold, rc.emerald))))
-        }
-        Spacer(Modifier.height(6.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Text("تنتهي النافذة بعد", fontSize = 11.sp, color = rc.inkMed)
-            Text(countdown, style = NumbersStyle, fontSize = 17.sp, color = rc.emerald)
-        }
-
-        // ─── زر ابدأ — كامل العرض، فخم ───
-        Spacer(Modifier.height(12.dp))
+        // ─── خلفية سينمائية تتغيّر حسب وقت اليوم ───
+        Image(
+            painter = painterResource(stationBackground(station.id)),
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop,
+        )
+        // حجاب متدرّج داكن لضمان وضوح النص فوق أي خلفية
         Box(
-            Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(15.dp))
-                .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
-                .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) },
-            contentAlignment = Alignment.Center
-        ) {
-            Text("ابدأ الآن", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Modifier.matchParentSize().background(
+                Brush.verticalGradient(
+                    listOf(Color.Black.copy(alpha = 0.28f), Color.Black.copy(alpha = 0.62f))
+                )
+            )
+        )
+
+        Column(Modifier.padding(18.dp)) {
+            // ─── الرأس: ميدالية + العنوان ───
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OrnamentMedallion(size = 58.dp) { s, c -> StationIcon(station.id, s, tint = c) }
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                            modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
+                                .padding(horizontal = 10.dp, vertical = 3.dp)
+                        )
+                        Text(station.timeLabel, fontSize = 11.sp, color = Color.White.copy(alpha = 0.85f))
+                    }
+                    Spacer(Modifier.height(5.dp))
+                    Text(station.title, fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                        color = Color.White, lineHeight = 24.sp)
+                }
+            }
+
+            // ─── الفضل بدليله — شريط ناعم كامل العرض ───
+            if (station.virtue.isNotBlank()) {
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = 0.14f))
+                        .padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IcoStar(14.dp, rc.goldLight)
+                    Spacer(Modifier.width(8.dp))
+                    Text(station.virtue, fontSize = 11.5.sp, color = Color.White.copy(alpha = 0.92f),
+                        lineHeight = 17.sp, maxLines = 2, modifier = Modifier.weight(1f))
+                }
+            }
+
+            // ─── شريط تقدّم النافذة + العدّاد ───
+            Spacer(Modifier.height(14.dp))
+            Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+                .background(Color.White.copy(alpha = 0.25f))) {
+                Box(Modifier.fillMaxHeight().fillMaxWidth(windowProgress)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(Brush.horizontalGradient(listOf(rc.goldLight, rc.emeraldMed))))
+            }
+            Spacer(Modifier.height(6.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                Text("تنتهي النافذة بعد", fontSize = 11.sp, color = Color.White.copy(alpha = 0.80f))
+                Text(countdown, style = NumbersStyle, fontSize = 17.sp, color = rc.goldLight)
+            }
+
+            // ─── زر ابدأ — كامل العرض، فخم ───
+            Spacer(Modifier.height(12.dp))
+            Box(
+                Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(15.dp))
+                    .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
+                    .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("ابدأ الآن", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
         }
     }
+}
+
+/** خلفية بطاقة «الآن» حسب وقت المحطة الحالية — تُضمّن كأصول تعمل بلا إنترنت. */
+@androidx.annotation.DrawableRes
+private fun stationBackground(id: String): Int = when (id) {
+    "wake", "fajr_morning"                 -> app.rafiqaldhikr.R.drawable.bg_time_dawn
+    "duha"                                 -> app.rafiqaldhikr.R.drawable.bg_time_morning
+    "dhuhr", "asr_evening", "friday_kahf"  -> app.rafiqaldhikr.R.drawable.bg_time_noon
+    "maghrib"                              -> app.rafiqaldhikr.R.drawable.bg_time_dawn
+    else                                   -> app.rafiqaldhikr.R.drawable.bg_time_night
 }
 
 /* ═══════════════════════════════════════════════════════
