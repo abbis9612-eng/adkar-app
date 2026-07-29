@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.StationIcon
+import app.rafiqaldhikr.ui.components.Unwan
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -43,6 +44,7 @@ fun DayCompanionScreen(
                 subtitle = "«أحبُّ الأعمال إلى الله أدومُها وإن قلّ» — متفق عليه",
                 onBack   = { navController.popBackStack() },
             )
+            Unwan()
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),

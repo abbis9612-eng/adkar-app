@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.ErrorState
 import app.rafiqaldhikr.ui.components.LoadingState
+import app.rafiqaldhikr.ui.components.jadval
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.NumbersStyle
@@ -209,7 +210,7 @@ fun DhikrReadingScreen(
                                 .shadow(4.dp, RoundedCornerShape(24.dp))
                                 .clip(RoundedCornerShape(24.dp))
                                 .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
+                                .jadval(app.rafiqaldhikr.ui.components.JadvalIntensity.Double, corner = 24.dp)
                                 .padding(28.dp)
                         ) {
                             Column(

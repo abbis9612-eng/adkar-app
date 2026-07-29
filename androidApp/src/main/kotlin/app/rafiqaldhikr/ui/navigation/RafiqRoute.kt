@@ -38,7 +38,7 @@ sealed class RafiqRoute(val route: String) {
     // ═══ M1 — Others ═══
     data object Khatira           : RafiqRoute("khatira")
     data object Profile           : RafiqRoute("profile")
-    data object Statistics        : RafiqRoute("statistics")
+    data object Mudawamati        : RafiqRoute("mudawamati")
 
     // ═══ M1 — Settings ═══
     data object Settings              : RafiqRoute("settings")
@@ -57,12 +57,10 @@ sealed class RafiqRoute(val route: String) {
     // TafsirSheet هو ModalBottomSheet — يُستخدم مباشرة من QuranReadingScreen وليس وجهة تنقل
     data object Breathing         : RafiqRoute("breathing")
     data object Garden            : RafiqRoute("garden")
-    data object Achievements      : RafiqRoute("achievements")
     data object PrayerTracking    : RafiqRoute("prayer_tracking")
     data object CustomDhikr       : RafiqRoute("custom_dhikr")
     data object ShareCard         : RafiqRoute("share_card")
     data object RamadanHome       : RafiqRoute("ramadan")
-    data object WeeklyReport      : RafiqRoute("weekly_report")
     data object PrivacyPolicy     : RafiqRoute("privacy_policy")
     data object Terms             : RafiqRoute("terms")
     data object Contact           : RafiqRoute("contact")

@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import app.rafiqaldhikr.ui.screens.about.AboutScreen
-import app.rafiqaldhikr.ui.screens.achievements.AchievementsScreen
 import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesScreen
 import app.rafiqaldhikr.ui.screens.adhkar.CelebrationScreen
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingScreen
@@ -38,15 +37,14 @@ import app.rafiqaldhikr.ui.screens.quran.QuranBookmarksScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranListScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranReadingScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranSearchScreen
+import app.rafiqaldhikr.ui.screens.mudawamati.MudawamatiScreen
 import app.rafiqaldhikr.ui.screens.ramadan.RamadanHomeScreen
-import app.rafiqaldhikr.ui.screens.report.WeeklyReportScreen
 import app.rafiqaldhikr.ui.screens.settings.AccessibilitySettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.FontSettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.NotificationSettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.SettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
-import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
 import app.rafiqaldhikr.ui.screens.widget.WidgetSettingsScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
@@ -141,8 +139,8 @@ fun RafiqNavGraph(
         composable(RafiqRoute.Khatira.route) { KhatiraScreen(navController) }
 
         // ═══ Profile ═══
-        composable(RafiqRoute.Profile.route)    { ProfileScreen(navController) }
-        composable(RafiqRoute.Statistics.route)  { StatisticsScreen(navController) }
+        composable(RafiqRoute.Profile.route)     { ProfileScreen(navController) }
+        composable(RafiqRoute.Mudawamati.route)  { MudawamatiScreen(navController) }
 
         // ═══ Settings ═══
         composable(RafiqRoute.Settings.route)              { SettingsScreen(navController) }
@@ -177,7 +175,6 @@ fun RafiqNavGraph(
 
         // Gamification
         composable(RafiqRoute.Garden.route)       { GardenScreen(navController) }
-        composable(RafiqRoute.Achievements.route) { AchievementsScreen(navController) }
 
         // Prayer Tracking
         composable(RafiqRoute.PrayerTracking.route) { PrayerTrackingScreen(navController) }
@@ -187,9 +184,6 @@ fun RafiqNavGraph(
 
         // Ramadan
         composable(RafiqRoute.RamadanHome.route) { RamadanHomeScreen(navController) }
-
-        // Reports
-        composable(RafiqRoute.WeeklyReport.route) { WeeklyReportScreen(navController) }
 
         // Legal & Info
         composable(RafiqRoute.PrivacyPolicy.route) { PrivacyPolicyScreen(navController) }

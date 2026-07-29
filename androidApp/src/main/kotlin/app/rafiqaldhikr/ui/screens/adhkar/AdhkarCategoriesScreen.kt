@@ -318,7 +318,7 @@ private fun AdhkarCategoryCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // شارة تصنيف احترافية نظيفة
-            app.rafiqaldhikr.ui.components.CategoryBadge(
+            app.rafiqaldhikr.ui.components.CategoryShamsa(
                 app.rafiqaldhikr.ui.components.adhkarCatDrawable(cat.key), 54.dp)
 
             Spacer(Modifier.width(14.dp))

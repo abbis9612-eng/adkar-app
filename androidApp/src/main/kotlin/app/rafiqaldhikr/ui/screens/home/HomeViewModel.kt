@@ -9,6 +9,7 @@ import app.rafiq.domain.model.StreakInfo
 import app.rafiq.domain.repository.PrefsRepository
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiq.domain.repository.StreakRepository
+import app.rafiqaldhikr.ui.utils.calculateWirdProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -244,18 +245,6 @@ class HomeViewModel(
         PrayerUi("المغرب", "Maghrib", "—"),
         PrayerUi("العشاء", "Isha", "—")
     )
-
-    // ═══ حساب تقدم الورد اليومي ═══
-    private fun calculateWirdProgress(progress: DailyProgressInfo?): Int {
-        if (progress == null) return 0
-        var score = 0
-        if (progress.morningDone) score += 200
-        if (progress.eveningDone) score += 200
-        score += (progress.quranPages * 50).toInt().coerceAtMost(300)
-        score += progress.tasbeehCount.toInt().coerceAtMost(200)
-        score += (progress.prayersLogged * 20).toInt().coerceAtMost(100)
-        return score.coerceAtMost(1000)
-    }
 
     // ═══ التحية — مصدر واحد للحقيقة ═══
     private fun buildGreeting(): String {

@@ -177,7 +177,7 @@ private fun DuaCategoryGridCard(
             .padding(18.dp)
     ) {
         Column {
-            app.rafiqaldhikr.ui.components.CategoryBadge(
+            app.rafiqaldhikr.ui.components.CategoryShamsa(
                 app.rafiqaldhikr.ui.components.duaCatDrawable(def.key), 58.dp)
             Spacer(Modifier.height(12.dp))
             Text(
