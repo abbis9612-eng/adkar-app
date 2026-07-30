@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,6 +27,9 @@ import app.rafiqaldhikr.ui.components.IcoSend
 import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun ContactScreen(navController: NavHostController) {
@@ -125,7 +127,7 @@ fun ContactScreen(navController: NavHostController) {
                     onValueChange = { message = it },
                     label = { Text("رسالتك", color = rc.inkMed) },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RafiqShape.card,
                     maxLines = 5,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = rc.emerald,
@@ -149,7 +151,7 @@ fun ContactScreen(navController: NavHostController) {
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     enabled = message.isNotBlank(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RafiqShape.card,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = rc.emerald,
                         contentColor = rc.bg,
@@ -174,10 +176,9 @@ private fun ContactItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .shadow(2.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -185,7 +186,7 @@ private fun ContactItem(
         Box(
             Modifier
                 .size(40.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RafiqShape.item)
                 .background(rc.emerald.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {

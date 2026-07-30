@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +21,9 @@ import app.rafiqaldhikr.ui.components.IcoPlus
 import app.rafiqaldhikr.ui.components.IcoTrash
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun CustomDhikrScreen(
@@ -70,10 +72,9 @@ fun CustomDhikrScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         OutlinedTextField(
@@ -81,7 +82,7 @@ fun CustomDhikrScreen(
                             onValueChange = { dhikrText = it },
                             label         = { Text("نص الذكر") },
                             modifier      = Modifier.fillMaxWidth(),
-                            shape         = RoundedCornerShape(12.dp),
+                            shape         = RafiqShape.item,
                             colors        = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = rc.emerald,
                                 unfocusedBorderColor = rc.divider,
@@ -95,7 +96,7 @@ fun CustomDhikrScreen(
                             onValueChange = { if (it.all { c -> c.isDigit() }) targetCount = it },
                             label         = { Text("العدد المستهدف") },
                             modifier      = Modifier.fillMaxWidth(),
-                            shape         = RoundedCornerShape(12.dp),
+                            shape         = RafiqShape.item,
                             colors        = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = rc.emerald,
                                 unfocusedBorderColor = rc.divider,
@@ -113,7 +114,7 @@ fun CustomDhikrScreen(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape    = RoundedCornerShape(12.dp),
+                            shape    = RafiqShape.item,
                             colors   = ButtonDefaults.buttonColors(containerColor = rc.emerald)
                         ) {
                             IcoPlus(20.dp, rc.bg)
@@ -137,10 +138,9 @@ fun CustomDhikrScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .shadow(2.dp, RoundedCornerShape(12.dp))
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.card)
-                            .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+                            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     ) {
                         Row(
                             modifier          = Modifier.padding(16.dp).fillMaxWidth(),

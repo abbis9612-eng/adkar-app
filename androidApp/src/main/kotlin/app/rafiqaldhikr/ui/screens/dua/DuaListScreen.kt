@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +25,9 @@ import app.rafiqaldhikr.ui.components.IcoHeart
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun DuaListScreen(
@@ -66,10 +68,9 @@ fun DuaListScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .shadow(2.dp, RoundedCornerShape(16.dp))
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RafiqShape.card)
                             .background(rc.card)
-                            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(
@@ -93,7 +94,7 @@ fun DuaListScreen(
                                 Box(
                                     Modifier
                                         .size(32.dp)
-                                        .clip(RoundedCornerShape(8.dp))
+                                        .clip(RafiqShape.item)
                                         .clickable { viewModel.toggleFavorite(dua.id, dua.isFavorite) },
                                     contentAlignment = Alignment.Center
                                 ) {

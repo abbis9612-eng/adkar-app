@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.compose.material3.Text
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import com.google.android.gms.location.LocationServices
+import app.rafiqaldhikr.ui.theme.RafiqShape
 
 /**
  * شارة دائمة تظهر حين تكون مواقيت الصلاة محسوبة على موقع احتياطي (بلا إذن الموقع).
@@ -92,9 +93,9 @@ fun LocationBadge(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RafiqShape.item)
                 .background(rc.card)
-                .border(1.dp, rc.gold, RoundedCornerShape(12.dp))
+                .border(1.dp, rc.gold, RafiqShape.item)
                 .clickable { requestLocation() }
                 .padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,

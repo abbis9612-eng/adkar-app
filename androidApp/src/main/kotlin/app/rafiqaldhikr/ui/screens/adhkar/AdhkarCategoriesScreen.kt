@@ -35,6 +35,9 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -212,9 +215,9 @@ fun AdhkarCategoriesScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp)
-                    .shadow(16.dp, RoundedCornerShape(24.dp),
+                    .shadow(16.dp, RafiqShape.card,
                         ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.18f))
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(RafiqShape.card)
             ) {
                 Box(
                     Modifier
@@ -305,10 +308,9 @@ private fun AdhkarCategoryCard(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {

@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +23,9 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlinx.coroutines.delay
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun BreathingScreen(navController: NavHostController) {
@@ -141,10 +143,9 @@ fun BreathingScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp)
-                        .shadow(4.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(if (isRunning) rc.card else rc.emerald)
-                        .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                         .clickable { isRunning = !isRunning },
                     contentAlignment = Alignment.Center
                 ) {
@@ -169,12 +170,12 @@ fun BreathingScreen(navController: NavHostController) {
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (dhikrText == text) rc.emeraldPastel else rc.card)
                                 .border(
                                     1.dp,
                                     if (dhikrText == text) rc.emerald else rc.divider,
-                                    RoundedCornerShape(10.dp)
+                                    RafiqShape.item
                                 )
                                 .clickable { dhikrText = text }
                                 .padding(vertical = 8.dp),

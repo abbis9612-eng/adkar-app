@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqShape
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -190,8 +190,7 @@ fun CelebrationScreen(navController: NavHostController) {
                 Modifier
                     .fillMaxWidth()
                     .height(54.dp)
-                    .shadow(6.dp, RoundedCornerShape(18.dp))
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(RafiqShape.card)
                     .background(
                         Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed))
                     )

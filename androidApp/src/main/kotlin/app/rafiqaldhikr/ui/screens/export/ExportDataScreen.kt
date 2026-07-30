@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
@@ -29,6 +28,9 @@ import app.rafiqaldhikr.ui.components.IcoUpload
 import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun ExportDataScreen(
@@ -92,10 +94,9 @@ fun ExportDataScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,7 +116,7 @@ fun ExportDataScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.emerald.copy(alpha = 0.1f))
                             .clickable {
                                 viewModel.exportJson { json ->
@@ -143,10 +144,9 @@ fun ExportDataScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.error.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.error.copy(alpha = 0.3f), RafiqShape.card)
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -166,7 +166,7 @@ fun ExportDataScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.error)
                             .clickable { showDeleteDialog = true },
                         contentAlignment = Alignment.Center

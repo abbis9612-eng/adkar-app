@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -26,6 +25,9 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* ══════════════════════════════════════════════════════════════
    SETTING-SPECIFIC ICON BACKGROUNDS
@@ -85,10 +87,9 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
     ) {
         items.forEachIndexed { idx, item ->
             Row(
@@ -103,7 +104,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                 Box(
                     Modifier
                         .size(36.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(RafiqShape.item)
                         .background(baseCol.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -123,7 +124,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                 if (item.badge != null) {
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.goldLight)
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {

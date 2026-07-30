@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +29,9 @@ import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoDua
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun RamadanHomeScreen(navController: NavHostController) {
@@ -72,8 +74,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.emerald)
                 ) {
                     Column(
@@ -130,10 +131,9 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.cardPrayed)
-                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RafiqShape.card)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -166,10 +166,9 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .shadow(2.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .clickable { onClick() }
     ) {
         Row(
@@ -179,7 +178,7 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
             Box(
                 modifier = Modifier
                     .size(54.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.emerald.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {

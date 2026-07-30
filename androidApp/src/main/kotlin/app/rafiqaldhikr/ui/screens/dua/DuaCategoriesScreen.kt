@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -43,6 +42,9 @@ import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -148,10 +150,9 @@ private fun PillBtn(
     val rc = LocalRafiqColors.current
     Box(
         modifier.size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
@@ -171,9 +172,9 @@ private fun DuaCategoryGridCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(bgColor)
-            .border(1.5.dp, iconColor.copy(alpha = 0.14f), RoundedCornerShape(20.dp))
+            .border(1.5.dp, iconColor.copy(alpha = 0.14f), RafiqShape.card)
             .clickable(onClick = onClick)
             .padding(18.dp)
     ) {
@@ -205,10 +206,9 @@ private fun FavoriteDuaCard(text: String, source: String, onToggle: () -> Unit) 
     Box(
         Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .padding(16.dp)
     ) {
         Column {
@@ -282,7 +282,7 @@ fun DuaCategoriesScreen(
                     ) {
                         Box(
                             Modifier.width(4.dp).height(18.dp)
-                                .clip(RoundedCornerShape(2.dp))
+                                .clip(RafiqShape.chip)
                                 .background(rc.goldLight)
                         )
                         Text("المفضلة", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
@@ -322,7 +322,7 @@ fun DuaCategoriesScreen(
                 ) {
                     Box(
                         Modifier.width(4.dp).height(18.dp)
-                            .clip(RoundedCornerShape(2.dp))
+                            .clip(RafiqShape.chip)
                             .background(rc.gold)
                     )
                     Text("التصنيفات", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
@@ -372,9 +372,9 @@ fun DuaCategoriesScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(18.dp))
+                                .clip(RafiqShape.card)
                                 .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
+                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                                 .clickable { navController.navigate(RafiqRoute.DuaList.withCategory(category)) }
                                 .padding(16.dp)
                         ) {
@@ -384,7 +384,7 @@ fun DuaCategoriesScreen(
                             ) {
                                 Box(
                                     Modifier.size(40.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+                                        .clip(RafiqShape.item)
                                         .background(rc.emeraldPastel),
                                     contentAlignment = Alignment.Center,
                                 ) {

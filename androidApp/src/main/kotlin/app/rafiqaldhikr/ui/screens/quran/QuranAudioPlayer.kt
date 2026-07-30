@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +31,9 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import com.google.common.util.concurrent.MoreExecutors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun QuranAudioPlayer(
@@ -119,10 +121,9 @@ fun QuranAudioPlayer(
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .shadow(8.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(24.dp)),
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -186,7 +187,6 @@ fun QuranAudioPlayer(
                     Box(
                         modifier = Modifier
                             .size(72.dp)
-                            .shadow(8.dp, CircleShape)
                             .clip(CircleShape)
                             .background(Brush.radialGradient(listOf(rc.emeraldMed, rc.emerald)))
                             .clickable {
@@ -248,9 +248,9 @@ fun QuranAudioPlayer(
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(RafiqShape.item)
                                     .background(if (currentReciter == name) rc.emeraldPastel else rc.card)
-                                    .border(1.dp, if (currentReciter == name) rc.emerald else rc.gold.copy(alpha=0.1f), RoundedCornerShape(8.dp))
+                                    .border(1.dp, if (currentReciter == name) rc.emerald else rc.gold.copy(alpha=0.1f), RafiqShape.item)
                                     .clickable {
                                         val wasPlaying = isPlaying
                                         currentReciter = name

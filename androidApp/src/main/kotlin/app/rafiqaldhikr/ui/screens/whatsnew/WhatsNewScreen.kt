@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +21,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
 
 data class ChangelogEntry(
     val version: String,
@@ -114,10 +114,9 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(bgColor)
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+            .border(1.dp, borderColor, RafiqShape.card)
             .padding(20.dp)
     ) {
         Row(
@@ -136,7 +135,7 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                     Spacer(Modifier.width(8.dp))
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.emerald)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
@@ -163,7 +162,7 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                     Modifier
                         .padding(top = 7.dp)
                         .size(6.dp)
-                        .clip(RoundedCornerShape(3.dp))
+                        .clip(RafiqShape.chip)
                         .background(rc.gold)
                 )
                 Text(

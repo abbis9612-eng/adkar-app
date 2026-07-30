@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,6 +32,9 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 data class Achievement(
     val key:         String,
@@ -124,8 +126,7 @@ fun AchievementsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .shadow(3.dp, RoundedCornerShape(20.dp))
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RafiqShape.card)
                             .background(rc.emerald)
                             .padding(vertical = 16.dp),
                         contentAlignment = Alignment.Center
@@ -148,7 +149,7 @@ fun AchievementsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth(0.7f)
                                     .height(6.dp)
-                                    .clip(RoundedCornerShape(3.dp)),
+                                    .clip(RafiqShape.chip),
                                 color = androidx.compose.ui.graphics.Color.White,
                                 trackColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.3f)
                             )
@@ -171,13 +172,14 @@ private fun AchievementCard(achievement: Achievement, rc: RafiqPalette) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(if (isUnlocked) 3.dp else 1.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RafiqShape.card)
             .background(if (isUnlocked) rc.card else rc.bg)
             .border(
                 1.dp,
-                if (isUnlocked) rc.gold.copy(alpha = 0.15f) else rc.divider,
-                RoundedCornerShape(16.dp)
+                // الوسام المفتوح هو الحالة النشطة — حدّه هو ما يميّزه بعد حذف الظلّ
+                if (isUnlocked) rc.gold.copy(alpha = BorderActive)
+                else            rc.gold.copy(alpha = BorderIdle),
+                RafiqShape.card
             )
     ) {
         Row(

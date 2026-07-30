@@ -34,6 +34,9 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -93,10 +96,9 @@ private fun PillBtn(
     Box(
         modifier
             .size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
@@ -113,10 +115,10 @@ private fun DailyRecitationCard() {
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .shadow(20.dp, RoundedCornerShape(24.dp),
+            .shadow(20.dp, RafiqShape.card,
                 ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.22f),
                 spotColor = LocalRafiqColors.current.emerald.copy(alpha = 0.12f))
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RafiqShape.card)
     ) {
         // Background gradient
         Box(
@@ -166,8 +168,8 @@ private fun DailyRecitationCard() {
             }
 
             Spacer(Modifier.height(14.dp))
-            Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(Color.White.copy(alpha = 0.14f))) {
-                Box(Modifier.fillMaxWidth(0.35f).fillMaxHeight().clip(RoundedCornerShape(2.dp)).background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
+            Box(Modifier.fillMaxWidth().height(4.dp).clip(RafiqShape.chip).background(Color.White.copy(alpha = 0.14f))) {
+                Box(Modifier.fillMaxWidth(0.35f).fillMaxHeight().clip(RafiqShape.chip).background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
             }
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -201,7 +203,7 @@ private fun QuranSearchBar(
             RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)
         },
         singleLine = true,
-        shape = RoundedCornerShape(16.dp),
+        shape = RafiqShape.card,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = LocalRafiqColors.current.gold.copy(alpha = 0.5f),
             unfocusedBorderColor = LocalRafiqColors.current.gold.copy(alpha = 0.12f),
@@ -231,10 +233,9 @@ private fun SurahCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -242,7 +243,7 @@ private fun SurahCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(rc.emeraldPastel),
+                Modifier.size(44.dp).clip(RafiqShape.item).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
             ) {
                 Text("$number".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
@@ -254,7 +255,7 @@ private fun SurahCard(
                 Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
             }
             Box(
-                Modifier.clip(RoundedCornerShape(8.dp))
+                Modifier.clip(RafiqShape.item)
                     .background(if (revelation == "meccan") rc.meccanBg else rc.madaniBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
@@ -337,7 +338,7 @@ fun QuranListScreen(
                         ) {
                             Box(
                                 Modifier.width(4.dp).height(18.dp)
-                                    .clip(RoundedCornerShape(2.dp))
+                                    .clip(RafiqShape.chip)
                                     .background(rc.gold)
                             )
                             Text("السور", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)

@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +25,9 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun KhatiraScreen(
@@ -81,10 +83,9 @@ fun KhatiraScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .shadow(8.dp, RoundedCornerShape(20.dp))
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RafiqShape.card)
                                 .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                         ) {
                             Column(modifier = Modifier.padding(24.dp)) {
                                 Text(
@@ -128,9 +129,9 @@ fun KhatiraScreen(
                             Spacer(Modifier.height(24.dp))
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
+                                    .clip(RafiqShape.item)
                                     .background(rc.emeraldPastel)
-                                    .border(1.dp, rc.emerald, RoundedCornerShape(8.dp))
+                                    .border(1.dp, rc.emerald, RafiqShape.item)
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
                                 Text("موسم: ${k.season}", fontSize = 12.sp, color = rc.emerald)

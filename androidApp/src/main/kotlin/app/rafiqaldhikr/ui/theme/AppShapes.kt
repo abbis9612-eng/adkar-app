@@ -1,13 +1,66 @@
 package app.rafiqaldhikr.ui.theme
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
+/* ═══════════════════════════════════════════════════════════════════
+   RafiqShape — الشكل يشفّر الوظيفة، لا المزاج
+
+   كان في التطبيق 15 قيمة نصف قطر مختلفة (1 · 2 · 3 · 4 · 8 · 10 · 12
+   · 14 · 15 · 16 · 18 · 20 · 22 · 24 · 32) مكتوبة inline، وRafiqShapes
+   المعرَّف لم يكن مستخدماً في أي مكان.
+
+   أربع قيم تكفي، وكل واحدة تعني طبقة واضحة:
+═══════════════════════════════════════════════════════════════════ */
+
+object RafiqShape {
+
+    /** كبسولة كاملة — الشارات والحبوب وأشرطة التقدّم والمؤشّرات. */
+    val chip = CircleShape
+
+    /** عنصر داخل صفّ — مربّع الأيقونة، حقل الإدخال، الزرّ الصغير. */
+    val item = RoundedCornerShape(12.dp)
+
+    /** كل البطاقات. (وهي القيمة الأشيع في الكود أصلاً: 117 مرة.) */
+    val card = RoundedCornerShape(20.dp)
+
+    /** الطبقة العائمة — الشيت السفلي والحوار. */
+    val sheet = RoundedCornerShape(28.dp)
+
+    /** شيت سفلي ملتصق بالحافة — زواياه العليا فقط. */
+    val sheetTop = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   الارتفاع — نظامان لا ثمانية
+
+   كانت الظلال على 8 مستويات (2 · 3 · 4 · 5 · 6 · 8 · 16 · 20) بلا
+   نظام، ونفس البطاقة أحياناً بظلّ وأحياناً بحدّ وأحياناً بالاثنين.
+
+   القرار: البطاقات بلا ظلّ. الفصل بالحدّ وحده — الظلّ فوق خلفية ورقية
+   دافئة يُخرِج رمادياً متّسخاً، والحدّ الذهبي أنظف وأقرب لتذهيب المخطوط.
+   الظلّ يبقى للطبقة العائمة فقط (الشيت والشريط السفلي).
+═══════════════════════════════════════════════════════════════════ */
+
+/** ارتفاع الطبقة العائمة — القيمة الوحيدة المسموحة للظلّ. */
+val FloatingElevation = 12.dp
+
+/** شفافية حدّ البطاقة الساكنة. */
+const val BorderIdle = 0.08f
+
+/** شفافية حدّ البطاقة النشطة — الحالة الوحيدة التي «تلمع». */
+const val BorderActive = 0.45f
+
+/* ═══════════════════════════════════════════════════════════════════
+   سلّم Material — يغذّي مكوّنات Material3 الجاهزة من نفس التوكنز
+═══════════════════════════════════════════════════════════════════ */
+
 val RafiqShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small      = RoundedCornerShape(8.dp),
-    medium     = RoundedCornerShape(16.dp),
-    large      = RoundedCornerShape(24.dp),
-    extraLarge = RoundedCornerShape(32.dp)
+    extraSmall = RafiqShape.item,
+    small      = RafiqShape.item,
+    medium     = RafiqShape.card,
+    large      = RafiqShape.card,
+    extraLarge = RafiqShape.sheet,
 )

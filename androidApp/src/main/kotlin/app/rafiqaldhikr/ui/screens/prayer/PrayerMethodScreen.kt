@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,6 +23,9 @@ import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun PrayerMethodScreen(
@@ -90,10 +92,9 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 ) {
                     methods.forEachIndexed { index, (key, label) ->
                         Row(
@@ -138,10 +139,9 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 ) {
                     madhabOptions.forEachIndexed { index, (key, label) ->
                         Row(
@@ -196,10 +196,9 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 ) {
                     presetElevations.forEachIndexed { index, (value, label) ->
                         Row(
@@ -277,10 +276,9 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 ) {
                     val f = settingsVM.fajrOffset.collectAsState().value
                     val d = settingsVM.dhuhrOffset.collectAsState().value
@@ -319,9 +317,9 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.bg)
-                    .border(1.dp, rc.gold.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value - 1) },
                 contentAlignment = Alignment.Center
             ) { Text("-", fontSize = 18.sp, color = rc.emerald) }
@@ -338,9 +336,9 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.bg)
-                    .border(1.dp, rc.gold.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value + 1) },
                 contentAlignment = Alignment.Center
             ) { Text("+", fontSize = 18.sp, color = rc.emerald) }

@@ -37,6 +37,9 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -118,10 +121,9 @@ private fun PillBtn(
     Box(
         modifier
             .size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
@@ -139,10 +141,9 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
     Column(
         Modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(20.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .padding(18.dp)
     ) {
         Row(
@@ -151,7 +152,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
         ) {
             Box(
                 Modifier.width(4.dp).height(18.dp)
-                    .clip(RoundedCornerShape(2.dp))
+                    .clip(RafiqShape.chip)
                     .background(rc.gold)
             )
             Text("محطات الإنجاز", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
@@ -189,14 +190,14 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                         Modifier
                             .fillMaxWidth()
                             .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp))
+                            .clip(RafiqShape.chip)
                             .background(accentColor.copy(alpha = 0.12f))
                     ) {
                         Box(
                             Modifier
                                 .fillMaxWidth(progress)
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(3.dp))
+                                .clip(RafiqShape.chip)
                                 .background(
                                     Brush.horizontalGradient(
                                         listOf(accentColor.copy(alpha = 0.6f), accentColor)
@@ -299,12 +300,12 @@ fun TasbeehScreen(
                     val (optPrimary, optPastel) = opt.resolveColors()
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RafiqShape.card)
                             .background(if (selected) optPastel else rc.card)
                             .border(
                                 if (selected) 2.dp else 1.dp,
-                                if (selected) optPrimary.copy(alpha = 0.5f) else rc.gold.copy(alpha = 0.10f),
-                                RoundedCornerShape(16.dp)
+                                if (selected) optPrimary.copy(alpha = 0.5f) else rc.gold.copy(alpha = BorderIdle),
+                                RafiqShape.card
                             )
                             .clickable {
                                 viewModel.setDhikr(opt.text)
@@ -448,9 +449,9 @@ fun TasbeehScreen(
                 ) {
                     Row(
                         Modifier
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RafiqShape.card)
                             .background(pastelColor)
-                            .border(1.5.dp, primaryColor.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                            .border(1.5.dp, primaryColor.copy(alpha = 0.3f), RafiqShape.card)
                             .padding(horizontal = 20.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -482,12 +483,12 @@ fun TasbeehScreen(
                         val sel = state.target == t
                         Box(
                             Modifier
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (sel) primaryColor else rc.card)
                                 .border(
                                     1.dp,
-                                    if (sel) primaryColor else rc.gold.copy(alpha = 0.15f),
-                                    RoundedCornerShape(12.dp)
+                                    if (sel) primaryColor else rc.gold.copy(alpha = BorderIdle),
+                                    RafiqShape.item
                                 )
                                 .clickable { viewModel.setTarget(t) }
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -530,7 +531,7 @@ fun TasbeehScreen(
         AlertDialog(
             onDismissRequest = { showDhikrPicker = false },
             containerColor = LocalRafiqColors.current.card,
-            shape = RoundedCornerShape(24.dp),
+            shape = RafiqShape.card,
             title = {
                 Text("اختر الذكر", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             },
@@ -540,14 +541,14 @@ fun TasbeehScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
+                                .clip(RafiqShape.item)
                                 .background(
                                     if (text == state.dhikrText) rc.emeraldPastel else rc.bg
                                 )
                                 .border(
                                     if (text == state.dhikrText) 1.5.dp else 0.dp,
                                     if (text == state.dhikrText) rc.emerald.copy(alpha = 0.3f) else Color.Transparent,
-                                    RoundedCornerShape(14.dp)
+                                    RafiqShape.item
                                 )
                                 .clickable {
                                     viewModel.setDhikr(text)
@@ -570,7 +571,7 @@ fun TasbeehScreen(
             confirmButton = {
                 Box(
                     Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RafiqShape.item)
                         .background(rc.emeraldPastel)
                         .clickable { showDhikrPicker = false }
                         .padding(horizontal = 20.dp, vertical = 8.dp)

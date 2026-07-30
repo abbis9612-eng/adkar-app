@@ -26,7 +26,9 @@ import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.MisbahaIcon
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.FloatingElevation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqShape
 
 data class BottomNavItem(
     val labelRes: Int,
@@ -53,10 +55,11 @@ fun RafiqBottomBar(navController: NavHostController) {
     // Frosted glass surface
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        shape = RafiqShape.sheetTop,
         color = rc.bg.copy(alpha = 0.92f),
         tonalElevation = 0.dp,
-        shadowElevation = 8.dp
+        // الشريط السفلي طبقة عائمة — أحد موضعين اثنين يُسمح فيهما بالظلّ
+        shadowElevation = FloatingElevation
     ) {
         // Top gold accent line
         Column {
@@ -151,7 +154,7 @@ private fun BottomBarItemEnhanced(
     Column(
         modifier = Modifier
             .scale(scale)
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -163,7 +166,7 @@ private fun BottomBarItemEnhanced(
         // Icon container with subtle border
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RafiqShape.item)
                 .background(bgColor)
                 .then(
                     if (isSelected) Modifier.background(
@@ -173,7 +176,7 @@ private fun BottomBarItemEnhanced(
                                 rc.emerald.copy(alpha = 0.12f)
                             )
                         ),
-                        RoundedCornerShape(12.dp)
+                        RafiqShape.item
                     ) else Modifier
                 )
                 .padding(horizontal = 16.dp, vertical = 6.dp),
@@ -200,7 +203,7 @@ private fun BottomBarItemEnhanced(
                 modifier = Modifier
                     .width(16.dp)
                     .height(2.dp)
-                    .clip(RoundedCornerShape(1.dp))
+                    .clip(RafiqShape.chip)
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(

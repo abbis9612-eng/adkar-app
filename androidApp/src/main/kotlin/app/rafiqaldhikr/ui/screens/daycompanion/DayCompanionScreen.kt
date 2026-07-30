@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +26,9 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun DayCompanionScreen(
@@ -54,8 +56,7 @@ fun DayCompanionScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .shadow(4.dp, RoundedCornerShape(22.dp))
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(RafiqShape.card)
                             .background(
                                 androidx.compose.ui.graphics.Brush.linearGradient(
                                     listOf(rc.heroStart, rc.heroMid, rc.heroEnd)
@@ -172,7 +173,7 @@ private fun StationCard(
                     Modifier
                         .width(2.5.dp)
                         .weight(1f)
-                        .clip(RoundedCornerShape(2.dp))
+                        .clip(RafiqShape.chip)
                         .background(if (done) rc.gold.copy(alpha = 0.6f) else rc.divider)
                 )
             }
@@ -185,18 +186,17 @@ private fun StationCard(
             Modifier
                 .weight(1f)
                 .padding(bottom = 14.dp)
-                .shadow(if (active) 5.dp else 1.dp, RoundedCornerShape(18.dp))
-                .clip(RoundedCornerShape(18.dp))
+                .clip(RafiqShape.card)
                 .background(rc.card)
                 .background(if (active) rc.gold.copy(alpha = 0.06f) else Color.Transparent)
                 .border(
                     width = if (active) 1.5.dp else 1.dp,
                     color = when {
-                        active -> rc.gold.copy(alpha = 0.55f)
+                        active -> rc.gold.copy(alpha = BorderActive)
                         done   -> rc.emerald.copy(alpha = 0.25f)
                         else   -> rc.divider
                     },
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RafiqShape.card
                 )
                 .padding(14.dp)
         ) {
@@ -213,7 +213,7 @@ private fun StationCard(
                 }
                 when {
                     active -> Box(
-                        Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
+                        Modifier.clip(RafiqShape.chip).background(rc.emerald)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text("الآن", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -230,7 +230,7 @@ private fun StationCard(
                 if (station.virtue.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
                     Row(
-                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                        Modifier.fillMaxWidth().clip(RafiqShape.item)
                             .background(rc.gold.copy(alpha = 0.10f))
                             .padding(horizontal = 10.dp, vertical = 7.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -247,7 +247,7 @@ private fun StationCard(
                         Box(
                             Modifier
                                 .weight(1f)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RafiqShape.item)
                                 .background(
                                     androidx.compose.ui.graphics.Brush.horizontalGradient(
                                         listOf(rc.emerald, rc.emeraldMed))
@@ -261,8 +261,8 @@ private fun StationCard(
                     }
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(1.2.dp, rc.emerald.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                            .clip(RafiqShape.item)
+                            .border(1.2.dp, rc.emerald.copy(alpha = 0.5f), RafiqShape.item)
                             .clickable(onClick = onDone)
                             .padding(horizontal = 18.dp, vertical = 10.dp)
                     ) {

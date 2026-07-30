@@ -20,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -49,6 +48,9 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
 import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 private const val BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
 
@@ -185,12 +187,11 @@ private fun MushafPage(
         Modifier
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .shadow(3.dp, RoundedCornerShape(22.dp))
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(2.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(22.dp))
+            .border(2.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
             .padding(5.dp)
-            .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(18.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         if (ayahs == null) {
@@ -245,7 +246,7 @@ private fun MushafPage(
                     .padding(horizontal = 10.dp)
                     .clip(CircleShape)
                     .background(rc.accentGoldBg)
-                    .border(1.dp, rc.gold.copy(alpha = 0.4f), CircleShape)
+                    .border(1.dp, rc.gold.copy(alpha = BorderActive), CircleShape)
                     .padding(horizontal = 14.dp, vertical = 3.dp)
             ) {
                 Text(
@@ -281,9 +282,9 @@ private fun SurahHeaderBand(name: String) {
         Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .background(rc.emeraldPastel)
-            .border(1.dp, rc.gold.copy(alpha = 0.45f), RoundedCornerShape(14.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.item)
             .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -390,7 +391,7 @@ private fun AyahActionsSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape            = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape            = RafiqShape.sheetTop,
         containerColor   = rc.bg,
         dragHandle = { BottomSheetDefaults.DragHandle(color = rc.inkLight) }
     ) {
@@ -445,7 +446,7 @@ private fun AyahAction(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
@@ -470,9 +471,9 @@ private fun FontSizeButton(symbol: String, onClick: () -> Unit) {
     Box(
         Modifier
             .size(36.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RafiqShape.item)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.item)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

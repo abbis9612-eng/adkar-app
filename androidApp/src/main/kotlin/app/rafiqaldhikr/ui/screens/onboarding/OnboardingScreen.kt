@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -35,6 +34,7 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.util.rememberPermissionState
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqShape
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -141,8 +141,7 @@ fun OnboardingScreen(
                 Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .shadow(8.dp, RoundedCornerShape(18.dp))
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(RafiqShape.card)
                     .background(
                         Brush.horizontalGradient(
                             if (isLast) listOf(rc.gold, rc.goldLight)
@@ -258,7 +257,7 @@ private fun PageDots(total: Int, current: Int) {
                 Modifier
                     .height(8.dp)
                     .width(width)
-                    .clip(RoundedCornerShape(4.dp))
+                    .clip(RafiqShape.chip)
                     .background(
                         if (isActive) rc.emerald else rc.inkLight.copy(alpha = 0.35f)
                     )

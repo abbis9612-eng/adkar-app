@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -40,6 +39,8 @@ import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun QiblaScreen(
@@ -117,10 +118,9 @@ private fun QiblaCompassContent(
     // Kaaba icon rotated towards Qibla
     Box(
         modifier         = Modifier.size(280.dp)
-            .shadow(4.dp, CircleShape)
             .clip(CircleShape)
             .background(rc.card)
-            .border(2.dp, rc.gold.copy(alpha = 0.15f), CircleShape)
+            .border(2.dp, rc.gold.copy(alpha = BorderIdle), CircleShape)
             .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {

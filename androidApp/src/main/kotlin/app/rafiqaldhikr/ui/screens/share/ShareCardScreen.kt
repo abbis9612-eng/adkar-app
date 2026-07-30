@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +28,9 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun ShareCardScreen(
@@ -87,8 +89,7 @@ fun ShareCardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.5f)
-                        .shadow(8.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(RafiqShape.card)
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(rc.emerald, rc.gold)
@@ -118,10 +119,9 @@ fun ShareCardScreen(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .shadow(if (selectedCard == i) 2.dp else 0.dp, RoundedCornerShape(12.dp))
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (selectedCard == i) rc.emerald else rc.card)
-                                .border(1.dp, if (selectedCard == i) rc.emerald else rc.gold.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+                                .border(1.dp, if (selectedCard == i) rc.emerald else rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                                 .clickable { selectedCard = i }
                                 .padding(vertical = 12.dp),
                             contentAlignment = Alignment.Center
@@ -142,8 +142,7 @@ fun ShareCardScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.emerald)
                         .clickable {
                             val shareText = "${cards[selectedCard].title}\n${cards[selectedCard].value}\n${cards[selectedCard].subtitle}\n\nعبر تطبيق رفيق الذكر"

@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -34,6 +33,9 @@ import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 
 /* Colors provided by LocalRafiqColors */
@@ -70,9 +72,8 @@ private fun NowCard(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .shadow(5.dp, RoundedCornerShape(24.dp))
-            .clip(RoundedCornerShape(24.dp))
-            .border(1.dp, rc.gold.copy(alpha = 0.30f), RoundedCornerShape(24.dp))
+            .clip(RafiqShape.card)
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
             .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
     ) {
         // ─── خلفية سينمائية تتغيّر حسب وقت اليوم ───
@@ -101,7 +102,7 @@ private fun NowCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             "الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White,
-                            modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
+                            modifier = Modifier.clip(RafiqShape.chip).background(rc.emerald)
                                 .padding(horizontal = 10.dp, vertical = 3.dp)
                         )
                         Text(station.timeLabel, fontSize = 11.sp, color = Color.White.copy(alpha = 0.85f))
@@ -116,7 +117,7 @@ private fun NowCard(
             if (station.virtue.isNotBlank()) {
                 Spacer(Modifier.height(12.dp))
                 Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    Modifier.fillMaxWidth().clip(RafiqShape.item)
                         .background(Color.White.copy(alpha = 0.14f))
                         .padding(horizontal = 12.dp, vertical = 9.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -130,10 +131,10 @@ private fun NowCard(
 
             // ─── شريط تقدّم النافذة + العدّاد ───
             Spacer(Modifier.height(14.dp))
-            Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
+            Box(Modifier.fillMaxWidth().height(6.dp).clip(RafiqShape.chip)
                 .background(Color.White.copy(alpha = 0.25f))) {
                 Box(Modifier.fillMaxHeight().fillMaxWidth(windowProgress)
-                    .clip(RoundedCornerShape(3.dp))
+                    .clip(RafiqShape.chip)
                     .background(Brush.horizontalGradient(listOf(rc.goldLight, rc.emeraldMed))))
             }
             Spacer(Modifier.height(6.dp))
@@ -146,7 +147,7 @@ private fun NowCard(
             // ─── زر ابدأ — كامل العرض، فخم ───
             Spacer(Modifier.height(12.dp))
             Box(
-                Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(15.dp))
+                Modifier.fillMaxWidth().height(48.dp).clip(RafiqShape.item)
                     .background(Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed)))
                     .clickable { navController.navigate(station.route ?: RafiqRoute.DayCompanion.route) },
                 contentAlignment = Alignment.Center
@@ -214,9 +215,8 @@ private fun DayPath(
 
     Box(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-            .shadow(6.dp, RoundedCornerShape(24.dp))
-            .clip(RoundedCornerShape(24.dp))
-            .border(1.dp, rc.gold.copy(alpha = 0.25f), RoundedCornerShape(24.dp))
+            .clip(RafiqShape.card)
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
     ) {
         // خلفية سينمائية حسب وقت المحطة الحالية
         Image(
@@ -241,9 +241,9 @@ private fun DayPath(
                     "${state.doneCount} / ${state.stations.size} محطة".localizedDigits(LocalArabicNumerals.current),
                     style = NumbersStyle, fontSize = 12.sp, color = Color(0xFFF7E7AE),
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.chip)
                         .background(Color.White.copy(alpha = 0.14f))
-                        .border(1.dp, Color(0xFFF7E7AE).copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .border(1.dp, Color(0xFFF7E7AE).copy(alpha = 0.4f), RafiqShape.card)
                         .padding(horizontal = 12.dp, vertical = 5.dp),
                 )
             }
@@ -260,7 +260,7 @@ private fun DayPath(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.width(58.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RafiqShape.item)
                             .clickable { navController.navigate(st.route ?: RafiqRoute.DayCompanion.route) }
                             .padding(vertical = 2.dp)
                     ) {
@@ -298,7 +298,7 @@ private fun DayPath(
                     }
                     if (i < state.stations.lastIndex) {
                         Box(Modifier.padding(top = 21.dp).width(8.dp).height(2.5.dp)
-                            .clip(RoundedCornerShape(2.dp))
+                            .clip(RafiqShape.chip)
                             .background(if (done) Color(0xFFE4C97A) else Color.White.copy(alpha = 0.28f)))
                     }
                 }
@@ -309,9 +309,9 @@ private fun DayPath(
                 Spacer(Modifier.height(14.dp))
                 Row(
                     Modifier.fillMaxWidth()
-                        .clip(RoundedCornerShape(15.dp))
+                        .clip(RafiqShape.item)
                         .background(Color.White.copy(alpha = 0.12f))
-                        .border(1.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(15.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.16f), RafiqShape.item)
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
@@ -361,8 +361,8 @@ private fun ArcProgress(
 
 @Composable
 private fun PillBtn(onClick: () -> Unit = {}, m: Modifier = Modifier, content: @Composable () -> Unit) {
-    Box(m.size(44.dp).clip(RoundedCornerShape(14.dp))
-        .background(LocalRafiqColors.current.card).border(1.dp, LocalRafiqColors.current.divider, RoundedCornerShape(14.dp))
+    Box(m.size(44.dp).clip(RafiqShape.item)
+        .background(LocalRafiqColors.current.card).border(1.dp, LocalRafiqColors.current.divider, RafiqShape.item)
         .clickable(onClick = onClick), contentAlignment = Alignment.Center) { content() }
 }
 
@@ -378,7 +378,7 @@ private fun SecLabel(text: String) {
     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.width(4.dp).height(20.dp).clip(RoundedCornerShape(4.dp)).background(rc.gold))
+        Box(Modifier.width(4.dp).height(20.dp).clip(RafiqShape.chip).background(rc.gold))
         Text(text, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.ink)
     }
 }
@@ -406,7 +406,7 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
             Text(hijri.ifEmpty { "— هـ" }.localizedDigits(LocalArabicNumerals.current),
                 fontSize = 11.sp, fontWeight = FontWeight.Medium,
                 color = LocalRafiqColors.current.inkMed,
-                modifier = Modifier.clip(RoundedCornerShape(20.dp))
+                modifier = Modifier.clip(RafiqShape.chip)
                     .background(LocalRafiqColors.current.chipBg).padding(horizontal = 12.dp, vertical = 2.dp))
         }
         // In RTL: last child = LEFT side → Settings
@@ -442,8 +442,8 @@ private fun BasmalahSection() {
 private fun GreetingCard(greeting: String, streak: Long) {
     val rc = LocalRafiqColors.current
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
-        .clip(RoundedCornerShape(16.dp)).background(rc.card)
-        .border(1.dp, rc.divider, RoundedCornerShape(16.dp))) {
+        .clip(RafiqShape.card).background(rc.card)
+        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             // RTL: first child(right) = greeting, last child(left) = badges
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -454,7 +454,7 @@ private fun GreetingCard(greeting: String, streak: Long) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // شارة السلسلة الحيّة — أيام المواظبة
                     if (streak > 0) {
-                        Row(Modifier.clip(RoundedCornerShape(16.dp))
+                        Row(Modifier.clip(RafiqShape.chip)
                             .background(rc.gold.copy(alpha = 0.15f))
                             .padding(horizontal = 10.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -464,7 +464,7 @@ private fun GreetingCard(greeting: String, streak: Long) {
                                 style = NumbersStyle, fontSize = 12.sp, color = rc.gold)
                         }
                     }
-                    Row(Modifier.clip(RoundedCornerShape(16.dp)).background(rc.emerald)
+                    Row(Modifier.clip(RafiqShape.chip).background(rc.emerald)
                         .padding(horizontal = 12.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -508,7 +508,7 @@ private fun NextPrayerCard(
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = RafiqShape.card,
         colors = CardDefaults.cardColors(containerColor = rc.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, rc.divider)
@@ -547,10 +547,10 @@ private fun NextPrayerCard(
 
                     // ═══ شريط تقدم الوقت بين الصلاتين ═══
                     Box(Modifier.fillMaxWidth().height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
+                        .clip(RafiqShape.chip)
                         .background(Color.White.copy(alpha = 0.18f))) {
                         Box(Modifier.fillMaxHeight().fillMaxWidth(progress)
-                            .clip(RoundedCornerShape(2.dp))
+                            .clip(RafiqShape.chip)
                             .background(rc.goldLight))
                     }
                 }
@@ -590,9 +590,9 @@ private fun CountdownBox(value: String, label: String, arabic: Boolean) {
         Box(
             Modifier
                 .widthIn(min = 58.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RafiqShape.item)
                 .background(Color.White.copy(alpha = 0.13f))
-                .border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(12.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.22f), RafiqShape.item)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -624,8 +624,8 @@ private fun CountdownColon(alpha: Float) {
 private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
     val rc = LocalRafiqColors.current
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-        .clip(RoundedCornerShape(20.dp)).background(rc.card)
-        .border(1.dp, rc.divider, RoundedCornerShape(20.dp))) {
+        .clip(RafiqShape.card).background(rc.card)
+        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
         GeomStar(100.dp, rc.emerald, 0.04f, Modifier.align(Alignment.TopStart).offset((-15).dp, (-15).dp))
         Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
             // RTL: first(right)=text, last(left)=circle
@@ -651,9 +651,9 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
             }
             Spacer(Modifier.height(14.dp))
             // Progress bar
-            Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(10.dp)).background(rc.divider)) {
+            Box(Modifier.fillMaxWidth().height(6.dp).clip(RafiqShape.item).background(rc.divider)) {
                 Box(Modifier.fillMaxWidth((percent / 100f).coerceIn(0f, 1f)).fillMaxHeight()
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RafiqShape.item)
                     .background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
             }
             Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -699,8 +699,8 @@ private fun AdhkarItem(
     m: Modifier = Modifier, onClick: () -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
-    Box(m.clip(RoundedCornerShape(20.dp)).background(rc.card)
-        .border(1.dp, rc.divider, RoundedCornerShape(20.dp))
+    Box(m.clip(RafiqShape.card).background(rc.card)
+        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
         .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 20.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()) {
@@ -719,8 +719,8 @@ private fun AdhkarItem(
 private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-        .clip(RoundedCornerShape(20.dp)).background(rc.card)
-        .border(1.dp, rc.divider, RoundedCornerShape(20.dp))) {
+        .clip(RafiqShape.card).background(rc.card)
+        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
         prayers.forEachIndexed { i, p ->
             Row(Modifier.fillMaxWidth()
                 .then(if (p.active) Modifier.background(rc.emerald.copy(alpha = 0.03f)) else Modifier)
@@ -749,7 +749,7 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
                     if (p.active) {
                         Text("الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold,
                             color = Color.White,
-                            modifier = Modifier.clip(RoundedCornerShape(20.dp))
+                            modifier = Modifier.clip(RafiqShape.chip)
                                 .background(rc.emerald).padding(horizontal = 9.dp, vertical = 2.dp))
                     }
                 }

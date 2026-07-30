@@ -36,6 +36,9 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors provided by LocalRafiqColors */
 
@@ -177,14 +180,14 @@ fun DhikrReadingScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 18.dp)
                             .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp))
+                            .clip(RafiqShape.chip)
                             .background(rc.emeraldPastel)
                     ) {
                         Box(
                             Modifier
                                 .fillMaxHeight()
                                 .fillMaxWidth(progress)
-                                .clip(RoundedCornerShape(3.dp))
+                                .clip(RafiqShape.chip)
                                 .background(
                                     Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldLight))
                                 )
@@ -206,10 +209,9 @@ fun DhikrReadingScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .shadow(4.dp, RoundedCornerShape(24.dp))
-                                .clip(RoundedCornerShape(24.dp))
+                                .clip(RafiqShape.card)
                                 .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
+                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                                 .padding(28.dp)
                         ) {
                             Column(

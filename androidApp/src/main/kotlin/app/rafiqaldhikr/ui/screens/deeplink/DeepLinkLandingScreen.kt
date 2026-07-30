@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -19,6 +18,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun DeepLinkLandingScreen(
@@ -57,10 +59,9 @@ fun DeepLinkLandingScreen(
     ) {
         Column(
             modifier = Modifier
-                .shadow(6.dp, RoundedCornerShape(24.dp))
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RafiqShape.card)
                 .background(rc.card)
-                .border(1.dp, rc.gold.copy(alpha = 0.12f), RoundedCornerShape(24.dp))
+                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

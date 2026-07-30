@@ -33,6 +33,9 @@ import app.rafiqaldhikr.ui.theme.NumbersStyle
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors provided by LocalRafiqColors */
 
@@ -80,10 +83,9 @@ private fun PillBtn(onClick: () -> Unit, content: @Composable () -> Unit) {
     val rc = LocalRafiqColors.current
     Box(
         Modifier.size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RafiqShape.item)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
@@ -100,9 +102,9 @@ private fun ProfileHeroCard() {
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .shadow(20.dp, RoundedCornerShape(24.dp),
+            .shadow(20.dp, RafiqShape.card,
                 ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.22f))
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RafiqShape.card)
     ) {
         Box(
             Modifier.matchParentSize().background(
@@ -171,15 +173,14 @@ private fun StatCard(
     val rc = LocalRafiqColors.current
     Column(
         modifier
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .padding(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconBg),
+            Modifier.size(36.dp).clip(RafiqShape.item).background(iconBg),
             contentAlignment = Alignment.Center,
         ) { icon() }
         Spacer(Modifier.height(8.dp))
@@ -201,7 +202,7 @@ private fun SectionHeader(title: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Box(Modifier.width(4.dp).height(18.dp).clip(RoundedCornerShape(2.dp)).background(rc.gold))
+        Box(Modifier.width(4.dp).height(18.dp).clip(RafiqShape.chip).background(rc.gold))
         Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
     }
 }
@@ -249,10 +250,9 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
     Row(
         Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
@@ -320,10 +320,9 @@ private fun QuickLinkCard(
     Box(
         modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RafiqShape.card)
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             .clickable(onClick = onClick)
             .padding(14.dp)
     ) {
@@ -332,7 +331,7 @@ private fun QuickLinkCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(rc.emeraldPastel),
+                Modifier.size(38.dp).clip(RafiqShape.item).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center
             ) { icon() }
             Spacer(Modifier.width(12.dp))
@@ -424,10 +423,9 @@ fun ProfileScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp)
-                    .shadow(3.dp, RoundedCornerShape(20.dp))
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(RafiqShape.card)
                     .background(rc.card)
-                    .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
             ) {
                 TodayRow("أذكار الصباح", if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
                 TodayRow("أذكار المساء", if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)

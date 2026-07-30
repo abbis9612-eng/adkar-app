@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,6 +23,9 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun PrayerTrackingScreen(
@@ -73,8 +75,7 @@ fun PrayerTrackingScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.emerald)
                 ) {
                     Column(
@@ -95,7 +96,7 @@ fun PrayerTrackingScreen(
                         Spacer(Modifier.height(8.dp))
                         LinearProgressIndicator(
                             progress = { prayedCount / 5f },
-                            modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                            modifier = Modifier.fillMaxWidth().height(8.dp).clip(RafiqShape.chip),
                             color = Color.White,
                             trackColor = Color.White.copy(alpha = 0.3f)
                         )
@@ -114,13 +115,12 @@ fun PrayerTrackingScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
-                            .shadow(2.dp, RoundedCornerShape(14.dp))
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RafiqShape.item)
                             .background(if (isPrayed) rc.cardPrayed else rc.card)
                             .border(
                                 1.dp,
-                                if (isPrayed) rc.emerald else rc.gold.copy(alpha = 0.1f),
-                                RoundedCornerShape(14.dp)
+                                if (isPrayed) rc.emerald else rc.gold.copy(alpha = BorderIdle),
+                                RafiqShape.item
                             )
                             .clickable { viewModel.markPrayed(key, !isPrayed) }
                     ) {

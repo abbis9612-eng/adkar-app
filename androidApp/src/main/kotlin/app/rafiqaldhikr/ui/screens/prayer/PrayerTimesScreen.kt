@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +42,9 @@ import java.util.Date
 import java.util.Locale
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable
 fun PrayerTimesScreen(
@@ -156,8 +158,7 @@ private fun PrayerTimesContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(12.dp))
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RafiqShape.item)
                         .background(rc.emerald)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
@@ -236,13 +237,12 @@ private fun PrayerCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(if (isNext) 4.dp else 2.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RafiqShape.card)
             .background(bgColor)
             .border(
                 1.dp,
-                if (isNext) rc.emerald else rc.gold.copy(alpha = 0.1f),
-                RoundedCornerShape(18.dp)
+                if (isNext) rc.emerald else rc.gold.copy(alpha = BorderIdle),
+                RafiqShape.card
             )
             .clickable { onToggle() }
     ) {
