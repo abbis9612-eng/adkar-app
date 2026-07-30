@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.tasbeeh
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -228,7 +229,7 @@ fun TasbeehScreen(
     )
 
     // Pulse animation for glow
-    val pulseAlpha by stillableFloat(0.15f, 0.4f, 2000, FastOutSlowInEasing, RepeatMode.Reverse, "pulseAlpha")
+    val pulseAlpha by stillableFloat(0.15f, 0.4f, 2000, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulseAlpha")
 
     val scrollState = rememberScrollState()
 

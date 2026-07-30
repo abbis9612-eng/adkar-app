@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.animations
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.runtime.*
@@ -151,7 +152,7 @@ fun rememberPressScale(): Pair<MutableState<Boolean>, Float> {
  */
 @Composable
 fun rememberParticleTime(): State<Float> {
-    return stillableFloat(0f, 1000f, 30000, LinearEasing, "particleTime")
+    return stillableFloat(0f, 1000f, 30000, LinearEasing, label = "particleTime")
 }
 
 /**

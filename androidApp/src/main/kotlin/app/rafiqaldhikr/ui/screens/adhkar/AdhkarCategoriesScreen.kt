@@ -87,7 +87,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, label = "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {

@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.animations
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.*

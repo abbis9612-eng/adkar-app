@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.adhkar
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -57,7 +58,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, label = "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {
@@ -88,7 +89,7 @@ fun DhikrReadingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
-    val pulseScale by stillableFloat(1f, 1.04f, 900, FastOutSlowInEasing, RepeatMode.Reverse, "pulseScale")
+    val pulseScale by stillableFloat(1f, 1.04f, 900, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulseScale")
 
     LaunchedEffect(category) { viewModel.loadCategory(category) }
 

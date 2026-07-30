@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.home
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -164,7 +165,7 @@ private fun DayPath(
     if (state.stations.isEmpty()) return
 
     // نبض المحطة الحالية — هالة تتنفّس
-    val pulse by stillableFloat(0.35f, 1f, 1100, FastOutSlowInEasing, RepeatMode.Reverse, "path")
+    val pulse by stillableFloat(0.35f, 1f, 1100, FastOutSlowInEasing, RepeatMode.Reverse, label = "path")
     // المحطة الحالية (لاسم «الآن» وخلفية الوقت)
     val nowSt = state.nowStation
         ?: state.stations.firstOrNull { it.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE }
@@ -451,7 +452,7 @@ private fun NextPrayerCard(
 ) {
     val rc = LocalRafiqColors.current
     val arabic = LocalArabicNumerals.current
-    val da by stillableFloat(1f, 0.5f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, "da")
+    val da by stillableFloat(1f, 0.5f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, label = "da")
 
     // نسبة الوقت المنقضي بين الصلاتين — يتحدث كل ثانية مع العداد
     val progress = if (nextMillis > prevMillis && prevMillis > 0) {

@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.onboarding
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -264,11 +265,11 @@ private fun PageDots(total: Int, current: Int) {
 private fun OnboardingArt(iconType: Int) {
     val rc = LocalRafiqColors.current
 
-    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, "rot")
+    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, label = "rot")
 
-    val pulse by stillableFloat(0.92f, 1.08f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, "pulse")
+    val pulse by stillableFloat(0.92f, 1.08f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulse")
 
-    val shimmer by stillableFloat(0f, 1f, 4000, FastOutSlowInEasing, RepeatMode.Reverse, "shimmer")
+    val shimmer by stillableFloat(0f, 1f, 4000, FastOutSlowInEasing, RepeatMode.Reverse, label = "shimmer")
 
     Canvas(Modifier.size(260.dp)) {
         val w = size.width

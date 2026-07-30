@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.breathing
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,9 +36,9 @@ fun BreathingScreen(navController: NavHostController) {
     var phase by remember { mutableStateOf("استعد") }
     var dhikrText by remember { mutableStateOf("سبحان الله") }
 
-    val scale by stillableFloat(0.6f, 1.2f, 4000, EaseInOutCubic, RepeatMode.Reverse, "scale")
+    val scale by stillableFloat(0.6f, 1.2f, 4000, EaseInOutCubic, RepeatMode.Reverse, label = "scale")
 
-    val alpha by stillableFloat(0.3f, 0.8f, 4000, EaseInOutCubic, RepeatMode.Reverse, "alpha")
+    val alpha by stillableFloat(0.3f, 0.8f, 4000, EaseInOutCubic, RepeatMode.Reverse, label = "alpha")
 
     // Phase cycling
     LaunchedEffect(isRunning) {

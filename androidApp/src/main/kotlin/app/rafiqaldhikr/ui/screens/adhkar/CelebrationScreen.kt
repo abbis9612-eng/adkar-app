@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.adhkar
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,11 +41,11 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 fun CelebrationScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
 
-    val pulseScale by stillableFloat(0.92f, 1.08f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, "pulse")
+    val pulseScale by stillableFloat(0.92f, 1.08f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulse")
 
-    val shimmer by stillableFloat(0f, 1f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, "shimmer")
+    val shimmer by stillableFloat(0f, 1f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, label = "shimmer")
 
-    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, "rot")
+    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, label = "rot")
 
     Box(
         Modifier
