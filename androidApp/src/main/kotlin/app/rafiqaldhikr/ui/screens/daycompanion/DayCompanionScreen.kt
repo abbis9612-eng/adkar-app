@@ -28,6 +28,7 @@ import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun DayCompanionScreen(
@@ -65,19 +66,15 @@ fun DayCompanionScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text(
-                                    "رحلة يومك مع الذكر",
-                                    fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
+                                Text("رحلة يومك مع الذكر",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White, style = RafiqType.label)
                                 Spacer(Modifier.height(4.dp))
-                                Text(
-                                    if (state.doneCount == 0) "ابدأ أول محطة — خطوة صغيرة تفتح يوماً عظيماً"
+                                Text(if (state.doneCount == 0) "ابدأ أول محطة — خطوة صغيرة تفتح يوماً عظيماً"
                                     else if (state.doneCount == state.stations.size) "ما شاء الله! أتممت رحلة اليوم كاملة"
                                     else "أحسنت — واصل، بقيت ${(state.stations.size - state.doneCount).localized(LocalArabicNumerals.current)} محطات",
-                                    fontSize = 12.sp, lineHeight = 20.sp,
-                                    color = Color.White.copy(alpha = 0.85f)
-                                )
+                                    lineHeight = 20.sp,
+                                    color = Color.White.copy(alpha = 0.85f), style = RafiqType.caption)
                             }
                             Spacer(Modifier.width(12.dp))
                             // حلقة تقدّم دائرية
@@ -201,24 +198,21 @@ private fun StationCard(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(
-                        station.title,
-                        fontSize = 15.sp,
+                    Text(station.title,
                         fontWeight = FontWeight.Bold,
-                        color = if (done || passed) rc.inkMed else rc.ink
-                    )
+                        color = if (done || passed) rc.inkMed else rc.ink, style = RafiqType.label)
                     Spacer(Modifier.height(2.dp))
-                    Text(station.timeLabel, fontSize = 11.sp, color = rc.inkMed)
+                    Text(station.timeLabel, color = rc.inkMed, style = RafiqType.micro)
                 }
                 when {
                     active -> Box(
                         Modifier.clip(RafiqShape.chip).background(rc.emerald)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("الآن", fontSize = 11.sp, color = rc.onEmerald, fontWeight = FontWeight.Bold)
+                        Text("الآن", color = rc.onEmerald, fontWeight = FontWeight.Bold, style = RafiqType.micro)
                     }
-                    done -> Text("تمّت", fontSize = 11.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
-                    passed -> Text("فاتت", fontSize = 11.sp, color = rc.inkMed)
+                    done -> Text("تمّت", color = rc.emerald, fontWeight = FontWeight.Bold, style = RafiqType.micro)
+                    passed -> Text("فاتت", color = rc.inkMed, style = RafiqType.micro)
                     else -> {}
                 }
             }
@@ -236,8 +230,8 @@ private fun StationCard(
                     ) {
                         app.rafiqaldhikr.ui.components.IcoStar(12.dp, rc.gold)
                         Spacer(Modifier.width(6.dp))
-                        Text(station.virtue, fontSize = 11.sp, lineHeight = 17.sp,
-                            color = rc.gold, modifier = Modifier.weight(1f))
+                        Text(station.virtue, lineHeight = 17.sp,
+                            color = rc.gold, modifier = Modifier.weight(1f), style = RafiqType.micro)
                     }
                 }
                 Spacer(Modifier.height(10.dp))

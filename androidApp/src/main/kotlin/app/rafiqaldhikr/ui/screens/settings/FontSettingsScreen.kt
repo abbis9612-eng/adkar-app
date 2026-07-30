@@ -57,13 +57,10 @@ fun FontSettingsScreen(
                         .rafiqCard()
                         .padding(16.dp)
                 ) {
-                    Text(
-                        "معاينة",
-                        fontSize = 14.sp,
+                    Text("معاينة",
                         color = rc.inkMed,
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                        textAlign = TextAlign.Center, style = RafiqType.bodyS)
                     Spacer(Modifier.height(16.dp))
                     Text(
                         "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
@@ -88,9 +85,9 @@ fun FontSettingsScreen(
                     )
                     
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("أصغر", fontSize = 12.sp, color = rc.inkMed)
-                        Text("${(scale * 100).toInt()}%", fontSize = 14.sp, color = rc.gold, fontWeight = FontWeight.Bold)
-                        Text("أكبر", fontSize = 12.sp, color = rc.inkMed)
+                        Text("أصغر", color = rc.inkMed, style = RafiqType.caption)
+                        Text("${(scale * 100).toInt()}%", color = rc.gold, fontWeight = FontWeight.Bold, style = RafiqType.bodyS)
+                        Text("أكبر", color = rc.inkMed, style = RafiqType.caption)
                     }
                 }
 
@@ -103,12 +100,9 @@ fun FontSettingsScreen(
                         .fillMaxWidth()
                         .rafiqCard()
                 ) {
-                    Text(
-                        "لغة الأرقام",
-                        fontSize = 14.sp,
+                    Text("لغة الأرقام",
                         color = rc.inkMed,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
-                    )
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp), style = RafiqType.bodyS)
                     listOf(
                         true to "عربية — ٠١٢٣٤٥٦٧٨٩",
                         false to "إنجليزية — 0123456789",
@@ -120,12 +114,9 @@ fun FontSettingsScreen(
                                 .padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                label,
-                                fontSize = 16.sp,
+                            Text(label,
                                 color = rc.ink,
-                                modifier = Modifier.weight(1f)
-                            )
+                                modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = arabicNums == isArabic,
                                 onClick = { vm.setNumerals(isArabic) },

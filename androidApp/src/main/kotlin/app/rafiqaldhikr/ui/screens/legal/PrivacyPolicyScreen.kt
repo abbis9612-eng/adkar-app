@@ -115,11 +115,11 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
 @Composable
 private fun SectionTitle(text: String, rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
-    Text(text, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+    Text(text, fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.titleM)
     Spacer(Modifier.height(6.dp))
 }
 
 @Composable
 private fun SectionBody(text: String, rc: RafiqPalette) {
-    Text(text, fontSize = 14.sp, color = rc.inkMed, lineHeight = 22.sp)
+    Text(text, color = rc.inkMed, lineHeight = 22.sp, style = RafiqType.bodyS)
 }

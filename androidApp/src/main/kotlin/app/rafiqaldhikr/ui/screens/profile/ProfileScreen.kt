@@ -166,7 +166,7 @@ private fun StatCard(
         Spacer(Modifier.height(8.dp))
         Text(value.localizedDigits(LocalArabicNumerals.current),
             style = NumbersStyle, fontSize = 22.sp, color = LocalRafiqColors.current.emerald)
-        Text(label, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
+        Text(label, color = LocalRafiqColors.current.inkMed, style = RafiqType.micro)
     }
 }
 
@@ -183,7 +183,7 @@ private fun SectionHeader(title: String) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(Modifier.width(4.dp).height(18.dp).clip(RafiqShape.chip).background(rc.gold))
-        Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+        Text(title, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
     }
 }
 
@@ -199,18 +199,16 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, fontSize = 15.sp, color = LocalRafiqColors.current.inkDark)
+        Text(label, color = LocalRafiqColors.current.inkDark, style = RafiqType.label)
         if (isAchieved && value == "✓") {
             Box(
                 Modifier.size(22.dp).clip(CircleShape).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
             ) { RafiqIcon(RIcon.Check, 11.dp, rc.emerald) }
         } else {
-            Text(
-                value,
-                fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                color = if (isAchieved) rc.emerald else rc.inkMed,
-            )
+            Text(value,
+                fontWeight = FontWeight.Bold,
+                color = if (isAchieved) rc.emerald else rc.inkMed, style = RafiqType.label)
         }
     }
     if (!isLast) {
@@ -262,21 +260,16 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                     if (filled) {
                         RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text(
-                            "$score",
-                            fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                            color = if (score >= 2) rc.emerald else rc.inkMed,
-                        )
+                        Text("$score",
+                            fontWeight = FontWeight.Bold,
+                            color = if (score >= 2) rc.emerald else rc.inkMed, style = RafiqType.micro)
                     }
                 }
                 Spacer(Modifier.height(4.dp))
                 if (idx < days.size) {
-                    Text(
-                        days[idx],
-                        fontSize = 11.sp,
+                    Text(days[idx],
                         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isToday) rc.gold else rc.inkMed,
-                    )
+                        color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
                 }
             }
         }
@@ -311,10 +304,8 @@ private fun QuickLinkCard(
                 contentAlignment = Alignment.Center
             ) { icon() }
             Spacer(Modifier.width(12.dp))
-            Text(
-                label, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                color = LocalRafiqColors.current.ink, modifier = Modifier.weight(1f),
-            )
+            Text(label, fontWeight = FontWeight.SemiBold,
+                color = LocalRafiqColors.current.ink, modifier = Modifier.weight(1f), style = RafiqType.label)
             RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
         }
     }

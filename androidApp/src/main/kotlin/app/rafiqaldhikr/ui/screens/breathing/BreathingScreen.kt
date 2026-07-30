@@ -154,12 +154,9 @@ fun BreathingScreen(navController: NavHostController) {
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text,
-                                fontSize = 11.sp,
+                            Text(text,
                                 color    = if (dhikrText == text) rc.emerald else rc.inkMed,
-                                textAlign = TextAlign.Center
-                            )
+                                textAlign = TextAlign.Center, style = RafiqType.micro)
                         }
                     }
                 }

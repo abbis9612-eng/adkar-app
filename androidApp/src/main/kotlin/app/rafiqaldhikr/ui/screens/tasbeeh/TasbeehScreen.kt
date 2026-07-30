@@ -137,7 +137,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     .clip(RafiqShape.chip)
                     .background(rc.gold)
             )
-            Text("محطات الإنجاز", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+            Text("محطات الإنجاز", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.body)
         }
 
         Spacer(Modifier.height(14.dp))
@@ -162,7 +162,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     if (done) {
                         RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.micro)
                     }
                 }
 
@@ -193,11 +193,8 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                 if (done) {
                     RafiqIcon(RIcon.Check, 14.dp, accentColor)
                 } else {
-                    Text(
-                        "${count}/$m".localizedDigits(LocalArabicNumerals.current),
-                        fontSize = 11.sp,
-                        color = rc.inkMed,
-                    )
+                    Text("${count}/$m".localizedDigits(LocalArabicNumerals.current),
+                        color = rc.inkMed, style = RafiqType.micro)
                 }
             }
         }
@@ -282,12 +279,9 @@ fun TasbeehScreen(
                             }
                             .padding(horizontal = 20.dp, vertical = 10.dp)
                     ) {
-                        Text(
-                            opt.text,
-                            fontSize = 16.sp,
+                        Text(opt.text,
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (selected) optPrimary else rc.inkDark,
-                        )
+                            color = if (selected) optPrimary else rc.inkDark, style = RafiqType.body)
                     }
                 }
             }
@@ -328,11 +322,8 @@ fun TasbeehScreen(
                             fontSize = 56.sp,
                             color = primaryColor,
                         )
-                        Text(
-                            "مرة",
-                            fontSize = 14.sp,
-                            color = LocalRafiqColors.current.inkMed,
-                        )
+                        Text("مرة",
+                            color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
                     }
                 }
             }
@@ -399,12 +390,9 @@ fun TasbeehScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IcoMisbaha(40.dp, Color.White)
                         Spacer(Modifier.height(4.dp))
-                        Text(
-                            "اضغط",
-                            fontSize = 14.sp,
+                        Text("اضغط",
                             fontWeight = FontWeight.Bold,
-                            color = Color.White.copy(alpha = 0.85f),
-                        )
+                            color = Color.White.copy(alpha = 0.85f), style = RafiqType.bodyS)
                     }
                 }
             }
@@ -426,12 +414,9 @@ fun TasbeehScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         RafiqIcon(RIcon.Check, 16.dp, primaryColor)
-                        Text(
-                            "أحسنت! اكتمل الذكر",
-                            fontSize = 14.sp,
+                        Text("أحسنت! اكتمل الذكر",
                             fontWeight = FontWeight.Bold,
-                            color = primaryColor,
-                        )
+                            color = primaryColor, style = RafiqType.bodyS)
                     }
                 }
             }
@@ -443,7 +428,7 @@ fun TasbeehScreen(
                 Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("العدد المستهدف", fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
+                Text("العدد المستهدف", color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
                 Spacer(Modifier.height(10.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -463,12 +448,9 @@ fun TasbeehScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                "$t",
-                                fontSize = 14.sp,
+                            Text("$t",
                                 fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
-                                color = if (sel) Color.White else rc.inkDark,
-                            )
+                                color = if (sel) Color.White else rc.inkDark, style = RafiqType.bodyS)
                         }
                     }
                 }
@@ -545,7 +527,7 @@ fun TasbeehScreen(
                         .clickable { showDhikrPicker = false }
                         .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
-                    Text("إغلاق", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                    Text("إغلاق", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
                 }
             },
         )

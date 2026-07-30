@@ -79,23 +79,17 @@ fun RamadanHomeScreen(navController: NavHostController) {
                             color = Color.White
                         )
                         Spacer(Modifier.height(4.dp))
-                        Text(
-                            "شهر القرآن والرحمة", 
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
+                        Text("شهر القرآن والرحمة", 
+                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.body)
                     }
                 }
 
                 Spacer(Modifier.height(32.dp))
 
                 // Quick actions for Ramadan
-                Text(
-                    "برنامج رمضان", 
-                    fontSize = 18.sp, 
+                Text("برنامج رمضان", 
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(16.dp))
 
                 RamadanActionCard({ RafiqIcon(RIcon.Book, 28.dp, rc.emerald) }, "ورد القرآن اليومي", "اقرأ 20 صفحة لختم القرآن في رمضان", rc) {
@@ -127,20 +121,14 @@ fun RamadanHomeScreen(navController: NavHostController) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
-                            Text(
-                                "نصيحة رمضانية",
-                                fontSize = 16.sp,
+                            Text("نصيحة رمضانية",
                                 fontWeight = FontWeight.Bold,
-                                color = rc.emerald
-                            )
+                                color = rc.emerald, style = RafiqType.body)
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            "\"خيركم من تعلم القرآن وعلمه\" — حديث البخاري",
-                            fontSize = 14.sp,
+                        Text("\"خيركم من تعلم القرآن وعلمه\" — حديث البخاري",
                             color = rc.inkMed,
-                            lineHeight = 22.sp
-                        )
+                            lineHeight = 22.sp, style = RafiqType.bodyS)
                     }
                 }
                 Spacer(Modifier.height(32.dp))
@@ -173,12 +161,9 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
             }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    title, 
-                    fontSize = 16.sp, 
+                Text(title, 
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.body)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     desc, 

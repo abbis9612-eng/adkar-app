@@ -62,7 +62,7 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تقليل الحركة", fontSize = 16.sp, color = rc.ink)
+                            Text("تقليل الحركة", color = rc.ink, style = RafiqType.body)
                             Text("تقليل الرسوم المتحركة", fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(
@@ -87,7 +87,7 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تباين عالي", fontSize = 16.sp, color = rc.ink)
+                            Text("تباين عالي", color = rc.ink, style = RafiqType.body)
                             Text("زيادة وضوح الألوان والنصوص", fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(

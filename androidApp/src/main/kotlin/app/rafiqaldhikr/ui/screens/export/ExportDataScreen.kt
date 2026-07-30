@@ -71,11 +71,8 @@ fun ExportDataScreen(
                     color = rc.ink
                 )
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "جميع بياناتك مخزنة محلياً على جهازك. يمكنك تصديرها أو حذفها في أي وقت.",
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("جميع بياناتك مخزنة محلياً على جهازك. يمكنك تصديرها أو حذفها في أي وقت.",
+                    color = rc.inkMed, style = RafiqType.bodyS)
 
                 Spacer(Modifier.height(24.dp))
 
@@ -89,7 +86,7 @@ fun ExportDataScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoUpload(22.dp, rc.emerald)
                         Spacer(Modifier.width(12.dp))
-                        Text("تصدير البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+                        Text("تصدير البيانات", fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -139,7 +136,7 @@ fun ExportDataScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoTrash(22.dp, rc.error)
                         Spacer(Modifier.width(12.dp))
-                        Text("حذف جميع البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+                        Text("حذف جميع البيانات", fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(

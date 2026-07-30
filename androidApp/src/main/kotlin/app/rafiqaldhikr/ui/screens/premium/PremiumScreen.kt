@@ -74,14 +74,14 @@ fun PremiumScreen(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
                 Text("رفيق الذكر المميز", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = rc.ink)
                 Spacer(Modifier.height(8.dp))
-                Text("ادعم المشروع واستمتع بمزايا حصرية", fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.inkMed)
+                Text("ادعم المشروع واستمتع بمزايا حصرية", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(32.dp))
 
                 listOf("إزالة الإعلانات", "مظاهر حصرية", "أصوات مسبحة إضافية", "ويدجت مخصصة", "تقارير أسبوعية").forEach { feature ->
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         IcoCheck(20.dp, rc.emerald)
                         Spacer(Modifier.width(12.dp))
-                        Text(feature, fontSize = 16.sp, color = rc.ink)
+                        Text(feature, color = rc.ink, style = RafiqType.body)
                     }
                 }
 
@@ -97,7 +97,7 @@ fun PremiumScreen(navController: NavHostController) {
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("اشترك الآن", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("اشترك الآن", fontWeight = FontWeight.Bold, color = Color.White, style = RafiqType.titleM)
                 }
 
                 Spacer(Modifier.height(8.dp))

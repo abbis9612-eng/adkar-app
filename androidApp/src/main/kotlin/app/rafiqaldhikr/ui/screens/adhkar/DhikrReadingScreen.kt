@@ -38,6 +38,7 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* Colors provided by LocalRafiqColors */
 
@@ -242,23 +243,17 @@ fun DhikrReadingScreen(
 
                                     Spacer(Modifier.height(14.dp))
 
-                                    Text(
-                                        dhikr.virtue,
-                                        fontSize = 14.sp,
+                                    Text(dhikr.virtue,
                                         color = LocalRafiqColors.current.emerald,
                                         textAlign = TextAlign.Center,
-                                        lineHeight = 22.sp,
-                                    )
+                                        lineHeight = 22.sp, style = RafiqType.bodyS)
                                 }
 
                                 Spacer(Modifier.height(14.dp))
 
-                                Text(
-                                    "المصدر: ${dhikr.source}",
-                                    fontSize = 12.sp,
+                                Text("المصدر: ${dhikr.source}",
                                     color = LocalRafiqColors.current.inkMed,
-                                    textAlign = TextAlign.Center,
-                                )
+                                    textAlign = TextAlign.Center, style = RafiqType.caption)
 
                                 Spacer(Modifier.height(16.dp))
 

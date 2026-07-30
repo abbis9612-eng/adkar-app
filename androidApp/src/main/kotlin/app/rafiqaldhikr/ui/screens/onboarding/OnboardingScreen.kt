@@ -36,6 +36,7 @@ import app.rafiqaldhikr.util.rememberPermissionState
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -158,24 +159,18 @@ fun OnboardingScreen(
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    if (isLast) "ابدأ رحلتك" else "التالي",
-                    fontSize = 18.sp,
+                Text(if (isLast) "ابدأ رحلتك" else "التالي",
                     fontWeight = FontWeight.Bold,
-                    color = LocalRafiqColors.current.card,
-                )
+                    color = LocalRafiqColors.current.card, style = RafiqType.titleM)
             }
 
             Spacer(Modifier.height(14.dp))
 
             // Skip
             if (!isLast) {
-                Text(
-                    "تخطي",
-                    fontSize = 14.sp,
+                Text("تخطي",
                     color = LocalRafiqColors.current.inkMed,
-                    modifier = Modifier.clickable { finishOnboarding() }
-                )
+                    modifier = Modifier.clickable { finishOnboarding() }, style = RafiqType.bodyS)
             }
         }
     }
@@ -208,13 +203,10 @@ private fun OnboardingPage(data: OnboardingPageData, pageIndex: Int) {
         Spacer(Modifier.height(36.dp))
 
         // Subtitle (basmala / category)
-        Text(
-            data.subtitle,
-            fontSize = 14.sp,
+        Text(data.subtitle,
             fontWeight = FontWeight.SemiBold,
             color = LocalRafiqColors.current.gold,
-            textAlign = TextAlign.Center,
-        )
+            textAlign = TextAlign.Center, style = RafiqType.bodyS)
 
         Spacer(Modifier.height(10.dp))
 
@@ -230,13 +222,10 @@ private fun OnboardingPage(data: OnboardingPageData, pageIndex: Int) {
         Spacer(Modifier.height(14.dp))
 
         // Description
-        Text(
-            data.description,
-            fontSize = 16.sp,
+        Text(data.description,
             color = LocalRafiqColors.current.inkMed,
             textAlign = TextAlign.Center,
-            lineHeight = 26.sp,
-        )
+            lineHeight = 26.sp, style = RafiqType.body)
     }
 }
 

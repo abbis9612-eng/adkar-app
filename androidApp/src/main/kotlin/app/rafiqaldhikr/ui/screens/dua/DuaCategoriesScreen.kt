@@ -166,16 +166,12 @@ private fun DuaCategoryGridCard(
             app.rafiqaldhikr.ui.components.CategoryBadge(
                 app.rafiqaldhikr.ui.components.duaCatDrawable(def.key), 58.dp)
             Spacer(Modifier.height(12.dp))
-            Text(
-                def.name,
-                fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                color = LocalRafiqColors.current.ink,
-            )
+            Text(def.name,
+                fontWeight = FontWeight.Bold,
+                color = LocalRafiqColors.current.ink, style = RafiqType.body)
             Spacer(Modifier.height(4.dp))
-            Text(
-                duaCountLabel(count, LocalArabicNumerals.current),
-                fontSize = 12.sp, color = LocalRafiqColors.current.inkMed,
-            )
+            Text(duaCountLabel(count, LocalArabicNumerals.current),
+                color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
         }
     }
 }
@@ -194,10 +190,10 @@ private fun FavoriteDuaCard(text: String, source: String, onToggle: () -> Unit) 
             .padding(16.dp)
     ) {
         Column {
-            Text(text, fontSize = 16.sp, lineHeight = 28.sp, color = LocalRafiqColors.current.ink)
+            Text(text, lineHeight = 28.sp, color = LocalRafiqColors.current.ink, style = RafiqType.body)
             Spacer(Modifier.height(10.dp))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(source, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed, modifier = Modifier.weight(1f))
+                Text(source, color = LocalRafiqColors.current.inkMed, modifier = Modifier.weight(1f), style = RafiqType.micro)
                 Box(
                     Modifier.size(28.dp).clip(CircleShape).background(rc.emeraldPastel).clickable(onClick = onToggle),
                     contentAlignment = Alignment.Center,
@@ -262,7 +258,7 @@ fun DuaCategoriesScreen(
                                 .clip(RafiqShape.chip)
                                 .background(rc.gold)
                         )
-                        Text("المفضلة", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                        Text("المفضلة", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                     }
                     Spacer(Modifier.height(8.dp))
                 }
@@ -302,7 +298,7 @@ fun DuaCategoriesScreen(
                             .clip(RafiqShape.chip)
                             .background(rc.gold)
                     )
-                    Text("التصنيفات", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                    Text("التصنيفات", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                 }
                 Spacer(Modifier.height(10.dp))
             }
@@ -372,12 +368,10 @@ fun DuaCategoriesScreen(
                                     )
                                 }
                                 Spacer(Modifier.width(14.dp))
-                                Text(
-                                    duaCategoryLabel(category),
-                                    fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                                Text(duaCategoryLabel(category),
+                                    fontWeight = FontWeight.SemiBold,
                                     color = LocalRafiqColors.current.ink,
-                                    modifier = Modifier.weight(1f),
-                                )
+                                    modifier = Modifier.weight(1f), style = RafiqType.body)
                                 Canvas(Modifier.size(14.dp)) {
                                     val w = size.width; val h = size.height
                                     drawPath(Path().apply {

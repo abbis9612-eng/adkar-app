@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import com.google.android.gms.location.LocationServices
 import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /**
  * شارة دائمة تظهر حين تكون مواقيت الصلاة محسوبة على موقع احتياطي (بلا إذن الموقع).
@@ -101,7 +102,7 @@ fun LocationBadge(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text("📍", fontSize = 15.sp)
+            Text("📍", style = RafiqType.label)
             Spacer(Modifier.width(4.dp))
             Text(
                 "المواقيت تقريبية — اضغط لتحديد موقعك",

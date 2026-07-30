@@ -57,7 +57,7 @@ fun KhatiraScreen(
                 state.isLoading -> LoadingState()
                 state.khatira == null -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("لا توجد خاطرة اليوم", fontSize = 16.sp, color = rc.inkMed)
+                        Text("لا توجد خاطرة اليوم", color = rc.inkMed, style = RafiqType.body)
                     }
                 }
                 else -> {
@@ -97,12 +97,9 @@ fun KhatiraScreen(
                         Spacer(Modifier.height(32.dp))
 
                         // Reflection
-                        Text(
-                            text  = "💭 تأمل",
-                            fontSize = 18.sp,
+                        Text(text  = "💭 تأمل",
                             fontWeight = FontWeight.SemiBold,
-                            color = rc.emerald
-                        )
+                            color = rc.emerald, style = RafiqType.titleM)
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text      = k.reflection,
@@ -121,7 +118,7 @@ fun KhatiraScreen(
                                     .border(1.dp, rc.emerald, RafiqShape.item)
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
-                                Text("موسم: ${k.season}", fontSize = 12.sp, color = rc.emerald)
+                                Text("موسم: ${k.season}", color = rc.emerald, style = RafiqType.caption)
                             }
                         }
                     }

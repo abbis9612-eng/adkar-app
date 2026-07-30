@@ -91,9 +91,9 @@ fun ShareCardScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(card.value, fontSize = 36.sp, fontWeight = FontWeight.ExtraBold, color = rc.bg)
                         Spacer(Modifier.height(8.dp))
-                        Text(card.subtitle, fontSize = 14.sp, color = rc.bg.copy(alpha = 0.8f))
+                        Text(card.subtitle, color = rc.bg.copy(alpha = 0.8f), style = RafiqType.bodyS)
                         Spacer(Modifier.height(16.dp))
-                        Text("رفيق الذكر", fontSize = 12.sp, color = rc.bg.copy(alpha = 0.6f))
+                        Text("رفيق الذكر", color = rc.bg.copy(alpha = 0.6f), style = RafiqType.caption)
                     }
                 }
 
@@ -115,12 +115,9 @@ fun ShareCardScreen(
                                 .padding(vertical = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = c.title,
-                                fontSize = 14.sp,
+                            Text(text = c.title,
                                 fontWeight = if (selectedCard == i) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedCard == i) rc.bg else rc.ink
-                            )
+                                color = if (selectedCard == i) rc.bg else rc.ink, style = RafiqType.bodyS)
                         }
                     }
                 }
@@ -147,7 +144,7 @@ fun ShareCardScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoShare(20.dp, rc.bg)
                         Spacer(Modifier.width(8.dp))
-                        Text("مشاركة البطاقة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.bg)
+                        Text("مشاركة البطاقة", fontWeight = FontWeight.Bold, color = rc.bg, style = RafiqType.body)
                     }
                 }
             }

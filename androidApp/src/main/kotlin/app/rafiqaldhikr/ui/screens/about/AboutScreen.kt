@@ -54,17 +54,14 @@ fun AboutScreen(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
                 Text("رفيق الذكر", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
                 Text("الإصدار " + app.rafiqaldhikr.BuildConfig.VERSION_NAME,
-                    fontSize = 14.sp, color = rc.inkMed)
+                    color = rc.inkMed, style = RafiqType.bodyS)
                 Spacer(Modifier.height(24.dp))
-                Text(
-                    "رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",
-                    fontSize = 16.sp,
+                Text("رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",
                     lineHeight = 28.sp,
                     textAlign = TextAlign.Center,
-                    color = rc.inkMed
-                )
+                    color = rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(32.dp))
-                Text("صُنع بـ ❤️ لله", fontSize = 14.sp, color = rc.emerald)
+                Text("صُنع بـ ❤️ لله", color = rc.emerald, style = RafiqType.bodyS)
             }
         }
     }

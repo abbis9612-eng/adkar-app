@@ -113,12 +113,9 @@ fun CustomDhikrScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
-                Text(
-                    "الأذكار المخصصة", 
-                    fontSize = 18.sp, 
+                Text("الأذكار المخصصة", 
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 savedDhikrs.forEach { dhikr ->
@@ -135,12 +132,9 @@ fun CustomDhikrScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(
-                                text = dhikr.dhikr_text, 
-                                fontSize = 18.sp, 
+                            Text(text = dhikr.dhikr_text, 
                                 color = rc.ink,
-                                modifier = Modifier.weight(1f)
-                            )
+                                modifier = Modifier.weight(1f), style = RafiqType.titleM)
                             IconButton(onClick = { viewModel.deleteDhikr(dhikr.id) }) {
                                 IcoTrash(22.dp, rc.error)
                             }

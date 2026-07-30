@@ -128,11 +128,8 @@ fun AchievementsScreen(
                                 fontSize = 32.sp,
                                 color = rc.onEmerald
                             )
-                            Text(
-                                "إنجاز مفتوح",
-                                fontSize = 14.sp,
-                                color = rc.onEmerald.copy(alpha = 0.8f)
-                            )
+                            Text("إنجاز مفتوح",
+                                color = rc.onEmerald.copy(alpha = 0.8f), style = RafiqType.bodyS)
                             Spacer(Modifier.height(8.dp))
                             LinearProgressIndicator(
                                 progress = { unlocked / achievements.size.toFloat() },
@@ -183,12 +180,9 @@ private fun AchievementCard(achievement: Achievement, rc: RafiqPalette) {
             )
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    achievement.title,
-                    fontSize = 16.sp,
+                Text(achievement.title,
                     fontWeight = FontWeight.Bold,
-                    color = if (isUnlocked) rc.ink else rc.inkMed
-                )
+                    color = if (isUnlocked) rc.ink else rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(2.dp))
                 Text(
                     achievement.description,

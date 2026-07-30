@@ -22,6 +22,7 @@ import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,11 +62,8 @@ fun TafsirSheet(
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
                 )
-                Text(
-                    "سورة $surahNumber : $ayahNumber",
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("سورة $surahNumber : $ayahNumber",
+                    color = rc.inkMed, style = RafiqType.bodyS)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -91,22 +89,16 @@ fun TafsirSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                "التفسير الميسر",
-                fontSize = 16.sp,
+            Text("التفسير الميسر",
                 fontWeight = FontWeight.Bold,
-                color = rc.ink
-            )
+                color = rc.ink, style = RafiqType.body)
             Spacer(Modifier.height(12.dp))
 
-            Text(
-                tafsirText,
-                fontSize = 16.sp,
+            Text(tafsirText,
                 fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
                 lineHeight = 28.sp,
                 textAlign = TextAlign.Start,
-                color = rc.inkMed
-            )
+                color = rc.inkMed, style = RafiqType.body)
 
             Spacer(Modifier.height(32.dp))
 

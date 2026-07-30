@@ -114,14 +114,14 @@ fun QuranAudioPlayer(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("سورة", fontSize = 16.sp, color = rc.inkMed)
+                        Text("سورة", color = rc.inkMed, style = RafiqType.body)
                         Text("$surahNumber".localizedDigits(LocalArabicNumerals.current), style = NumbersStyle, fontSize = 48.sp, color = rc.emerald)
                     }
                 }
 
                 Spacer(Modifier.height(32.dp))
 
-                Text(currentReciter, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+                Text(currentReciter, fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.titleM)
 
                 Spacer(Modifier.height(24.dp))
 
@@ -137,8 +137,8 @@ fun QuranAudioPlayer(
                     )
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("0:00",  fontSize = 12.sp, color = rc.inkMed)
-                    Text("--:--", fontSize = 12.sp, color = rc.inkMed)
+                    Text("0:00",  color = rc.inkMed, style = RafiqType.caption)
+                    Text("--:--", color = rc.inkMed, style = RafiqType.caption)
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -224,7 +224,7 @@ fun QuranAudioPlayer(
                 Spacer(Modifier.height(32.dp))
 
                 // Reciter picker
-                Text("اختر القارئ", fontSize = 14.sp, color = rc.inkMed)
+                Text("اختر القارئ", color = rc.inkMed, style = RafiqType.bodyS)
                 Spacer(Modifier.height(8.dp))
                 reciters.chunked(3).forEach { rowReciters ->
                     Row(
@@ -255,7 +255,7 @@ fun QuranAudioPlayer(
                                     .padding(vertical = 8.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(name, fontSize = 12.sp, color = if (currentReciter == name) rc.emerald else rc.inkMed, maxLines = 1)
+                                Text(name, color = if (currentReciter == name) rc.emerald else rc.inkMed, maxLines = 1, style = RafiqType.caption)
                             }
                         }
                         repeat(3 - rowReciters.size) { Spacer(Modifier.weight(1f)) }

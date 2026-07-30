@@ -102,28 +102,19 @@ private fun BookmarkCard(
             verticalAlignment     = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "سورة ${bookmark.surah} — آية ${bookmark.ayah}",
-                    fontSize = 18.sp,
+                Text("سورة ${bookmark.surah} — آية ${bookmark.ayah}",
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    "صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
+                    color = rc.inkMed, style = RafiqType.bodyS)
                 if (bookmark.createdAt > 0) {
                     Spacer(Modifier.height(8.dp))
                     val dateStr = SimpleDateFormat("yyyy/MM/dd", Locale.US)
                         .format(Date(bookmark.createdAt))
                         .localizedDigits(LocalArabicNumerals.current)
-                    Text(
-                        dateStr,
-                        fontSize = 12.sp,
-                        color = rc.inkMed
-                    )
+                    Text(dateStr,
+                        color = rc.inkMed, style = RafiqType.caption)
                 }
             }
         }

@@ -70,9 +70,9 @@ fun HelpScreen(navController: NavHostController) {
 @Composable
 private fun FaqItem(question: String, answer: String, rc: RafiqPalette, isLast: Boolean) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(question, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+        Text(question, fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.body)
         Spacer(Modifier.height(6.dp))
-        Text(answer, fontSize = 14.sp, color = rc.inkMed, lineHeight = 22.sp)
+        Text(answer, color = rc.inkMed, lineHeight = 22.sp, style = RafiqType.bodyS)
         if (!isLast) {
             Spacer(Modifier.height(12.dp))
             HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))

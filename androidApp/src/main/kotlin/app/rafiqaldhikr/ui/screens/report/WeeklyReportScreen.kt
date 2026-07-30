@@ -86,14 +86,11 @@ fun WeeklyReportScreen(
                     Spacer(Modifier.height(8.dp))
                     Text("$activeDays / 7 أيام نشطة".localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
                     Spacer(Modifier.height(4.dp))
-                    Text(
-                        if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
+                    Text(if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
                         if (activeDays >= 4) "أداء جيد، استمر في المداومة" else
                         "حاول المداومة أكثر هذا الأسبوع",
-                        fontSize = 14.sp,
                         textAlign = TextAlign.Center,
-                        color = rc.inkMed
-                    )
+                        color = rc.inkMed, style = RafiqType.bodyS)
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -117,7 +114,7 @@ fun WeeklyReportScreen(
                 Spacer(Modifier.height(32.dp))
 
                 // Day-by-day
-                Text("التفاصيل اليومية", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text("التفاصيل اليومية", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Column(
@@ -134,17 +131,17 @@ fun WeeklyReportScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(day.date, fontSize = 14.sp, color = rc.inkMed)
+                            Text(day.date, color = rc.inkMed, style = RafiqType.bodyS)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
                                 if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.lightDusk)
                                 if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                                     RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
-                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
                                 }
                                 if (day.prayersLogged > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                                     IcoMosque(14.dp, rc.emerald)
-                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
                                 }
                             }
                         }
@@ -171,6 +168,6 @@ private fun ReportStatCard(modifier: Modifier, icon: @Composable () -> Unit, val
         Spacer(Modifier.height(8.dp))
         Text(value.localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
         Spacer(Modifier.height(4.dp))
-        Text(label, fontSize = 12.sp, color = rc.inkMed)
+        Text(label, color = rc.inkMed, style = RafiqType.caption)
     }
 }

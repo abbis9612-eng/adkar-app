@@ -115,12 +115,9 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "v${entry.version}",
-                    fontSize = 18.sp,
+                Text("v${entry.version}",
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 if (entry.isLatest) {
                     Spacer(Modifier.width(8.dp))
                     Box(
@@ -129,15 +126,12 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                             .background(rc.emerald)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("الأحدث", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = rc.bg)
+                        Text("الأحدث", fontWeight = FontWeight.Bold, color = rc.bg, style = RafiqType.micro)
                     }
                 }
             }
-            Text(
-                entry.date,
-                fontSize = 12.sp,
-                color = rc.inkMed
-            )
+            Text(entry.date,
+                color = rc.inkMed, style = RafiqType.caption)
         }
         
         Spacer(Modifier.height(16.dp))
@@ -155,12 +149,9 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                         .clip(RafiqShape.chip)
                         .background(rc.gold)
                 )
-                Text(
-                    change,
-                    fontSize = 14.sp,
+                Text(change,
                     color = rc.inkMed,
-                    lineHeight = 22.sp
-                )
+                    lineHeight = 22.sp, style = RafiqType.bodyS)
             }
         }
     }

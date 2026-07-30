@@ -27,6 +27,7 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun DuaListScreen(
@@ -82,12 +83,9 @@ fun DuaListScreen(
                             )
                             Spacer(Modifier.height(12.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    "${dua.source} (${dua.sourceGrade})",
-                                    fontSize = 12.sp,
+                                Text("${dua.source} (${dua.sourceGrade})",
                                     color    = rc.inkMed,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                    modifier = Modifier.weight(1f), style = RafiqType.caption)
                                 Box(
                                     Modifier
                                         .size(32.dp)

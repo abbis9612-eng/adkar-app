@@ -77,7 +77,7 @@ fun StatisticsScreen(
                     .padding(20.dp)
             ) {
                 // ═══ Streak Section ═══
-                Text("السلسلة", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text("السلسلة", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -104,7 +104,7 @@ fun StatisticsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 // ═══ Today's Progress ═══
-                Text("اليوم", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text("اليوم", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 val p = state.todayProgress
@@ -153,7 +153,7 @@ fun StatisticsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 // ═══ Week Summary ═══
-                Text("هذا الأسبوع", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text("هذا الأسبوع", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Column(
@@ -162,7 +162,7 @@ fun StatisticsScreen(
                         .rafiqCard()
                         .padding(16.dp)
                 ) {
-                    Text("المداومة اليومية", fontSize = 12.sp, color = rc.inkMed)
+                    Text("المداومة اليومية", color = rc.inkMed, style = RafiqType.caption)
                     Spacer(Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -188,7 +188,7 @@ fun StatisticsScreen(
                                 Box(
                                     Modifier.size(14.dp).clip(CircleShape).background(dotColor)
                                 )
-                                Text(dayLabel.localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = rc.inkMed)
+                                Text(dayLabel.localizedDigits(LocalArabicNumerals.current), color = rc.inkMed, style = RafiqType.caption)
                             }
                         }
                     }
@@ -198,13 +198,10 @@ fun StatisticsScreen(
                         val activeDays = state.weekProgress.count {
                             it.morningDone || it.eveningDone || it.prayersLogged > 0
                         }
-                        Text(
-                            "$activeDays / ${state.weekProgress.size} أيام نشطة",
-                            fontSize = 14.sp,
+                        Text("$activeDays / ${state.weekProgress.size} أيام نشطة",
                             color = rc.ink,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            modifier = Modifier.fillMaxWidth(), style = RafiqType.bodyS)
                     }
                 }
 
@@ -225,7 +222,7 @@ fun StatisticsScreen(
                     DuotoneIcon(IcoDuo.Mosque, 34.dp)
                     Spacer(Modifier.width(16.dp))
                     Column {
-                        Text("صلوات هذا الأسبوع", fontSize = 12.sp, color = rc.inkMed)
+                        Text("صلوات هذا الأسبوع", color = rc.inkMed, style = RafiqType.caption)
                         Text(
                             "$prayersThisWeek صلاة",
                             fontSize = 20.sp,
@@ -265,9 +262,9 @@ private fun StatCard(
             color = iconColor
         )
         if (suffix.isNotEmpty()) {
-            Text(suffix, fontSize = 12.sp, color = rc.inkMed)
+            Text(suffix, color = rc.inkMed, style = RafiqType.caption)
         }
         Spacer(Modifier.height(4.dp))
-        Text(title, fontSize = 12.sp, color = rc.ink, textAlign = TextAlign.Center)
+        Text(title, color = rc.ink, textAlign = TextAlign.Center, style = RafiqType.caption)
     }
 }

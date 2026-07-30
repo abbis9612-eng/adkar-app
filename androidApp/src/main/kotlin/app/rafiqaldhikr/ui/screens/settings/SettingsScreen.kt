@@ -112,11 +112,8 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                 Spacer(Modifier.width(14.dp))
 
                 // Label
-                Text(
-                    item.label,
-                    fontSize = 16.sp,
-                    color = rc.ink, modifier = Modifier.weight(1f),
-                )
+                Text(item.label,
+                    color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
 
                 // Pro badge
                 if (item.badge != null) {
@@ -126,7 +123,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                             .background(rc.gold)
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(item.badge, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = rc.onGold)
+                        Text(item.badge, fontWeight = FontWeight.Bold, color = rc.onGold, style = RafiqType.micro)
                     }
                     Spacer(Modifier.width(8.dp))
                 }

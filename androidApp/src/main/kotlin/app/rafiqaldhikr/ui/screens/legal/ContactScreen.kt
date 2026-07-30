@@ -149,7 +149,7 @@ fun ContactScreen(navController: NavHostController) {
                 ) {
                     IcoSend(20.dp, rc.bg)
                     Spacer(Modifier.width(8.dp))
-                    Text("إرسال", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("إرسال", fontWeight = FontWeight.Bold, style = RafiqType.body)
                 }
             }
         }
@@ -181,8 +181,8 @@ private fun ContactItem(
         }
         Spacer(Modifier.width(16.dp))
         Column {
-            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
-            Text(desc, fontSize = 14.sp, color = rc.inkMed)
+            Text(title, fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
+            Text(desc, color = rc.inkMed, style = RafiqType.bodyS)
         }
     }
 }

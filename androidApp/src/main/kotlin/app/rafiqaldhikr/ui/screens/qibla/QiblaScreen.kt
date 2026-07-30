@@ -202,19 +202,13 @@ private fun QiblaCompassContent(
     )
     Spacer(Modifier.height(12.dp))
 
-    Text(
-        text  = "الزاوية: ${bearing.toInt()}°",
-        fontSize = 18.sp,
-        color = rc.inkMed
-    )
+    Text(text  = "الزاوية: ${bearing.toInt()}°",
+        color = rc.inkMed, style = RafiqType.titleM)
     Spacer(Modifier.height(12.dp))
 
-    Text(
-        text      = stringResource(R.string.calibrate_compass),
-        fontSize = 14.sp,
+    Text(text      = stringResource(R.string.calibrate_compass),
         textAlign = TextAlign.Center,
-        color = rc.inkMed
-    )
+        color = rc.inkMed, style = RafiqType.bodyS)
 }
 
 @Composable
@@ -223,7 +217,7 @@ private fun NoCompassContent(rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
     Text("البوصلة غير متوفرة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
-    Text("جهازك لا يدعم مستشعر البوصلة", fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.inkMed)
+    Text("جهازك لا يدعم مستشعر البوصلة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
 }
 
 @Composable
@@ -232,12 +226,12 @@ private fun NoLocationContent(rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
     Text("الموقع غير محدد", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
-    Text("يرجى السماح بالوصول للموقع من إعدادات الصلاة", fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.inkMed)
+    Text("يرجى السماح بالوصول للموقع من إعدادات الصلاة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
 }
 
 @Composable
 private fun ErrorContent(message: String, rc: RafiqPalette) {
     IcoAlert(64.dp, rc.error)
     Spacer(Modifier.height(16.dp))
-    Text(message, fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.ink)
+    Text(message, textAlign = TextAlign.Center, color = rc.ink, style = RafiqType.body)
 }

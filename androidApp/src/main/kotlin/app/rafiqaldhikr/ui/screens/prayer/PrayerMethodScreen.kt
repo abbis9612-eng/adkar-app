@@ -92,7 +92,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = selected == key,
                                 onClick = { settingsVM.setPrayerMethod(key) },
@@ -108,13 +108,10 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ المذهب الفقهي (العصر) ═══
-                Text(
-                    text = "المذهب الفقهي (وقت العصر)",
-                    fontSize = 18.sp,
+                Text(text = "المذهب الفقهي (وقت العصر)",
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "يؤثر المذهب على حساب وقت صلاة العصر.",
@@ -137,7 +134,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = selectedMadhab == key,
                                 onClick = { settingsVM.setMadhab(key) },
@@ -153,13 +150,10 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ الارتفاع عن سطح البحر ═══
-                Text(
-                    text = "الارتفاع عن سطح البحر (بالمتر)",
-                    fontSize = 18.sp,
+                Text(text = "الارتفاع عن سطح البحر (بالمتر)",
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "يُصحّح وقت المغرب والشروق. مثال: السليمانية ≈ 850 متر.",
@@ -192,7 +186,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = elevation == value,
                                 onClick = { settingsVM.setElevation(value) },
@@ -204,12 +198,9 @@ fun PrayerMethodScreen(
                     
                     // Custom elevation slider
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "أو اختر يدوياً: ${elevation.toInt()} متر",
-                        fontSize = 16.sp,
+                    Text(text = "أو اختر يدوياً: ${elevation.toInt()} متر",
                         color = rc.ink,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                        modifier = Modifier.padding(horizontal = 16.dp), style = RafiqType.body)
                     Slider(
                         value = elevation.toFloat(),
                         onValueChange = { settingsVM.setElevation(it.toDouble()) },
@@ -241,13 +232,10 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ التصحيح اليدوي ═══
-                Text(
-                    text = "التصحيح المخصص للأوقات (بالدقائق)",
-                    fontSize = 18.sp,
+                Text(text = "التصحيح المخصص للأوقات (بالدقائق)",
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "يمكنك إضافة أو إنقاص دقائق لتطابق توقيت مدينتك أو المسجد المحلي.",
@@ -294,7 +282,7 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 16.sp, color = rc.ink)
+        Text(label, color = rc.ink, style = RafiqType.body)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -304,16 +292,13 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
                     .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value - 1) },
                 contentAlignment = Alignment.Center
-            ) { Text("-", fontSize = 18.sp, color = rc.emerald) }
+            ) { Text("-", color = rc.emerald, style = RafiqType.titleM) }
             
-            Text(
-                text = if (value > 0) "+$value" else value.toString(),
+            Text(text = if (value > 0) "+$value" else value.toString(),
                 modifier = Modifier.width(48.dp),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = rc.ink
-            )
+                color = rc.ink, style = RafiqType.body)
             
             Box(
                 modifier = Modifier
@@ -323,7 +308,7 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
                     .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value + 1) },
                 contentAlignment = Alignment.Center
-            ) { Text("+", fontSize = 18.sp, color = rc.emerald) }
+            ) { Text("+", color = rc.emerald, style = RafiqType.titleM) }
         }
     }
 }

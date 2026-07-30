@@ -128,11 +128,11 @@ private fun DailyRecitationCard() {
         )
 
         Column(Modifier.padding(horizontal = 22.dp, vertical = 20.dp)) {
-            Text("تلاوة اليوم", fontSize = 11.sp, color = Color.White.copy(alpha = 0.5f))
+            Text("تلاوة اليوم", color = Color.White.copy(alpha = 0.5f), style = RafiqType.micro)
             Spacer(Modifier.height(8.dp))
             Text("سورة الكهف", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 34.sp)
             Spacer(Modifier.height(4.dp))
-            Text("صفحة ٢٩٣ · ١١٠ آيات", fontSize = 12.sp, color = Color.White.copy(alpha = 0.55f))
+            Text("صفحة ٢٩٣ · ١١٠ آيات", color = Color.White.copy(alpha = 0.55f), style = RafiqType.caption)
             Spacer(Modifier.height(16.dp))
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -149,8 +149,8 @@ private fun DailyRecitationCard() {
             }
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("١٢:٣٤", fontSize = 11.sp, color = Color.White.copy(alpha = 0.45f))
-                Text("٣٥:١٢", fontSize = 11.sp, color = Color.White.copy(alpha = 0.45f))
+                Text("١٢:٣٤", color = Color.White.copy(alpha = 0.45f), style = RafiqType.micro)
+                Text("٣٥:١٢", color = Color.White.copy(alpha = 0.45f), style = RafiqType.micro)
             }
         }
     }
@@ -173,7 +173,7 @@ private fun QuranSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 14.dp),
         placeholder = {
-            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkMed, fontSize = 14.sp)
+            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
         },
         leadingIcon = {
             RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)
@@ -220,24 +220,22 @@ private fun SurahCard(
                 Modifier.size(44.dp).clip(RafiqShape.item).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("$number".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("$number".localizedDigits(LocalArabicNumerals.current), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(nameAr, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.ink)
                 Spacer(Modifier.height(2.dp))
-                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
+                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
             }
             Box(
                 Modifier.clip(RafiqShape.item)
                     .background(if (revelation == "meccan") rc.meccanBg else rc.madaniBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(
-                    if (revelation == "meccan") "مكية" else "مدنية",
-                    fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                    color = if (revelation == "meccan") rc.meccanText else rc.madaniText,
-                )
+                Text(if (revelation == "meccan") "مكية" else "مدنية",
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (revelation == "meccan") rc.meccanText else rc.madaniText, style = RafiqType.micro)
             }
             Spacer(Modifier.width(8.dp))
             RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
@@ -308,7 +306,7 @@ fun QuranListScreen(
                                     .clip(RafiqShape.chip)
                                     .background(rc.gold)
                             )
-                            Text("السور", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                            Text("السور", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                         }
                         Spacer(Modifier.height(10.dp))
                     }

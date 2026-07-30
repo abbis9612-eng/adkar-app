@@ -24,6 +24,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -153,23 +154,17 @@ fun CelebrationScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(12.dp))
 
-            Text(
-                "لقد أتممت الأذكار بنجاح\nجعلها الله في ميزان حسناتك",
-                fontSize = 16.sp,
+            Text("لقد أتممت الأذكار بنجاح\nجعلها الله في ميزان حسناتك",
                 color = LocalRafiqColors.current.inkMed,
                 textAlign = TextAlign.Center,
-                lineHeight = 26.sp,
-            )
+                lineHeight = 26.sp, style = RafiqType.body)
 
             Spacer(Modifier.height(8.dp))
 
-            Text(
-                "﴿ فَاذْكُرُونِي أَذْكُرْكُمْ ﴾",
-                fontSize = 18.sp,
+            Text("﴿ فَاذْكُرُونِي أَذْكُرْكُمْ ﴾",
                 fontWeight = FontWeight.SemiBold,
                 color = LocalRafiqColors.current.gold,
-                textAlign = TextAlign.Center,
-            )
+                textAlign = TextAlign.Center, style = RafiqType.titleM)
 
             Spacer(Modifier.height(36.dp))
 

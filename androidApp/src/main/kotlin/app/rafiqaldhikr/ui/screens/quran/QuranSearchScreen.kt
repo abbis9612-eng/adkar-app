@@ -93,11 +93,8 @@ fun QuranSearchScreen(navController: NavHostController) {
                         )
                     }
                     else -> {
-                        Text(
-                            "${results.size} نتيجة",
-                            fontSize = 14.sp,
-                            color = rc.inkMed
-                        )
+                        Text("${results.size} نتيجة",
+                            color = rc.inkMed, style = RafiqType.bodyS)
                         Spacer(Modifier.height(8.dp))
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -137,17 +134,11 @@ private fun SearchResultCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                "سورة ${ayah.surah} — آية ${ayah.ayahNumber}",
-                fontSize = 14.sp,
+            Text("سورة ${ayah.surah} — آية ${ayah.ayahNumber}",
                 fontWeight = FontWeight.Bold,
-                color = rc.emerald
-            )
-            Text(
-                "ص ${ayah.page}",
-                fontSize = 12.sp,
-                color = rc.inkMed
-            )
+                color = rc.emerald, style = RafiqType.bodyS)
+            Text("ص ${ayah.page}",
+                color = rc.inkMed, style = RafiqType.caption)
         }
         Spacer(Modifier.height(8.dp))
         Text(

@@ -50,6 +50,7 @@ import app.rafiqaldhikr.ui.utils.toEasternArabic
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 private const val BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
 
@@ -288,15 +289,12 @@ private fun SurahHeaderBand(name: String) {
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("۞", fontSize = 16.sp, color = rc.gold)
-            Text(
-                "سُورَةُ $name",
-                fontSize = 18.sp,
+            Text("۞", color = rc.gold, style = RafiqType.body)
+            Text("سُورَةُ $name",
                 fontFamily = QuranFamily,
                 fontWeight = FontWeight.Bold,
-                color = rc.emerald
-            )
-            Text("۞", fontSize = 16.sp, color = rc.gold)
+                color = rc.emerald, style = RafiqType.titleM)
+            Text("۞", color = rc.gold, style = RafiqType.body)
         }
     }
 }
@@ -460,7 +458,7 @@ private fun AyahAction(
             icon(22.dp, tint)
         }
         Spacer(Modifier.height(6.dp))
-        Text(label, fontSize = 11.sp, color = rc.inkMed)
+        Text(label, color = rc.inkMed, style = RafiqType.micro)
     }
 }
 
@@ -476,6 +474,6 @@ private fun FontSizeButton(symbol: String, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(symbol, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+        Text(symbol, fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.titleM)
     }
 }

@@ -63,12 +63,9 @@ fun ThemeSettingsScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                label,
-                                fontSize = 16.sp,
+                            Text(label,
                                 color = rc.ink,
-                                modifier = Modifier.weight(1f)
-                            )
+                                modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = theme == key,
                                 onClick = { vm.setTheme(key, dynamic) },
@@ -98,11 +95,8 @@ fun ThemeSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text(
-                                "ألوان ديناميكية",
-                                fontSize = 16.sp,
-                                color = rc.ink
-                            )
+                            Text("ألوان ديناميكية",
+                                color = rc.ink, style = RafiqType.body)
                             Text(
                                 "استخدام ألوان الخلفية (Android 12+)",
                                 fontSize = 13.sp,

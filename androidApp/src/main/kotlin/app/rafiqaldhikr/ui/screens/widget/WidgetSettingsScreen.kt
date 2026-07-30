@@ -63,11 +63,8 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     color = rc.ink
                 )
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "اضغط مطولاً على الشاشة الرئيسية > الأدوات المصغرة > رفيق الذكر لإضافة widget",
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("اضغط مطولاً على الشاشة الرئيسية > الأدوات المصغرة > رفيق الذكر لإضافة widget",
+                    color = rc.inkMed, style = RafiqType.bodyS)
 
                 Spacer(Modifier.height(24.dp))
 
@@ -119,7 +116,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
-                            Text("ملاحظة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                            Text("ملاحظة", fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.body)
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -150,7 +147,7 @@ private fun WidgetOption(
         icon()
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+            Text(title, fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
             Text(desc, fontSize = 13.sp, color = rc.inkMed)
         }
         Switch(

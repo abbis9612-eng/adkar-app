@@ -184,12 +184,9 @@ fun AdhkarCategoriesScreen(
             )
 
             // Subtitle
-            Text(
-                "اختر نوع الذكر",
-                fontSize = 14.sp,
+            Text("اختر نوع الذكر",
                 color = LocalRafiqColors.current.inkMed,
-                modifier = Modifier.padding(horizontal = 18.dp),
-            )
+                modifier = Modifier.padding(horizontal = 18.dp), style = RafiqType.bodyS)
 
             Spacer(Modifier.height(20.dp))
 
@@ -227,11 +224,8 @@ fun AdhkarCategoriesScreen(
                         .fillMaxWidth()
                         .padding(24.dp),
                 ) {
-                    Text(
-                        "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-                        fontSize = 14.sp,
-                        color = LocalRafiqColors.current.goldLight.copy(alpha = 0.7f),
-                    )
+                    Text("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+                        color = LocalRafiqColors.current.goldLight.copy(alpha = 0.7f), style = RafiqType.bodyS)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "أَلَا بِذِكْرِ اللَّهِ\nتَطْمَئِنُّ الْقُلُوبُ",
@@ -240,11 +234,8 @@ fun AdhkarCategoriesScreen(
                         lineHeight = 34.sp,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text(
-                        "— سورة الرعد ٢٨",
-                        fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.5f),
-                    )
+                    Text("— سورة الرعد ٢٨",
+                        color = Color.White.copy(alpha = 0.5f), style = RafiqType.caption)
                 }
             }
 
@@ -304,12 +295,9 @@ private fun AdhkarCategoryCard(
             Spacer(Modifier.width(14.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(
-                    cat.label,
-                    fontSize = 16.sp,
+                Text(cat.label,
                     fontWeight = FontWeight.Bold,
-                    color = LocalRafiqColors.current.ink,
-                )
+                    color = LocalRafiqColors.current.ink, style = RafiqType.body)
                 Spacer(Modifier.height(3.dp))
                 Text(
                     cat.description,

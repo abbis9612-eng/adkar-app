@@ -125,11 +125,8 @@ private fun PrayerTimesContent(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IcoPin(14.dp, rc.inkMed)
                                 Spacer(Modifier.width(4.dp))
-                                Text(
-                                    state.city,
-                                    fontSize = 12.sp,
-                                    color = rc.inkMed
-                                )
+                                Text(state.city,
+                                    color = rc.inkMed, style = RafiqType.caption)
                             }
                         }
                     }
@@ -156,17 +153,11 @@ private fun PrayerTimesContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "الصلوات المؤداة: $prayedCount / 5",
-                            fontSize = 14.sp,
+                        Text("الصلوات المؤداة: $prayedCount / 5",
                             fontWeight = FontWeight.Bold,
-                            color = rc.onEmerald
-                        )
-                        Text(
-                            methodLabel(state.method),
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
+                            color = rc.onEmerald, style = RafiqType.bodyS)
+                        Text(methodLabel(state.method),
+                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.caption)
                     }
                 }
             }
@@ -193,12 +184,9 @@ private fun PrayerTimesContent(
                 }
 
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    stringResource(R.string.times_approximate),
-                    fontSize = 12.sp,
+                Text(stringResource(R.string.times_approximate),
                     color = rc.inkMed,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 4.dp), style = RafiqType.caption)
             }
         }
     }
@@ -261,24 +249,15 @@ private fun PrayerCard(
                     }
                     Spacer(Modifier.width(14.dp))
                     Column {
-                        Text(
-                            name,
-                            fontSize = 18.sp,
+                        Text(name,
                             fontWeight = FontWeight.Bold,
-                            color = rc.ink
-                        )
+                            color = rc.ink, style = RafiqType.titleM)
                         if (isNext) {
-                            Text(
-                                "الصلاة التالية",
-                                fontSize = 12.sp,
-                                color = rc.emerald
-                            )
+                            Text("الصلاة التالية",
+                                color = rc.emerald, style = RafiqType.caption)
                         } else if (isPrayed) {
-                            Text(
-                                "تم الأداء ✓",
-                                fontSize = 12.sp,
-                                color = rc.emerald
-                            )
+                            Text("تم الأداء ✓",
+                                color = rc.emerald, style = RafiqType.caption)
                         }
                     }
                 }

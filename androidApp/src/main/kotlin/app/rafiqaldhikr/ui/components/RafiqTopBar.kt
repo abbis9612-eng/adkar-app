@@ -45,11 +45,8 @@ fun RafiqTopBar(
                 color = rc.emerald,
             )
             if (subtitle != null) {
-                Text(
-                    subtitle,
-                    fontSize = 12.sp,
-                    color = rc.inkMed,
-                )
+                Text(subtitle,
+                    color = rc.inkMed, style = RafiqType.caption)
             }
         }
         Row(

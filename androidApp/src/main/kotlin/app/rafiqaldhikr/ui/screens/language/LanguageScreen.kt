@@ -80,12 +80,9 @@ fun LanguageScreen(navController: NavHostController) {
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp)
             ) {
-                Text(
-                    "اختر لغة التطبيق",
-                    fontSize = 18.sp,
+                Text("اختر لغة التطبيق",
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "سيتم تغيير لغة الواجهة فقط. النصوص القرآنية والأذكار تبقى بالعربية.",
@@ -115,12 +112,9 @@ fun LanguageScreen(navController: NavHostController) {
                             Text(lang.emoji, fontSize = 24.sp)
                             Spacer(Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    lang.nameNative,
-                                    fontSize = 16.sp,
+                                Text(lang.nameNative,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = rc.ink
-                                )
+                                    color = rc.ink, style = RafiqType.body)
                                 Text(
                                     lang.nameArabic,
                                     fontSize = 13.sp,

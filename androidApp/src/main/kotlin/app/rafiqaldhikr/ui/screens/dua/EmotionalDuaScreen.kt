@@ -69,12 +69,9 @@ fun EmotionalDuaScreen(navController: NavHostController) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(emoji, fontSize = 32.sp)
                                 Spacer(Modifier.width(12.dp))
-                                Text(
-                                    label,
-                                    fontSize = 18.sp,
+                                Text(label,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = rc.emerald
-                                )
+                                    color = rc.emerald, style = RafiqType.titleM)
                             }
                             Spacer(Modifier.height(10.dp))
                             Text(

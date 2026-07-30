@@ -77,11 +77,8 @@ fun PrayerTrackingScreen(
                             fontWeight = FontWeight.Bold,
                             color = rc.onEmerald
                         )
-                        Text(
-                            "صلوات اليوم", 
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
+                        Text("صلوات اليوم", 
+                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.body)
                         Spacer(Modifier.height(8.dp))
                         LinearProgressIndicator(
                             progress = { prayedCount / 5f },
@@ -119,18 +116,12 @@ fun PrayerTrackingScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
-                                Text(
-                                    name, 
-                                    fontSize = 18.sp,
+                                Text(name, 
                                     fontWeight = FontWeight.SemiBold,
-                                    color = rc.ink
-                                )
+                                    color = rc.ink, style = RafiqType.titleM)
                                 if (isPrayed && inMasjid) {
-                                    Text(
-                                        "🕌 في المسجد", 
-                                        fontSize = 12.sp, 
-                                        color = rc.emerald
-                                    )
+                                    Text("🕌 في المسجد", 
+                                        color = rc.emerald, style = RafiqType.caption)
                                 }
                             }
                             Row {
@@ -149,12 +140,9 @@ fun PrayerTrackingScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                Text(
-                    "سجّل صلواتك يومياً لمتابعة مداومتك",
-                    fontSize = 14.sp,
+                Text("سجّل صلواتك يومياً لمتابعة مداومتك",
                     color = rc.inkMed,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+                    modifier = Modifier.align(Alignment.CenterHorizontally), style = RafiqType.bodyS)
             }
         }
     }
