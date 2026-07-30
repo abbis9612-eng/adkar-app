@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.animations.breathingAnimation
 import app.rafiqaldhikr.ui.components.*
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -415,28 +414,23 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
 }
 
 /* ═══════════════════════════════════════════════════════
-   2. GEOM STAR + BASMALAH
+   2. BASMALAH — نص وحده، بلا إطار ولا زخرفة
 ═══════════════════════════════════════════════════════ */
 
 @Composable
 private fun BasmalahSection() {
     val rc = LocalRafiqColors.current
-    Column(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        GeomStar(60.dp, rc.gold, 0.30f, Modifier.breathingAnimation(minScale = 0.96f, maxScale = 1.04f))
-        Spacer(Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(Modifier.width(38.dp).height(1.dp).background(
-                Brush.horizontalGradient(listOf(Color.Transparent, rc.goldLight))))
-            Text(
-                "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-                fontSize = 19.sp,
-                fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
-                color = rc.gold,
-            )
-            Box(Modifier.width(38.dp).height(1.dp).background(
-                Brush.horizontalGradient(listOf(rc.goldLight, Color.Transparent))))
-        }
-    }
+    Text(
+        "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+        fontSize = 26.sp,
+        lineHeight = 42.sp,
+        fontFamily = app.rafiqaldhikr.ui.theme.AmiriFamily,
+        color = rc.emerald,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 14.dp, bottom = 2.dp),
+    )
 }
 
 /* ═══════════════════════════════════════════════════════
