@@ -74,7 +74,7 @@ fun Shamsa(
                 ShamsaState.Now -> {
                     drawCircle(rc.emerald.copy(alpha = pulse * 0.4f), radius = this.size.minDimension * 0.62f)
                     drawShamsaPetals(fillColor = rc.emerald, strokeColor = rc.emerald, filled = true)
-                    drawShamsaCore(fillColor = rc.emerald, strokeColor = rc.gold, filled = true, ringWidth = 1.6.dp.toPx())
+                    drawShamsaCore(fillColor = rc.emerald, strokeColor = rc.gold, filled = true, ringWidth = 1.6.dp)
                 }
                 ShamsaState.Done -> {
                     drawShamsaPetals(fillColor = rc.gold, strokeColor = rc.gold, filled = true)
