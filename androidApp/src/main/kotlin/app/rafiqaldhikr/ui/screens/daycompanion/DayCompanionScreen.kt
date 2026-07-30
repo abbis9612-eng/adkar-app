@@ -75,7 +75,7 @@ fun DayCompanionScreen(
                                     if (state.doneCount == 0) "ابدأ أول محطة — خطوة صغيرة تفتح يوماً عظيماً"
                                     else if (state.doneCount == state.stations.size) "ما شاء الله! أتممت رحلة اليوم كاملة"
                                     else "أحسنت — واصل، بقيت ${(state.stations.size - state.doneCount).localized(LocalArabicNumerals.current)} محطات",
-                                    fontSize = 12.sp, lineHeight = 18.sp,
+                                    fontSize = 12.sp, lineHeight = 20.sp,
                                     color = Color.White.copy(alpha = 0.85f)
                                 )
                             }
@@ -204,7 +204,7 @@ private fun StationCard(
                 Column(Modifier.weight(1f)) {
                     Text(
                         station.title,
-                        fontSize = 15.5.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (done || passed) rc.inkMed else rc.ink
                     )

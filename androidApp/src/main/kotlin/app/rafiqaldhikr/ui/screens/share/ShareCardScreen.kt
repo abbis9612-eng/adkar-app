@@ -28,6 +28,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun ShareCardScreen(
@@ -66,8 +67,7 @@ fun ShareCardScreen(
             ) {
                 Text(
                     text = "مشاركة بطاقة",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

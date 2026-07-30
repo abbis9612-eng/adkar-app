@@ -39,6 +39,7 @@ import app.rafiqaldhikr.ui.components.IcoCompass
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun QiblaScreen(
@@ -75,8 +76,7 @@ fun QiblaScreen(
             ) {
                 Text(
                     text = stringResource(R.string.qibla_title),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

@@ -100,7 +100,7 @@ private fun NowCard(
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            "الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                            "الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White,
                             modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(rc.emerald)
                                 .padding(horizontal = 10.dp, vertical = 3.dp)
                         )
@@ -108,7 +108,7 @@ private fun NowCard(
                     }
                     Spacer(Modifier.height(5.dp))
                     Text(station.title, fontSize = 18.sp, fontWeight = FontWeight.Bold,
-                        color = Color.White, lineHeight = 24.sp)
+                        color = Color.White, lineHeight = 27.sp)
                 }
             }
 
@@ -123,8 +123,8 @@ private fun NowCard(
                 ) {
                     IcoStar(14.dp, rc.goldLight)
                     Spacer(Modifier.width(8.dp))
-                    Text(station.virtue, fontSize = 11.5.sp, color = Color.White.copy(alpha = 0.92f),
-                        lineHeight = 17.sp, maxLines = 2, modifier = Modifier.weight(1f))
+                    Text(station.virtue, fontSize = 12.sp, color = Color.White.copy(alpha = 0.92f),
+                        lineHeight = 20.sp, maxLines = 2, modifier = Modifier.weight(1f))
                 }
             }
 
@@ -234,12 +234,12 @@ private fun DayPath(
                 verticalAlignment = Alignment.CenterVertically) {
                 Column {
                     Text("رحلة يومك", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("الآن · $nowTitle", fontSize = 11.5.sp, fontWeight = FontWeight.Bold,
+                    Text("الآن · $nowTitle", fontSize = 12.sp, fontWeight = FontWeight.Bold,
                         color = Color(0xFFF7E7AE))
                 }
                 Text(
                     "${state.doneCount} / ${state.stations.size} محطة".localizedDigits(LocalArabicNumerals.current),
-                    style = NumbersStyle, fontSize = 11.5.sp, color = Color(0xFFF7E7AE),
+                    style = NumbersStyle, fontSize = 12.sp, color = Color(0xFFF7E7AE),
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .background(Color.White.copy(alpha = 0.14f))
@@ -287,7 +287,7 @@ private fun DayPath(
                         Spacer(Modifier.height(5.dp))
                         Text(
                             st.title.substringBefore(" و").substringBefore(" —"),
-                            fontSize = 9.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
                             color = when {
                                 active -> Color(0xFFF7E7AE)
@@ -318,7 +318,7 @@ private fun DayPath(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("الأذان القادم", fontSize = 11.sp, color = Color.White.copy(alpha = 0.70f))
-                        Text("${prayerNames[nextPrayer.id]} $azanTime", fontSize = 14.5.sp,
+                        Text("${prayerNames[nextPrayer.id]} $azanTime", fontSize = 14.sp,
                             fontWeight = FontWeight.Bold, color = Color.White)
                     }
                     Text("متبقٍ $azanRemain", style = NumbersStyle, fontSize = 12.sp,
@@ -399,8 +399,9 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
         }
         // Center: Title + date
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // بلا letterSpacing — الحروف العربية متّصلة، وتباعدها يكسر وصل الكلمة.
             Text("رَفِيقُ الذِّكر", fontSize = 24.sp, fontWeight = FontWeight.Bold,
-                color = LocalRafiqColors.current.emerald, letterSpacing = 0.5.sp)
+                color = LocalRafiqColors.current.emerald)
             Spacer(Modifier.height(4.dp))
             Text(hijri.ifEmpty { "— هـ" }.localizedDigits(LocalArabicNumerals.current),
                 fontSize = 11.sp, fontWeight = FontWeight.Medium,
@@ -468,7 +469,7 @@ private fun GreetingCard(greeting: String, streak: Long) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                         IcoBell(11.dp, Color.White)
-                        Text("وقت الذِكر", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("وقت الذِكر", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }
@@ -476,8 +477,8 @@ private fun GreetingCard(greeting: String, streak: Long) {
                 fontFamily = app.rafiqaldhikr.ui.theme.QuranFamily,
                 fontWeight = FontWeight.Medium,
                 color = rc.gold, textAlign = TextAlign.Center,
-                lineHeight = 34.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
-            Text("سورة آل عمران – ٤١", fontSize = 10.sp, color = rc.inkMed,
+                lineHeight = 42.sp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+            Text("سورة آل عمران – ٤١", fontSize = 11.sp, color = rc.inkMed,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
     }
@@ -602,7 +603,7 @@ private fun CountdownBox(value: String, label: String, arabic: Boolean) {
             )
         }
         Spacer(Modifier.height(3.dp))
-        Text(label, fontSize = 10.sp, color = Color.White.copy(alpha = 0.65f))
+        Text(label, fontSize = 11.sp, color = Color.White.copy(alpha = 0.65f))
     }
 }
 
@@ -644,7 +645,7 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
                             "$percent٪".localizedDigits(LocalArabicNumerals.current),
                             style = NumbersStyle, fontSize = 17.sp, color = rc.emerald
                         )
-                        Text("إنجاز", fontSize = 10.sp, color = rc.inkMed)
+                        Text("إنجاز", fontSize = 11.sp, color = rc.inkMed)
                     }
                 }
             }
@@ -705,7 +706,7 @@ private fun AdhkarItem(
             modifier = Modifier.fillMaxWidth()) {
             CategoryBadge(iconRes, 56.dp)
             Spacer(Modifier.height(10.dp))
-            Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.ink, lineHeight = 20.sp)
+            Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.ink, lineHeight = 25.sp)
         }
     }
 }
@@ -746,7 +747,7 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
                         color = if (p.active) rc.emerald else rc.ink)
                     // "الآن" badge
                     if (p.active) {
-                        Text("الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                        Text("الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold,
                             color = Color.White,
                             modifier = Modifier.clip(RoundedCornerShape(20.dp))
                                 .background(rc.emerald).padding(horizontal = 9.dp, vertical = 2.dp))

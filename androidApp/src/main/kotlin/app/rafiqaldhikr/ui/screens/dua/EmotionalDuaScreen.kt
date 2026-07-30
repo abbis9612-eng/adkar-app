@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun EmotionalDuaScreen(navController: NavHostController) {
@@ -54,8 +55,7 @@ fun EmotionalDuaScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "أدعية حسب المشاعر",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald,
                 )
 

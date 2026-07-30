@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun HelpScreen(navController: NavHostController) {
@@ -45,8 +46,7 @@ fun HelpScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "المساعدة",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

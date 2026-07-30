@@ -42,6 +42,7 @@ import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -265,7 +266,7 @@ fun DuaCategoriesScreen(
                         RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("الأدعية", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                        Text("الأدعية", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
                         Text("أدعية مأثورة من القرآن والسنة", fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
                     }
                 }

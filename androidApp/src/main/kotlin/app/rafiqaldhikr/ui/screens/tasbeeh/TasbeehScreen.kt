@@ -36,6 +36,7 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -178,7 +179,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     if (done) {
                         RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
                     }
                 }
 
@@ -282,7 +283,7 @@ fun TasbeehScreen(
                 }
 
                 // Title
-                Text("المسبحة", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("المسبحة", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
             }
 
             // ═══ DHIKR SELECTOR — Horizontal ═══

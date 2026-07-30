@@ -25,6 +25,7 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* ══════════════════════════════════════════════════════════════
    SETTING-SPECIFIC ICON BACKGROUNDS
@@ -126,7 +127,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                             .background(rc.goldLight)
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(item.badge, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(item.badge, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                     Spacer(Modifier.width(8.dp))
                 }
@@ -174,7 +175,7 @@ fun SettingsScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("الإعدادات", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                Text("الإعدادات", style = RafiqType.titleL, color = rc.emerald)
 
                 RafiqBackButton(onClick = { navController.popBackStack() })
             }

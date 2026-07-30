@@ -29,6 +29,7 @@ import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoDua
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun RamadanHomeScreen(navController: NavHostController) {
@@ -54,8 +55,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "وضع رمضان",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

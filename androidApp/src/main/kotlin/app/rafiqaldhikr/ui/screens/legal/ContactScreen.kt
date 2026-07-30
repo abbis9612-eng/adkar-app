@@ -27,6 +27,7 @@ import app.rafiqaldhikr.ui.components.IcoMail
 import app.rafiqaldhikr.ui.components.IcoSend
 import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun ContactScreen(navController: NavHostController) {
@@ -54,8 +55,7 @@ fun ContactScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "تواصل معنا",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

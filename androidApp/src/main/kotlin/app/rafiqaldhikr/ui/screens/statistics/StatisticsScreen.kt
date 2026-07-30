@@ -41,6 +41,7 @@ import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun StatisticsScreen(
@@ -71,8 +72,7 @@ fun StatisticsScreen(
             ) {
                 Text(
                     text = "الإحصائيات",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

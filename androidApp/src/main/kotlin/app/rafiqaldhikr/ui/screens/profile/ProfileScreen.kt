@@ -32,6 +32,7 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* Colors provided by LocalRafiqColors */
 
@@ -143,7 +144,7 @@ private fun ProfileHeroCard() {
 
             Text(
                 "المستخدم",
-                fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                style = RafiqType.titleL,
                 color = Color.White,
             )
             Spacer(Modifier.height(4.dp))
@@ -294,7 +295,7 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                 if (idx < days.size) {
                     Text(
                         days[idx],
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                         color = if (isToday) rc.gold else rc.inkMed,
                     )
@@ -376,7 +377,7 @@ fun ProfileScreen(
                 PillBtn(onClick = { navController.navigate(RafiqRoute.Settings.route) }) {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
-                Text("حسابي", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("حسابي", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
             }
 
             // ═══ PROFILE HERO ═══

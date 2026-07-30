@@ -23,6 +23,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun PrayerMethodScreen(
@@ -69,8 +70,7 @@ fun PrayerMethodScreen(
             ) {
                 Text(
                     text = "طريقة الحساب",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

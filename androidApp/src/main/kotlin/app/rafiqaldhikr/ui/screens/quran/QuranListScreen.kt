@@ -33,6 +33,7 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -170,8 +171,8 @@ private fun DailyRecitationCard() {
             }
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("١٢:٣٤", fontSize = 10.sp, color = Color.White.copy(alpha = 0.45f))
-                Text("٣٥:١٢", fontSize = 10.sp, color = Color.White.copy(alpha = 0.45f))
+                Text("١٢:٣٤", fontSize = 11.sp, color = Color.White.copy(alpha = 0.45f))
+                Text("٣٥:١٢", fontSize = 11.sp, color = Color.White.copy(alpha = 0.45f))
             }
         }
     }
@@ -303,7 +304,7 @@ fun QuranListScreen(
                         RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
                     }
                 }
-                Text("القرآن الكريم", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("القرآن الكريم", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
             }
 
             when {

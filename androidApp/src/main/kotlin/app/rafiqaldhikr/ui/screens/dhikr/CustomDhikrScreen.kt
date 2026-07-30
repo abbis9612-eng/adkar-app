@@ -21,6 +21,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.IcoPlus
 import app.rafiqaldhikr.ui.components.IcoTrash
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun CustomDhikrScreen(
@@ -53,8 +54,7 @@ fun CustomDhikrScreen(
             ) {
                 Text(
                     text = "ذكر مخصص",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

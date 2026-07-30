@@ -31,6 +31,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.compose.koinInject
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun QuranSearchScreen(navController: NavHostController) {
@@ -62,8 +63,7 @@ fun QuranSearchScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "بحث في القرآن",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

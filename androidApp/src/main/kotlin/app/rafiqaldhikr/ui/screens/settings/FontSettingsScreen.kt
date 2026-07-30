@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,8 +50,7 @@ fun FontSettingsScreen(
             ) {
                 Text(
                     text = "إعدادات الخط",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

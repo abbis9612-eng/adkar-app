@@ -24,6 +24,7 @@ import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun GardenScreen(
@@ -72,8 +73,7 @@ fun GardenScreen(
             ) {
                 Text(
                     "الحديقة الروحية",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald,
                 )
 
@@ -104,8 +104,7 @@ fun GardenScreen(
                         Spacer(Modifier.height(8.dp))
                         Text(
                             plantLabel(plantScore),
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = RafiqType.titleL,
                             color = rc.emerald
                         )
                         Spacer(Modifier.height(4.dp))

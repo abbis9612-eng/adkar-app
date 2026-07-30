@@ -187,7 +187,7 @@ private fun BottomBarItemEnhanced(
         Text(
             stringResource(item.labelRes),
             style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 10.sp,
+                fontSize = 11.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
             ),
             color = labelColor

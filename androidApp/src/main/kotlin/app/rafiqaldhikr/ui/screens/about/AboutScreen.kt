@@ -20,6 +20,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun AboutScreen(navController: NavHostController) {
@@ -45,8 +46,7 @@ fun AboutScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "حول التطبيق",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 
@@ -69,7 +69,7 @@ fun AboutScreen(navController: NavHostController) {
                 Text(
                     "رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",
                     fontSize = 16.sp,
-                    lineHeight = 24.sp,
+                    lineHeight = 28.sp,
                     textAlign = TextAlign.Center,
                     color = rc.inkMed
                 )

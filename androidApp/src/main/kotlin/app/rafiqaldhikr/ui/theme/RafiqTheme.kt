@@ -92,9 +92,21 @@ fun RafiqTheme(
             typography  = RafiqTypography,
             shapes      = RafiqShapes,
         ) {
-            // فرض خط الواجهة الموحّد على كل نص لا يحدّد خطاً صراحةً —
-            // بدون هذا يبقى معظم التطبيق على خط النظام الافتراضي.
-            ProvideTextStyle(LocalTextStyle.current.copy(fontFamily = UiFamily)) {
+            // فرض خط الواجهة وارتفاع السطر العربي على كل نص لا يحدّدهما صراحةً.
+            //
+            // نقل الخط وحده (كما كان) ترك lineHeight = Unspecified، فكان النص
+            // يرجع لمقاييس الخط (~1.3) — أي أن نص التطبيق العربي كلّه كان مضغوطاً
+            // عمودياً بينما يحتاج 1.7–1.85.
+            //
+            // القيمة بوحدة em فتتناسب مع أي مقاس، وTrimmedLeading يمنعها من
+            // نفخ ارتفاع التسميات ذات السطر الواحد.
+            ProvideTextStyle(
+                LocalTextStyle.current.copy(
+                    fontFamily      = UiFamily,
+                    lineHeight      = ArabicLineHeight,
+                    lineHeightStyle = TrimmedLeading,
+                )
+            ) {
                 content()
             }
         }

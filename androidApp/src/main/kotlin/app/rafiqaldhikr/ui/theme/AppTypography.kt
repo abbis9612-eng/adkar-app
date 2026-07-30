@@ -4,6 +4,8 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 import androidx.compose.ui.text.font.Font
@@ -45,24 +47,121 @@ val AmiriFamily = FontFamily(
     Font(R.font.amiri_bold,    FontWeight.Bold),
 )
 
+/* ═══════════════════════════════════════════════════════════════════
+   ارتفاع السطر — القاعدة الأهم في الطباعة العربية
+
+   الحروف العربية تمتد تحت الـbaseline وفوق الـcap line بشكل لا يفعله
+   اللاتيني، والتشكيل يحتاج مساحة عمودية. المرجع: body عربي 1.7–1.85
+   مقابل 1.5–1.6 لاتيني، وعناوين 1.3–1.4 مقابل 1.1–1.2.
+
+   [ArabicLineHeight] هو الافتراضي المطبَّق على كل نص في التطبيق عبر
+   RafiqTheme، بوحدة em حتى يتناسب مع أي مقاس يحدّده النص نفسه.
+
+   [TrimmedLeading] يقصّ الفراغ الزائد فوق أول سطر وتحت آخر سطر فقط،
+   فتبقى العناوين والتسميات ذات السطر الواحد بارتفاعها الضيّق كما هي،
+   بينما تأخذ الفقرات المتعددة الأسطر كامل التنفّس بين سطورها.
+   بدونه كان رفع الـline-height سينفخ ارتفاع كل تسمية في التطبيق.
+═══════════════════════════════════════════════════════════════════ */
+
+val ArabicLineHeight = 1.75.em
+
+val TrimmedLeading = LineHeightStyle(
+    alignment = LineHeightStyle.Alignment.Center,
+    trim      = LineHeightStyle.Trim.Both,
+)
+
+private fun arabic(
+    family: FontFamily = UiFamily,
+    weight: FontWeight = FontWeight.Normal,
+    size:   Int,
+    line:   Int,
+    features: String? = null,
+) = TextStyle(
+    fontFamily          = family,
+    fontWeight          = weight,
+    fontSize            = size.sp,
+    lineHeight          = line.sp,
+    lineHeightStyle     = TrimmedLeading,
+    fontFeatureSettings = features,
+)
+
+/* ═══════════════════════════════════════════════════════════════════
+   RafiqType — سلّم الطباعة الموحّد
+
+   كل نص في التطبيق يستعمل نمطاً مسمّى من هنا. النمط يحمل الخط والوزن
+   والمقاس وارتفاع السطر معاً، فلا يُكتب `fontSize =` عارياً بعد اليوم.
+
+   النِّسب مقصودة: النص المشكول أوسع (1.80–1.92) لأن الحركات تحتاج
+   مساحة، والعناوين أضيق (1.38–1.50) لأنها سطر أو سطران.
+═══════════════════════════════════════════════════════════════════ */
+
+object RafiqType {
+
+    /* ── النص الشرعي ── */
+
+    /** المصحف — التشكيل العثماني يحتاج أوسع نسبة في التطبيق (1.92). */
+    val quran = arabic(QuranFamily, FontWeight.Normal, 24, 46)
+
+    /** نص الذكر والدعاء المشكول (1.80). */
+    val dhikr = arabic(NaskhFamily, FontWeight.Normal, 20, 36)
+
+    /** البسملة والآية المقتبسة القصيرة (1.62). */
+    val ayah = arabic(AmiriFamily, FontWeight.Normal, 26, 42)
+
+    /* ── الواجهة ── */
+
+    /** الرقم الضخم — عدّاد المسبحة وحده. */
+    val display = arabic(UiFamily, FontWeight.Bold, 32, 44, "tnum")
+
+    /** عنوان الشاشة في الشريط العلوي. */
+    val titleL = arabic(UiFamily, FontWeight.Bold, 22, 32)
+
+    /** عنوان بطاقة. */
+    val titleM = arabic(UiFamily, FontWeight.Bold, 18, 27)
+
+    /** النص العادي — الافتراضي (1.75). */
+    val body = arabic(UiFamily, FontWeight.Normal, 16, 28)
+
+    /** النص الثانوي (1.79). */
+    val bodyS = arabic(UiFamily, FontWeight.Normal, 14, 25)
+
+    /** عنوان قسم ونص زر. */
+    val label = arabic(UiFamily, FontWeight.Medium, 15, 23)
+
+    /** تسمية صغيرة. */
+    val caption = arabic(UiFamily, FontWeight.Normal, 12, 20)
+
+    /** شارة — الحدّ الأدنى المطلق للمقروئية العربية. */
+    val micro = arabic(UiFamily, FontWeight.Medium, 11, 17)
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   سلّم Material — يغذّي مكوّنات Material3 الجاهزة (الأزرار، الحقول،
+   الشيتات) بنفس أرقام RafiqType حتى لا يوجد سلّمان متنافسان.
+═══════════════════════════════════════════════════════════════════ */
+
 val RafiqTypography = Typography(
-    displayLarge  = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Bold,   fontSize = 28.sp),
-    headlineLarge = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Bold,   fontSize = 24.sp),
-    headlineSmall = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 20.sp),
-    titleLarge    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 18.sp),
-    titleMedium   = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp),
-    bodyLarge     = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 28.sp),
-    bodyMedium    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 24.sp),
-    labelLarge    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    labelSmall    = TextStyle(fontFamily = UiFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    displayLarge  = arabic(UiFamily, FontWeight.Bold,   28, 40),
+    headlineLarge = RafiqType.titleL,
+    headlineSmall = arabic(UiFamily, FontWeight.Medium, 20, 30),
+    titleLarge    = RafiqType.titleM,
+    titleMedium   = arabic(UiFamily, FontWeight.Medium, 16, 26),
+    bodyLarge     = RafiqType.body,
+    bodyMedium    = RafiqType.bodyS,
+    labelLarge    = arabic(UiFamily, FontWeight.Medium, 14, 22),
+    labelSmall    = RafiqType.caption,
 )
 
 /**
  * نمط الأرقام (العدّادات، الأوقات، الإحصائيات): نفس خط الواجهة الاعتيادي
  * مع tnum — أرقام بعرض ثابت فلا تهتز أثناء العدّ.
+ *
+ * المقاس يحدّده الاستدعاء؛ ارتفاع السطر يتبع المقاس بنسبة عربية.
  */
 val NumbersStyle = TextStyle(
-    fontFamily = UiFamily,
-    fontWeight = FontWeight.Bold,
+    fontFamily          = UiFamily,
+    fontWeight          = FontWeight.Bold,
     fontFeatureSettings = "tnum",
+    lineHeight          = 1.30.em,
+    lineHeightStyle     = TrimmedLeading,
 )

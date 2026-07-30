@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 data class ChangelogEntry(
     val version: String,
@@ -82,8 +83,7 @@ fun WhatsNewScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "ما الجديد",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 
@@ -140,7 +140,7 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                             .background(rc.emerald)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("الأحدث", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = rc.bg)
+                        Text("الأحدث", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = rc.bg)
                     }
                 }
             }

@@ -34,6 +34,7 @@ import app.rafiqaldhikr.ui.components.IcoSunset
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -189,8 +190,7 @@ fun AdhkarCategoriesScreen(
             ) {
                 Text(
                     "الأذكار",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = LocalRafiqColors.current.emerald,
                 )
 
@@ -251,8 +251,7 @@ fun AdhkarCategoriesScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "أَلَا بِذِكْرِ اللَّهِ\nتَطْمَئِنُّ الْقُلُوبُ",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = RafiqType.titleL,
                         color = Color.White,
                         lineHeight = 34.sp,
                     )

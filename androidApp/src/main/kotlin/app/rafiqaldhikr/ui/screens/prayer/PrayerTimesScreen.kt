@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun PrayerTimesScreen(
@@ -109,8 +110,7 @@ private fun PrayerTimesContent(
         ) {
             Text(
                 text = stringResource(R.string.prayer_times_title),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
+                style = RafiqType.titleL,
                 color = rc.emerald
             )
 

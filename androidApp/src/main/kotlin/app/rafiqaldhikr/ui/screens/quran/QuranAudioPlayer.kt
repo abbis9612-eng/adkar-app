@@ -31,6 +31,7 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import com.google.common.util.concurrent.MoreExecutors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun QuranAudioPlayer(
@@ -102,8 +103,7 @@ fun QuranAudioPlayer(
             ) {
                 Text(
                     "مشغل القرآن",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald,
                 )
 

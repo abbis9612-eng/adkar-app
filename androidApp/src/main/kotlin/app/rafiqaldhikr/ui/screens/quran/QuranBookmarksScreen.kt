@@ -32,6 +32,7 @@ import java.util.Locale
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun QuranBookmarksScreen(navController: NavHostController) {
@@ -59,8 +60,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "علامات القرآن",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

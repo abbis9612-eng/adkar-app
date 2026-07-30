@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.IcoCheck
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 data class LanguageOption(
     val code: String,
@@ -75,8 +76,7 @@ fun LanguageScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "اللغة — Language",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

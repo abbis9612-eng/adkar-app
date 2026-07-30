@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlinx.coroutines.delay
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun BreathingScreen(navController: NavHostController) {
@@ -83,8 +84,7 @@ fun BreathingScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "التنفس والذكر",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald,
                 )
 

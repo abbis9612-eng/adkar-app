@@ -30,6 +30,7 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun WeeklyReportScreen(
@@ -67,8 +68,7 @@ fun WeeklyReportScreen(
             ) {
                 Text(
                     text = "التقرير الأسبوعي",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

@@ -28,6 +28,7 @@ import app.rafiqaldhikr.ui.components.IcoTrash
 import app.rafiqaldhikr.ui.components.IcoUpload
 import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 @Composable
 fun ExportDataScreen(
@@ -59,8 +60,7 @@ fun ExportDataScreen(
             ) {
                 Text(
                     text = "إدارة البيانات",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = RafiqType.titleL,
                     color = rc.emerald
                 )
 

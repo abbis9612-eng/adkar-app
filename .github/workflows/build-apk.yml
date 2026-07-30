@@ -2,7 +2,7 @@ name: Build Debug APK
 
 on:
   push:
-    branches: [main, claude/app-ui-issues-t4ajad]
+    branches: [main, 'claude/**']
   workflow_dispatch:
 
 permissions:

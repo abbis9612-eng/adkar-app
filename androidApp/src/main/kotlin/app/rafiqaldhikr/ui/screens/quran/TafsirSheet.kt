@@ -82,9 +82,10 @@ fun TafsirSheet(
                 Text(
                     ayahText,
                     modifier  = Modifier.fillMaxWidth(),
+                    // 1.64 كان ضيّقاً على التشكيل العثماني — النسبة القرآنية 1.92
                     fontFamily = app.rafiqaldhikr.ui.theme.QuranFamily,
                     fontSize = 22.sp,
-                    lineHeight = 36.sp,
+                    lineHeight = 42.sp,
                     textAlign = TextAlign.Center,
                     color = rc.ink
                 )
