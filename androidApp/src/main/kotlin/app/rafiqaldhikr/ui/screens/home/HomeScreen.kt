@@ -14,8 +14,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
@@ -76,19 +74,11 @@ private fun NowCard(
             .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
             .clickable { navController.navigate(RafiqRoute.DayCompanion.route) }
     ) {
-        // ─── خلفية سينمائية تتغيّر حسب وقت اليوم ───
-        Image(
-            painter = painterResource(stationBackground(station.id)),
-            contentDescription = null,
-            modifier = Modifier.matchParentSize(),
-            contentScale = ContentScale.Crop,
-        )
-        // حجاب متدرّج داكن لضمان وضوح النص فوق أي خلفية
+        // سطح زمرّدي من تدرّج اللوحة — بدل صورة المسجد. الوقت يقوله
+        // شريط الميقات وحده، لا أربعة أجهزة زخرفية متنافسة.
         Box(
             Modifier.matchParentSize().background(
-                Brush.verticalGradient(
-                    listOf(Color.Black.copy(alpha = 0.28f), Color.Black.copy(alpha = 0.62f))
-                )
+                Brush.verticalGradient(listOf(rc.heroStart, rc.heroMid, rc.heroEnd))
             )
         )
 
@@ -158,15 +148,6 @@ private fun NowCard(
     }
 }
 
-/** خلفية بطاقة «الآن» حسب وقت المحطة الحالية — تُضمّن كأصول تعمل بلا إنترنت. */
-@androidx.annotation.DrawableRes
-private fun stationBackground(id: String): Int = when (id) {
-    "wake", "fajr_morning"                 -> app.rafiqaldhikr.R.drawable.bg_time_dawn
-    "duha"                                 -> app.rafiqaldhikr.R.drawable.bg_time_morning
-    "dhuhr", "asr_evening", "friday_kahf"  -> app.rafiqaldhikr.R.drawable.bg_time_noon
-    "maghrib"                              -> app.rafiqaldhikr.R.drawable.bg_time_dawn
-    else                                   -> app.rafiqaldhikr.R.drawable.bg_time_night
-}
 
 /* ═══════════════════════════════════════════════════════
    DAY PATH — مسار محطات اليوم (خط زمني حيّ)
@@ -218,15 +199,8 @@ private fun DayPath(
             .clip(RafiqShape.card)
             .border(1.dp, rc.gold.copy(alpha = BorderActive), RafiqShape.card)
     ) {
-        // خلفية سينمائية حسب وقت المحطة الحالية
-        Image(
-            painter = painterResource(stationBackground(nowSt.id)),
-            contentDescription = null,
-            modifier = Modifier.matchParentSize(),
-            contentScale = ContentScale.Crop,
-        )
         Box(Modifier.matchParentSize().background(
-            Brush.verticalGradient(listOf(Color(0xCC04160E), Color(0xE60A2F27)))))
+            Brush.verticalGradient(listOf(rc.heroStart, rc.heroMid, rc.heroEnd))))
 
         Column(Modifier.padding(15.dp)) {
             // ─── الرأس: العنوان + الآن + عدّاد المحطات ───
@@ -515,7 +489,11 @@ private fun NextPrayerCard(
     ) {
         Column(Modifier.fillMaxWidth()) {
             // مشهد سماء يتبع الصلاة القادمة نفسها — لون كل صلاة يميزها
-            PrayerScene(prayerName = name, modifier = Modifier.fillMaxWidth()) {
+            Box(
+                Modifier.fillMaxWidth().background(
+                    Brush.verticalGradient(listOf(rc.heroStart, rc.heroMid, rc.heroEnd))
+                )
+            ) {
               Box(Modifier.fillMaxWidth()) {
                 // Content: RTL → first(right)=name, last(left)=time
                 Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
@@ -626,7 +604,6 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         .clip(RafiqShape.card).background(rc.card)
         .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
-        GeomStar(100.dp, rc.emerald, 0.04f, Modifier.align(Alignment.TopStart).offset((-15).dp, (-15).dp))
         Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
             // RTL: first(right)=text, last(left)=circle
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -668,7 +645,7 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   6. ADHKAR GRID — 2×2 with centered icons + GeomStar bg
+   6. ADHKAR GRID — 2×2 بأيقونات موسّطة
 ═══════════════════════════════════════════════════════ */
 
 @Composable
@@ -788,14 +765,13 @@ fun HomeScreen(
     )
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        // خلفية حيّة تتغيّر مع وقت اليوم (خلف كل المحتوى)
-        LivingSkyBackground(Modifier.matchParentSize())
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .statusBarsPadding()) {
-            // 1. Header
+            // 1. Header + شريط الميقات
             Header(state.hijriDate,
                 onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                 onBell     = { navController.navigate(RafiqRoute.NotificationSettings.route) })
+            MeeqatBar()
 
             // 2. Basmalah
             BasmalahSection()

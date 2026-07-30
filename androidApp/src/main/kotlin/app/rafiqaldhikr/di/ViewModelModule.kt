@@ -18,6 +18,7 @@ import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.dhikr.CustomDhikrViewModel
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
+import app.rafiqaldhikr.ui.components.MeeqatViewModel
 
 val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
@@ -36,4 +37,5 @@ val viewModelModule = module {
     viewModelOf(::CustomDhikrViewModel)
     viewModelOf(::ExportDataViewModel)
     viewModelOf(::DayCompanionViewModel)
+    viewModelOf(::MeeqatViewModel)
 }

@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -403,7 +402,6 @@ fun TasbeehScreen(
                     Modifier
                         .size(160.dp)
                         .scale(tapScale)
-                        .shadow(20.dp, CircleShape, ambientColor = primaryColor.copy(alpha = 0.3f))
                         .clip(CircleShape)
                         .background(
                             Brush.radialGradient(

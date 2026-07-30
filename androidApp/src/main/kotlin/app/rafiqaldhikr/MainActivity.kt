@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
                 .collectAsStateWithLifecycle()
             val arabicNumerals by settingsViewModel.arabicNumerals
                 .collectAsStateWithLifecycle()
+            val reducedMotionPref by settingsViewModel.reducedMotion
+                .collectAsStateWithLifecycle()
             val isOnline by connectivity.isOnline.collectAsStateWithLifecycle()
 
             // Don't render until we know onboarding state
@@ -61,8 +63,15 @@ class MainActivity : AppCompatActivity() {
 
             RafiqTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
               androidx.compose.runtime.CompositionLocalProvider(
-                  app.rafiqaldhikr.ui.utils.LocalArabicNumerals provides arabicNumerals
+                  app.rafiqaldhikr.ui.utils.LocalArabicNumerals provides arabicNumerals,
+                  // إعداد «تقليل الحركة» كان موجوداً ولا يقرؤه أيّ أنيميشن.
+                  // الآن يُقرأ من إعداد المستخدم ومن إعداد النظام معاً.
+                  app.rafiqaldhikr.ui.theme.LocalReducedMotion provides
+                      app.rafiqaldhikr.ui.theme.rememberReducedMotion(reducedMotionPref),
               ) {
+               // طبقة الميقات: تحسب مواقيت اليوم مرّة واحدة، فتصبغ الورق
+               // بضوء الوقت وتغذّي شريط الميقات في كل شاشة.
+               app.rafiqaldhikr.ui.components.ProvideMeeqat {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -96,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                         modifier            = Modifier.padding(innerPadding)
                     )
                 }
+               }
               }
             }
         }

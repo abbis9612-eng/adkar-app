@@ -3,6 +3,8 @@ package app.rafiqaldhikr.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /**
  * شريط علوي موحد لكل الشاشات الداخلية:
@@ -27,6 +30,7 @@ fun RafiqTopBar(
     actions:  @Composable RowScope.() -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
+    Column {
     Row(
         Modifier
             .fillMaxWidth()
@@ -37,8 +41,7 @@ fun RafiqTopBar(
         Column(Modifier.weight(1f)) {
             Text(
                 title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                style = RafiqType.titleL,
                 color = rc.emerald,
             )
             if (subtitle != null) {
@@ -58,5 +61,9 @@ fun RafiqTopBar(
                 RafiqBackButton(onClick = onBack)
             }
         }
+    }
+    // شريط الميقات — عنصر التوقيع، أسفل رأس كل شاشة
+    MeeqatBar()
+    Spacer(Modifier.height(6.dp))
     }
 }
