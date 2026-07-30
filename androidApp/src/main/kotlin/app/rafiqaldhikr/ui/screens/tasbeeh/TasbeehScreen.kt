@@ -38,7 +38,8 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -140,9 +141,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .padding(18.dp)
     ) {
         Row(
@@ -268,22 +267,12 @@ fun TasbeehScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Left: Reset + Edit
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PillBtn(onClick = {
-                        viewModel.saveSession()
-                        viewModel.reset()
-                    }) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
-                    PillBtn(onClick = { showDhikrPicker = true }) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
-                }
-
-                // Title
-                Text("المسبحة", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
+            RafiqTopBar(title = "المسبحة") {
+                PillBtn(onClick = {
+                    viewModel.saveSession()
+                    viewModel.reset()
+                }) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
+                PillBtn(onClick = { showDhikrPicker = true }) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
             }
 
             // ═══ DHIKR SELECTOR — Horizontal ═══

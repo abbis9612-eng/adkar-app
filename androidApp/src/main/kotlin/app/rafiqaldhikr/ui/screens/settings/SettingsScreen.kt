@@ -26,8 +26,8 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* ══════════════════════════════════════════════════════════════
    SETTING-SPECIFIC ICON BACKGROUNDS
@@ -87,9 +87,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
     ) {
         items.forEachIndexed { idx, item ->
             Row(
@@ -171,15 +169,10 @@ fun SettingsScreen(navController: NavHostController) {
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("الإعدادات", style = RafiqType.titleL, color = rc.emerald)
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "الإعدادات",
+                onBack = {navController.popBackStack()},
+            )
 
             Spacer(Modifier.height(8.dp))
 

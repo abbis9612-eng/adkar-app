@@ -20,9 +20,8 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
-import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun PrivacyPolicyScreen(navController: NavHostController) {
@@ -39,21 +38,10 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "سياسة الخصوصية",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "سياسة الخصوصية",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -65,9 +53,7 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                         .padding(20.dp)
                 ) {
                     SectionTitle("مقدمة", rc)

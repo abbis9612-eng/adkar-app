@@ -19,9 +19,8 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
-import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,21 +42,10 @@ fun FontSettingsScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إعدادات الخط",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "إعدادات الخط",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(Modifier.padding(horizontal = 16.dp)) {
@@ -66,9 +54,7 @@ fun FontSettingsScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                         .padding(16.dp)
                 ) {
                     Text(
@@ -115,9 +101,7 @@ fun FontSettingsScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     Text(
                         "لغة الأرقام",

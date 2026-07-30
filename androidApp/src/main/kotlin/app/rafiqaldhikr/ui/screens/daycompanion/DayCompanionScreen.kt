@@ -27,7 +27,6 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.theme.BorderActive
 
 @Composable

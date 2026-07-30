@@ -24,9 +24,8 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
-import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun GardenScreen(
@@ -66,21 +65,10 @@ fun GardenScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "الحديقة الروحية",
-                    style = RafiqType.titleL,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "الحديقة الروحية",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
@@ -90,9 +78,7 @@ fun GardenScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     Column(
                         modifier            = Modifier.padding(24.dp).fillMaxWidth(),
@@ -139,9 +125,7 @@ fun GardenScreen(
                         Box(
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .clip(RafiqShape.card)
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                                .rafiqCard()
                         ) {
                             Column(
                                 modifier            = Modifier.fillMaxSize().padding(8.dp),
@@ -166,9 +150,7 @@ fun GardenScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("دليل النمو", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.emerald)

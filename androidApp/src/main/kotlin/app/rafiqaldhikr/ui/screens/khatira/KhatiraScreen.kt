@@ -26,8 +26,8 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun KhatiraScreen(
@@ -48,21 +48,10 @@ fun KhatiraScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(R.string.khatira),
-                    style = RafiqType.titleL,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.khatira),
+                onBack = {navController.popBackStack()},
+            )
 
             when {
                 state.isLoading -> LoadingState()
@@ -83,9 +72,7 @@ fun KhatiraScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RafiqShape.card)
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                                .rafiqCard()
                         ) {
                             Column(modifier = Modifier.padding(24.dp)) {
                                 Text(

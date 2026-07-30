@@ -40,7 +40,7 @@ import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 @Composable
 fun QiblaScreen(
@@ -68,21 +68,10 @@ fun QiblaScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.qibla_title),
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.qibla_title),
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier            = Modifier.fillMaxSize().padding(24.dp),

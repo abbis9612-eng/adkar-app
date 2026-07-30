@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
 
 /**
  * زر الرجوع الموحد للتطبيق — بديل النسخ اليدوية المكررة في الشاشات.

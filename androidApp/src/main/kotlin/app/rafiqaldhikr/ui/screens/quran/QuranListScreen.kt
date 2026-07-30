@@ -35,7 +35,8 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -229,9 +230,7 @@ private fun SurahCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -288,20 +287,13 @@ fun QuranListScreen(
                 .statusBarsPadding()
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }) {
-                        RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
-                    }
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }) {
-                        RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
-                    }
+            RafiqTopBar(title = "القرآن الكريم") {
+                PillBtn(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }) {
+                    RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
                 }
-                Text("القرآن الكريم", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
+                PillBtn(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }) {
+                    RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
+                }
             }
 
             when {

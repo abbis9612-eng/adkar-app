@@ -35,6 +35,7 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 data class Achievement(
     val key:         String,
@@ -99,21 +100,10 @@ fun AchievementsScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "الإنجازات",
-                    style = RafiqType.titleL,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "الإنجازات",
+                onBack = {navController.popBackStack()},
+            )
 
             LazyColumn(
                 modifier            = Modifier.fillMaxSize(),

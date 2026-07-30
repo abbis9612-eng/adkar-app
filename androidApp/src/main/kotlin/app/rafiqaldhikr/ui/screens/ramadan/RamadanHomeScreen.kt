@@ -30,8 +30,8 @@ import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoDua
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun RamadanHomeScreen(navController: NavHostController) {
@@ -48,21 +48,10 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "وضع رمضان",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "وضع رمضان",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -166,9 +155,7 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .clickable { onClick() }
     ) {
         Row(

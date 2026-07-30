@@ -25,7 +25,8 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun PrayerMethodScreen(
@@ -63,21 +64,10 @@ fun PrayerMethodScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "طريقة الحساب",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "طريقة الحساب",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -92,9 +82,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     methods.forEachIndexed { index, (key, label) ->
                         Row(
@@ -139,9 +127,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     madhabOptions.forEachIndexed { index, (key, label) ->
                         Row(
@@ -196,9 +182,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     presetElevations.forEachIndexed { index, (value, label) ->
                         Row(
@@ -276,9 +260,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     val f = settingsVM.fajrOffset.collectAsState().value
                     val d = settingsVM.dhuhrOffset.collectAsState().value

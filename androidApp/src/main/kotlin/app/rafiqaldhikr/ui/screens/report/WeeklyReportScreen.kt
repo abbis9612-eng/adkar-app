@@ -31,8 +31,8 @@ import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun WeeklyReportScreen(
@@ -61,21 +61,10 @@ fun WeeklyReportScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "التقرير الأسبوعي",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "التقرير الأسبوعي",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -134,9 +123,7 @@ fun WeeklyReportScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                         .padding(16.dp)
                 ) {
                     week.reversed().forEachIndexed { index, day ->
@@ -176,9 +163,7 @@ fun WeeklyReportScreen(
 private fun ReportStatCard(modifier: Modifier, icon: @Composable () -> Unit, value: String, label: String, rc: RafiqPalette) {
     Column(
         modifier = modifier
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

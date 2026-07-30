@@ -36,8 +36,7 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* Colors provided by LocalRafiqColors */
 
@@ -208,9 +207,7 @@ fun DhikrReadingScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RafiqShape.card)
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                                .rafiqCard()
                                 .padding(28.dp)
                         ) {
                             Column(

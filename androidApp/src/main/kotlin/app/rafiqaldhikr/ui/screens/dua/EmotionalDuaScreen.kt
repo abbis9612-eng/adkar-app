@@ -20,9 +20,8 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
-import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun EmotionalDuaScreen(navController: NavHostController) {
@@ -48,21 +47,10 @@ fun EmotionalDuaScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "أدعية حسب المشاعر",
-                    style = RafiqType.titleL,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "أدعية حسب المشاعر",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -75,9 +63,7 @@ fun EmotionalDuaScreen(navController: NavHostController) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RafiqShape.card)
-                            .background(rc.card)
-                            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                            .rafiqCard()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {

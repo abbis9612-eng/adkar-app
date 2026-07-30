@@ -35,8 +35,8 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -182,21 +182,10 @@ fun AdhkarCategoriesScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "الأذكار",
-                    style = RafiqType.titleL,
-                    color = LocalRafiqColors.current.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "الأذكار",
+                onBack = {navController.popBackStack()},
+            )
 
             // Subtitle
             Text(
@@ -304,9 +293,7 @@ private fun AdhkarCategoryCard(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {

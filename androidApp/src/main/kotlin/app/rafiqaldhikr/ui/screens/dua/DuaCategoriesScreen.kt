@@ -44,7 +44,8 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -205,9 +206,7 @@ private fun FavoriteDuaCard(text: String, source: String, onToggle: () -> Unit) 
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .padding(16.dp)
     ) {
         Column {
@@ -256,17 +255,12 @@ fun DuaCategoriesScreen(
         ) {
             // ═══ TOP BAR ═══
             item {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                RafiqTopBar(
+                    title    = "الأدعية",
+                    subtitle = "أدعية مأثورة من القرآن والسنة",
                 ) {
                     PillBtn(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }) {
                         RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("الأدعية", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
-                        Text("أدعية مأثورة من القرآن والسنة", fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
                     }
                 }
             }
@@ -371,9 +365,7 @@ fun DuaCategoriesScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RafiqShape.card)
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                                .rafiqCard()
                                 .clickable { navController.navigate(RafiqRoute.DuaList.withCategory(category)) }
                                 .padding(16.dp)
                         ) {

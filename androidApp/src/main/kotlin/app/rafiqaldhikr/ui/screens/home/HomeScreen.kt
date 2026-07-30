@@ -32,8 +32,8 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 
 /* Colors provided by LocalRafiqColors */
@@ -416,8 +416,7 @@ private fun BasmalahSection() {
 private fun GreetingCard(greeting: String, streak: Long) {
     val rc = LocalRafiqColors.current
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
-        .clip(RafiqShape.card).background(rc.card)
-        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
+        .rafiqCard()) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             // RTL: first child(right) = greeting, last child(left) = badges
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -602,8 +601,7 @@ private fun CountdownColon(alpha: Float) {
 private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
     val rc = LocalRafiqColors.current
     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-        .clip(RafiqShape.card).background(rc.card)
-        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
+        .rafiqCard()) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
             // RTL: first(right)=text, last(left)=circle
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -676,8 +674,7 @@ private fun AdhkarItem(
     m: Modifier = Modifier, onClick: () -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
-    Box(m.clip(RafiqShape.card).background(rc.card)
-        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+    Box(m.rafiqCard()
         .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 20.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()) {
@@ -696,8 +693,7 @@ private fun AdhkarItem(
 private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-        .clip(RafiqShape.card).background(rc.card)
-        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)) {
+        .rafiqCard()) {
         prayers.forEachIndexed { i, p ->
             Row(Modifier.fillMaxWidth()
                 .then(if (p.active) Modifier.background(rc.emerald.copy(alpha = 0.03f)) else Modifier)

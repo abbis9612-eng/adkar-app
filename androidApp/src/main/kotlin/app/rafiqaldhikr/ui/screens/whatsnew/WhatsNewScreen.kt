@@ -22,6 +22,7 @@ import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 data class ChangelogEntry(
     val version: String,
@@ -74,21 +75,10 @@ fun WhatsNewScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "ما الجديد",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "ما الجديد",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier

@@ -34,7 +34,8 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 /* Colors provided by LocalRafiqColors */
 
@@ -170,9 +171,7 @@ private fun StatCard(
     val rc = LocalRafiqColors.current
     Column(
         modifier
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .padding(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -247,9 +246,7 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
@@ -317,9 +314,7 @@ private fun QuickLinkCard(
     Box(
         modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .clickable(onClick = onClick)
             .padding(14.dp)
     ) {
@@ -365,15 +360,10 @@ fun ProfileScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            RafiqTopBar(title = "حسابي") {
                 PillBtn(onClick = { navController.navigate(RafiqRoute.Settings.route) }) {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
-                Text("حسابي", style = RafiqType.titleL, color = LocalRafiqColors.current.emerald)
             }
 
             // ═══ PROFILE HERO ═══
@@ -420,9 +410,7 @@ fun ProfileScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp)
-                    .clip(RafiqShape.card)
-                    .background(rc.card)
-                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                    .rafiqCard()
             ) {
                 TodayRow("أذكار الصباح", if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
                 TodayRow("أذكار المساء", if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)

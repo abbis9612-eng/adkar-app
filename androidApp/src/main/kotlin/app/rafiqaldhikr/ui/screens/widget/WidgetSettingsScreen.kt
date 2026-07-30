@@ -23,8 +23,8 @@ import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun WidgetSettingsScreen(navController: NavHostController) {
@@ -45,21 +45,10 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إعدادات الـ Widgets",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "إعدادات الـ Widgets",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -85,9 +74,7 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RafiqShape.card)
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                        .rafiqCard()
                 ) {
                     WidgetOption(
                         icon    = { IcoMosque(24.dp, rc.emerald) },

@@ -26,8 +26,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun DuaListScreen(
@@ -68,9 +67,7 @@ fun DuaListScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RafiqShape.card)
-                            .background(rc.card)
-                            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                            .rafiqCard()
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Text(

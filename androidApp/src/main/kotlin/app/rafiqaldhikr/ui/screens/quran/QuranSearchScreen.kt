@@ -32,8 +32,8 @@ import org.koin.compose.koinInject
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun QuranSearchScreen(navController: NavHostController) {
@@ -56,21 +56,10 @@ fun QuranSearchScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "بحث في القرآن",
-                    style = RafiqType.titleL,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "بحث في القرآن",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
@@ -140,9 +129,7 @@ private fun SearchResultCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .rafiqCard()
             .clickable { onClick() }
             .padding(16.dp)
     ) {

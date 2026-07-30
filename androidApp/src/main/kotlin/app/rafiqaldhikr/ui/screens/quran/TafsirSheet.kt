@@ -21,8 +21,7 @@ import app.rafiqaldhikr.ui.components.IcoCopy
 import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
-import app.rafiqaldhikr.ui.theme.BorderActive
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,9 +74,7 @@ fun TafsirSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RafiqShape.card)
-                    .background(rc.card)
-                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+                    .rafiqCard()
                     .padding(16.dp)
             ) {
                 Text(
