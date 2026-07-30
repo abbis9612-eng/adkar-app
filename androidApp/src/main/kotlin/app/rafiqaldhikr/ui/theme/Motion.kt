@@ -7,6 +7,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -76,3 +77,53 @@ fun <T> enterSpec(): FiniteAnimationSpec<T> =
 fun <T> progressSpec(durationMs: Int = 700): AnimationSpec<T> =
     if (LocalReducedMotion.current) snap()
     else tween(durationMs, easing = FastOutSlowInEasing)
+
+/* ═══════════════════════════════════════════════════════════════════
+   الحركات اللانهائية — تتوقّف عند تقليل الحركة
+
+   كانت في التطبيق 19 حركة لانهائية، ولا واحدة منها تقرأ الإعداد.
+   هذا البديل يرجع قيمة ثابتة عند التقليل، فتتجمّد الحركة بلا أي
+   تغيير في بنية النداء.
+═══════════════════════════════════════════════════════════════════ */
+
+/**
+ * قيمة متذبذبة لا نهائياً — أو ثابتة عند [LocalReducedMotion].
+ *
+ * @param restValue القيمة الساكنة عند التقليل. إن لم تُحدَّد:
+ *        الذبذبة (Reverse) تسكن عند منتصفها — لأن طرفَيها حالتان
+ *        متطرّفتان لا تصلح أيّهما وضعاً دائماً؛ والدورة (Restart)
+ *        تسكن عند بدايتها.
+ */
+@Composable
+fun stillableFloat(
+    initialValue: Float,
+    targetValue:  Float,
+    durationMs:   Int,
+    easing:       androidx.compose.animation.core.Easing = FastOutSlowInEasing,
+    repeatMode:   androidx.compose.animation.core.RepeatMode =
+        androidx.compose.animation.core.RepeatMode.Reverse,
+    label:        String = "inf",
+    restValue:    Float = Float.NaN,
+): androidx.compose.runtime.State<Float> =
+    if (LocalReducedMotion.current) {
+        val rest = when {
+            !restValue.isNaN() -> restValue
+            repeatMode == androidx.compose.animation.core.RepeatMode.Reverse ->
+                (initialValue + targetValue) / 2f
+            else -> initialValue
+        }
+        androidx.compose.runtime.remember(rest) {
+            androidx.compose.runtime.mutableFloatStateOf(rest)
+        }
+    } else {
+        androidx.compose.animation.core.rememberInfiniteTransition(label = label)
+            .animateFloat(
+                initialValue  = initialValue,
+                targetValue   = targetValue,
+                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                    animation  = tween(durationMs, easing = easing),
+                    repeatMode = repeatMode,
+                ),
+                label = "${label}Value",
+            )
+    }

@@ -35,6 +35,7 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.util.rememberPermissionState
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -273,25 +274,12 @@ private fun PageDots(total: Int, current: Int) {
 @Composable
 private fun OnboardingArt(iconType: Int) {
     val rc = LocalRafiqColors.current
-    val inf = rememberInfiniteTransition(label = "onbArt")
 
-    val rotation by inf.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(60_000, easing = LinearEasing)),
-        label = "rot"
-    )
+    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, "rot")
 
-    val pulse by inf.animateFloat(
-        0.92f, 1.08f,
-        infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulse"
-    )
+    val pulse by stillableFloat(0.92f, 1.08f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, "pulse")
 
-    val shimmer by inf.animateFloat(
-        0f, 1f,
-        infiniteRepeatable(tween(4000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "shimmer"
-    )
+    val shimmer by stillableFloat(0f, 1f, 4000, FastOutSlowInEasing, RepeatMode.Reverse, "shimmer")
 
     Canvas(Modifier.size(260.dp)) {
         val w = size.width

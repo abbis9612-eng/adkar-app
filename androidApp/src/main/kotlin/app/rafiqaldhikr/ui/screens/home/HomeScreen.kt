@@ -34,6 +34,8 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderActive
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import androidx.compose.material3.minimumInteractiveComponentSize
 
 
 /* Colors provided by LocalRafiqColors */
@@ -163,11 +165,7 @@ private fun DayPath(
     if (state.stations.isEmpty()) return
 
     // نبض المحطة الحالية — هالة تتنفّس
-    val pulse by rememberInfiniteTransition(label = "path").animateFloat(
-        0.35f, 1f,
-        infiniteRepeatable(tween(1100, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulse",
-    )
+    val pulse by stillableFloat(0.35f, 1f, 1100, FastOutSlowInEasing, RepeatMode.Reverse, "path")
     // المحطة الحالية (لاسم «الآن» وخلفية الوقت)
     val nowSt = state.nowStation
         ?: state.stations.firstOrNull { it.status == app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus.ACTIVE }
@@ -329,17 +327,6 @@ private fun ArcProgress(
     }
 }
 
-/* ═══════════════════════════════════════════════════════
-   PILL BUTTON — Header icon buttons
-═══════════════════════════════════════════════════════ */
-
-@Composable
-private fun PillBtn(onClick: () -> Unit = {}, m: Modifier = Modifier, content: @Composable () -> Unit) {
-    Box(m.size(44.dp).clip(RafiqShape.item)
-        .background(LocalRafiqColors.current.card).border(1.dp, LocalRafiqColors.current.divider, RafiqShape.item)
-        .clickable(onClick = onClick), contentAlignment = Alignment.Center) { content() }
-}
-
 /* Icons moved to IslamicIcons.kt */
 
 /* ═══════════════════════════════════════════════════════
@@ -367,7 +354,7 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         // In RTL: first child = RIGHT side → Bell
         Box {
-            PillBtn(onClick = onBell) { IcoBell(c = LocalRafiqColors.current.emerald) }
+            RafiqIconButton(onClick = onBell, label = "التنبيهات") { IcoBell(c = LocalRafiqColors.current.emerald) }
             Box(Modifier.size(7.dp).align(Alignment.TopStart).offset(x = 8.dp, y = 10.dp)
                 .clip(CircleShape).background(LocalRafiqColors.current.error))
         }
@@ -384,7 +371,7 @@ private fun Header(hijri: String, onSettings: () -> Unit = {}, onBell: () -> Uni
                     .background(LocalRafiqColors.current.chipBg).padding(horizontal = 12.dp, vertical = 2.dp))
         }
         // In RTL: last child = LEFT side → Settings
-        PillBtn(onClick = onSettings) { IcoGear(c = LocalRafiqColors.current.emerald) }
+        RafiqIconButton(onClick = onSettings, label = "الإعدادات") { IcoGear(c = LocalRafiqColors.current.emerald) }
     }
 }
 
@@ -469,9 +456,7 @@ private fun NextPrayerCard(
 ) {
     val rc = LocalRafiqColors.current
     val arabic = LocalArabicNumerals.current
-    val tr = rememberInfiniteTransition(label = "dot")
-    val da by tr.animateFloat(1f, 0.5f,
-        infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "da")
+    val da by stillableFloat(1f, 0.5f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, "da")
 
     // نسبة الوقت المنقضي بين الصلاتين — يتحدث كل ثانية مع العداد
     val progress = if (nextMillis > prevMillis && prevMillis > 0) {

@@ -2,11 +2,7 @@ package app.rafiqaldhikr.ui.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +20,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import app.rafiqaldhikr.ui.theme.LocalMeeqat
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.theme.LocalReducedMotion
+import app.rafiqaldhikr.ui.theme.progressSpec
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /**
  * شريط الميقات — عنصر التوقيع.
@@ -42,28 +39,19 @@ import app.rafiqaldhikr.ui.theme.LocalReducedMotion
 fun MeeqatBar(modifier: Modifier = Modifier) {
     val meeqat = LocalMeeqat.current
     val rc     = LocalRafiqColors.current
-    val still  = LocalReducedMotion.current
 
     if (!meeqat.resolved) return
 
     val progress by animateFloatAsState(
         targetValue   = meeqat.dayProgress,
-        animationSpec = tween(700, easing = FastOutSlowInEasing),
+        animationSpec = progressSpec(),
         label         = "meeqatProgress",
     )
 
-    val pulse by if (still) {
-        androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(1f) }
-    } else {
-        rememberInfiniteTransition(label = "meeqat").animateFloat(
-            initialValue  = 0.55f,
-            targetValue   = 1f,
-            animationSpec = infiniteRepeatable(
-                tween(1600, easing = FastOutSlowInEasing), RepeatMode.Reverse,
-            ),
-            label = "meeqatPulse",
-        )
-    }
+    // الحركة اللانهائية الوحيدة في التطبيق — وتسكن عند تقليل الحركة
+    val pulse by stillableFloat(
+        0.55f, 1f, 1600, FastOutSlowInEasing, RepeatMode.Reverse, "meeqat",
+    )
 
     Canvas(
         modifier

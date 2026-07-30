@@ -46,6 +46,7 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -140,23 +141,6 @@ private fun IconSettings(size: Dp = 17.dp, color: Color = LocalRafiqColors.curre
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier.size(40.dp)
-            .clip(RafiqShape.item)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
 
 /* ══════════════════════════════════════════════════════════════
    CATEGORY GRID CARD
@@ -259,7 +243,7 @@ fun DuaCategoriesScreen(
                     title    = "الأدعية",
                     subtitle = "أدعية مأثورة من القرآن والسنة",
                 ) {
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }) {
+                    RafiqIconButton(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }, label = "أدعية حسب الحال") {
                         RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
                     }
                 }

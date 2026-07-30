@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,8 @@ fun RafiqBackButton(
             .background(rc.card)
             .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
             .clickable(onClick = onClick)
+            // الشكل 40dp لكن مساحة اللمس 48 — الحدّ الأدنى مهما صغُر البصري
+            .minimumInteractiveComponentSize()
             .semantics { contentDescription = "رجوع" },
         contentAlignment = Alignment.Center,
     ) {

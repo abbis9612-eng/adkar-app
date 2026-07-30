@@ -40,6 +40,8 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -110,24 +112,6 @@ private fun ArcProgress(
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier
-            .size(40.dp)
-            .clip(RafiqShape.item)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
 
 /* ══════════════════════════════════════════════════════════════
    MILESTONE CARD
@@ -247,12 +231,7 @@ fun TasbeehScreen(
     )
 
     // Pulse animation for glow
-    val tr = rememberInfiniteTransition(label = "pulse")
-    val pulseAlpha by tr.animateFloat(
-        0.15f, 0.4f,
-        infiniteRepeatable(tween(2000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulseAlpha"
-    )
+    val pulseAlpha by stillableFloat(0.15f, 0.4f, 2000, FastOutSlowInEasing, RepeatMode.Reverse, "pulseAlpha")
 
     val scrollState = rememberScrollState()
 
@@ -268,11 +247,14 @@ fun TasbeehScreen(
         ) {
             // ═══ TOP BAR ═══
             RafiqTopBar(title = "المسبحة") {
-                PillBtn(onClick = {
-                    viewModel.saveSession()
-                    viewModel.reset()
-                }) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
-                PillBtn(onClick = { showDhikrPicker = true }) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
+                RafiqIconButton(
+                    onClick = {
+                        viewModel.saveSession()
+                        viewModel.reset()
+                    },
+                    label = "تصفير العدّاد",
+                ) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
+                RafiqIconButton(onClick = { showDhikrPicker = true }, label = "اختيار الذكر") { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
             }
 
             // ═══ DHIKR SELECTOR — Horizontal ═══

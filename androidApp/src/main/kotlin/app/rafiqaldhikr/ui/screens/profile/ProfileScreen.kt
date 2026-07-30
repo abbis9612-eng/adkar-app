@@ -36,6 +36,8 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors provided by LocalRafiqColors */
 
@@ -52,12 +54,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {
@@ -77,19 +74,6 @@ private fun GeomDecoration(
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun PillBtn(onClick: () -> Unit, content: @Composable () -> Unit) {
-    val rc = LocalRafiqColors.current
-    Box(
-        Modifier.size(40.dp)
-            .clip(RafiqShape.item)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
 
 /* ══════════════════════════════════════════════════════════════
    PROFILE HERO CARD
@@ -361,7 +345,7 @@ fun ProfileScreen(
         ) {
             // ═══ TOP BAR ═══
             RafiqTopBar(title = "حسابي") {
-                PillBtn(onClick = { navController.navigate(RafiqRoute.Settings.route) }) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Settings.route) }, label = "الإعدادات") {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
             }

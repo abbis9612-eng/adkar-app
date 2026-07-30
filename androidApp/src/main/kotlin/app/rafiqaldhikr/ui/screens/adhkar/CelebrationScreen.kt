@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -37,25 +38,12 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 @Composable
 fun CelebrationScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
-    val inf = rememberInfiniteTransition(label = "celebrate")
 
-    val pulseScale by inf.animateFloat(
-        0.92f, 1.08f,
-        infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulse"
-    )
+    val pulseScale by stillableFloat(0.92f, 1.08f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, "pulse")
 
-    val shimmer by inf.animateFloat(
-        0f, 1f,
-        infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "shimmer"
-    )
+    val shimmer by stillableFloat(0f, 1f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, "shimmer")
 
-    val rotation by inf.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(60_000, easing = LinearEasing)),
-        label = "rot"
-    )
+    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, "rot")
 
     Box(
         Modifier

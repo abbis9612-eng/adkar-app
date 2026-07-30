@@ -26,6 +26,7 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 @Composable
 fun BreathingScreen(navController: NavHostController) {
@@ -34,26 +35,9 @@ fun BreathingScreen(navController: NavHostController) {
     var phase by remember { mutableStateOf("استعد") }
     var dhikrText by remember { mutableStateOf("سبحان الله") }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "breathe")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue  = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
+    val scale by stillableFloat(0.6f, 1.2f, 4000, EaseInOutCubic, RepeatMode.Reverse, "scale")
 
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue  = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
+    val alpha by stillableFloat(0.3f, 0.8f, 4000, EaseInOutCubic, RepeatMode.Reverse, "alpha")
 
     // Phase cycling
     LaunchedEffect(isRunning) {

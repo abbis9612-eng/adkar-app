@@ -37,6 +37,7 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -86,12 +87,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {

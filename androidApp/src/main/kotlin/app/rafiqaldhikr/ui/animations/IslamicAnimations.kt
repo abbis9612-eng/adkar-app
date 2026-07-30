@@ -12,6 +12,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.sin
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 // ═══════════════════════════════════════
 // 1. GOLD SHIMMER — Animated gradient on text/elements
@@ -20,14 +21,12 @@ fun Modifier.goldShimmer(
     durationMs: Int = 3000
 ): Modifier = composed {
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val transition = rememberInfiniteTransition(label = "goldShimmer")
-    val offsetX by transition.animateFloat(
+    val offsetX by stillableFloat(
         initialValue = -size.width.toFloat(),
-        targetValue = 2f * size.width.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = LinearEasing)
-        ),
-        label = "shimmerX"
+        targetValue  = 2f * size.width.toFloat(),
+        durationMs   = durationMs,
+        easing       = LinearEasing,
+        label        = "goldShimmer",
     )
     val gold = LocalRafiqColors.current.gold
     background(
@@ -51,15 +50,13 @@ fun Modifier.breathingAnimation(
     maxScale: Float = 1.015f,
     durationMs: Int = 4000
 ): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "breathe")
-    val scale by transition.animateFloat(
+    val scale by stillableFloat(
         initialValue = minScale,
-        targetValue = maxScale,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breatheScale"
+        targetValue  = maxScale,
+        durationMs   = durationMs,
+        easing       = FastOutSlowInEasing,
+        repeatMode   = RepeatMode.Reverse,
+        label        = "breathe",
     )
     // ✅ graphicsLayer — GPU-only, no recomposition, no relayout
     graphicsLayer {
@@ -77,15 +74,13 @@ fun rememberGlowAlpha(
     maxAlpha: Float = 0.45f,
     durationMs: Int = 3000
 ): Float {
-    val transition = rememberInfiniteTransition(label = "glowPulse")
-    val alpha by transition.animateFloat(
+    val alpha by stillableFloat(
         initialValue = minAlpha,
-        targetValue = maxAlpha,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowAlpha"
+        targetValue  = maxAlpha,
+        durationMs   = durationMs,
+        easing       = FastOutSlowInEasing,
+        repeatMode   = RepeatMode.Reverse,
+        label        = "glowPulse",
     )
     return alpha
 }
@@ -156,15 +151,7 @@ fun rememberPressScale(): Pair<MutableState<Boolean>, Float> {
  */
 @Composable
 fun rememberParticleTime(): State<Float> {
-    val transition = rememberInfiniteTransition(label = "particles")
-    return transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(30000, easing = LinearEasing)
-        ),
-        label = "particleTime"
-    )
+    return stillableFloat(0f, 1000f, 30000, LinearEasing, "particleTime")
 }
 
 /**

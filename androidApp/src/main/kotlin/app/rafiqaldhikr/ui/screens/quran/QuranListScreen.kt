@@ -37,6 +37,8 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -51,12 +53,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width
         val cx = sz / 2f; val cy = sz / 2f
@@ -85,24 +82,6 @@ private fun GeomDecoration(
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier
-            .size(40.dp)
-            .clip(RafiqShape.item)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
 
 /* ══════════════════════════════════════════════════════════════
    DAILY RECITATION CARD (Hero)
@@ -288,10 +267,10 @@ fun QuranListScreen(
         ) {
             // ═══ TOP BAR ═══
             RafiqTopBar(title = "القرآن الكريم") {
-                PillBtn(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = "العلامات المحفوظة") {
                     RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
                 }
-                PillBtn(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }, label = "البحث في المصحف") {
                     RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
                 }
             }

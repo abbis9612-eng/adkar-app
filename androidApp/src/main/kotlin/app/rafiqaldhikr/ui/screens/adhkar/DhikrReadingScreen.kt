@@ -37,6 +37,7 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /* Colors provided by LocalRafiqColors */
 
@@ -55,12 +56,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {
@@ -91,12 +87,7 @@ fun DhikrReadingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
-    val inf = rememberInfiniteTransition(label = "dhikrPulse")
-    val pulseScale by inf.animateFloat(
-        1f, 1.04f,
-        infiniteRepeatable(tween(900, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulseScale"
-    )
+    val pulseScale by stillableFloat(1f, 1.04f, 900, FastOutSlowInEasing, RepeatMode.Reverse, "pulseScale")
 
     LaunchedEffect(category) { viewModel.loadCategory(category) }
 
