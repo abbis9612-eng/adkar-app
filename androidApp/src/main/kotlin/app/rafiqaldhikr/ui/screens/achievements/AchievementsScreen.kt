@@ -136,12 +136,12 @@ fun AchievementsScreen(
                                 "$unlocked / ${achievements.size}".localizedDigits(LocalArabicNumerals.current),
                                 style = NumbersStyle,
                                 fontSize = 32.sp,
-                                color = androidx.compose.ui.graphics.Color.White
+                                color = rc.onEmerald
                             )
                             Text(
                                 "إنجاز مفتوح",
                                 fontSize = 14.sp,
-                                color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.8f)
+                                color = rc.onEmerald.copy(alpha = 0.8f)
                             )
                             Spacer(Modifier.height(8.dp))
                             LinearProgressIndicator(
@@ -150,8 +150,8 @@ fun AchievementsScreen(
                                     .fillMaxWidth(0.7f)
                                     .height(6.dp)
                                     .clip(RafiqShape.chip),
-                                color = androidx.compose.ui.graphics.Color.White,
-                                trackColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.3f)
+                                color = rc.onEmerald,
+                                trackColor = rc.onEmerald.copy(alpha = 0.3f)
                             )
                         }
                     }
@@ -197,13 +197,13 @@ private fun AchievementCard(achievement: Achievement, rc: RafiqPalette) {
                     achievement.title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isUnlocked) rc.ink else rc.inkLight
+                    color = if (isUnlocked) rc.ink else rc.inkMed
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     achievement.description,
                     fontSize = 13.sp,
-                    color = if (isUnlocked) rc.inkMed else rc.inkLight
+                    color = rc.inkMed
                 )
             }
             if (isUnlocked) {

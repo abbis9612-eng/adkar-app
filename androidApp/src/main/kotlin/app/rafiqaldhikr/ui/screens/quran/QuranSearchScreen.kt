@@ -77,7 +77,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                     value         = query,
                     onValueChange = { query = it },
                     modifier      = Modifier.fillMaxWidth(),
-                    placeholder   = { Text("اكتب كلمة أو آية...", color = rc.inkLight) },
+                    placeholder   = { Text("اكتب كلمة أو آية...", color = rc.inkMed) },
                     singleLine    = true,
                     leadingIcon   = { IcoSearch(22.dp, rc.emerald) },
                     shape         = RafiqShape.card,
@@ -159,7 +159,7 @@ private fun SearchResultCard(
             Text(
                 "ص ${ayah.page}",
                 fontSize = 12.sp,
-                color = rc.inkLight
+                color = rc.inkMed
             )
         }
         Spacer(Modifier.height(8.dp))

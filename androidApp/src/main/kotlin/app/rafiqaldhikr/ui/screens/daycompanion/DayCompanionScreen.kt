@@ -209,17 +209,17 @@ private fun StationCard(
                         color = if (done || passed) rc.inkMed else rc.ink
                     )
                     Spacer(Modifier.height(2.dp))
-                    Text(station.timeLabel, fontSize = 11.sp, color = rc.inkLight)
+                    Text(station.timeLabel, fontSize = 11.sp, color = rc.inkMed)
                 }
                 when {
                     active -> Box(
                         Modifier.clip(RafiqShape.chip).background(rc.emerald)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("الآن", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("الآن", fontSize = 11.sp, color = rc.onEmerald, fontWeight = FontWeight.Bold)
                     }
                     done -> Text("تمّت", fontSize = 11.sp, color = rc.emerald, fontWeight = FontWeight.Bold)
-                    passed -> Text("فاتت", fontSize = 11.sp, color = rc.inkLight)
+                    passed -> Text("فاتت", fontSize = 11.sp, color = rc.inkMed)
                     else -> {}
                 }
             }
@@ -238,7 +238,7 @@ private fun StationCard(
                         app.rafiqaldhikr.ui.components.IcoStar(12.dp, rc.gold)
                         Spacer(Modifier.width(6.dp))
                         Text(station.virtue, fontSize = 11.sp, lineHeight = 17.sp,
-                            color = rc.brownAccent, modifier = Modifier.weight(1f))
+                            color = rc.gold, modifier = Modifier.weight(1f))
                     }
                 }
                 Spacer(Modifier.height(10.dp))

@@ -269,7 +269,7 @@ fun DhikrReadingScreen(
                                 Text(
                                     "المصدر: ${dhikr.source}",
                                     fontSize = 12.sp,
-                                    color = LocalRafiqColors.current.inkLight,
+                                    color = LocalRafiqColors.current.inkMed,
                                     textAlign = TextAlign.Center,
                                 )
 
@@ -344,7 +344,7 @@ fun DhikrReadingScreen(
                         Text(
                             "اضغط للتسبيح",
                             fontSize = 13.sp,
-                            color = LocalRafiqColors.current.inkLight,
+                            color = LocalRafiqColors.current.inkMed,
                         )
 
                         Spacer(Modifier.height(32.dp))

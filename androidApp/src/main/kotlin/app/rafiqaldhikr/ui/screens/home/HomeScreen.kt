@@ -101,7 +101,7 @@ private fun NowCard(
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            "الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                            "الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = rc.onEmerald,
                             modifier = Modifier.clip(RafiqShape.chip).background(rc.emerald)
                                 .padding(horizontal = 10.dp, vertical = 3.dp)
                         )
@@ -468,7 +468,7 @@ private fun GreetingCard(greeting: String, streak: Long) {
                         .padding(horizontal = 12.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        IcoBell(11.dp, Color.White)
+                        IcoBell(11.dp, rc.onEmerald)
                         Text("وقت الذِكر", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
@@ -639,7 +639,7 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
                         modifier = Modifier.padding(top = 4.dp))
                 }
                 // حلقة الإنجاز — مسار واضح ورقم بنمط الأرقام الموحد
-                ArcProgress(current, total, 74.dp, rc.gold, rc.emeraldPastel2, 6.dp) {
+                ArcProgress(current, total, 74.dp, rc.gold, rc.emeraldPastel, 6.dp) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "$percent٪".localizedDigits(LocalArabicNumerals.current),
@@ -661,7 +661,7 @@ private fun WirdCard(current: Int = 0, total: Int = 1000, percent: Int = 0) {
                     "$current / $total".localizedDigits(LocalArabicNumerals.current),
                     style = NumbersStyle, fontSize = 12.sp, color = rc.inkMed
                 )
-                Text("الهدف اليومي", fontSize = 11.sp, color = rc.inkLight)
+                Text("الهدف اليومي", fontSize = 11.sp, color = rc.inkMed)
             }
         }
     }
@@ -748,7 +748,7 @@ private fun PrayerTimesList(prayers: List<HomeViewModel.PrayerUi>) {
                     // "الآن" badge
                     if (p.active) {
                         Text("الآن", fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = rc.onEmerald,
                             modifier = Modifier.clip(RafiqShape.chip)
                                 .background(rc.emerald).padding(horizontal = 9.dp, vertical = 2.dp))
                     }

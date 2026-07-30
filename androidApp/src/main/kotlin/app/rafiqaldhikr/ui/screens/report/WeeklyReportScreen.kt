@@ -121,8 +121,8 @@ fun WeeklyReportScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.eveningRing) }, "$eveningDays / 7", "أذكار مساء", rc)
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.accentOrange) }, "${state.streak.current}", "سلسلة حالية", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.lightDusk) }, "$eveningDays / 7", "أذكار مساء", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.lightDusk) }, "${state.streak.current}", "سلسلة حالية", rc)
                 }
 
                 Spacer(Modifier.height(32.dp))
@@ -150,7 +150,7 @@ fun WeeklyReportScreen(
                             Text(day.date, fontSize = 14.sp, color = rc.inkMed)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
-                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.eveningRing)
+                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.lightDusk)
                                 if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                                     RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
                                     Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)

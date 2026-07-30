@@ -245,7 +245,7 @@ private fun MushafPage(
                 Modifier
                     .padding(horizontal = 10.dp)
                     .clip(CircleShape)
-                    .background(rc.accentGoldBg)
+                    .background(rc.tintGold)
                     .border(1.dp, rc.gold.copy(alpha = BorderActive), CircleShape)
                     .padding(horizontal = 14.dp, vertical = 3.dp)
             ) {
@@ -253,7 +253,7 @@ private fun MushafPage(
                     page.toEasternArabic(),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = rc.accentGold
+                    color = rc.gold
                 )
             }
             Box(Modifier.weight(1f).height(1.dp).background(rc.gold.copy(alpha = 0.2f)))

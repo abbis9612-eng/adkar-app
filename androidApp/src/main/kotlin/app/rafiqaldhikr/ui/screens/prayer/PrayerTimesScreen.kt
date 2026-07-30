@@ -171,7 +171,7 @@ private fun PrayerTimesContent(
                             "الصلوات المؤداة: $prayedCount / 5",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = rc.onEmerald
                         )
                         Text(
                             methodLabel(state.method),
@@ -207,7 +207,7 @@ private fun PrayerTimesContent(
                 Text(
                     stringResource(R.string.times_approximate),
                     fontSize = 12.sp,
-                    color = rc.inkLight,
+                    color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }

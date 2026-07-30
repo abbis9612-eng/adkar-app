@@ -51,9 +51,9 @@ fun LivingSkyBackground(
         SkyPhase.DAWN      -> { glow = rc.gold;         glowAlpha = 0.17f; body = rc.gold;        night = false }
         SkyPhase.MORNING   -> { glow = rc.emeraldLight; glowAlpha = 0.11f; body = rc.gold;        night = false }
         SkyPhase.DAY       -> { glow = rc.gold;         glowAlpha = 0.08f; body = rc.gold;        night = false }
-        SkyPhase.AFTERNOON -> { glow = rc.accentOrange; glowAlpha = 0.12f; body = rc.gold;        night = false }
-        SkyPhase.SUNSET    -> { glow = rc.accentOrange; glowAlpha = 0.20f; body = rc.accentOrange; night = false }
-        SkyPhase.NIGHT     -> { glow = rc.purpleSleep;  glowAlpha = 0.16f; body = rc.eveningRing;  night = true  }
+        SkyPhase.AFTERNOON -> { glow = rc.lightDusk; glowAlpha = 0.12f; body = rc.gold;        night = false }
+        SkyPhase.SUNSET    -> { glow = rc.lightDusk; glowAlpha = 0.20f; body = rc.lightDusk; night = false }
+        SkyPhase.NIGHT     -> { glow = rc.lightNight;  glowAlpha = 0.16f; body = rc.lightDusk;  night = true  }
     }
 
     // حركة لطيفة: وميض النجوم + انجراف بطيء

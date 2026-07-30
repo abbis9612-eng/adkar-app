@@ -81,7 +81,7 @@ fun RamadanHomeScreen(navController: NavHostController) {
                         modifier = Modifier.padding(24.dp).fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        RafiqIcon(RIcon.Moon, 44.dp, Color.White)
+                        RafiqIcon(RIcon.Moon, 44.dp, rc.onEmerald)
                         Spacer(Modifier.height(8.dp))
                         Text(
                             "رمضان كريم",

@@ -120,7 +120,8 @@ private fun GeomDecoration(
    CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
-private enum class AdhkarAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN }
+/** تمييز القسم من سلّم الضوء — لا لون مخترَعاً لكل قسم. */
+private enum class AdhkarAccent { GOLD, NIGHT, GREEN }
 
 private data class AdhkarCatDef(
     val key: String,
@@ -134,18 +135,16 @@ private data class AdhkarCatDef(
 private fun AdhkarAccent.colors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this) {
-        AdhkarAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
-        AdhkarAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
-        AdhkarAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
-        AdhkarAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
-        AdhkarAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
+        AdhkarAccent.GOLD  -> rc.tintGold      to rc.gold
+        AdhkarAccent.NIGHT -> rc.tintNight     to rc.lightNight
+        AdhkarAccent.GREEN -> rc.emeraldPastel to rc.emerald
     }
 }
 
 private val ADHKAR_CATS = listOf(
     AdhkarCatDef("morning", "أذكار الصباح", "ابدأ يومك بذكر الله", AdhkarAccent.GOLD, 0),
-    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarAccent.INDIGO, 1),
-    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarAccent.PURPLE, 2),
+    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarAccent.NIGHT, 1),
+    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarAccent.NIGHT, 2),
     AdhkarCatDef("istighfar", "الاستغفار",   "استغفر الله العظيم", AdhkarAccent.GREEN, 5),
     AdhkarCatDef("prayer",  "أذكار الصلاة", "أذكار بعد الصلاة", AdhkarAccent.GREEN, 3),
 )
@@ -274,7 +273,7 @@ fun AdhkarCategoriesScreen(
             val catsToShow = if (dbCategories.isNotEmpty()) {
                 dbCategories.map { (key, label) ->
                     ADHKAR_CATS.find { it.key == key }
-                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarAccent.BROWN, 4)
+                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarAccent.GOLD, 4)
                 }
             } else {
                 ADHKAR_CATS

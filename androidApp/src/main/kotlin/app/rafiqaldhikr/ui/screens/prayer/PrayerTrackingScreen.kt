@@ -86,7 +86,7 @@ fun PrayerTrackingScreen(
                             "$prayedCount / 5", 
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = rc.onEmerald
                         )
                         Text(
                             "صلوات اليوم", 
@@ -163,7 +163,7 @@ fun PrayerTrackingScreen(
                 Text(
                     "سجّل صلواتك يومياً لمتابعة مداومتك",
                     fontSize = 14.sp,
-                    color = rc.inkLight,
+                    color = rc.inkMed,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }

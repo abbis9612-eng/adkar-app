@@ -153,7 +153,7 @@ fun GardenScreen(
                                 Text(
                                     plant.date.takeLast(2),
                                     fontSize = 12.sp,
-                                    color = rc.inkLight
+                                    color = rc.inkMed
                                 )
                             }
                         }

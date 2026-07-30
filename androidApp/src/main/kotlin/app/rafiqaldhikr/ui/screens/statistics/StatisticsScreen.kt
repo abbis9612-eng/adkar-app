@@ -153,7 +153,7 @@ fun StatisticsScreen(
                     StatCard(
                         modifier  = Modifier.weight(1f),
                         icon      = { _, _ -> DuotoneIcon(IcoDuo.Crescent, 30.dp) },
-                        iconColor = rc.purpleSleep,
+                        iconColor = rc.lightNight,
                         title     = "أذكار المساء",
                         value     = if (p?.eveningDone == true) "تم" else "—",
                         suffix    = "",

@@ -68,8 +68,8 @@ private fun DhikrOption.resolveColors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this.type) {
         DhikrType.SUBHAN_ALLAH -> rc.emerald to rc.emeraldPastel
-        DhikrType.ALHAMDULILLAH -> rc.brownAccent to rc.meccanBg
-        DhikrType.ALLAHU_AKBAR -> rc.blueAccent to rc.blueAccent.copy(alpha = 0.1f)
+        DhikrType.ALHAMDULILLAH -> rc.gold to rc.meccanBg
+        DhikrType.ALLAHU_AKBAR -> rc.lightNight to rc.lightNight.copy(alpha = 0.1f)
     }
 }
 

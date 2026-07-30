@@ -107,8 +107,8 @@ fun NotificationSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text(title, fontSize = 16.sp, color = if (enabled) rc.ink else rc.inkLight)
-                                Text(subtitle, fontSize = 13.sp, color = if (enabled) rc.inkMed else rc.inkLight)
+                                Text(title, fontSize = 16.sp, color = if (enabled) rc.ink else rc.inkMed)
+                                Text(subtitle, fontSize = 13.sp, color = if (enabled) rc.inkMed else rc.inkMed)
                             }
                         }
                         

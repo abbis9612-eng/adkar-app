@@ -55,7 +55,7 @@ private val GROUP_1 = listOf(
     SettingItem(RIcon.Palette,  "إعدادات المظهر",    { it.gold }, route = "theme_settings"),
     SettingItem(RIcon.Font,     "إعدادات الخط",      { it.emerald }, route = "font_settings"),
     SettingItem(RIcon.Bell,     "إعدادات الإشعارات", { it.inkMed }, route = "notification_settings"),
-    SettingItem(RIcon.Clock,    "طريقة حساب الصلاة", { it.brownAccent }, route = "prayer_method"),
+    SettingItem(RIcon.Clock,    "طريقة حساب الصلاة", { it.gold }, route = "prayer_method"),
     SettingItem(RIcon.User,     "إمكانية الوصول",    { it.emerald }, route = "accessibility_settings"),
     SettingItem(RIcon.Globe,    "اللغة",             { it.gold }, route = "language"),
 )
@@ -64,12 +64,12 @@ private val GROUP_2 = listOf(
     // "المميز" (route = "premium") مخفي مؤقتاً حتى يكتمل ربط RevenueCat —
     // الشاشة الحالية أزرارها غير فعّالة (شراء/استعادة) والمتاجر ترفض ذلك.
     SettingItem(RIcon.Widget,   "إعدادات الودجت",    { it.emerald }, route = "widget_settings"),
-    SettingItem(RIcon.Upload,   "تصدير البيانات",    { it.brownAccent }, route = "export_data"),
+    SettingItem(RIcon.Upload,   "تصدير البيانات",    { it.gold }, route = "export_data"),
 )
 
 private val GROUP_3 = listOf(
     SettingItem(RIcon.Info,      "حول التطبيق",       { it.inkMed }, route = "about"),
-    SettingItem(RIcon.Help,      "المساعدة",          { it.brownAccent }, route = "help"),
+    SettingItem(RIcon.Help,      "المساعدة",          { it.gold }, route = "help"),
     SettingItem(RIcon.Sparkles,  "ما الجديد",         { it.emerald }, route = "whats_new"),
     SettingItem(RIcon.Shield,    "سياسة الخصوصية",    { it.gold }, route = "privacy_policy"),
     SettingItem(RIcon.Document,  "شروط الاستخدام",    { it.inkMed }, route = "terms"),
@@ -125,10 +125,10 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                     Box(
                         Modifier
                             .clip(RafiqShape.item)
-                            .background(rc.goldLight)
+                            .background(rc.gold)
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(item.badge, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(item.badge, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = rc.onGold)
                     }
                     Spacer(Modifier.width(8.dp))
                 }

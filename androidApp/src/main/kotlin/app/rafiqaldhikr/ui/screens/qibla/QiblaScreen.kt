@@ -224,7 +224,7 @@ private fun QiblaCompassContent(
         text      = stringResource(R.string.calibrate_compass),
         fontSize = 14.sp,
         textAlign = TextAlign.Center,
-        color = rc.inkLight
+        color = rc.inkMed
     )
 }
 

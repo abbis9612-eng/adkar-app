@@ -39,7 +39,7 @@ import app.rafiqaldhikr.ui.theme.BorderActive
 
 /* Colors provided by LocalRafiqColors */
 
-/* البرتقالي يأتي من RafiqPalette (accentOrange) */
+/* ألوان الأقسام من سلّم الضوء في RafiqPalette */
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION
@@ -229,7 +229,7 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
             Text(
                 value,
                 fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                color = if (isAchieved) rc.emerald else rc.inkLight,
+                color = if (isAchieved) rc.emerald else rc.inkMed,
             )
         }
     }
@@ -287,7 +287,7 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                         Text(
                             "$score",
                             fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                            color = if (score >= 2) rc.emerald else rc.inkLight,
+                            color = if (score >= 2) rc.emerald else rc.inkMed,
                         )
                     }
                 }
@@ -400,14 +400,14 @@ fun ProfileScreen(
                     icon = { RafiqIcon(RIcon.Trophy, 20.dp, rc.goldLight) },
                     value = "${state.streak.longest}",
                     label = "أطول سلسلة",
-                    iconBg = LocalRafiqColors.current.accentGoldBg,
+                    iconBg = LocalRafiqColors.current.tintGold,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.accentOrange) },
+                    icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.lightDusk) },
                     value = "${state.streak.current}",
                     label = "سلسلة حالية",
-                    iconBg = LocalRafiqColors.current.accentOrangeBg,
+                    iconBg = LocalRafiqColors.current.tintDusk,
                     modifier = Modifier.weight(1f),
                 )
             }

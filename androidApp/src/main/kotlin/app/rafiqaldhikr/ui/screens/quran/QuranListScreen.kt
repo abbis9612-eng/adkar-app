@@ -162,7 +162,7 @@ private fun DailyRecitationCard() {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipBack, 16.dp, Color.White) }
                 Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.goldLight).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.Play, 22.dp, Color.White) }
+                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.gold).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.Play, 22.dp, Color.White) }
                 Spacer(Modifier.width(16.dp))
                 Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipForward, 16.dp, Color.White) }
             }
@@ -197,7 +197,7 @@ private fun QuranSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 14.dp),
         placeholder = {
-            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkLight, fontSize = 14.sp)
+            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkMed, fontSize = 14.sp)
         },
         leadingIcon = {
             RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)

@@ -136,7 +136,7 @@ private fun BookmarkCard(
                     Text(
                         dateStr,
                         fontSize = 12.sp,
-                        color = rc.inkLight
+                        color = rc.inkMed
                     )
                 }
             }

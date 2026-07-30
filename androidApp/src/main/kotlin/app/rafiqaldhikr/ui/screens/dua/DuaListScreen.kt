@@ -88,7 +88,7 @@ fun DuaListScreen(
                                 Text(
                                     "${dua.source} (${dua.sourceGrade})",
                                     fontSize = 12.sp,
-                                    color    = rc.inkLight,
+                                    color    = rc.inkMed,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Box(

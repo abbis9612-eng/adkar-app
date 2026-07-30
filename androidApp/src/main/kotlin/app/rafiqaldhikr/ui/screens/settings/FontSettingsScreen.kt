@@ -102,9 +102,9 @@ fun FontSettingsScreen(
                     )
                     
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("أصغر", fontSize = 12.sp, color = rc.inkLight)
+                        Text("أصغر", fontSize = 12.sp, color = rc.inkMed)
                         Text("${(scale * 100).toInt()}%", fontSize = 14.sp, color = rc.gold, fontWeight = FontWeight.Bold)
-                        Text("أكبر", fontSize = 12.sp, color = rc.inkLight)
+                        Text("أكبر", fontSize = 12.sp, color = rc.inkMed)
                     }
                 }
 

@@ -52,7 +52,8 @@ import app.rafiqaldhikr.ui.theme.BorderActive
    DUA CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
-internal enum class DuaAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN, ORANGE }
+/** تمييز القسم من سلّم الضوء — لا لون مخترَعاً لكل قسم. */
+internal enum class DuaAccent { GOLD, NIGHT, GREEN, DUSK }
 
 internal data class DuaCategoryDef(
     val name: String,
@@ -64,14 +65,14 @@ internal data class DuaCategoryDef(
 // كل الأقسام المعروفة — تُعرض فقط التي لها أدعية فعلية في قاعدة البيانات
 internal val KNOWN_DUA_CATEGORIES = listOf(
     DuaCategoryDef("أدعية الصباح",     "morning",    0, DuaAccent.GOLD),
-    DuaCategoryDef("أدعية المساء",     "evening",    1, DuaAccent.INDIGO),
-    DuaCategoryDef("أدعية النوم",      "sleep",      2, DuaAccent.PURPLE),
+    DuaCategoryDef("أدعية المساء",     "evening",    1, DuaAccent.NIGHT),
+    DuaCategoryDef("أدعية النوم",      "sleep",      2, DuaAccent.NIGHT),
     DuaCategoryDef("أدعية من القرآن",  "quran",      2, DuaAccent.GREEN),
     DuaCategoryDef("أدعية الطعام",     "food",       3, DuaAccent.GREEN),
-    DuaCategoryDef("أدعية السفر",      "travel",     4, DuaAccent.BROWN),
-    DuaCategoryDef("أدعية الهمّ والقلق", "anxiety",   3, DuaAccent.INDIGO),
-    DuaCategoryDef("أدعية المرض",      "sickness",   3, DuaAccent.PURPLE),
-    DuaCategoryDef("أدعية جامعة",      "general",    2, DuaAccent.BROWN),
+    DuaCategoryDef("أدعية السفر",      "travel",     4, DuaAccent.GOLD),
+    DuaCategoryDef("أدعية الهمّ والقلق", "anxiety",   3, DuaAccent.NIGHT),
+    DuaCategoryDef("أدعية المرض",      "sickness",   3, DuaAccent.NIGHT),
+    DuaCategoryDef("أدعية جامعة",      "general",    2, DuaAccent.GOLD),
     DuaCategoryDef("دعاء الاستخارة",   "istikharah", 5, DuaAccent.GOLD),
 )
 
@@ -89,12 +90,10 @@ internal fun duaCountLabel(count: Long, arabic: Boolean = true): String = when {
 private fun DuaAccent.colors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this) {
-        DuaAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
-        DuaAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
-        DuaAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
-        DuaAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
-        DuaAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
-        DuaAccent.ORANGE -> rc.accentOrangeBg to rc.accentOrange
+        DuaAccent.GOLD  -> rc.tintGold      to rc.gold
+        DuaAccent.NIGHT -> rc.tintNight     to rc.lightNight
+        DuaAccent.GREEN -> rc.emeraldPastel to rc.emerald
+        DuaAccent.DUSK  -> rc.tintDusk      to rc.lightDusk
     }
 }
 
@@ -283,7 +282,7 @@ fun DuaCategoriesScreen(
                         Box(
                             Modifier.width(4.dp).height(18.dp)
                                 .clip(RafiqShape.chip)
-                                .background(rc.goldLight)
+                                .background(rc.gold)
                         )
                         Text("المفضلة", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
                     }

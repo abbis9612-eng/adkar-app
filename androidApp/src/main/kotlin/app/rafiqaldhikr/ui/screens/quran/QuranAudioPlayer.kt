@@ -150,8 +150,8 @@ fun QuranAudioPlayer(
                     )
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("0:00",  fontSize = 12.sp, color = rc.inkLight)
-                    Text("--:--", fontSize = 12.sp, color = rc.inkLight)
+                    Text("0:00",  fontSize = 12.sp, color = rc.inkMed)
+                    Text("--:--", fontSize = 12.sp, color = rc.inkMed)
                 }
 
                 Spacer(Modifier.height(24.dp))
