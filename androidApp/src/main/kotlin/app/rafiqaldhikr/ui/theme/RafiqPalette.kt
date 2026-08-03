@@ -100,32 +100,33 @@ data class RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val LightRafiqPalette = RafiqPalette(
-    // #F5F0E8 السابق كان على بُعد خطوة من الكريمي المعروف كعلامة مخرجات AI.
-    // هذا أدفأ وأقلّ حياداً، وأقرب إلى ورق المخطوط.
-    bg             = Color(0xFFF2EDE1),
-    card           = Color(0xFFFFFFFF),
-    cardPrayed     = Color(0xFFE7E5DB),
-    chipBg         = Color(0xFFEAE4D6),
+    // ورق لا خلفية. الكريمي الفاتح يقول «خلفية تطبيق»؛ هذا يقول ورقاً،
+    // والبطاقة فوقه ورقةٌ أفتح لا بياضاً نقياً.
+    bg             = Color(0xFFEDE6D6),
+    card           = Color(0xFFF7F2E6),
+    cardPrayed     = Color(0xFFE0D9C6),
+    chipBg         = Color(0xFFEAE3D3),  // inkMed فوقه 4.41:1
 
     emerald        = Color(0xFF09472B),
     emeraldMed     = Color(0xFF0B5E38),
     emeraldLight   = Color(0xFF0D7446),
     emeraldPastel  = Color(0xFFE0EFE7),
 
-    gold           = Color(0xFFB07C20),
-    goldLight      = Color(0xFFC99230),
+    gold           = Color(0xFF9A6B14),  // 3.79:1 على الورق — عُمِّق مع الورق
+    goldLight      = Color(0xFFB98A2B),
 
-    onEmerald      = Color(0xFFFFFFFF),  // 10.78:1
-    onGold         = Color(0xFFFFFFFF),  //  3.65:1 — أيقونات ونصّ كبير
+    onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
+    onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
 
-    ink            = Color(0xFF1A1408),
-    inkDark        = Color(0xFF33280F),
-    inkMed         = Color(0xFF6E6455),
-    // 2.01:1 سابقاً — أدنى من كل عتبة. الآن 3.42:1، ومقصور على
-    // الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
-    inkLight       = Color(0xFF8A7E66),
+    // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
+    ink            = Color(0xFF14261C),   // 12.76:1
+    inkDark        = Color(0xFF2B3B31),
+    inkMed         = Color(0xFF5C6B5F),   //  4.54:1
+    // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
+    inkLight       = Color(0xFF747D71),   //  3.44:1
 
-    divider        = Color(0x1AB07C20),
+    // خطّ المسطرة — لا فاصل رمادي
+    divider        = Color(0xFFCDC1A6),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
@@ -136,12 +137,12 @@ val LightRafiqPalette = RafiqPalette(
     madaniBg       = Color(0xFFE0EFE7),
     madaniText     = Color(0xFF09472B),
 
-    lightDusk      = Color(0xFFA5560A),  // 4.57:1 على الورق — يصلح نصّاً لا أيقونةً فقط
-    lightNight     = Color(0xFF3A4A78),
+    lightDusk      = Color(0xFF9C5109),  // 4.70:1 على الورق الأغمق
+    lightNight     = Color(0xFF3A4A78),  // 6.95:1
 
-    tintGold       = Color(0xFFFBF3E3),
-    tintDusk       = Color(0xFFFBEFE0),
-    tintNight      = Color(0xFFEDEEF7),
+    tintGold       = Color(0xFFF6EDD9),
+    tintDusk       = Color(0xFFF6E8D4),
+    tintNight      = Color(0xFFE7E7EF),
 
     success        = Color(0xFF2E7D32),
     warning        = Color(0xFFF9A825),
@@ -153,10 +154,10 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF0F0D08),
-    card           = Color(0xFF1E1A12),
+    bg             = Color(0xFF13120C),
+    card           = Color(0xFF1D1B14),
     cardPrayed     = Color(0xFF17231C),
-    chipBg         = Color(0xFF2A2519),
+    chipBg         = Color(0xFF272419),
 
     emerald        = Color(0xFF4CAF7B),
     emeraldMed     = Color(0xFF3D9B6A),
@@ -166,15 +167,15 @@ val DarkRafiqPalette = RafiqPalette(
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    onEmerald      = Color(0xFF0F0D08),  // 7.14:1 — الأبيض هنا 2.72:1 فقط
-    onGold         = Color(0xFF0F0D08),  // 8.68:1 — الأبيض هنا 2.24:1 فقط
+    onEmerald      = Color(0xFF13120C),  // 7.1:1 — الأبيض هنا 2.72:1 فقط
+    onGold         = Color(0xFF13120C),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    ink            = Color(0xFFE8E0D0),
+    ink            = Color(0xFFEBE3CE),
     inkDark        = Color(0xFFD4C8B4),
-    inkMed         = Color(0xFFA09480),
-    inkLight       = Color(0xFF7A7060),
+    inkMed         = Color(0xFFA9A08C),
+    inkLight       = Color(0xFF7D776B),
 
-    divider        = Color(0x26DAA520),
+    divider        = Color(0xFF33301F),
 
     heroStart      = Color(0xFF0A1F14),
     heroMid        = Color(0xFF0F3322),

@@ -21,7 +21,7 @@ import app.rafiqaldhikr.ui.screens.dua.EmotionalDuaScreen
 import app.rafiqaldhikr.ui.screens.export.ExportDataScreen
 import app.rafiqaldhikr.ui.screens.garden.GardenScreen
 import app.rafiqaldhikr.ui.screens.help.HelpScreen
-import app.rafiqaldhikr.ui.screens.home.HomeScreen
+import app.rafiqaldhikr.ui.screens.waraqa.WaraqaScreen
 import app.rafiqaldhikr.ui.screens.khatira.KhatiraScreen
 import app.rafiqaldhikr.ui.screens.legal.ContactScreen
 import app.rafiqaldhikr.ui.screens.legal.PrivacyPolicyScreen
@@ -79,7 +79,7 @@ fun RafiqNavGraph(
         //  M1 — Core
         // ═══════════════════════════════════════════
         composable(RafiqRoute.Onboarding.route) { OnboardingScreen(navController) }
-        composable(RafiqRoute.Home.route)       { HomeScreen(navController) }
+        composable(RafiqRoute.Home.route)       { WaraqaScreen(navController) }
 
         // ═══ Adhkar ═══
         composable(RafiqRoute.AdhkarCategories.route) { AdhkarCategoriesScreen(navController) }
