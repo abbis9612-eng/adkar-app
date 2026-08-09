@@ -6,19 +6,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import app.rafiqaldhikr.ui.screens.home.HomeScreen
+import app.rafiqaldhikr.ui.screens.waraqa.WaraqaScreen
 import app.rafiqaldhikr.ui.screens.prayer.PrayerTimesScreen
 
 /**
- * Tablet split layout — shows Home on the left and Prayer Times on the right.
+ * تقسيم اللوحي — ورقة اليوم يميناً والمواقيت يساراً.
  * Requires width >= 840dp to activate in adaptive layout.
  */
 @Composable
 fun HomeTabletScreen(navController: NavHostController) {
     Row(modifier = Modifier.fillMaxSize()) {
-        // Left pane — Home
+        // اليسار — ورقة اليوم
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            HomeScreen(navController)
+            WaraqaScreen(navController)
         }
 
         // Divider
