@@ -3,11 +3,11 @@
     <string name="app_name">رفيق الذكر</string>
 
     <!-- Bottom Nav -->
-    <string name="nav_home">الرئيسية</string>
-    <string name="nav_quran">القرآن</string>
-    <string name="nav_tasbeeh">مسبحة</string>
-    <string name="nav_dua">أدعية</string>
-    <string name="nav_profile">حسابي</string>
+    <string name="nav_home">اليوم</string>
+    <string name="nav_quran">المصحف</string>
+    <string name="nav_tasbeeh">الذِّكر</string>
+    <string name="nav_dua">الدعاء</string>
+    <string name="nav_profile">أوراقي</string>
 
     <!-- Home -->
     <string name="greeting_morning">صباح الخير</string>

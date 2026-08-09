@@ -19,6 +19,7 @@ import app.rafiqaldhikr.ui.screens.dhikr.CustomDhikrViewModel
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
+import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
 val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
@@ -38,4 +39,5 @@ val viewModelModule = module {
     viewModelOf(::ExportDataViewModel)
     viewModelOf(::DayCompanionViewModel)
     viewModelOf(::MeeqatViewModel)
+    viewModelOf(::DaysGridViewModel)
 }

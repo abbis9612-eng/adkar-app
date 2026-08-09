@@ -38,6 +38,7 @@ import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.MisbahaIcon
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -111,6 +112,29 @@ private fun GeomDecoration(
     }
 }
 
+/** مدخل المسبحة — أوّل ما في صفحة الذِّكر، لأنه أكثر ما يُفتح. */
+@Composable
+private fun MisbahaEntry(nav: NavHostController) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .rafiqCard()
+            .clickable { nav.navigate(RafiqRoute.Tasbeeh.route) }
+            .padding(horizontal = 16.dp, vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        MisbahaIcon(28.dp, rc.gold)
+        Column(Modifier.weight(1f)) {
+            Text("المسبحة", style = RafiqType.titleM, color = rc.ink)
+            Text("عُدَّ تسبيحك بضغطة", style = RafiqType.bodyS, color = rc.inkMed)
+        }
+        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
+    }
+}
+
 /* ══════════════════════════════════════════════════════════════
    CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
@@ -178,17 +202,16 @@ fun AdhkarCategoriesScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
+            // جذر تبويب الآن — لا زرّ رجوع
             RafiqTopBar(
-                title  = "الأذكار",
-                onBack = {navController.popBackStack()},
+                title    = "الذِّكر",
+                subtitle = "أذكارك ومسبحتك في مكان واحد",
             )
 
-            // Subtitle
-            Text("اختر نوع الذكر",
-                color = LocalRafiqColors.current.inkMed,
-                modifier = Modifier.padding(horizontal = 18.dp), style = RafiqType.bodyS)
+            // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.
+            MisbahaEntry(navController)
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(18.dp))
 
             // ═══ HERO CARD ═══
             Box(

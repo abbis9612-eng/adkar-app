@@ -3,11 +3,11 @@
     <string name="app_name">Rafiq Al-Dhikr</string>
 
     <!-- Bottom Nav -->
-    <string name="nav_home">Home</string>
+    <string name="nav_home">Today</string>
     <string name="nav_quran">Quran</string>
-    <string name="nav_tasbeeh">Tasbeeh</string>
+    <string name="nav_tasbeeh">Dhikr</string>
     <string name="nav_dua">Duas</string>
-    <string name="nav_profile">Profile</string>
+    <string name="nav_profile">My Pages</string>
 
     <!-- Home -->
     <string name="greeting_morning">Good Morning</string>

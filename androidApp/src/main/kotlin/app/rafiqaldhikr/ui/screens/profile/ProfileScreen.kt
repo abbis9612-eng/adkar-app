@@ -335,11 +335,21 @@ fun ProfileScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            RafiqTopBar(title = "حسابي") {
+            RafiqTopBar(title = "أوراقي") {
                 RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Settings.route) }, label = "الإعدادات") {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
             }
+
+            Spacer(Modifier.height(18.dp))
+
+            // دفتر الأيام — كل يومٍ ورقة، وارتفاع الحبر ما خُطّ منها
+            DaysGrid(
+                streakCurrent = state.streak.current,
+                streakLongest = state.streak.longest,
+            )
+
+            Spacer(Modifier.height(24.dp))
 
             // ═══ PROFILE HERO ═══
             ProfileHeroCard()
