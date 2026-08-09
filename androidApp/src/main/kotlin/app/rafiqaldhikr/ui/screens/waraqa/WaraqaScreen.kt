@@ -79,8 +79,10 @@ fun WaraqaScreen(
         Modifier
             .fillMaxSize()
             .background(rc.bg)
-            .verticalScroll(rememberScrollState())
+            // الحشوة قبل التمرير: بعده كانت تتمرّر مع المحتوى،
+            // فيزحف الرأس تحت ساعة الجهاز عند السحب.
             .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
             .padding(bottom = 96.dp)
     ) {
         Header(

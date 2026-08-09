@@ -3,8 +3,6 @@ package app.rafiqaldhikr.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,15 +10,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqType
 
 /**
  * شريط علوي موحد لكل الشاشات الداخلية:
  * عنوان (وعنوان فرعي اختياري) يمين، وأزرار الإجراءات + زر الرجوع يسار.
+ *
+ * سطر واحد عن قصد. كان تحته شريط الميقات، فصار خطّاً أفقياً ممتدّاً
+ * مباشرةً أسفل العنوان — وهو بالضبط موضع «حدّ الشريط العلوي» في كل
+ * تطبيق، فقرأته العين حدّاً لا بيانات، وبدا الرأس طبقتين.
+ * الميقات باقٍ حيث يعني شيئاً: عمود الحبر في صفحة اليوم، وانحراف
+ * لون الورق مع الوقت.
  */
 @Composable
 fun RafiqTopBar(
@@ -30,7 +32,6 @@ fun RafiqTopBar(
     actions:  @Composable RowScope.() -> Unit = {},
 ) {
     val rc = LocalRafiqColors.current
-    Column {
     Row(
         Modifier
             .fillMaxWidth()
@@ -58,9 +59,5 @@ fun RafiqTopBar(
                 RafiqBackButton(onClick = onBack)
             }
         }
-    }
-    // شريط الميقات — عنصر التوقيع، أسفل رأس كل شاشة
-    MeeqatBar()
-    Spacer(Modifier.height(6.dp))
     }
 }
