@@ -65,6 +65,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    lint {
+        // checkDependencies يجرّ :shared إلى نفس التحليل ويضاعف الزمن بلا
+        // فائدة — للوحدة المشتركة فحصها الخاص.
+        checkDependencies = false
+        abortOnError      = true
+        // نبدأ بما يُسقِط التطبيق أو يُرفَض في المتجر، لا بأسلوب الكود.
+        // كل تحذير آخر يبقى مرئياً في التقرير دون أن يفشل البناء.
+        checkReleaseBuilds = false
+        warningsAsErrors   = false
+    }
+
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
