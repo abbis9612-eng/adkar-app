@@ -69,7 +69,7 @@
 
     <!-- أُكمِلت في ط٤: كانت ناقصة فيسقط العرض الإنجليزي إلى العربية -->
     <string name="quick_actions">Quick Actions</string>
-    <string name="today_progress">Today's Progress</string>
+    <string name="today_progress">Today\'s Progress</string>
     <string name="nav_prayer">Prayer Times</string>
     <string name="qibla">Qibla</string>
     <string name="settings">Settings</string>

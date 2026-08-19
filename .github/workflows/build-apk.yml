@@ -45,6 +45,11 @@ jobs:
       - name: Check orphan routes
         run: python3 tools/check_orphan_routes.py
 
+      # يسبق البناء لأنه يكشف في ثانية ما يكلّف aapt2 دقيقتين ثم يبلّغ عنه
+      # برسالة لا تذكر السطر ولا السبب
+      - name: Check string resources
+        run: python3 tools/check_strings.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 
