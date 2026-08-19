@@ -2,6 +2,7 @@ package app.rafiqaldhikr.ui.screens.daycompanion
 
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
+import app.rafiqaldhikr.util.isFriday
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.RafiqResult
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -104,8 +104,8 @@ class DayCompanionViewModel(
                 } ?: return@combine UiState(isLoading = true)
 
                 val now = System.currentTimeMillis()
-                val dayOfWeek = Clock.System.now()
-                    .toLocalDateTime(TimeZone.currentSystemDefault()).date.dayOfWeek
+                val todayDate = Clock.System.now()
+                    .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
                 // إتمام تلقائي: أذكار الصباح/المساء من سجل التقدم الموجود
                 val auto = buildSet {
@@ -114,7 +114,7 @@ class DayCompanionViewModel(
                 }
                 val allDone = completed + auto
 
-                val stations = buildStations(times, dayOfWeek == DayOfWeek.FRIDAY).map { st ->
+                val stations = buildStations(times, todayDate.isFriday()).map { st ->
                     val status = when {
                         st.id in allDone                      -> StationStatus.DONE
                         now in st.startMillis..st.endMillis   -> StationStatus.ACTIVE
@@ -128,7 +128,7 @@ class DayCompanionViewModel(
                     stations   = stations,
                     nowStation = stations.firstOrNull { it.status == StationStatus.ACTIVE }
                         ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
-                    isFriday   = dayOfWeek == DayOfWeek.FRIDAY,
+                    isFriday   = todayDate.isFriday(),
                     doneCount  = stations.count { it.status == StationStatus.DONE },
                     isLoading  = false,
                 )

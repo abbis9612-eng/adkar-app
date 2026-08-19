@@ -64,11 +64,9 @@
     <!-- Screens -->
     <string name="quick_actions">الإجراءات السريعة</string>
     <string name="today_progress">تقدم اليوم</string>
-    <string name="khatira">خاطرة اليوم</string>
     <string name="nav_prayer">مواقيت الصلاة</string>
     <string name="qibla">القبلة</string>
     <string name="settings">الإعدادات</string>
-    <string name="premium">المميز</string>
     <string name="about">حول التطبيق</string>
     <string name="help">المساعدة</string>
     <string name="adhkar_categories">أقسام الأذكار</string>
