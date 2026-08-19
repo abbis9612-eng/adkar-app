@@ -1,7 +1,6 @@
 package app.rafiq.domain.model
 
 import app.rafiq.db.Adhkar         as AdhkarEntity
-import app.rafiq.db.Khatira        as KhatiraEntity
 import app.rafiq.db.QuranBookmark  as QuranBookmarkEntity
 import app.rafiq.db.Surah          as SurahEntity
 import app.rafiq.db.Ayah           as AyahEntity
@@ -26,16 +25,6 @@ data class Dhikr(
     val sortOrder:   Int
 )
 
-data class Khatira(
-    val id:             Long,
-    val dayOfYear:      Int,
-    val verseOrHadith:  String,
-    val source:         String,
-    val reflection:     String,
-    val season:         String,
-    val reviewed:       Boolean,
-    val remoteVersion:  String?
-)
 
 data class SurahInfo(
     val number:      Int,
@@ -151,17 +140,6 @@ fun AdhkarEntity.toDomain() = Dhikr(
     count       = count.toInt(),
     audioFile   = audio_file,
     sortOrder   = sort_order.toInt()
-)
-
-fun KhatiraEntity.toDomain() = Khatira(
-    id            = id,
-    dayOfYear     = day_of_year.toInt(),
-    verseOrHadith = verse_or_hadith,
-    source        = source,
-    reflection    = reflection,
-    season        = season,
-    reviewed      = reviewed == 1L,
-    remoteVersion = remote_version
 )
 
 fun SurahEntity.toDomain() = SurahInfo(

@@ -13,21 +13,18 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import app.rafiqaldhikr.ui.components.OfflineBanner
 import app.rafiqaldhikr.ui.navigation.RafiqBottomBar
 import app.rafiqaldhikr.ui.navigation.RafiqNavGraph
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqTheme
-import app.rafiqaldhikr.util.ConnectivityObserver
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModel()
-    private val connectivity: ConnectivityObserver by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -50,7 +47,6 @@ class MainActivity : AppCompatActivity() {
                 .collectAsStateWithLifecycle()
             val reducedMotionPref by settingsViewModel.reducedMotion
                 .collectAsStateWithLifecycle()
-            val isOnline by connectivity.isOnline.collectAsStateWithLifecycle()
 
             // Don't render until we know onboarding state
             if (onboardingCompleted == null) return@setContent
@@ -90,9 +86,9 @@ class MainActivity : AppCompatActivity() {
                     contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         androidx.compose.foundation.layout.Column {
-                            // شريط "لا يوجد اتصال" — يظهر فقط عند انقطاع الشبكة،
-                            // ويختفي تلقائياً (AnimatedVisibility) عند عودة الاتصال
-                            OfflineBanner(isOnline = isOnline)
+                            // حُذف شريط "لا يوجد اتصال": التطبيق لم يعد يفتح
+                            // اتصالاً واحداً، فتحذيرُ انقطاعِ شبكةٍ لا يحتاجها
+                            // يقول للمستخدم إن شيئاً معطَّل وليس كذلك.
                             if (showBottomBar) {
                                 RafiqBottomBar(navController)
                             }

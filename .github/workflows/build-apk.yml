@@ -50,6 +50,10 @@ jobs:
       - name: Check string resources
         run: python3 tools/check_strings.py
 
+      # لا نصّ ديني بلا مصدر ودرجة — قاعدة AGENTS.md مفروضةً آلياً
+      - name: Check religious sources
+        run: python3 tools/check_religious_sources.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

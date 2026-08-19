@@ -3,7 +3,6 @@ kotlin              = "2.2.10"
 agp                 = "9.1.1"
 compose-bom         = "2024.12.01"
 sqldelight          = "2.0.2"
-ktor                = "2.3.13"
 koin                = "4.0.0"
 koin-compose        = "4.0.0"
 coroutines          = "1.9.0"
@@ -56,11 +55,6 @@ sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver",    
 sqldelight-native-driver  = { module = "app.cash.sqldelight:native-driver",        version.ref = "sqldelight" }
 
 # ═══ Ktor ═══
-ktor-client-core    = { module = "io.ktor:ktor-client-core",                    version.ref = "ktor" }
-ktor-client-content = { module = "io.ktor:ktor-client-content-negotiation",     version.ref = "ktor" }
-ktor-serialization  = { module = "io.ktor:ktor-serialization-kotlinx-json",     version.ref = "ktor" }
-ktor-client-okhttp  = { module = "io.ktor:ktor-client-okhttp",                  version.ref = "ktor" }
-ktor-client-darwin  = { module = "io.ktor:ktor-client-darwin",                  version.ref = "ktor" }
 
 # ═══ Koin ═══
 koin-core             = { module = "io.insert-koin:koin-core",             version.ref = "koin"         }
