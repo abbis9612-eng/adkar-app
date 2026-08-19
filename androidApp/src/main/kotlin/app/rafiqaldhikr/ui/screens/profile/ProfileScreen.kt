@@ -420,6 +420,8 @@ fun ProfileScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ QUICK LINKS ═══
+            // التقرير الأسبوعي والحديقة والإنجازات والمشاركة مؤجَّلة إلى ما بعد V1:
+            // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
             SectionHeader("روابط سريعة")
             Spacer(Modifier.height(10.dp))
 
@@ -440,68 +442,6 @@ fun ProfileScreen(
                     label = "الإحصائيات التفصيلية",
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
 
-                QuickLinkCard(
-                    icon = {
-                        Canvas(Modifier.size(18.dp)) {
-                            val w = size.width
-                            drawRect(rc.emerald.copy(alpha = 0.15f), Offset(w * 0.05f, w * 0.15f), Size(w * 0.90f, w * 0.70f),
-                                style = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.65f), Offset(w * 0.45f, w * 0.35f), w * 0.07f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.45f, w * 0.35f), Offset(w * 0.60f, w * 0.55f), w * 0.07f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.55f), Offset(w * 0.80f, w * 0.30f), w * 0.07f, StrokeCap.Round)
-                        }
-                    },
-                    label = "التقرير الأسبوعي",
-                ) { navController.navigate(RafiqRoute.WeeklyReport.route) }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    QuickLinkCard(
-                        icon = {
-                            Canvas(Modifier.size(18.dp)) {
-                                val w = size.width; val cx = w / 2f; val cy = w / 2f
-                                drawCircle(rc.emerald, w * 0.12f, Offset(cx, cy - w * 0.18f))
-                                drawCircle(rc.emerald, w * 0.08f, Offset(cx - w * 0.22f, cy + w * 0.08f))
-                                drawCircle(rc.emerald, w * 0.10f, Offset(cx + w * 0.20f, cy + w * 0.12f))
-                                drawLine(rc.emerald, Offset(cx, cy + w * 0.10f), Offset(cx, cy + w * 0.40f), w * 0.06f, StrokeCap.Round)
-                            }
-                        },
-                        label = "الحديقة",
-                        modifier = Modifier.weight(1f),
-                    ) { navController.navigate(RafiqRoute.Garden.route) }
-
-                    QuickLinkCard(
-                        icon = {
-                            Canvas(Modifier.size(18.dp)) {
-                                val w = size.width; val cx = w / 2f; val cy = w / 2f
-                                val star = Path().apply {
-                                    for (i in 0 until 10) {
-                                        val a = (i * 36 - 90) * PI.toFloat() / 180f
-                                        val r = if (i % 2 == 0) w * 0.42f else w * 0.22f
-                                        if (i == 0) moveTo(cx + r * cos(a), cy + r * sin(a))
-                                        else lineTo(cx + r * cos(a), cy + r * sin(a))
-                                    }; close()
-                                }
-                                drawPath(star, rc.goldLight.copy(alpha = 0.15f))
-                                drawPath(star, rc.goldLight, style = Stroke(w * 0.06f, join = StrokeJoin.Round))
-                            }
-                        },
-                        label = "الإنجازات",
-                        modifier = Modifier.weight(1f),
-                    ) { navController.navigate(RafiqRoute.Achievements.route) }
-                }
-
-                QuickLinkCard(
-                    icon = {
-                        Canvas(Modifier.size(18.dp)) {
-                            val w = size.width
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.30f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.15f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.45f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.70f), Offset(w * 0.80f, w * 0.70f), w * 0.06f, StrokeCap.Round)
-                        }
-                    },
-                    label = "مشاركة إنجازي",
-                ) { navController.navigate(RafiqRoute.ShareCard.route) }
             }
 
             Spacer(Modifier.height(28.dp))

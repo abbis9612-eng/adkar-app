@@ -31,6 +31,7 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationUi
+import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.screens.home.HomeViewModel
 import app.rafiqaldhikr.ui.theme.*
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -91,12 +92,20 @@ fun WaraqaScreen(
             onBell     = { navController.navigate(RafiqRoute.NotificationSettings.route) },
         )
 
-        StateLine(day.nowStation)
+        // محطّات اليوم موقوتة كلّها بأوقات الصلاة. بلا موقع لا ورقة —
+        // والطلب هنا صريح بدل جدولٍ محسوب على مدينةٍ ليست مدينته.
+        if (day.needsLocation) {
+            NeedsLocation(
+                message = "محطّات يومك موقوتة بأوقات الصلاة، وهي تُحسب من موقعك."
+            )
+        } else {
+            StateLine(day.nowStation)
 
-        Sheet(day.stations, day.nowStation, navController)
+            Sheet(day.stations, day.nowStation, navController)
 
-        if (day.stations.isNotEmpty()) {
-            Footer(day.doneCount, day.stations.size, ar)
+            if (day.stations.isNotEmpty()) {
+                Footer(day.doneCount, day.stations.size, ar)
+            }
         }
     }
 }

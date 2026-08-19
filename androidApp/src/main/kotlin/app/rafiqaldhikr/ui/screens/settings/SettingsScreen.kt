@@ -61,9 +61,8 @@ private val GROUP_1 = listOf(
 )
 
 private val GROUP_2 = listOf(
-    // "المميز" (route = "premium") مخفي مؤقتاً حتى يكتمل ربط RevenueCat —
-    // الشاشة الحالية أزرارها غير فعّالة (شراء/استعادة) والمتاجر ترفض ذلك.
-    SettingItem(RIcon.Widget,   "إعدادات الودجت",    { it.emerald }, route = "widget_settings"),
+    // شاشة "المميز" حُذفت في ط٠ — كانت أزرارها placeholder والمتاجر ترفض ذلك.
+    // "إعدادات الودجت" مؤجَّلة إلى ما بعد V1 (@HiddenInV1).
     SettingItem(RIcon.Upload,   "تصدير البيانات",    { it.gold }, route = "export_data"),
 )
 

@@ -1,6 +1,7 @@
 package app.rafiqaldhikr.ui.screens.qibla
 
 import androidx.lifecycle.ViewModel
+import app.rafiqaldhikr.util.coordsOrNull
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.PrefsRepository
 import app.rafiq.domain.usecase.CalculateQiblaUseCase
@@ -34,11 +35,16 @@ class QiblaViewModel(
         viewModelScope.launch {
             prefsRepo.getPrefs().collect { prefs ->
                 if (prefs == null) return@collect
-                val lat = prefs.lastKnownLat.takeIf { it != 0.0 } ?: 35.5558
-                val lng = prefs.lastKnownLng.takeIf { it != 0.0 } ?: 45.4436
-                val bearing = calculateQibla(lat, lng)
-                
-                _uiState.update { 
+                // بوصلة تشير إلى قبلة مدينةٍ أخرى أسوأ من بوصلة لا تشير —
+                // isLocationKnown = false والشاشة تطلب الموقع.
+                val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
+                if (here == null) {
+                    _uiState.update { it.copy(isLocationKnown = false) }
+                    return@collect
+                }
+                val bearing = calculateQibla(here.lat, here.lng)
+
+                _uiState.update {
                     it.copy(
                         qiblaBearing = bearing,
                         isLocationKnown = true

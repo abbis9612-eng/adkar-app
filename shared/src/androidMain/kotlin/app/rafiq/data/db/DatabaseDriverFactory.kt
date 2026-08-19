@@ -24,7 +24,30 @@ actual class DatabaseDriverFactory(private val context: Context) {
      * كل عملية مغلّفة بـ try لأن SQLite لا يدعم "ADD COLUMN IF NOT EXISTS".
      */
     private fun migrateIfNeeded(driver: SqlDriver) {
-        fun exec(sql: String) = try { driver.execute(null, sql, 0) } catch (_: Exception) {}
+        /**
+         * كان هذا `catch (_: Exception) {}` صامتاً تماماً: عمودٌ يفشل إنشاؤه
+         * لسببٍ حقيقي يمرّ بلا أثر، فتنهار شاشةٌ بعد أسابيع باستعلام عمودٍ
+         * غير موجود ولا شيء في السجل يدلّ على السبب.
+         *
+         * "duplicate column name" وحده متوقَّع — SQLite لا يدعم
+         * ADD COLUMN IF NOT EXISTS، فهو الطريقة الوحيدة لمعرفة أن العمود
+         * موجود أصلاً. أي خطأ آخر يُسجَّل بصوت عالٍ.
+         */
+        fun exec(sql: String) {
+            try {
+                driver.execute(null, sql, 0)
+            } catch (e: Exception) {
+                val expected =
+                    e.message?.contains("duplicate column name", ignoreCase = true) == true
+                if (!expected) {
+                    android.util.Log.e(
+                        "RafiqMigration",
+                        "فشل ترحيل غير متوقَّع: ${sql.lineSequence().first().trim()}",
+                        e,
+                    )
+                }
+            }
+        }
 
         // ═══ أعمدة UserPrefs الجديدة ═══
         exec("ALTER TABLE UserPrefs ADD COLUMN elevation REAL NOT NULL DEFAULT 0.0")

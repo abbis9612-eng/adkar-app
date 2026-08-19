@@ -1,6 +1,7 @@
 package app.rafiqaldhikr.ui.screens.daycompanion
 
 import androidx.lifecycle.ViewModel
+import app.rafiqaldhikr.util.coordsOrNull
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.RafiqResult
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -52,6 +53,8 @@ class DayCompanionViewModel(
         val isFriday:   Boolean         = false,
         val doneCount:  Int             = 0,
         val isLoading:  Boolean         = true,
+        /** لا إحداثيات محفوظة — محطّات اليوم موقوتة بالصلاة فلا تُبنى بدونها. */
+        val needsLocation: Boolean      = false,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -85,10 +88,12 @@ class DayCompanionViewModel(
                 companionRepo.getCompletedStations(today),
                 refreshTrigger,
             ) { prefs, progress, completed, _ ->
-                val lat = prefs.lastKnownLat.takeIf { it != 0.0 } ?: 35.5558
-                val lng = prefs.lastKnownLng.takeIf { it != 0.0 } ?: 45.4436
+                // محطّات اليوم كلّها موقوتة بأوقات الصلاة. بلا موقع لا محطّات —
+                // والورقة تطلب الموقع بدل أن تعرض جدول مدينةٍ ليست مدينته.
+                val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
+                    ?: return@combine UiState(isLoading = false, needsLocation = true)
                 val times = when (val r = getPrayerTimes(
-                    lat, lng, prefs.prayerMethod,
+                    here.lat, here.lng, prefs.prayerMethod,
                     elevation = prefs.elevation, madhab = prefs.madhab,
                     fajrOffset = prefs.fajrOffset, dhuhrOffset = prefs.dhuhrOffset,
                     asrOffset = prefs.asrOffset, maghribOffset = prefs.maghribOffset,

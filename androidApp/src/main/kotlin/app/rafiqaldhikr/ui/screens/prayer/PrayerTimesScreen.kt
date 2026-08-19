@@ -33,6 +33,7 @@ import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.IcoRefresh
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import kotlinx.datetime.Clock
@@ -61,6 +62,10 @@ fun PrayerTimesScreen(
     ) {
         when {
             state.isLoading -> LoadingState()
+            // قبل هذا كانت تُعرض هنا مواقيت السليمانية لكل من لم يمنح الإذن
+            state.needsLocation -> NeedsLocation(
+                message = "مواقيت الصلاة تُحسب من موقعك، ولا يصحّ حسابها بموقع غيرك."
+            )
             state.error != null -> ErrorState(
                 message = state.error!!,
                 onRetry = { viewModel.refresh() }

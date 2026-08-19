@@ -14,7 +14,6 @@ import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesScreen
 import app.rafiqaldhikr.ui.screens.adhkar.CelebrationScreen
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingScreen
 import app.rafiqaldhikr.ui.screens.breathing.BreathingScreen
-import app.rafiqaldhikr.ui.screens.dhikr.CustomDhikrScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaCategoriesScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaListScreen
 import app.rafiqaldhikr.ui.screens.dua.EmotionalDuaScreen
@@ -22,18 +21,14 @@ import app.rafiqaldhikr.ui.screens.export.ExportDataScreen
 import app.rafiqaldhikr.ui.screens.garden.GardenScreen
 import app.rafiqaldhikr.ui.screens.help.HelpScreen
 import app.rafiqaldhikr.ui.screens.waraqa.WaraqaScreen
-import app.rafiqaldhikr.ui.screens.khatira.KhatiraScreen
 import app.rafiqaldhikr.ui.screens.legal.ContactScreen
 import app.rafiqaldhikr.ui.screens.legal.PrivacyPolicyScreen
 import app.rafiqaldhikr.ui.screens.legal.TermsScreen
 import app.rafiqaldhikr.ui.screens.onboarding.OnboardingScreen
 import app.rafiqaldhikr.ui.screens.prayer.PrayerMethodScreen
 import app.rafiqaldhikr.ui.screens.prayer.PrayerTimesScreen
-import app.rafiqaldhikr.ui.screens.prayer.PrayerTrackingScreen
-import app.rafiqaldhikr.ui.screens.premium.PremiumScreen
 import app.rafiqaldhikr.ui.screens.profile.ProfileScreen
 import app.rafiqaldhikr.ui.screens.qibla.QiblaScreen
-import app.rafiqaldhikr.ui.screens.quran.QuranAudioPlayer
 import app.rafiqaldhikr.ui.screens.quran.QuranBookmarksScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranListScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranReadingScreen
@@ -51,8 +46,6 @@ import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
 import app.rafiqaldhikr.ui.screens.widget.WidgetSettingsScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
-import app.rafiqaldhikr.ui.screens.deeplink.DeepLinkLandingScreen
-import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionScreen
 
 @Composable
 fun RafiqNavGraph(
@@ -137,9 +130,6 @@ fun RafiqNavGraph(
         }
         composable(RafiqRoute.EmotionalDua.route) { EmotionalDuaScreen(navController) }
 
-        // ═══ Khatira ═══
-        composable(RafiqRoute.Khatira.route) { KhatiraScreen(navController) }
-
         // ═══ Profile ═══
         composable(RafiqRoute.Profile.route)    { ProfileScreen(navController) }
         composable(RafiqRoute.Statistics.route)  { StatisticsScreen(navController) }
@@ -151,8 +141,7 @@ fun RafiqNavGraph(
         composable(RafiqRoute.NotificationSettings.route)  { NotificationSettingsScreen(navController) }
         composable(RafiqRoute.AccessibilitySettings.route) { AccessibilitySettingsScreen(navController) }
 
-        // ═══ Premium, About, Help ═══
-        composable(RafiqRoute.Premium.route) { PremiumScreen(navController) }
+        // ═══ About, Help ═══
         composable(RafiqRoute.About.route)   { AboutScreen(navController) }
         composable(RafiqRoute.Help.route)    { HelpScreen(navController) }
 
@@ -160,27 +149,12 @@ fun RafiqNavGraph(
         //  M2 — New Features
         // ═══════════════════════════════════════════
 
-        // Quran Audio Player
-        composable(
-            route     = RafiqRoute.QuranAudioPlayer.route,
-            arguments = listOf(navArgument("surah") { type = NavType.IntType })
-        ) { entry ->
-            QuranAudioPlayer(
-                surahNumber   = entry.arguments?.getInt("surah") ?: 1,
-                navController = navController
-            )
-        }
-
-        // Breathing & Dhikr
+        // Breathing
         composable(RafiqRoute.Breathing.route)   { BreathingScreen(navController) }
-        composable(RafiqRoute.CustomDhikr.route) { CustomDhikrScreen(navController) }
 
         // Gamification
         composable(RafiqRoute.Garden.route)       { GardenScreen(navController) }
         composable(RafiqRoute.Achievements.route) { AchievementsScreen(navController) }
-
-        // Prayer Tracking
-        composable(RafiqRoute.PrayerTracking.route) { PrayerTrackingScreen(navController) }
 
         // Social
         composable(RafiqRoute.ShareCard.route) { ShareCardScreen(navController) }
@@ -204,27 +178,10 @@ fun RafiqNavGraph(
         //  M3 — Advanced
         // ═══════════════════════════════════════════
 
-        // Day Companion — رفيق اليوم
-        composable(
-            route     = RafiqRoute.DayCompanion.route,
-            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/day" })
-        ) { DayCompanionScreen(navController) }
-
         // Language
         composable(RafiqRoute.Language.route) { LanguageScreen(navController) }
 
         // What's New
         composable(RafiqRoute.WhatsNew.route) { WhatsNewScreen(navController) }
-
-        // Deep Link Landing
-        composable(
-            route     = RafiqRoute.DeepLinkLanding.route,
-            arguments = listOf(navArgument("target") { type = NavType.StringType })
-        ) { entry ->
-            DeepLinkLandingScreen(
-                target        = entry.arguments?.getString("target") ?: "",
-                navController = navController
-            )
-        }
     }
 }

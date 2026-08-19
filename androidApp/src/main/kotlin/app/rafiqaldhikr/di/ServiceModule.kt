@@ -12,7 +12,4 @@ val serviceModule = module {
     single { PrayerRescheduler(androidContext(), get(), get()) }
     single { CompassManager(androidContext()) }
     single { ConnectivityObserver(androidContext()) }
-
-    // M2: QuranAudioService — MediaSessionService has its own lifecycle
-    // Do not register directly in Koin — use via Intent from ViewModel
 }

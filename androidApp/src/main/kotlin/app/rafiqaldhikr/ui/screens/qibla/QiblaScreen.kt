@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
@@ -36,7 +37,6 @@ import kotlin.math.sin
 import app.rafiqaldhikr.ui.components.IcoAlert
 import app.rafiqaldhikr.ui.components.IcoCompass
 import app.rafiqaldhikr.ui.components.IcoMosque
-import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.BorderIdle
@@ -80,7 +80,11 @@ fun QiblaScreen(
             ) {
                 when {
                     !state.isCompassAvailable -> NoCompassContent(rc)
-                    !state.isLocationKnown    -> NoLocationContent(rc)
+                    // NoLocationContent كانت نصّاً ميّتاً: isLocationKnown لم تكن
+                    // تصير false أبداً لأن الاحتياطيّ كان يملأ الإحداثيات دوماً.
+                    !state.isLocationKnown    -> NeedsLocation(
+                        message = "اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة."
+                    )
                     state.error != null       -> ErrorContent(state.error!!, rc)
                     else                      -> QiblaCompassContent(
                         bearing          = state.qiblaBearing,
@@ -218,15 +222,6 @@ private fun NoCompassContent(rc: RafiqPalette) {
     Text("البوصلة غير متوفرة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
     Text("جهازك لا يدعم مستشعر البوصلة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
-}
-
-@Composable
-private fun NoLocationContent(rc: RafiqPalette) {
-    IcoPin(80.dp, rc.gold, off = true)
-    Spacer(Modifier.height(16.dp))
-    Text("الموقع غير محدد", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-    Spacer(Modifier.height(8.dp))
-    Text("يرجى السماح بالوصول للموقع من إعدادات الصلاة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
 }
 
 @Composable

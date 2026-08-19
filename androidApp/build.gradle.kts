@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId         = "app.rafiqaldhikr"
         minSdk                = 23
-        targetSdk             = 35
+        targetSdk             = 36
         // رقم إصدار فريد لكل بناء CI (رقم تشغيل GitHub) حتى يقبل أندرويد التحديث دائماً.
         // محلياً يبقى 1. الاسم يحمل معرّف الكومِت حتى تُعرف النسخة بالضبط.
         versionCode           = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1)
@@ -31,6 +31,7 @@ android {
     signingConfigs {
         create("release") {
             val keystoreFile = System.getenv("KEYSTORE_FILE")
+                ?: providers.gradleProperty("KEYSTORE_FILE").orNull
             if (keystoreFile != null) {
                 storeFile     = file(keystoreFile)
                 storePassword = System.getenv("KEYSTORE_PASSWORD")
@@ -44,11 +45,9 @@ android {
         release {
             isMinifyEnabled   = true
             isShrinkResources = true
-            signingConfig = if (System.getenv("KEYSTORE_FILE") != null) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            // السقوط الصامت إلى مفتاح debug كان يُخرج نسخة "إصدارية" لا
+            // يقبلها المتجر ولا يمكن تحديثها لاحقاً. الآن البناء يفشل بصوت عالٍ.
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -68,6 +67,24 @@ android {
 
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   حاجز التوقيع — لا نسخة إصدارية بمفتاح debug
+
+   كان البناء يسقط صامتاً إلى مفتاح debug عند غياب KEYSTORE_FILE، فيُخرج
+   APK يبدو إصدارياً ولا يقبله المتجر ولا يمكن تحديثه لاحقاً. الآن أي
+   assembleRelease أو bundleRelease بلا مفتاح يفشل برسالة واضحة.
+═══════════════════════════════════════════════════════════════════ */
+tasks.matching {
+    (it.name.startsWith("assemble") || it.name.startsWith("bundle")) && it.name.endsWith("Release")
+}.configureEach {
+    doFirst {
+        check(android.signingConfigs.getByName("release").storeFile != null) {
+            "بناء إصدارية بلا مفتاح توقيع. حدّد KEYSTORE_FILE و KEYSTORE_PASSWORD " +
+            "و KEY_ALIAS و KEY_PASSWORD كمتغيّرات بيئة قبل bundleRelease."
+        }
     }
 }
 
@@ -111,16 +128,8 @@ dependencies {
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
 
-    // ═══ Media3 ═══
-    implementation(libs.media3.exoplayer)
-    implementation(libs.media3.session)
-    implementation(libs.media3.ui)
-
     // ═══ Location ═══
     implementation(libs.play.services.location)
-
-    // ═══ Security ═══
-    implementation(libs.security.crypto)
 
     // ═══ In-App ═══
     implementation(libs.app.update.ktx)

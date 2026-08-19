@@ -24,8 +24,18 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # حارس المسارات اليتيمة — يفشل على أي شاشة مسجَّلة لا يصلها مدخل
+      - name: Check orphan routes
+        run: python3 tools/check_orphan_routes.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
+
+      - name: Lint
+        run: ./gradlew :androidApp:lintDebug --no-daemon
+
+      - name: Unit tests
+        run: ./gradlew :shared:testDebugUnitTest :androidApp:testDebugUnitTest --no-daemon
 
       # اسم ملف يحمل رقم البناء ومعرّف الكومِت — يمنع الكاش ويوضّح النسخة
       - name: Rename APK

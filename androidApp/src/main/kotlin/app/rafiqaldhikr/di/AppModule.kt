@@ -9,5 +9,4 @@ val androidModule = module {
     // ═══ Platform-specific dependencies ═══
     single { DatabaseDriverFactory(androidContext()) }
     single { JsonResourceReader(androidContext()) }
-    single { createEncryptedPrefs(androidContext()) }
 }
