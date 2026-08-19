@@ -74,6 +74,9 @@ android {
         // كل تحذير آخر يبقى مرئياً في التقرير دون أن يفشل البناء.
         checkReleaseBuilds = false
         warningsAsErrors   = false
+        // التقرير كاملاً في سجل CI — بدونه يطبع Gradle أول خطأ فقط،
+        // فتُصلَّح المشاكل واحدةً واحدة عبر دورات بناء متتالية.
+        textReport = true
     }
 
     packaging {
