@@ -59,6 +59,10 @@ jobs:
       - name: Check city coordinates
         run: python3 tools/check_cities.py
 
+      # رمز يُستعمل بلا استيراد — كسر البناء مرّتين في يوم واحد
+      - name: Check imports
+        run: python3 tools/check_imports.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

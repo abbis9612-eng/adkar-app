@@ -29,6 +29,8 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.RafiqIconButton
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.*
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
