@@ -20,7 +20,8 @@ class WeekdayTest {
     }
 
     @Test
-    fun `أول جمعة بعد الحقبة هي اليوم الأول`() {
+    /** أول جمعة بعد الحقبة هي اليوم ١ */
+    fun first_friday_after_epoch_is_day_one() {
         // ١٩٧٠-٠١-٠١ خميس، فـ ١٩٧٠-٠١-٠٢ جمعة
         assertFalse(isFridayFromEpochDays(0))
         assertTrue(isFridayFromEpochDays(1))
@@ -28,7 +29,8 @@ class WeekdayTest {
     }
 
     @Test
-    fun `يطابق التقويم على أربعين ألف يوم حول الحقبة`() {
+    /** يطابق التقويم على ٤٠٠٠٠ يوم حول الحقبة */
+    fun matches_calendar_across_forty_thousand_days() {
         for (d in -20_000..20_000) {
             assertTrue(
                 "اختلاف عند يوم الحقبة $d",
@@ -38,7 +40,8 @@ class WeekdayTest {
     }
 
     @Test
-    fun `التواريخ قبل الحقبة لا تنكسر بباقي القسمة السالب`() {
+    /** ما قبل الحقبة لا ينكسر بباقي القسمة السالب */
+    fun dates_before_epoch_survive_negative_modulo() {
         // ١٩٦٩-١٢-٢٦ جمعة، وهي اليوم ‎-6 من الحقبة
         assertTrue(isFridayFromEpochDays(-6))
         assertFalse(isFridayFromEpochDays(-5))

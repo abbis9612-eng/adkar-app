@@ -30,7 +30,8 @@ class GetPrayerTimesUseCaseTest {
     }
 
     @Test
-    fun `بلا إحداثيات يعطي خطأ موقع لا مواقيت افتراضية`() = runTest {
+    /** بلا إحداثيات: خطأ موقع لا مواقيت افتراضية */
+    fun no_coordinates_yields_location_error_not_defaults() = runTest {
         val result = useCase(lat = 0.0, lng = 0.0, method = METHOD)
 
         val error = assertIs<RafiqResult.Error>(result)
@@ -38,7 +39,8 @@ class GetPrayerTimesUseCaseTest {
     }
 
     @Test
-    fun `بلا إحداثيات يعطي خطأ موقع لمواقيت الغد أيضاً`() = runTest {
+    /** وكذلك لمواقيت الغد */
+    fun no_coordinates_yields_location_error_for_tomorrow_too() = runTest {
         val result = useCase.getForTomorrow(lat = 0.0, lng = 0.0, method = METHOD)
 
         val error = assertIs<RafiqResult.Error>(result)
@@ -46,7 +48,8 @@ class GetPrayerTimesUseCaseTest {
     }
 
     @Test
-    fun `إحداثيات حقيقية تعطي مواقيت مرتّبة تصاعدياً`() = runTest {
+    /** إحداثيات حقيقية تعطي مواقيت مرتّبة تصاعدياً */
+    fun real_coordinates_yield_ascending_prayer_times() = runTest {
         val result = useCase(BAGHDAD_LAT, BAGHDAD_LNG, METHOD)
 
         val times = assertIs<RafiqResult.Success<*>>(result).data
@@ -59,7 +62,8 @@ class GetPrayerTimesUseCaseTest {
     }
 
     @Test
-    fun `خط عرض صفر مع خط طول غير صفر موقعٌ صالح لا غياب موقع`() = runTest {
+    /** خط عرض صفر وحده موقعٌ صالح لا غياب موقع */
+    fun zero_latitude_alone_is_a_valid_location() = runTest {
         // نقطة على خط الاستواء قبالة سواحل إندونيسيا — lat = 0.0 وحدها
         // ليست "لا موقع"، والشرط يجب أن يكون على الاثنين معاً.
         val result = useCase(lat = 0.0, lng = 101.45, method = METHOD)
