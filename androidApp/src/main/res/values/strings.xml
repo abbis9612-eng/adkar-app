@@ -104,4 +104,47 @@
     <string name="method_mwl">رابطة العالم الإسلامي</string>
     <string name="method_isna">أمريكا الشمالية</string>
     <string name="method_turkey">تركيا</string>
+
+    <!-- ط٤: أقسام الأذكار والأدعية والتعريف الأول -->
+    <string name="cat_morning">أذكار الصباح</string>
+    <string name="cat_morning_desc">ابدأ يومك بذكر الله</string>
+    <string name="cat_evening">أذكار المساء</string>
+    <string name="cat_evening_desc">اختم يومك بذكر الله</string>
+    <string name="cat_sleep">أذكار النوم</string>
+    <string name="cat_sleep_desc">أذكار النوم والاستيقاظ</string>
+    <string name="cat_istighfar">الاستغفار</string>
+    <string name="cat_istighfar_desc">استغفر الله العظيم</string>
+    <string name="cat_prayer">أذكار الصلاة</string>
+    <string name="cat_prayer_desc">أذكار بعد الصلاة</string>
+    <string name="dua_cat_morning">أدعية الصباح</string>
+    <string name="dua_cat_evening">أدعية المساء</string>
+    <string name="dua_cat_sleep">أدعية النوم</string>
+    <string name="dua_cat_quran">أدعية من القرآن</string>
+    <string name="dua_cat_food">أدعية الطعام</string>
+    <string name="dua_cat_travel">أدعية السفر</string>
+    <string name="dua_cat_anxiety">أدعية الهمّ والقلق</string>
+    <string name="dua_cat_sickness">أدعية المرض</string>
+    <string name="dua_cat_general">أدعية جامعة</string>
+    <string name="dua_cat_istikharah">دعاء الاستخارة</string>
+    <string name="ob1_title">رفيق الذّكر</string>
+    <string name="ob1_sub">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
+    <string name="ob1_body">رفيقك اليومي في رحلة الإيمان\nوالتقرب إلى الله عز وجل</string>
+    <string name="ob2_title">أذكارك اليومية</string>
+    <string name="ob2_sub">أذكار الصباح والمساء</string>
+    <string name="ob2_body">لا تفوّت أذكارك بتذكيرات ذكية\nفي الأوقات المناسبة لكل ذكر</string>
+    <string name="ob3_title">القرآن والتسبيح</string>
+    <string name="ob3_sub">تلاوة · تسبيح · متابعة</string>
+    <string name="ob3_body">اقرأ القرآن واستمع لأفضل القراء\nوسبّح بالمسبحة الرقمية مع التتبع</string>
+    <string name="ob4_title">مستعد للبدء؟</string>
+    <string name="ob4_sub">خطوة واحدة</string>
+    <string name="ob4_body">فعّل الإشعارات ليصلك تذكير\nبأذكارك ومواقيت صلاتك</string>
+
+    <!-- العربية فيها مثنّى وصيغتا جمع؛ Android يعرف ذلك، فلا داعي لشروط يدوية -->
+    <plurals name="dua_count">
+        <item quantity="one">دعاء واحد</item>
+        <item quantity="two">دعاءان</item>
+        <item quantity="few">%1$s أدعية</item>
+        <item quantity="many">%1$s دعاء</item>
+        <item quantity="other">%1$s دعاء</item>
+    </plurals>
 </resources>

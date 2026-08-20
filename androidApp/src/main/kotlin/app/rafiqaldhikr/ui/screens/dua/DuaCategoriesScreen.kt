@@ -24,6 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.components.IcoCompass
@@ -58,7 +62,8 @@ import app.rafiqaldhikr.ui.components.RafiqIconButton
 internal enum class DuaAccent { GOLD, NIGHT, GREEN, DUSK }
 
 internal data class DuaCategoryDef(
-    val name: String,
+    // معرّف مورد لا نصّ — القائمة تُبنى في مستوى الملف بلا سياق
+    @StringRes val name: Int,
     val key: String,
     val iconType: Int, // 0=sun, 1=moon, 2=star, 3=leaf, 4=compass, 5=diamond
     val accent: DuaAccent,
@@ -66,27 +71,30 @@ internal data class DuaCategoryDef(
 
 // كل الأقسام المعروفة — تُعرض فقط التي لها أدعية فعلية في قاعدة البيانات
 internal val KNOWN_DUA_CATEGORIES = listOf(
-    DuaCategoryDef("أدعية الصباح",     "morning",    0, DuaAccent.GOLD),
-    DuaCategoryDef("أدعية المساء",     "evening",    1, DuaAccent.NIGHT),
-    DuaCategoryDef("أدعية النوم",      "sleep",      2, DuaAccent.NIGHT),
-    DuaCategoryDef("أدعية من القرآن",  "quran",      2, DuaAccent.GREEN),
-    DuaCategoryDef("أدعية الطعام",     "food",       3, DuaAccent.GREEN),
-    DuaCategoryDef("أدعية السفر",      "travel",     4, DuaAccent.GOLD),
-    DuaCategoryDef("أدعية الهمّ والقلق", "anxiety",   3, DuaAccent.NIGHT),
-    DuaCategoryDef("أدعية المرض",      "sickness",   3, DuaAccent.NIGHT),
-    DuaCategoryDef("أدعية جامعة",      "general",    2, DuaAccent.GOLD),
-    DuaCategoryDef("دعاء الاستخارة",   "istikharah", 5, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_morning,     "morning",    0, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_evening,     "evening",    1, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_sleep,      "sleep",      2, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_quran,  "quran",      2, DuaAccent.GREEN),
+    DuaCategoryDef(R.string.dua_cat_food,     "food",       3, DuaAccent.GREEN),
+    DuaCategoryDef(R.string.dua_cat_travel,      "travel",     4, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_anxiety, "anxiety",   3, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_sickness,      "sickness",   3, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_general,      "general",    2, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_istikharah,   "istikharah", 5, DuaAccent.GOLD),
 )
 
+@Composable
 internal fun duaCategoryLabel(key: String): String =
-    KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }?.name ?: key
+    KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }
+        ?.let { stringResource(it.name) } ?: key
 
-internal fun duaCountLabel(count: Long, arabic: Boolean = true): String = when {
-    count == 1L        -> "دعاء واحد"
-    count == 2L        -> "دعاءان"
-    count in 3..10     -> "${count.localized(arabic)} أدعية"
-    else               -> "${count.localized(arabic)} دعاء"
-}
+/**
+ * العربية فيها مفرد ومثنّى وصيغتا جمع، وكان هذا مكتوباً بشروط يدوية.
+ * pluralStringResource يعرف قواعد كل لغة، فتصحّ الإنجليزية مجاناً.
+ */
+@Composable
+internal fun duaCountLabel(count: Long, arabic: Boolean = true): String =
+    pluralStringResource(R.plurals.dua_count, count.toInt(), count.localized(arabic))
 
 @Composable
 private fun DuaAccent.colors(): Pair<Color, Color> {
@@ -166,7 +174,7 @@ private fun DuaCategoryGridCard(
             app.rafiqaldhikr.ui.components.CategoryBadge(
                 app.rafiqaldhikr.ui.components.duaCatDrawable(def.key), 58.dp)
             Spacer(Modifier.height(12.dp))
-            Text(def.name,
+            Text(stringResource(def.name),
                 fontWeight = FontWeight.Bold,
                 color = LocalRafiqColors.current.ink, style = RafiqType.body)
             Spacer(Modifier.height(4.dp))

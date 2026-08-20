@@ -32,6 +32,9 @@ import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.util.rememberPermissionState
 import kotlin.math.*
@@ -50,35 +53,36 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 ══════════════════════════════════════════════════════════════ */
 
 private data class OnboardingPageData(
-    val title: String,
-    val subtitle: String,
-    val description: String,
+    // معرّفات موارد — القائمة تُبنى في مستوى الملف بلا سياق
+    @StringRes val title: Int,
+    @StringRes val subtitle: Int,
+    @StringRes val description: Int,
     val iconType: Int,        // 0=welcome, 1=adhkar, 2=quran, 3=start
 )
 
 private val PAGES = listOf(
     OnboardingPageData(
-        title       = "رفيق الذّكر",
-        subtitle    = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-        description = "رفيقك اليومي في رحلة الإيمان\nوالتقرب إلى الله عز وجل",
+        title       = R.string.ob1_title,
+        subtitle    = R.string.ob1_sub,
+        description = R.string.ob1_body,
         iconType    = 0,
     ),
     OnboardingPageData(
-        title       = "أذكارك اليومية",
-        subtitle    = "أذكار الصباح والمساء",
-        description = "لا تفوّت أذكارك بتذكيرات ذكية\nفي الأوقات المناسبة لكل ذكر",
+        title       = R.string.ob2_title,
+        subtitle    = R.string.ob2_sub,
+        description = R.string.ob2_body,
         iconType    = 1,
     ),
     OnboardingPageData(
-        title       = "القرآن والتسبيح",
-        subtitle    = "تلاوة · تسبيح · متابعة",
-        description = "اقرأ القرآن واستمع لأفضل القراء\nوسبّح بالمسبحة الرقمية مع التتبع",
+        title       = R.string.ob3_title,
+        subtitle    = R.string.ob3_sub,
+        description = R.string.ob3_body,
         iconType    = 2,
     ),
     OnboardingPageData(
-        title       = "مستعد للبدء؟",
-        subtitle    = "خطوة واحدة",
-        description = "فعّل الإشعارات ليصلك تذكير\nبأذكارك ومواقيت صلاتك",
+        title       = R.string.ob4_title,
+        subtitle    = R.string.ob4_sub,
+        description = R.string.ob4_body,
         iconType    = 3,
     ),
 )
@@ -204,7 +208,7 @@ private fun OnboardingPage(data: OnboardingPageData, pageIndex: Int) {
         Spacer(Modifier.height(36.dp))
 
         // Subtitle (basmala / category)
-        Text(data.subtitle,
+        Text(stringResource(data.subtitle),
             fontWeight = FontWeight.SemiBold,
             color = LocalRafiqColors.current.gold,
             textAlign = TextAlign.Center, style = RafiqType.bodyS)
@@ -213,7 +217,7 @@ private fun OnboardingPage(data: OnboardingPageData, pageIndex: Int) {
 
         // Title
         Text(
-            data.title,
+            stringResource(data.title),
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = LocalRafiqColors.current.ink,
@@ -223,7 +227,7 @@ private fun OnboardingPage(data: OnboardingPageData, pageIndex: Int) {
         Spacer(Modifier.height(14.dp))
 
         // Description
-        Text(data.description,
+        Text(stringResource(data.description),
             color = LocalRafiqColors.current.inkMed,
             textAlign = TextAlign.Center,
             lineHeight = 26.sp, style = RafiqType.body)

@@ -104,4 +104,43 @@
     <string name="method_mwl">Muslim World League</string>
     <string name="method_isna">North America (ISNA)</string>
     <string name="method_turkey">Turkey</string>
+
+    <!-- ط٤: أقسام الأذكار والأدعية والتعريف الأول -->
+    <string name="cat_morning">Morning Adhkar</string>
+    <string name="cat_morning_desc">Begin your day remembering Allah</string>
+    <string name="cat_evening">Evening Adhkar</string>
+    <string name="cat_evening_desc">End your day remembering Allah</string>
+    <string name="cat_sleep">Sleep Adhkar</string>
+    <string name="cat_sleep_desc">For sleeping and waking</string>
+    <string name="cat_istighfar">Seeking Forgiveness</string>
+    <string name="cat_istighfar_desc">Astaghfirullah al-Adheem</string>
+    <string name="cat_prayer">Prayer Adhkar</string>
+    <string name="cat_prayer_desc">After the prayer</string>
+    <string name="dua_cat_morning">Morning Duas</string>
+    <string name="dua_cat_evening">Evening Duas</string>
+    <string name="dua_cat_sleep">Sleep Duas</string>
+    <string name="dua_cat_quran">Duas from the Quran</string>
+    <string name="dua_cat_food">Food Duas</string>
+    <string name="dua_cat_travel">Travel Duas</string>
+    <string name="dua_cat_anxiety">Duas for Worry and Anxiety</string>
+    <string name="dua_cat_sickness">Duas for Illness</string>
+    <string name="dua_cat_general">Comprehensive Duas</string>
+    <string name="dua_cat_istikharah">Istikharah Dua</string>
+    <string name="ob1_title">Rafiq Al-Dhikr</string>
+    <string name="ob1_sub">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
+    <string name="ob1_body">Your daily companion on the path of faith\nand nearness to Allah</string>
+    <string name="ob2_title">Your Daily Adhkar</string>
+    <string name="ob2_sub">Morning and evening</string>
+    <string name="ob2_body">Never miss your adhkar, with gentle reminders\nat the right time for each one</string>
+    <string name="ob3_title">Quran and Tasbeeh</string>
+    <string name="ob3_sub">Recite · Glorify · Track</string>
+    <string name="ob3_body">Read the Quran, listen to the finest reciters,\nand keep count on the digital misbaha</string>
+    <string name="ob4_title">Ready to begin?</string>
+    <string name="ob4_sub">One step</string>
+    <string name="ob4_body">Enable notifications for reminders\nof your adhkar and prayer times</string>
+
+    <plurals name="dua_count">
+        <item quantity="one">%1$s dua</item>
+        <item quantity="other">%1$s duas</item>
+    </plurals>
 </resources>

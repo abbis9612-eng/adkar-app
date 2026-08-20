@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
@@ -144,8 +147,10 @@ private enum class AdhkarAccent { GOLD, NIGHT, GREEN }
 
 private data class AdhkarCatDef(
     val key: String,
-    val label: String,
-    val description: String,
+    // معرّفات موارد لا نصوص: القائمة تُبنى في مستوى الملف خارج أي
+    // @Composable، فلا سياق عندها لتحلّ stringResource.
+    @StringRes val label: Int,
+    @StringRes val description: Int,
     val accent: AdhkarAccent,
     val iconType: Int,
 )
@@ -161,11 +166,11 @@ private fun AdhkarAccent.colors(): Pair<Color, Color> {
 }
 
 private val ADHKAR_CATS = listOf(
-    AdhkarCatDef("morning", "أذكار الصباح", "ابدأ يومك بذكر الله", AdhkarAccent.GOLD, 0),
-    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarAccent.NIGHT, 1),
-    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarAccent.NIGHT, 2),
-    AdhkarCatDef("istighfar", "الاستغفار",   "استغفر الله العظيم", AdhkarAccent.GREEN, 5),
-    AdhkarCatDef("prayer",  "أذكار الصلاة", "أذكار بعد الصلاة", AdhkarAccent.GREEN, 3),
+    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc, AdhkarAccent.GOLD, 0),
+    AdhkarCatDef("evening", R.string.cat_evening, R.string.cat_evening_desc, AdhkarAccent.NIGHT, 1),
+    AdhkarCatDef("sleep",   R.string.cat_sleep,  R.string.cat_sleep_desc, AdhkarAccent.NIGHT, 2),
+    AdhkarCatDef("istighfar", R.string.cat_istighfar,   R.string.cat_istighfar_desc, AdhkarAccent.GREEN, 5),
+    AdhkarCatDef("prayer",  R.string.cat_prayer, R.string.cat_prayer_desc, AdhkarAccent.GREEN, 3),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -318,12 +323,12 @@ private fun AdhkarCategoryCard(
             Spacer(Modifier.width(14.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(cat.label,
+                Text(stringResource(cat.label),
                     fontWeight = FontWeight.Bold,
                     color = LocalRafiqColors.current.ink, style = RafiqType.body)
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    cat.description,
+                    stringResource(cat.description),
                     fontSize = 13.sp,
                     color = LocalRafiqColors.current.inkMed,
                 )
