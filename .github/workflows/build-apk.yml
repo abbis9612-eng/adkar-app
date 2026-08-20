@@ -65,6 +65,23 @@ jobs:
       - name: Unit tests
         run: ./gradlew :shared:testDebugUnitTest :androidApp:testDebugUnitTest --no-daemon
 
+      # حاجز التوقيع: يجب أن يفشل bundleRelease بلا مفتاح، برسالة واضحة،
+      # بدل أن يسقط صامتاً إلى مفتاح debug كما كان يفعل. نتحقّق أن الحاجز
+      # نفسه يعمل — لا نكتفي بوجوده في الكود.
+      - name: Verify release signing guard fails without a key
+        run: |
+          if ./gradlew :androidApp:bundleRelease --no-daemon > /tmp/rel.log 2>&1; then
+            echo "::error::bundleRelease نجح بلا مفتاح توقيع — الحاجز لا يعمل"
+            exit 1
+          fi
+          if grep -q "بناء إصدارية بلا مفتاح توقيع" /tmp/rel.log; then
+            echo "الحاجز يعمل: فشل البناء بالرسالة المتوقَّعة"
+          else
+            echo "::error::فشل bundleRelease لسبب آخر غير الحاجز:"
+            tail -40 /tmp/rel.log
+            exit 1
+          fi
+
       # اسم ملف يحمل رقم البناء ومعرّف الكومِت — يمنع الكاش ويوضّح النسخة
       - name: Rename APK
         run: |

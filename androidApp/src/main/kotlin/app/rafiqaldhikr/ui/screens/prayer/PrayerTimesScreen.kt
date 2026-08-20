@@ -328,17 +328,26 @@ private fun formatTime(epochMs: Long, arabic: Boolean): String {
     return sdf.format(Date(epochMs))
 }
 
+// الدالتان صارتا @Composable لتتمكّنا من stringResource: كانتا تُرجعان
+// نصّاً عربياً ثابتاً فيظهر بالعربية حتى في الواجهة الإنجليزية.
+@Composable
 private fun madhabLabel(madhab: String): String =
-    if (madhab == "hanafi") "حنفي" else "شافعي"
+    stringResource(if (madhab == "hanafi") R.string.madhab_hanafi else R.string.madhab_shafi)
 
-private fun methodLabel(method: String): String = when (method) {
-    "umm_al_qura" -> "طريقة أم القرى"
-    "egyptian"    -> "الطريقة المصرية"
-    "karachi"     -> "كراتشي"
-    "mwl"         -> "رابطة العالم الإسلامي"
-    "isna"        -> "أمريكا الشمالية"
-    "turkey"      -> "تركيا"
-    else          -> method
+@Composable
+private fun methodLabel(method: String): String {
+    // فرع else يعيد المفتاح الخام لطريقة غير معروفة، وهو نصّ لا معرّف
+    // مورد — فلا يصحّ حشره داخل stringResource مع البقية.
+    val res = when (method) {
+        "umm_al_qura" -> R.string.method_umm_al_qura
+        "egyptian"    -> R.string.method_egyptian
+        "karachi"     -> R.string.method_karachi
+        "mwl"         -> R.string.method_mwl
+        "isna"        -> R.string.method_isna
+        "turkey"      -> R.string.method_turkey
+        else          -> null
+    }
+    return if (res != null) stringResource(res) else method
 }
 
 

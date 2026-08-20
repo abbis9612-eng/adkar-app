@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -45,34 +48,37 @@ import app.rafiqaldhikr.ui.components.rafiqCard
 
 private data class SettingItem(
     val icon: RIcon,
-    val label: String,
+    // معرّف مورد لا نصّ: القوائم هنا تُبنى في مستوى الملف، خارج أي
+    // @Composable، فلا يمكن استدعاء stringResource عندها. المعرّف يُحلّ
+    // وقت العرض حيث السياق متاح.
+    @StringRes val label: Int,
     val baseColor: (app.rafiqaldhikr.ui.theme.RafiqPalette) -> Color,
     val badge: String? = null,
     val route: String,
 )
 
 private val GROUP_1 = listOf(
-    SettingItem(RIcon.Palette,  "إعدادات المظهر",    { it.gold }, route = "theme_settings"),
-    SettingItem(RIcon.Font,     "إعدادات الخط",      { it.emerald }, route = "font_settings"),
-    SettingItem(RIcon.Bell,     "إعدادات الإشعارات", { it.inkMed }, route = "notification_settings"),
-    SettingItem(RIcon.Clock,    "طريقة حساب الصلاة", { it.gold }, route = "prayer_method"),
-    SettingItem(RIcon.User,     "إمكانية الوصول",    { it.emerald }, route = "accessibility_settings"),
-    SettingItem(RIcon.Globe,    "اللغة",             { it.gold }, route = "language"),
+    SettingItem(RIcon.Palette,  R.string.settings_theme,    { it.gold }, route = "theme_settings"),
+    SettingItem(RIcon.Font,     R.string.settings_font,      { it.emerald }, route = "font_settings"),
+    SettingItem(RIcon.Bell,     R.string.settings_notifications, { it.inkMed }, route = "notification_settings"),
+    SettingItem(RIcon.Clock,    R.string.settings_prayer_method, { it.gold }, route = "prayer_method"),
+    SettingItem(RIcon.User,     R.string.settings_accessibility,    { it.emerald }, route = "accessibility_settings"),
+    SettingItem(RIcon.Globe,    R.string.settings_language,             { it.gold }, route = "language"),
 )
 
 private val GROUP_2 = listOf(
     // شاشة "المميز" حُذفت في ط٠ — كانت أزرارها placeholder والمتاجر ترفض ذلك.
     // "إعدادات الودجت" مؤجَّلة إلى ما بعد V1 (@HiddenInV1).
-    SettingItem(RIcon.Upload,   "تصدير البيانات",    { it.gold }, route = "export_data"),
+    SettingItem(RIcon.Upload,   R.string.settings_export,    { it.gold }, route = "export_data"),
 )
 
 private val GROUP_3 = listOf(
-    SettingItem(RIcon.Info,      "حول التطبيق",       { it.inkMed }, route = "about"),
-    SettingItem(RIcon.Help,      "المساعدة",          { it.gold }, route = "help"),
-    SettingItem(RIcon.Sparkles,  "ما الجديد",         { it.emerald }, route = "whats_new"),
-    SettingItem(RIcon.Shield,    "سياسة الخصوصية",    { it.gold }, route = "privacy_policy"),
-    SettingItem(RIcon.Document,  "شروط الاستخدام",    { it.inkMed }, route = "terms"),
-    SettingItem(RIcon.Mail,      "تواصل معنا",        { it.gold }, route = "contact"),
+    SettingItem(RIcon.Info,      R.string.settings_about,       { it.inkMed }, route = "about"),
+    SettingItem(RIcon.Help,      R.string.settings_help,          { it.gold }, route = "help"),
+    SettingItem(RIcon.Sparkles,  R.string.settings_whats_new,         { it.emerald }, route = "whats_new"),
+    SettingItem(RIcon.Shield,    R.string.settings_privacy,    { it.gold }, route = "privacy_policy"),
+    SettingItem(RIcon.Document,  R.string.settings_terms,    { it.inkMed }, route = "terms"),
+    SettingItem(RIcon.Mail,      R.string.settings_contact,        { it.gold }, route = "contact"),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -111,7 +117,7 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                 Spacer(Modifier.width(14.dp))
 
                 // Label
-                Text(item.label,
+                Text(stringResource(item.label),
                     color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
 
                 // Pro badge

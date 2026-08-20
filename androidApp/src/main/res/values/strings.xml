@@ -81,4 +81,27 @@
     <string name="permission_notification_body">نحتاج إذنك لتذكيرك بأوقات الصلاة</string>
     <string name="permission_location_title">تحديد الموقع</string>
     <string name="permission_location_body">نحتاج موقعك لحساب مواقيت الصلاة واتجاه القبلة</string>
+
+    <!-- ط٤: الإعدادات وطرق الحساب والمذاهب -->
+    <string name="settings_theme">إعدادات المظهر</string>
+    <string name="settings_font">إعدادات الخط</string>
+    <string name="settings_notifications">إعدادات الإشعارات</string>
+    <string name="settings_prayer_method">طريقة حساب الصلاة</string>
+    <string name="settings_accessibility">إمكانية الوصول</string>
+    <string name="settings_language">اللغة</string>
+    <string name="settings_export">تصدير البيانات</string>
+    <string name="settings_about">حول التطبيق</string>
+    <string name="settings_help">المساعدة</string>
+    <string name="settings_whats_new">ما الجديد</string>
+    <string name="settings_privacy">سياسة الخصوصية</string>
+    <string name="settings_terms">شروط الاستخدام</string>
+    <string name="settings_contact">تواصل معنا</string>
+    <string name="madhab_hanafi">حنفي</string>
+    <string name="madhab_shafi">شافعي</string>
+    <string name="method_umm_al_qura">طريقة أم القرى</string>
+    <string name="method_egyptian">الطريقة المصرية</string>
+    <string name="method_karachi">كراتشي</string>
+    <string name="method_mwl">رابطة العالم الإسلامي</string>
+    <string name="method_isna">أمريكا الشمالية</string>
+    <string name="method_turkey">تركيا</string>
 </resources>
