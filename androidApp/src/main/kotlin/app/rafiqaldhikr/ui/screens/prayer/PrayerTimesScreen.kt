@@ -89,7 +89,7 @@ private fun PrayerTimesContent(
     state: PrayerTimesViewModel.UiState,
     onMarkPrayed: (String, Boolean) -> Unit,
     onRefresh: () -> Unit,
-    onPickCity: (app.rafiqaldhikr.ui.components.City) -> Unit,
+    onPickCity: (app.rafiq.domain.model.City) -> Unit,
     navController: NavHostController,
     rc: RafiqPalette,
     modifier: Modifier = Modifier

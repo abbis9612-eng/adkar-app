@@ -1,12 +1,12 @@
-package app.rafiqaldhikr.ui.components
+package app.rafiq.domain.model
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * بحث المدن يجب أن يسامح ما يكتبه الناس فعلاً: بلا تشكيل، وبهمزة عادية
- * بدل همزة القطع، وبـ«ه» بدل «ة»، وبأل التعريف أو بدونها.
+ * بدل همزة القطع، و«ه» بدل «ة»، وبأل التعريف أو بدونها.
  */
 class CityTest {
 
@@ -25,10 +25,10 @@ class CityTest {
         assertTrue(mecca.matches("مكة"))
     }
 
-    @Test fun `البحث بالإنجليزية يعمل بلا حساسية لحالة الأحرف`() {
+    @Test fun `البحث بالإنجليزية بلا حساسية لحالة الأحرف`() {
         assertTrue(baghdad.matches("baghdad"))
         assertTrue(baghdad.matches("BAGHDAD"))
-        assertTrue(mecca.matches("mecca"))
+        assertTrue(mecca.matches("Mecca"))
     }
 
     @Test fun `البحث باسم البلد يُظهر مدنه`() {
@@ -44,5 +44,10 @@ class CityTest {
     @Test fun `اسم غير موجود لا يطابق`() {
         assertFalse(baghdad.matches("طوكيو"))
         assertFalse(mecca.matches("tokyo"))
+    }
+
+    @Test fun `بحث فارغ لا يطابق كل شيء بالخطأ`() {
+        assertFalse(baghdad.matches(""))
+        assertFalse(baghdad.matches("   "))
     }
 }

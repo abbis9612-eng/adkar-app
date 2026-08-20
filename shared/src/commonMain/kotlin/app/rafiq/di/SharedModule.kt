@@ -32,6 +32,7 @@ val sharedModule = module {
     single<UserDataRepository> { UserDataRepositoryImpl(get()) }
     single<AchievementRepository> { AchievementRepositoryImpl(get()) }
     single<DayCompanionRepository> { DayCompanionRepositoryImpl(get()) }
+    single<CityRepository>     { CityRepositoryImpl(get()) }
 
     // ═══ Prayer Times (حساب محلي offline — commonMain) ═══
     single { app.rafiq.domain.model.PrayerTimeCalculator() }
