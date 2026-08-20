@@ -5,20 +5,14 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,10 +28,8 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
-import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
-import app.rafiqaldhikr.ui.theme.stillableFloat
 import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
@@ -46,38 +38,6 @@ import app.rafiqaldhikr.ui.components.RafiqIconButton
    GEOMETRIC DECORATION (reused from HomeScreen pattern)
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun GeomDecoration(
-    sizeDp: Dp = 160.dp,
-    color: Color = LocalRafiqColors.current.gold.copy(alpha = 0.10f),
-    spinDuration: Int = 90_000,
-    modifier: Modifier = Modifier,
-) {
-    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, label = "geomRot")
-    Canvas(modifier = modifier.size(sizeDp)) {
-        val sz = this.size.width
-        val cx = sz / 2f; val cy = sz / 2f
-        rotate(rotation, pivot = Offset(cx, cy)) {
-            val hex = Path().apply {
-                for (i in 0 until 6) {
-                    val a = (i * 60 - 90) * PI.toFloat() / 180f
-                    val r = sz * 0.43f
-                    val px = cx + r * cos(a); val py = cy + r * sin(a)
-                    if (i == 0) moveTo(px, py) else lineTo(px, py)
-                }; close()
-            }
-            drawPath(hex, color, style = Stroke(1.2f))
-            drawCircle(color, sz * 0.44f, Offset(cx, cy), style = Stroke(0.7f))
-            for (i in 0 until 6) {
-                val a = (i * 60 - 90) * PI.toFloat() / 180f
-                drawLine(color,
-                    Offset(cx + sz * 0.27f * cos(a), cy + sz * 0.27f * sin(a)),
-                    Offset(cx + sz * 0.43f * cos(a), cy + sz * 0.43f * sin(a)),
-                    1.1f)
-            }
-        }
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
@@ -87,74 +47,6 @@ private fun GeomDecoration(
    DAILY RECITATION CARD (Hero)
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun DailyRecitationCard() {
-    val rc = LocalRafiqColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 14.dp)
-            .clip(RafiqShape.card)
-    ) {
-        // Background gradient
-        Box(
-            Modifier.matchParentSize().background(
-                Brush.linearGradient(
-                    listOf(rc.heroStart, rc.heroMid, rc.heroEnd),
-                    start = Offset(0f, 0f),
-                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-                )
-            )
-        )
-
-        // Rotating geometric decoration
-        GeomDecoration(
-            sizeDp = 220.dp,
-            color = LocalRafiqColors.current.goldLight.copy(alpha = 0.14f),
-            spinDuration = 80_000,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = (-55).dp, y = (-55).dp)
-                .graphicsLayer { alpha = 0.3f },
-        )
-        GeomDecoration(
-            sizeDp = 150.dp,
-            color = Color.White.copy(alpha = 0.05f),
-            spinDuration = 100_000,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 30.dp, y = 40.dp)
-                .graphicsLayer { alpha = 0.15f },
-        )
-
-        Column(Modifier.padding(horizontal = 22.dp, vertical = 20.dp)) {
-            Text("تلاوة اليوم", color = Color.White.copy(alpha = 0.5f), style = RafiqType.micro)
-            Spacer(Modifier.height(8.dp))
-            Text("سورة الكهف", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 34.sp)
-            Spacer(Modifier.height(4.dp))
-            Text("صفحة ٢٩٣ · ١١٠ آيات", color = Color.White.copy(alpha = 0.55f), style = RafiqType.caption)
-            Spacer(Modifier.height(16.dp))
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipBack, 16.dp, Color.White) }
-                Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.gold).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.Play, 22.dp, Color.White) }
-                Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipForward, 16.dp, Color.White) }
-            }
-
-            Spacer(Modifier.height(14.dp))
-            Box(Modifier.fillMaxWidth().height(4.dp).clip(RafiqShape.chip).background(Color.White.copy(alpha = 0.14f))) {
-                Box(Modifier.fillMaxWidth(0.35f).fillMaxHeight().clip(RafiqShape.chip).background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
-            }
-            Spacer(Modifier.height(6.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("١٢:٣٤", color = Color.White.copy(alpha = 0.45f), style = RafiqType.micro)
-                Text("٣٥:١٢", color = Color.White.copy(alpha = 0.45f), style = RafiqType.micro)
-            }
-        }
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    SEARCH BAR
@@ -281,7 +173,10 @@ fun QuranListScreen(
                 ) {
                     // ═══ DAILY RECITATION CARD ═══
                     item {
-                        DailyRecitationCard()
+                        // حُذفت بطاقة «تلاوة اليوم»: كانت مشغّلاً وهمياً
+                        // بالكامل — «سورة الكهف» ثابتة دائماً، وشريط تقدّم
+                        // مثبَّت على ٣٥٪، وأزرار تشغيل بـ clickable { } فارغة
+                        // لا تفعل شيئاً. المستخدم يضغط فلا يحدث شيء.
                         Spacer(Modifier.height(18.dp))
                     }
 

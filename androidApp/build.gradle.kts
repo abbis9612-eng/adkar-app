@@ -106,12 +106,18 @@ android {
    حاجز التوقيع — لا نسخة إصدارية بمفتاح debug
 
    كان البناء يسقط صامتاً إلى مفتاح debug عند غياب KEYSTORE_FILE، فيُخرج
-   APK يبدو إصدارياً ولا يقبله المتجر ولا يمكن تحديثه لاحقاً. الآن أي
-   assembleRelease أو bundleRelease بلا مفتاح يفشل برسالة واضحة.
+   APK يبدو إصدارياً ولا يقبله المتجر ولا يمكن تحديثه لاحقاً.
+
+   المحاولة الأولى وضعت الفحص في doFirst على assemble/bundleRelease —
+   ولم تعمل: bundleRelease مهمّة دورة حياة تعتمد على signReleaseBundle،
+   فينهار التوقيع أولاً بـ NullPointerException عارٍ قبل أن يصل الفحص.
+   كشفَ ذلك اختبارُ CI الذي يشغّل bundleRelease بلا مفتاح ويطالب بالرسالة
+   المتوقَّعة بالذات — لا بمجرّد الفشل.
+
+   الآن مهمّة تحقّق مستقلّة تعتمد عليها كل مهام حزم الإصدار وتوقيعها،
+   فتعمل قبلها جميعاً.
 ═══════════════════════════════════════════════════════════════════ */
-tasks.matching {
-    (it.name.startsWith("assemble") || it.name.startsWith("bundle")) && it.name.endsWith("Release")
-}.configureEach {
+val verifyReleaseSigning = tasks.register("verifyReleaseSigning") {
     doFirst {
         check(android.signingConfigs.getByName("release").storeFile != null) {
             "بناء إصدارية بلا مفتاح توقيع. حدّد KEYSTORE_FILE و KEYSTORE_PASSWORD " +
@@ -119,6 +125,13 @@ tasks.matching {
         }
     }
 }
+
+tasks.matching {
+    it.name.endsWith("Release") && (
+        it.name.startsWith("sign")     || it.name.startsWith("package") ||
+        it.name.startsWith("assemble") || it.name.startsWith("bundle")
+    )
+}.configureEach { dependsOn(verifyReleaseSigning) }
 
 dependencies {
     implementation(project(":shared"))
