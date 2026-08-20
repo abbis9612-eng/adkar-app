@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.quran
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.foundation.background
@@ -57,7 +59,7 @@ fun QuranSearchScreen(navController: NavHostController) {
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "بحث في القرآن",
+                title  = stringResource(R.string.quran_search_screen),
                 onBack = {navController.popBackStack()},
             )
 
@@ -66,7 +68,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                     value         = query,
                     onValueChange = { query = it },
                     modifier      = Modifier.fillMaxWidth(),
-                    placeholder   = { Text("اكتب كلمة أو آية...", color = rc.inkMed) },
+                    placeholder   = { Text(stringResource(R.string.quran_search_field), color = rc.inkMed) },
                     singleLine    = true,
                     leadingIcon   = { IcoSearch(22.dp, rc.emerald) },
                     shape         = RafiqShape.card,
@@ -82,7 +84,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                 when {
                     query.length < 2 -> {
                         EmptyState(
-                            message = "اكتب كلمتين على الأقل للبحث",
+                            message = stringResource(R.string.quran_search_min),
                             modifier = Modifier.fillMaxSize()
                         )
                     }

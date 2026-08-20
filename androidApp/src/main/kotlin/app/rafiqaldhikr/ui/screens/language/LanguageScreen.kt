@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.language
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import android.app.LocaleManager
 import android.os.Build
 import android.os.LocaleList
@@ -44,15 +46,11 @@ fun LanguageScreen(navController: NavHostController) {
     val context = LocalContext.current
     var selectedLang by remember { mutableStateOf("ar") }
 
+    // لغتان فقط: ما تُرجم فعلاً. الستّ الأخرى (fr · tr · ur · id · ms · bn)
+    // كانت معروضة بلا ملف موارد واحد — يختارها المستخدم فلا يتغيّر شيء.
     val languages = listOf(
-        LanguageOption("ar", "العربية", "العربية", "🇸🇦"),
-        LanguageOption("en", "English", "الإنجليزية", "🇺🇸"),
-        LanguageOption("fr", "Français", "الفرنسية", "🇫🇷"),
-        LanguageOption("tr", "Türkçe", "التركية", "🇹🇷"),
-        LanguageOption("ur", "اردو", "الأردو", "🇵🇰"),
-        LanguageOption("id", "Bahasa Indonesia", "الإندونيسية", "🇮🇩"),
-        LanguageOption("ms", "Bahasa Melayu", "الماليزية", "🇲🇾"),
-        LanguageOption("bn", "বাংলা", "البنغالية", "🇧🇩"),
+        LanguageOption("ar", "العربية", stringResource(R.string.lang_arabic),  "🇸🇦"),
+        LanguageOption("en", "English",  stringResource(R.string.lang_english), "🇺🇸"),
     )
 
     val rc = LocalRafiqColors.current
@@ -69,7 +67,7 @@ fun LanguageScreen(navController: NavHostController) {
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "اللغة — Language",
+                title  = stringResource(R.string.lang_screen_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -80,12 +78,12 @@ fun LanguageScreen(navController: NavHostController) {
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp)
             ) {
-                Text("اختر لغة التطبيق",
+                Text(stringResource(R.string.lang_choose),
                     fontWeight = FontWeight.SemiBold,
                     color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "سيتم تغيير لغة الواجهة فقط. النصوص القرآنية والأذكار تبقى بالعربية.",
+                    stringResource(R.string.lang_note),
                     fontSize = 13.sp,
                     color = rc.inkMed
                 )

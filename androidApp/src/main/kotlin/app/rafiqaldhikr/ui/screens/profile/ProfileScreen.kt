@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.profile
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -127,13 +129,13 @@ private fun ProfileHeroCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                "المستخدم",
+                stringResource(R.string.profile_user),
                 style = RafiqType.titleL,
                 color = Color.White,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "بارك الله فيك على مثابرتك",
+                stringResource(R.string.profile_praise),
                 fontSize = 13.sp, color = Color.White.copy(alpha = 0.6f),
             )
         }
@@ -335,8 +337,8 @@ fun ProfileScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            RafiqTopBar(title = "أوراقي") {
-                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Settings.route) }, label = "الإعدادات") {
+            RafiqTopBar(title = stringResource(R.string.profile_title)) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Settings.route) }, label = stringResource(R.string.settings)) {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
             }
@@ -364,21 +366,21 @@ fun ProfileScreen(
                 StatCard(
                     icon = { IcoMosque(20.dp, rc.emerald) },
                     value = "${state.todayProgress?.prayersLogged ?: 0}/5",
-                    label = "الصلوات",
+                    label = stringResource(R.string.stat_prayers),
                     iconBg = LocalRafiqColors.current.emeraldPastel,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
                     icon = { RafiqIcon(RIcon.Trophy, 20.dp, rc.goldLight) },
                     value = "${state.streak.longest}",
-                    label = "أطول سلسلة",
+                    label = stringResource(R.string.stat_longest_streak),
                     iconBg = LocalRafiqColors.current.tintGold,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
                     icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.lightDusk) },
                     value = "${state.streak.current}",
-                    label = "سلسلة حالية",
+                    label = stringResource(R.string.stat_current_streak),
                     iconBg = LocalRafiqColors.current.tintDusk,
                     modifier = Modifier.weight(1f),
                 )
@@ -387,7 +389,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ TODAY'S ACHIEVEMENTS ═══
-            SectionHeader("إنجازات اليوم")
+            SectionHeader(stringResource(R.string.today_achievements))
             Spacer(Modifier.height(10.dp))
 
             val p = state.todayProgress
@@ -397,17 +399,17 @@ fun ProfileScreen(
                     .padding(horizontal = 14.dp)
                     .rafiqCard()
             ) {
-                TodayRow("أذكار الصباح", if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
-                TodayRow("أذكار المساء", if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)
-                TodayRow("صفحات القرآن", "${p?.quranPages ?: 0}", (p?.quranPages ?: 0) > 0)
-                TodayRow("التسبيح", "${p?.tasbeehCount ?: 0}", (p?.tasbeehCount ?: 0) > 0)
-                TodayRow("الصلوات", "${p?.prayersLogged ?: 0} / ٥", (p?.prayersLogged ?: 0) > 0, isLast = true)
+                TodayRow(stringResource(R.string.cat_morning), if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
+                TodayRow(stringResource(R.string.cat_evening), if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)
+                TodayRow(stringResource(R.string.stat_quran_pages), "${p?.quranPages ?: 0}", (p?.quranPages ?: 0) > 0)
+                TodayRow(stringResource(R.string.stat_tasbeeh), "${p?.tasbeehCount ?: 0}", (p?.tasbeehCount ?: 0) > 0)
+                TodayRow(stringResource(R.string.stat_prayers), "${p?.prayersLogged ?: 0} / ٥", (p?.prayersLogged ?: 0) > 0, isLast = true)
             }
 
             Spacer(Modifier.height(20.dp))
 
             // ═══ THIS WEEK ═══
-            SectionHeader("هذا الأسبوع")
+            SectionHeader(stringResource(R.string.this_week))
             Spacer(Modifier.height(10.dp))
 
             Box(Modifier.padding(horizontal = 14.dp)) {
@@ -422,7 +424,7 @@ fun ProfileScreen(
             // ═══ QUICK LINKS ═══
             // التقرير الأسبوعي والحديقة والإنجازات والمشاركة مؤجَّلة إلى ما بعد V1:
             // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
-            SectionHeader("روابط سريعة")
+            SectionHeader(stringResource(R.string.quick_links))
             Spacer(Modifier.height(10.dp))
 
             Column(
@@ -439,7 +441,7 @@ fun ProfileScreen(
                             drawRect(rc.emerald, Offset(w * 0.70f, w * 0.10f), Size(w * 0.20f, w * 0.80f))
                         }
                     },
-                    label = "الإحصائيات التفصيلية",
+                    label = stringResource(R.string.stat_detailed),
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
 
             }

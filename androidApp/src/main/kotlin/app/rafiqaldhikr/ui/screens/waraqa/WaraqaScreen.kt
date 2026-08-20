@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.waraqa
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -96,7 +98,7 @@ fun WaraqaScreen(
         // والطلب هنا صريح بدل جدولٍ محسوب على مدينةٍ ليست مدينته.
         if (day.needsLocation) {
             NeedsLocation(
-                message = "محطّات يومك موقوتة بأوقات الصلاة، وهي تُحسب من موقعك."
+                message = stringResource(R.string.waraqa_needs_location)
             )
         } else {
             StateLine(day.nowStation)
@@ -120,17 +122,17 @@ private fun Header(hijri: String, onSettings: () -> Unit, onBell: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RafiqIconButton(onClick = onBell, label = "التنبيهات") {
+        RafiqIconButton(onClick = onBell, label = stringResource(R.string.nav_alerts)) {
             RafiqIcon(RIcon.Bell, 18.dp, rc.emerald)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("رَفِيقُ الذِّكر", style = RafiqType.titleM, color = rc.emerald)
             Text(
-                hijri.ifEmpty { "— هـ" }.localizedDigits(LocalArabicNumerals.current),
+                hijri.ifEmpty { stringResource(R.string.hijri_suffix) }.localizedDigits(LocalArabicNumerals.current),
                 style = RafiqType.caption, color = rc.inkMed,
             )
         }
-        RafiqIconButton(onClick = onSettings, label = "الإعدادات") {
+        RafiqIconButton(onClick = onSettings, label = stringResource(R.string.settings)) {
             RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
         }
     }
@@ -143,8 +145,8 @@ private fun StateLine(now: StationUi?) {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 4.dp)) {
         if (now == null) {
-            Text("ورقة يومك", style = RafiqType.ayah, color = rc.ink)
-            Text("تُفتح مع أول ميقات", style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(R.string.waraqa_title), style = RafiqType.ayah, color = rc.ink)
+            Text(stringResource(R.string.waraqa_opens_first), style = RafiqType.bodyS, color = rc.inkMed)
         } else {
             Text(
                 "أنت الآن في ${now.title}",
@@ -352,7 +354,7 @@ private fun Footer(done: Int, total: Int, arabic: Boolean) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("خُطّ من يومك", style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(R.string.waraqa_footer), style = RafiqType.bodyS, color = rc.inkMed)
             Text(
                 "$done من $total محطات".localizedDigits(arabic),
                 style = NumbersStyle, fontSize = RafiqType.label.fontSize, color = rc.gold,

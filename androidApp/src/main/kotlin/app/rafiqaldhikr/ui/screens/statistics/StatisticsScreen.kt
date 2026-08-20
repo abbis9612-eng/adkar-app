@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.statistics
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.foundation.background
@@ -66,7 +68,7 @@ fun StatisticsScreen(
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "الإحصائيات",
+                title  = stringResource(R.string.stats_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -77,7 +79,7 @@ fun StatisticsScreen(
                     .padding(20.dp)
             ) {
                 // ═══ Streak Section ═══
-                Text("السلسلة", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
+                Text(stringResource(R.string.streak), fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -85,18 +87,18 @@ fun StatisticsScreen(
                         modifier   = Modifier.weight(1f),
                         icon       = { s, c -> IcoFlame(s, c) },
                         iconColor  = rc.error,
-                        title      = "السلسلة الحالية",
+                        title      = stringResource(R.string.stat_current_streak),
                         value      = "${state.streak.current}",
-                        suffix     = "يوم",
+                        suffix     = stringResource(R.string.unit_day),
                         rc = rc
                     )
                     StatCard(
                         modifier   = Modifier.weight(1f),
                         icon       = { s, c -> IcoTrophy(s, c) },
                         iconColor  = rc.gold,
-                        title      = "أطول سلسلة",
+                        title      = stringResource(R.string.stat_longest_streak),
                         value      = "${state.streak.longest}",
-                        suffix     = "يوم",
+                        suffix     = stringResource(R.string.unit_day),
                         rc = rc
                     )
                 }
@@ -104,7 +106,7 @@ fun StatisticsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 // ═══ Today's Progress ═══
-                Text("اليوم", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
+                Text(stringResource(R.string.today), fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 val p = state.todayProgress
@@ -113,18 +115,18 @@ fun StatisticsScreen(
                         modifier  = Modifier.weight(1f),
                         icon      = { _, _ -> DuotoneIcon(IcoDuo.Quran, 30.dp) },
                         iconColor = rc.emerald,
-                        title     = "صفحات القرآن",
+                        title     = stringResource(R.string.stat_quran_pages),
                         value     = "${p?.quranPages ?: 0}",
-                        suffix    = "صفحة",
+                        suffix    = stringResource(R.string.unit_page),
                         rc = rc
                     )
                     StatCard(
                         modifier  = Modifier.weight(1f),
                         icon      = { _, _ -> DuotoneIcon(IcoDuo.Tasbeeh, 30.dp) },
                         iconColor = rc.emerald,
-                        title     = "التسبيح",
+                        title     = stringResource(R.string.stat_tasbeeh),
                         value     = "${p?.tasbeehCount ?: 0}",
-                        suffix    = "مرة",
+                        suffix    = stringResource(R.string.unit_time),
                         rc = rc
                     )
                 }
@@ -134,8 +136,8 @@ fun StatisticsScreen(
                         modifier  = Modifier.weight(1f),
                         icon      = { _, _ -> DuotoneIcon(IcoDuo.Sun, 30.dp) },
                         iconColor = rc.gold,
-                        title     = "أذكار الصباح",
-                        value     = if (p?.morningDone == true) "تم" else "—",
+                        title     = stringResource(R.string.cat_morning),
+                        value     = if (p?.morningDone == true) stringResource(R.string.done) else "—",
                         suffix    = "",
                         rc = rc
                     )
@@ -143,8 +145,8 @@ fun StatisticsScreen(
                         modifier  = Modifier.weight(1f),
                         icon      = { _, _ -> DuotoneIcon(IcoDuo.Crescent, 30.dp) },
                         iconColor = rc.lightNight,
-                        title     = "أذكار المساء",
-                        value     = if (p?.eveningDone == true) "تم" else "—",
+                        title     = stringResource(R.string.cat_evening),
+                        value     = if (p?.eveningDone == true) stringResource(R.string.done) else "—",
                         suffix    = "",
                         rc = rc
                     )
@@ -153,7 +155,7 @@ fun StatisticsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 // ═══ Week Summary ═══
-                Text("هذا الأسبوع", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
+                Text(stringResource(R.string.this_week), fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Column(
@@ -162,7 +164,7 @@ fun StatisticsScreen(
                         .rafiqCard()
                         .padding(16.dp)
                 ) {
-                    Text("المداومة اليومية", color = rc.inkMed, style = RafiqType.caption)
+                    Text(stringResource(R.string.daily_consistency), color = rc.inkMed, style = RafiqType.caption)
                     Spacer(Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -222,7 +224,7 @@ fun StatisticsScreen(
                     DuotoneIcon(IcoDuo.Mosque, 34.dp)
                     Spacer(Modifier.width(16.dp))
                     Column {
-                        Text("صلوات هذا الأسبوع", color = rc.inkMed, style = RafiqType.caption)
+                        Text(stringResource(R.string.prayers_this_week), color = rc.inkMed, style = RafiqType.caption)
                         Text(
                             "$prayersThisWeek صلاة",
                             fontSize = 20.sp,

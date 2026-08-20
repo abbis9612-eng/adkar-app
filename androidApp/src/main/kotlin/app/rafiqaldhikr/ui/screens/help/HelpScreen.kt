@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.help
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,7 +41,7 @@ fun HelpScreen(navController: NavHostController) {
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "المساعدة",
+                title  = stringResource(R.string.help_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -55,11 +57,11 @@ fun HelpScreen(navController: NavHostController) {
                         .rafiqCard()
                         .padding(20.dp)
                 ) {
-                    FaqItem("كيف أستخدم المسبحة؟", "اضغط على الدائرة المركزية للعد. يمكنك تغيير الذكر والعدد المستهدف من الأيقونات أعلاه.", rc, isLast = false)
-                    FaqItem("كيف أضيف علامة في القرآن؟", "أثناء القراءة، اضغط على أيقونة العلامة بجانب أي آية.", rc, isLast = false)
-                    FaqItem("هل التطبيق يعمل بدون إنترنت؟", "نعم! جميع الأذكار والأدعية والقرآن متاحة بدون اتصال.", rc, isLast = false)
-                    FaqItem("كيف يتم حساب مواقيت الصلاة؟", "يتم حسابها حسب الموقع الجغرافي وطريقة الحساب المختارة في الإعدادات.", rc, isLast = false)
-                    FaqItem("كيف أتواصل معكم؟", "يمكنك مراسلتنا عبر البريد الإلكتروني: support@rafiqaldhikr.app", rc, isLast = true)
+                    FaqItem(stringResource(R.string.help_q1), stringResource(R.string.help_a1), rc, isLast = false)
+                    FaqItem(stringResource(R.string.help_q2), stringResource(R.string.help_a2), rc, isLast = false)
+                    FaqItem(stringResource(R.string.help_q3), stringResource(R.string.help_a3), rc, isLast = false)
+                    FaqItem(stringResource(R.string.help_q4), stringResource(R.string.help_a4), rc, isLast = false)
+                    FaqItem(stringResource(R.string.help_q5), stringResource(R.string.help_a5), rc, isLast = true)
                 }
                 Spacer(Modifier.height(32.dp))
             }

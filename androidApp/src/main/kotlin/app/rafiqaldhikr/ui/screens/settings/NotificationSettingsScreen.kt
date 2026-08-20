@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.settings
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,7 +42,7 @@ fun NotificationSettingsScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "إعدادات الإشعارات",
+                title  = stringResource(R.string.notif_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -63,8 +65,8 @@ fun NotificationSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تفعيل الإشعارات", color = rc.ink, style = RafiqType.body)
-                            Text("تذكيرات الأذكار ومواقيت الصلاة", fontSize = 13.sp, color = rc.inkMed)
+                            Text(stringResource(R.string.notif_enable), color = rc.ink, style = RafiqType.body)
+                            Text(stringResource(R.string.notif_enable_desc), fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(
                             checked = enabled,
@@ -82,9 +84,9 @@ fun NotificationSettingsScreen(
                     
                     // Items
                     listOf(
-                        "أذكار الصباح" to "بعد صلاة الفجر",
-                        "أذكار المساء" to "بعد صلاة العصر",
-                        "مواقيت الصلاة" to "قبل الأذان بـ 5 دقائق"
+                        stringResource(R.string.cat_morning) to stringResource(R.string.notif_morning_desc),
+                        stringResource(R.string.cat_evening) to stringResource(R.string.notif_evening_desc),
+                        stringResource(R.string.nav_prayer) to stringResource(R.string.notif_prayer_desc)
                     ).forEachIndexed { index, (title, subtitle) ->
                         Row(
                             Modifier

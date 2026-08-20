@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.quran
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -65,7 +67,7 @@ private fun QuranSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 14.dp),
         placeholder = {
-            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
+            Text(stringResource(R.string.quran_search_hint), color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
         },
         leadingIcon = {
             RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)
@@ -125,7 +127,7 @@ private fun SurahCard(
                     .background(if (revelation == "meccan") rc.meccanBg else rc.madaniBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(if (revelation == "meccan") "مكية" else "مدنية",
+                Text(if (revelation == "meccan") stringResource(R.string.revelation_makki) else stringResource(R.string.revelation_madani),
                     fontWeight = FontWeight.SemiBold,
                     color = if (revelation == "meccan") rc.meccanText else rc.madaniText, style = RafiqType.micro)
             }
@@ -156,11 +158,11 @@ fun QuranListScreen(
                 .statusBarsPadding()
         ) {
             // ═══ TOP BAR ═══
-            RafiqTopBar(title = "القرآن الكريم") {
-                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = "العلامات المحفوظة") {
+            RafiqTopBar(title = stringResource(R.string.quran_title)) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = stringResource(R.string.quran_bookmarks)) {
                     RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
                 }
-                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }, label = "البحث في المصحف") {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }, label = stringResource(R.string.quran_search_title)) {
                     RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
                 }
             }
@@ -201,7 +203,7 @@ fun QuranListScreen(
                                     .clip(RafiqShape.chip)
                                     .background(rc.gold)
                             )
-                            Text("السور", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
+                            Text(stringResource(R.string.quran_surahs), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                         }
                         Spacer(Modifier.height(10.dp))
                     }

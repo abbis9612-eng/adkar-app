@@ -129,7 +129,7 @@ private fun MisbahaEntry(nav: NavHostController) {
     ) {
         MisbahaIcon(28.dp, rc.gold)
         Column(Modifier.weight(1f)) {
-            Text("المسبحة", style = RafiqType.titleM, color = rc.ink)
+            Text(stringResource(R.string.misbaha), style = RafiqType.titleM, color = rc.ink)
             Text("عُدَّ تسبيحك بضغطة", style = RafiqType.bodyS, color = rc.inkMed)
         }
         RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
@@ -213,8 +213,8 @@ fun AdhkarCategoriesScreen(
             // ═══ HEADER ═══
             // جذر تبويب الآن — لا زرّ رجوع
             RafiqTopBar(
-                title    = "الذِّكر",
-                subtitle = "أذكارك ومسبحتك في مكان واحد",
+                title    = stringResource(R.string.dhikr_word),
+                subtitle = stringResource(R.string.adhkar_subtitle),
             )
 
             // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.

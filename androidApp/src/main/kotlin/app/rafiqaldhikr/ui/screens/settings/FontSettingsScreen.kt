@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.settings
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,7 +45,7 @@ fun FontSettingsScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "إعدادات الخط",
+                title  = stringResource(R.string.font_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -57,7 +59,7 @@ fun FontSettingsScreen(
                         .rafiqCard()
                         .padding(16.dp)
                 ) {
-                    Text("معاينة",
+                    Text(stringResource(R.string.font_preview),
                         color = rc.inkMed,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center, style = RafiqType.bodyS)
@@ -85,9 +87,9 @@ fun FontSettingsScreen(
                     )
                     
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("أصغر", color = rc.inkMed, style = RafiqType.caption)
+                        Text(stringResource(R.string.font_smaller), color = rc.inkMed, style = RafiqType.caption)
                         Text("${(scale * 100).toInt()}%", color = rc.gold, fontWeight = FontWeight.Bold, style = RafiqType.bodyS)
-                        Text("أكبر", color = rc.inkMed, style = RafiqType.caption)
+                        Text(stringResource(R.string.font_larger), color = rc.inkMed, style = RafiqType.caption)
                     }
                 }
 
@@ -100,12 +102,12 @@ fun FontSettingsScreen(
                         .fillMaxWidth()
                         .rafiqCard()
                 ) {
-                    Text("لغة الأرقام",
+                    Text(stringResource(R.string.numerals_label),
                         color = rc.inkMed,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp), style = RafiqType.bodyS)
                     listOf(
-                        true to "عربية — ٠١٢٣٤٥٦٧٨٩",
-                        false to "إنجليزية — 0123456789",
+                        true to stringResource(R.string.numerals_arabic),
+                        false to stringResource(R.string.numerals_latin),
                     ).forEachIndexed { index, (isArabic, label) ->
                         Row(
                             Modifier

@@ -156,9 +156,9 @@ fun DhikrReadingScreen(
 
                         Text(
                             when {
-                                !done -> "اضغط في أيّ مكان للعدّ"
-                                uiState.currentIndex < uiState.adhkar.lastIndex -> "تمّ — اضغط للتالي"
-                                else -> "تمّ القسم كاملاً"
+                                !done -> stringResource(R.string.dhikr_tap_anywhere)
+                                uiState.currentIndex < uiState.adhkar.lastIndex -> stringResource(R.string.dhikr_done_next)
+                                else -> stringResource(R.string.dhikr_section_done)
                             },
                             style = RafiqType.caption,
                             color = if (done) rc.gold else rc.inkMed,
@@ -183,7 +183,7 @@ private fun TopRow(title: String, onBack: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(title, style = RafiqType.titleM, color = rc.emerald)
-        RafiqIconButton(onClick = onBack, label = "رجوع") {
+        RafiqIconButton(onClick = onBack, label = stringResource(R.string.action_back)) {
             RafiqIcon(RIcon.ChevronRight, 18.dp, rc.emerald)
         }
     }
