@@ -64,6 +64,11 @@ class LocationRequestViewModel(
             prefsRepo.updateLocation(city, lat, lng)
         }
     }
+
+    /** مدينة مختارة يدوياً: اسمها معروف، فلا ترميز عكسي ولا حاجة إلى شبكة. */
+    fun saveCity(city: City) {
+        viewModelScope.launch { prefsRepo.updateLocation(city.ar, city.lat, city.lng) }
+    }
 }
 
 @Composable
@@ -77,6 +82,7 @@ fun NeedsLocation(
     val client  = remember { LocationServices.getFusedLocationProviderClient(context) }
     var asking  by remember { mutableStateOf(false) }
     var denied  by remember { mutableStateOf(false) }
+    var picking by remember { mutableStateOf(false) }
 
     @SuppressLint("MissingPermission")
     fun readLastLocation() {
@@ -136,11 +142,33 @@ fun NeedsLocation(
                 .padding(horizontal = 28.dp, vertical = 12.dp),
         )
 
+        Spacer(Modifier.height(6.dp))
+
+        // الباب الثاني: من يرفض الإذن، أو يكون على جهاز بلا GPS، يختار
+        // مدينته بنفسه. بدون هذا كان حذف الاحتياطيّ يترك التطبيق بلا
+        // مواقيت ولا قبلة ولا ورقة لمن لا يمنح الموقع.
+        Text(
+            "أو اختر مدينتك يدوياً",
+            style = RafiqType.label,
+            color = rc.emerald,
+            modifier = Modifier
+                .clip(RafiqShape.chip)
+                .clickable { picking = true }
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+        )
+
+        if (picking) {
+            CityPickerSheet(
+                onDismiss = { picking = false },
+                onPick    = { city -> vm.saveCity(city); picking = false },
+            )
+        }
+
         if (denied) {
             Spacer(Modifier.height(14.dp))
             Text(
                 "تعذّر الحصول على الموقع. تأكّد من تفعيل خدمة الموقع في جهازك، " +
-                    "أو امنح الإذن من إعدادات النظام.",
+                    "أو امنح الإذن من إعدادات النظام، أو اختر مدينتك يدوياً.",
                 textAlign = TextAlign.Center,
                 style = RafiqType.bodyS,
                 color = rc.inkMed,

@@ -34,6 +34,7 @@ class PrayerTimesViewModel(
         val times:      PrayerTimesResult? = null,
         val prayerLogs: List<PrayerEntry>  = emptyList(),
         val method:     String             = "mwl",
+        val madhab:     String             = "shafi",
         val city:       String             = "",
         val isLoading:  Boolean            = true,
         val error:      String?            = null,
@@ -51,7 +52,9 @@ class PrayerTimesViewModel(
         viewModelScope.launch {
             prefsRepo.getPrefs().collectLatest { prefs ->
                 if (prefs == null) return@collectLatest
-                _uiState.update { it.copy(method = prefs.prayerMethod, city = prefs.lastKnownCity) }
+                _uiState.update {
+                    it.copy(method = prefs.prayerMethod, madhab = prefs.madhab, city = prefs.lastKnownCity)
+                }
 
                 val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
                 if (here == null) {

@@ -15,26 +15,34 @@ import json, re, sys, pathlib
 
 ROOT   = pathlib.Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "androidApp/src/main/assets"
-SEEDER = ROOT / "shared/src/commonMain/kotlin/app/rafiq/data/db/DatabaseSeeder.kt"
+KOTLIN = [ROOT / "shared/src", ROOT / "androidApp/src/main"]
 
 # الدرجات المقبولة. أي درجة خارجها قرارٌ يحتاج مراجعة بشرية لا تمريراً صامتاً.
 GRADES = {"صحيح", "حسن", "حسن صحيح", "قرآن"}
 
-# ملفات ليست نصوصاً دينية مفردة (القرآن والتفسير لهما مسارهما وحجمهما)
+# القرآن والتفسير لهما مسارهما وحجمهما، وليسا نصوصاً مفردة بمصدر لكلٍّ منها
 SKIP = {"quran_uthmani.json", "tafsir_muyassar.json", "surah_metadata.json"}
 
-seeder = SEEDER.read_text()
+# «هل يقرؤه أحد؟» يُفحص على شجرة الكود كلّها لا على الباذر وحده: cities.json
+# مثلاً يقرؤه CityListViewModel. الفحص على ملف واحد كان سيبلّغ عنه خطأً.
+code = "\n".join(
+    f.read_text() for root in KOTLIN for f in root.rglob("*.kt")
+)
+
 problems, checked = [], 0
 
 for f in sorted(ASSETS.glob("*.json")):
     if f.name in SKIP:
         continue
-    if f'"{f.name}"' not in seeder:
-        problems.append(f"{f.name}: ملف محتوى لا يقرؤه DatabaseSeeder — نصوصه لا يراها أحد")
+    if f'"{f.name}"' not in code:
+        problems.append(f"{f.name}: ملف أصول لا يقرؤه أي كود — محتواه لا يراه أحد")
         continue
     items = json.loads(f.read_text())
     if not isinstance(items, list):
         items = sum((v for v in items.values() if isinstance(v, list)), [])
+    # الفحص الديني يخصّ ملفات النصوص الدينية وحدها، وعلامتها حقل text_ar
+    if not any(isinstance(it, dict) and "text_ar" in it for it in items):
+        continue
     for i, it in enumerate(items):
         checked += 1
         text  = (it.get("text_ar") or "").strip()

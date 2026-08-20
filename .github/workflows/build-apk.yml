@@ -54,6 +54,11 @@ jobs:
       - name: Check religious sources
         run: python3 tools/check_religious_sources.py
 
+      # إحداثيات كل مدينة داخل صندوق حدود بلدها — تبديلٌ بين الطول والعرض
+      # لا يُنتج رقماً غريباً ظاهراً بل جدولَ صلاةٍ لمدينةٍ أخرى
+      - name: Check city coordinates
+        run: python3 tools/check_cities.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

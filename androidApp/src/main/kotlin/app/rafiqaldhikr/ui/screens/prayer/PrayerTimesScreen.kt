@@ -33,6 +33,7 @@ import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.IcoRefresh
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import app.rafiqaldhikr.ui.components.CityPickerSheet
 import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
@@ -50,7 +51,8 @@ import app.rafiqaldhikr.ui.components.RafiqTopBar
 @Composable
 fun PrayerTimesScreen(
     navController: NavHostController,
-    viewModel: PrayerTimesViewModel = koinViewModel()
+    viewModel: PrayerTimesViewModel = koinViewModel(),
+    locationVm: app.rafiqaldhikr.ui.components.LocationRequestViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
@@ -74,6 +76,7 @@ fun PrayerTimesScreen(
                 state = state,
                 onMarkPrayed = { name, prayed -> viewModel.markPrayed(name, prayed) },
                 onRefresh = { viewModel.refresh() },
+                onPickCity = { locationVm.saveCity(it) },
                 navController = navController,
                 rc = rc
             )
@@ -86,11 +89,20 @@ private fun PrayerTimesContent(
     state: PrayerTimesViewModel.UiState,
     onMarkPrayed: (String, Boolean) -> Unit,
     onRefresh: () -> Unit,
+    onPickCity: (app.rafiqaldhikr.ui.components.City) -> Unit,
     navController: NavHostController,
     rc: RafiqPalette,
     modifier: Modifier = Modifier
 ) {
     val times = state.times ?: return
+    var pickingCity by remember { mutableStateOf(false) }
+
+    if (pickingCity) {
+        CityPickerSheet(
+            onDismiss = { pickingCity = false },
+            onPick    = { city -> onPickCity(city); pickingCity = false },
+        )
+    }
 
     val prayers = listOf(
         Triple("fajr",    stringResource(R.string.fajr),    times.fajr),
@@ -125,15 +137,25 @@ private fun PrayerTimesContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        if (state.city.isNotEmpty()) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IcoPin(14.dp, rc.inkMed)
-                                Spacer(Modifier.width(4.dp))
-                                Text(state.city,
-                                    color = rc.inkMed, style = RafiqType.caption)
-                            }
-                        }
+                    // المدينة قابلة للنقر: من يسافر، أو يختار مدينة خاطئة، كان
+                    // يبقى عليها بلا مخرج. والاسم معروضٌ دائماً — فيرى المستخدم
+                    // على أي أساس حُسِبت أوقاته بدل أن يُخمَّن له.
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RafiqShape.chip)
+                            .clickable { pickingCity = true }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IcoPin(14.dp, rc.inkMed)
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            state.city.ifEmpty { "حدّد مدينتك" },
+                            color = rc.inkMed, style = RafiqType.caption,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("تغيير", color = rc.emerald, style = RafiqType.micro)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IconButton(onClick = onRefresh) {
@@ -161,8 +183,10 @@ private fun PrayerTimesContent(
                         Text("الصلوات المؤداة: $prayedCount / 5",
                             fontWeight = FontWeight.Bold,
                             color = rc.onEmerald, style = RafiqType.bodyS)
-                        Text(methodLabel(state.method),
-                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.caption)
+                        Text(
+                            methodLabel(state.method) + " · " + madhabLabel(state.madhab),
+                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.caption,
+                        )
                     }
                 }
             }
@@ -303,6 +327,9 @@ private fun formatTime(epochMs: Long, arabic: Boolean): String {
     val sdf = SimpleDateFormat("hh:mm a", if (arabic) Locale("ar") else Locale.US)
     return sdf.format(Date(epochMs))
 }
+
+private fun madhabLabel(madhab: String): String =
+    if (madhab == "hanafi") "حنفي" else "شافعي"
 
 private fun methodLabel(method: String): String = when (method) {
     "umm_al_qura" -> "طريقة أم القرى"

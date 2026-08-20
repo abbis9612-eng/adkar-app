@@ -16,12 +16,14 @@ import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
+import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
 val viewModelModule = module {
     // طلب الموقع — تستعمله كل شاشة تحتاج إحداثيات (المواقيت، القبلة، الورقة)
     viewModelOf(::LocationRequestViewModel)
+    viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::AdhkarCategoriesViewModel)
