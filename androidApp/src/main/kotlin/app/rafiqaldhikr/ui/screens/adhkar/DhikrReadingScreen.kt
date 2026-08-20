@@ -275,13 +275,20 @@ private fun CountRing(count: Int, target: Int) {
 
 /* ── مساعد ────────────────────────────────────────────────────── */
 
-private fun getCategoryTitle(category: String): String = when (category) {
-    "morning"   -> "أذكار الصباح"
-    "evening"   -> "أذكار المساء"
-    "sleep"     -> "أذكار النوم"
-    "wake"      -> "أذكار الاستيقاظ"
-    "prayer"    -> "أذكار بعد الصلاة"
-    "istighfar" -> "الاستغفار"
-    "misc"      -> "أذكار متفرقة"
-    else        -> "الأذكار"
-}
+/**
+ * كانت هذه قائمةً ثالثة تصف الأقسام نفسها بتسميات مخالفة لِما تعرضه
+ * شاشة الأقسام («أذكار بعد الصلاة» مقابل «أذكار الصلاة»، و«متفرقة»
+ * مقابل «متنوعة»)، وفيها "wake" و"istighfar" لا يبذرهما الباذر أصلاً.
+ * الآن نفس موارد شاشة الأقسام، فلا يختلف اسم القسم بين شاشتين.
+ */
+@Composable
+private fun getCategoryTitle(category: String): String = stringResource(
+    when (category) {
+        "morning" -> R.string.cat_morning
+        "evening" -> R.string.cat_evening
+        "sleep"   -> R.string.cat_sleep
+        "prayer"  -> R.string.cat_prayer
+        "misc"    -> R.string.cat_misc
+        else      -> R.string.nav_tasbeeh
+    }
+)

@@ -112,8 +112,6 @@
     <string name="cat_evening_desc">End your day remembering Allah</string>
     <string name="cat_sleep">Sleep Adhkar</string>
     <string name="cat_sleep_desc">For sleeping and waking</string>
-    <string name="cat_istighfar">Seeking Forgiveness</string>
-    <string name="cat_istighfar_desc">Astaghfirullah al-Adheem</string>
     <string name="cat_prayer">Prayer Adhkar</string>
     <string name="cat_prayer_desc">After the prayer</string>
     <string name="dua_cat_morning">Morning Duas</string>
@@ -143,4 +141,6 @@
         <item quantity="one">%1$s dua</item>
         <item quantity="other">%1$s duas</item>
     </plurals>
+    <string name="cat_misc">Assorted Adhkar</string>
+    <string name="cat_misc_desc">From the Sunnah</string>
 </resources>

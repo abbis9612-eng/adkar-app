@@ -24,9 +24,7 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
-import app.rafiqaldhikr.ui.components.IcoDua
 import app.rafiqaldhikr.ui.components.IcoMoon
 import app.rafiqaldhikr.ui.components.OrnamentMedallion
 import app.rafiqaldhikr.ui.components.IcoMosque
@@ -74,9 +72,9 @@ private fun AdhkarCategoryIcon(key: String, color: Color, size: Dp = 28.dp) {
         "morning"   -> IcoSun(size, color)      // شمس — أذكار الصباح
         "evening"   -> IcoSunset(size, color)   // غروب — أذكار المساء
         "sleep"     -> IcoMoon(size, color)     // هلال — أذكار النوم
-        "istighfar" -> IcoDua(size, color)      // كفّان — الاستغفار
+        "misc"      -> IcoStar(size, color)     // نجمة — أذكار متنوعة
         "prayer"    -> IcoMosque(size, color)   // مسجد — أذكار الصلاة
-        else        -> IcoStar(size, color)     // نجمة — متنوعة
+        else        -> IcoStar(size, color)
     }
 }
 
@@ -165,12 +163,20 @@ private fun AdhkarAccent.colors(): Pair<Color, Color> {
     }
 }
 
+/**
+ * الأقسام المعروضة = الأقسام التي يبذرها DatabaseSeeder بالضبط، لا أكثر.
+ *
+ * كان هنا قسم "istighfar" لا يبذره الباذر إطلاقاً — فالضغط عليه يفتح
+ * شاشة فارغة. وكان "misc" مبذوراً وغائباً عن هذه القائمة. وكانت هناك
+ * قائمة ثانية منافسة داخل AdhkarCategoriesViewModel تصف الشيء نفسه
+ * بتسميات مختلفة، وتعليقٌ يقول إنها «من قاعدة البيانات» وهي ليست كذلك.
+ */
 private val ADHKAR_CATS = listOf(
-    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc, AdhkarAccent.GOLD, 0),
+    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc, AdhkarAccent.GOLD,  0),
     AdhkarCatDef("evening", R.string.cat_evening, R.string.cat_evening_desc, AdhkarAccent.NIGHT, 1),
-    AdhkarCatDef("sleep",   R.string.cat_sleep,  R.string.cat_sleep_desc, AdhkarAccent.NIGHT, 2),
-    AdhkarCatDef("istighfar", R.string.cat_istighfar,   R.string.cat_istighfar_desc, AdhkarAccent.GREEN, 5),
-    AdhkarCatDef("prayer",  R.string.cat_prayer, R.string.cat_prayer_desc, AdhkarAccent.GREEN, 3),
+    AdhkarCatDef("sleep",   R.string.cat_sleep,   R.string.cat_sleep_desc,   AdhkarAccent.NIGHT, 2),
+    AdhkarCatDef("prayer",  R.string.cat_prayer,  R.string.cat_prayer_desc,  AdhkarAccent.GREEN, 3),
+    AdhkarCatDef("misc",    R.string.cat_misc,    R.string.cat_misc_desc,    AdhkarAccent.GREEN, 4),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -180,10 +186,8 @@ private val ADHKAR_CATS = listOf(
 @Composable
 fun AdhkarCategoriesScreen(
     navController: NavHostController,
-    viewModel: AdhkarCategoriesViewModel = koinViewModel(),
 ) {
     val rc = LocalRafiqColors.current
-    val dbCategories = viewModel.categories
 
     Box(
         Modifier
@@ -270,15 +274,7 @@ fun AdhkarCategoriesScreen(
             Spacer(Modifier.height(24.dp))
 
             // ═══ CATEGORY CARDS ═══
-            // Use DB categories if available, fallback to ADHKAR_CATS
-            val catsToShow = if (dbCategories.isNotEmpty()) {
-                dbCategories.map { (key, label) ->
-                    ADHKAR_CATS.find { it.key == key }
-                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarAccent.GOLD, 4)
-                }
-            } else {
-                ADHKAR_CATS
-            }
+            val catsToShow = ADHKAR_CATS
 
             catsToShow.forEach { cat ->
                 AdhkarCategoryCard(

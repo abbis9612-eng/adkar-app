@@ -112,8 +112,6 @@
     <string name="cat_evening_desc">اختم يومك بذكر الله</string>
     <string name="cat_sleep">أذكار النوم</string>
     <string name="cat_sleep_desc">أذكار النوم والاستيقاظ</string>
-    <string name="cat_istighfar">الاستغفار</string>
-    <string name="cat_istighfar_desc">استغفر الله العظيم</string>
     <string name="cat_prayer">أذكار الصلاة</string>
     <string name="cat_prayer_desc">أذكار بعد الصلاة</string>
     <string name="dua_cat_morning">أدعية الصباح</string>
@@ -147,4 +145,6 @@
         <item quantity="many">%1$s دعاء</item>
         <item quantity="other">%1$s دعاء</item>
     </plurals>
+    <string name="cat_misc">أذكار متنوعة</string>
+    <string name="cat_misc_desc">أذكار من السنّة</string>
 </resources>

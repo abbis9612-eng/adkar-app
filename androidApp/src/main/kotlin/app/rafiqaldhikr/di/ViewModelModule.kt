@@ -1,6 +1,5 @@
 package app.rafiqaldhikr.di
 
-import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesViewModel
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingViewModel
 import app.rafiqaldhikr.ui.screens.dua.DuaViewModel
 import app.rafiqaldhikr.ui.screens.home.HomeViewModel
@@ -26,7 +25,6 @@ val viewModelModule = module {
     viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::HomeViewModel)
-    viewModelOf(::AdhkarCategoriesViewModel)
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)
