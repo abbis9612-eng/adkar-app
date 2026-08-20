@@ -17,6 +17,7 @@ step() {
 step "المسارات اليتيمة"   python3 tools/check_orphan_routes.py
 step "ملفات النصوص"       python3 tools/check_strings.py
 step "المصادر الدينية"     python3 tools/check_religious_sources.py
+step "نصّ ديني في الكود"   python3 tools/check_devotional_in_code.py
 step "إحداثيات المدن"      python3 tools/check_cities.py
 step "الاستيرادات"        python3 tools/check_imports.py
 step "الترجمة"            ./gradlew :androidApp:compileDebugKotlin -q

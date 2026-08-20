@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.prayer
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,17 +36,17 @@ fun PrayerMethodScreen(
     settingsVM: SettingsViewModel = koinViewModel()
 ) {
     val methods = listOf(
-        "mwl"         to "رابطة العالم الإسلامي (مُوصى به)",
-        "umm_al_qura" to "أم القرى (مكة)",
-        "egyptian"    to "الهيئة المصرية العامة للمساحة",
-        "isna"        to "الجمعية الإسلامية لأمريكا الشمالية",
-        "karachi"     to "جامعة العلوم الإسلامية كراتشي",
-        "turkey"      to "رئاسة الشؤون الدينية التركية"
+        "mwl"         to stringResource(R.string.method_mwl_full),
+        "umm_al_qura" to stringResource(R.string.method_umm_full),
+        "egyptian"    to stringResource(R.string.method_egypt_full),
+        "isna"        to stringResource(R.string.method_isna_full),
+        "karachi"     to stringResource(R.string.method_karachi_full),
+        "turkey"      to stringResource(R.string.method_turkey_full)
     )
 
     val madhabOptions = listOf(
-        "shafi"  to "الشافعي / المالكي / الحنبلي",
-        "hanafi" to "الحنفي"
+        "shafi"  to stringResource(R.string.madhab_majority),
+        "hanafi" to stringResource(R.string.madhab_hanafi_full)
     )
 
     val selected by settingsVM.prayerMethod.collectAsState()
@@ -65,7 +67,7 @@ fun PrayerMethodScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "طريقة الحساب",
+                title  = stringResource(R.string.method_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -108,13 +110,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ المذهب الفقهي (العصر) ═══
-                Text(text = "المذهب الفقهي (وقت العصر)",
+                Text(text = stringResource(R.string.madhab_section),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
                     modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يؤثر المذهب على حساب وقت صلاة العصر.",
+                    text = stringResource(R.string.madhab_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -150,13 +152,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ الارتفاع عن سطح البحر ═══
-                Text(text = "الارتفاع عن سطح البحر (بالمتر)",
+                Text(text = stringResource(R.string.elevation_label),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
                     modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يُصحّح وقت المغرب والشروق. مثال: السليمانية ≈ 850 متر.",
+                    text = stringResource(R.string.elevation_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -232,13 +234,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ التصحيح اليدوي ═══
-                Text(text = "التصحيح المخصص للأوقات (بالدقائق)",
+                Text(text = stringResource(R.string.offsets_label),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
                     modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يمكنك إضافة أو إنقاص دقائق لتطابق توقيت مدينتك أو المسجد المحلي.",
+                    text = stringResource(R.string.offsets_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -256,15 +258,15 @@ fun PrayerMethodScreen(
                     val m = settingsVM.maghribOffset.collectAsState().value
                     val i = settingsVM.ishaOffset.collectAsState().value
                     
-                    OffsetRow("الفجر", f, rc) { settingsVM.setPrayerOffsets(it, d, a, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_fajr), f, rc) { settingsVM.setPrayerOffsets(it, d, a, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("الظهر", d, rc) { settingsVM.setPrayerOffsets(f, it, a, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_dhuhr), d, rc) { settingsVM.setPrayerOffsets(f, it, a, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("العصر", a, rc) { settingsVM.setPrayerOffsets(f, d, it, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_asr), a, rc) { settingsVM.setPrayerOffsets(f, d, it, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("المغرب", m, rc) { settingsVM.setPrayerOffsets(f, d, a, it, i) }
+                    OffsetRow(stringResource(R.string.prayer_maghrib), m, rc) { settingsVM.setPrayerOffsets(f, d, a, it, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("العشاء", i, rc) { settingsVM.setPrayerOffsets(f, d, a, m, it) }
+                    OffsetRow(stringResource(R.string.prayer_isha), i, rc) { settingsVM.setPrayerOffsets(f, d, a, m, it) }
                 }
                 
                 Spacer(modifier = Modifier.height(32.dp))

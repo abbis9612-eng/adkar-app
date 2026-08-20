@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.dua
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,7 +57,7 @@ fun DuaListScreen(
             )
 
             if (!state.isLoading && state.duas.isEmpty()) {
-                EmptyState(message = "لا توجد أدعية في هذا القسم بعد")
+                EmptyState(message = stringResource(R.string.dua_empty))
                 return@Column
             }
 

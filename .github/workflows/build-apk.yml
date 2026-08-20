@@ -54,6 +54,10 @@ jobs:
       - name: Check religious sources
         run: python3 tools/check_religious_sources.py
 
+      # نصّ دعائي مكتوب في Kotlin يفلت من الحارس السابق (يفحص JSON وحدها)
+      - name: Check devotional text in code
+        run: python3 tools/check_devotional_in_code.py
+
       # إحداثيات كل مدينة داخل صندوق حدود بلدها — تبديلٌ بين الطول والعرض
       # لا يُنتج رقماً غريباً ظاهراً بل جدولَ صلاةٍ لمدينةٍ أخرى
       - name: Check city coordinates

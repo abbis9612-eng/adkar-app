@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.dua
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +25,21 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 
+/* ═══════════════════════════════════════════════════════════════════
+   مؤجَّلة — نصوص دعاء بلا مصدر
+
+   الأدعية الستّة أدناه مكتوبة في هذا الملف بلا source ولا source_grade،
+   وتُعرض بخطّ النسخ ١٨sp تماماً كما تُعرض الأدعية الموثَّقة — فيراها
+   المستخدم بنفس الحجّية وهي بلا إسناد. وبعضها صيغة مختصرة من دعاء أطول.
+
+   قاعدة AGENTS.md: المحتوى الإسلامي من مصادر موثَّقة فقط، ولا يُختصر
+   ولا يُعاد صوغه. وكل دعاء آخر في التطبيق يمرّ من Dua في قاعدة البيانات
+   بحقلَي المصدر والدرجة، ويُعرضان في DuaListScreen.
+
+   الطريق إلى إعادتها: نقل النصوص إلى duas.json بمصدر ودرجة لكلٍّ منها
+   من حصن المسلم أو الأذكار للنووي، فتخضع لحارس check_religious_sources.
+   لم أفعل ذلك لأن إسناد نصّ ديني قرارٌ لا يُتّخذ من طرفي.
+═══════════════════════════════════════════════════════════════════ */
 @Composable
 fun EmotionalDuaScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
@@ -48,7 +65,7 @@ fun EmotionalDuaScreen(navController: NavHostController) {
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "أدعية حسب المشاعر",
+                title  = stringResource(R.string.emotional_title),
                 onBack = {navController.popBackStack()},
             )
 

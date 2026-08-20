@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.quran
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -36,6 +38,8 @@ fun TafsirSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val rc = LocalRafiqColors.current
     val context = androidx.compose.ui.platform.LocalContext.current
+    // تُحلّ قبل الـlambda — stringResource دالّة @Composable
+    val shareChooser = stringResource(R.string.tafsir_share)
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
 
     ModalBottomSheet(
@@ -57,7 +61,7 @@ fun TafsirSheet(
                 verticalAlignment     = Alignment.CenterVertically
             ) {
                 Text(
-                    "تفسير الآية",
+                    stringResource(R.string.tafsir_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald
@@ -89,7 +93,7 @@ fun TafsirSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            Text("التفسير الميسر",
+            Text(stringResource(R.string.tafsir_muyassar),
                 fontWeight = FontWeight.Bold,
                 color = rc.ink, style = RafiqType.body)
             Spacer(Modifier.height(12.dp))
@@ -108,21 +112,21 @@ fun TafsirSheet(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 ActionBtn(
-                    text = "نسخ",
+                    text = stringResource(R.string.action_copy),
                     icon = { s, c -> IcoCopy(s, c) },
                     onClick = {
                         clipboard.setText(androidx.compose.ui.text.AnnotatedString("$ayahText\n\nالتفسير الميسر:\n$tafsirText"))
                     }
                 )
                 ActionBtn(
-                    text = "مشاركة",
+                    text = stringResource(R.string.action_share),
                     icon = { s, c -> IcoShare(s, c) },
                     onClick = {
                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(android.content.Intent.EXTRA_TEXT, "$ayahText\n\nالتفسير الميسر:\n$tafsirText\n\nعبر تطبيق رفيق الذكر 🌙")
                         }
-                        context.startActivity(android.content.Intent.createChooser(intent, "مشاركة التفسير"))
+                        context.startActivity(android.content.Intent.createChooser(intent, shareChooser))
                     }
                 )
             }

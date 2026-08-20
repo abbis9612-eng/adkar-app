@@ -243,14 +243,15 @@ fun DuaCategoriesScreen(
         ) {
             // ═══ TOP BAR ═══
             item {
+                // كان هنا زرّ «أدعية حسب الحال» يفتح شاشةً تعرض ستّ صيغ
+                // دعاء مكتوبة في الكود بلا مصدر ولا درجة — بينما كل دعاء
+                // آخر يمرّ من قاعدة البيانات ويُعرض مصدره، وعنوان هذه
+                // الشاشة نفسها يقول «مأثورة من القرآن والسنة».
+                // AGENTS.md: لا محتوى ديني بلا مصدر موثَّق.
                 RafiqTopBar(
-                    title    = "الأدعية",
-                    subtitle = "أدعية مأثورة من القرآن والسنة",
-                ) {
-                    RafiqIconButton(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }, label = "أدعية حسب الحال") {
-                        RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
-                    }
-                }
+                    title    = stringResource(R.string.dua_title),
+                    subtitle = stringResource(R.string.dua_subtitle),
+                )
             }
 
             // ═══ FAVORITES SECTION ═══

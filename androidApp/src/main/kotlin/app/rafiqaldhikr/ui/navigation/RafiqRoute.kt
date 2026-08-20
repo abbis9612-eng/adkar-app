@@ -41,7 +41,7 @@ sealed class RafiqRoute(val route: String) {
     data object DuaList           : RafiqRoute("dua_list/{category}") {
         fun withCategory(category: String) = "dua_list/$category"
     }
-    data object EmotionalDua      : RafiqRoute("emotional_dua")
+    @HiddenInV1 data object EmotionalDua      : RafiqRoute("emotional_dua")
 
     // ═══ M1 — Others ═══
     data object Profile           : RafiqRoute("profile")
