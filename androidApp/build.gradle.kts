@@ -136,6 +136,13 @@ tasks.matching {
 dependencies {
     implementation(project(":shared"))
 
+    // WorkManager ليست مستعملة في كودنا مباشرة — لكن androidx.glance
+    // (ودجت المواقيت) تجرّها بنسخة 2.7.1 من ٢٠٢١. حذفُ هذا السطر خفّضها
+    // ثلاث سنوات من الإصلاحات، فالسطر تثبيتُ نسخةٍ لا استعمال.
+    // وهي مصدر إذنَي FOREGROUND_SERVICE و ACCESS_NETWORK_STATE في الحزمة
+    // النهائية — لازمان للودجت، ولا يمنحان نفاذاً للشبكة (ذاك INTERNET).
+    implementation(libs.work.runtime)
+
     // ═══ Compose (BOM controls all versions) ═══
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
@@ -167,7 +174,6 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     // ═══ Work Manager ═══
-    implementation(libs.work.runtime)
 
     // ═══ Glance Widgets ═══
     implementation(libs.glance.appwidget)

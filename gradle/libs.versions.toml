@@ -10,7 +10,6 @@ serialization       = "1.7.3"
 datetime            = "0.6.1"
 navigation          = "2.8.5"
 lifecycle           = "2.8.7"
-work                = "2.10.0"
 glance              = "1.1.1"
 firebase-bom        = "33.7.0"
 play-location       = "21.3.0"
@@ -27,6 +26,8 @@ junit               = "4.13.2"
 turbine             = "1.2.0"
 mockk               = "1.13.13"
 adhan               = "0.0.5"
+work                = "2.10.0"
+
 
 [plugins]
 kotlinMultiplatform   = { id = "org.jetbrains.kotlin.multiplatform",        version.ref = "kotlin" }
@@ -40,7 +41,9 @@ composeCompiler       = { id = "org.jetbrains.kotlin.plugin.compose",       vers
 googleServices        = { id = "com.google.gms.google-services",            version = "4.4.2"      }
 firebaseCrashlytics   = { id = "com.google.firebase.crashlytics",           version = "3.0.2"      }
 
+
 [libraries]
+work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 # ═══ Kotlin / Coroutines ═══
 kotlinx-coroutines-core    = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",    version.ref = "coroutines"    }
@@ -86,7 +89,6 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences",  
 appcompat             = { module = "androidx.appcompat:appcompat",                        version.ref = "appcompat"   }
 
 # ═══ Work Manager ═══
-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 # ═══ Glance (Widgets) ═══
 glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
