@@ -93,48 +93,32 @@ fun HomeHubScreen(
         HubHeader(home.hijriDate, ar)
 
         Plate(
-            nextName = home.nextPrayerName.ifEmpty { "—" },
+            nextName  = home.nextPrayerName.ifEmpty { "—" },
             countdown = home.countdown.ifEmpty { "—" },
-            atTime = home.nextPrayerTime,
-            done = done,
-            total = total,
-            ar = ar,
-            onClick = { navController.navigate(RafiqRoute.Profile.route) },
+            atTime    = home.nextPrayerTime,
+            stations  = day.stations,
+            nowId     = day.nowStation?.id,
+            done      = done,
+            ar        = ar,
+            onStart   = { day.nowStation?.route?.let { navController.navigate(it) } },
+            onOpenDay = { navController.navigate(RafiqRoute.DayPage.route) },
         )
 
-        day.nowStation?.let { now ->
-            DueNow(
-                title = now.title,
-                sub = now.description,
-                onStart = { now.route?.let { navController.navigate(it) } },
-            )
-            ThenLine(day.stations, now, ar)
-        }
+        Spacer(Modifier.height(10.dp))
 
-        Spacer(Modifier.height(6.dp))
-
-        Door(RIconOf.Quran, "المصحف",
-            if (hub.quranPages > 0) "${hub.quranPages.localized(ar)} صفحة اليوم" else "ابدأ ورد اليوم",
-            polished = hub.quranPages > 0) { navController.navigate(RafiqRoute.QuranList.route) }
-
+        // الأبواب هنا هي ما لا يصله الشريط السفلي. المصحف والأدعية
+        // والأذكار وأوراقي كلّها تبويبات أسفل الشاشة — فوضعها هنا يهدر
+        // أثمن مساحة في التطبيق على أبوابٍ على بُعد ضغطة.
         Door(RIconOf.Misbaha, "المسبحة",
             if (hub.tasbeeh > 0) "${hub.tasbeeh.localized(ar)} تسبيحة اليوم" else "لم تبدأ اليوم",
             polished = hub.tasbeeh > 0) { navController.navigate(RafiqRoute.Tasbeeh.route) }
 
-        Door(RIconOf.Dua, "الأدعية", "أدعية مأثورة بمصادرها",
-            polished = false) { navController.navigate(RafiqRoute.DuaCategories.route) }
-
         Door(RIconOf.Mosque, "مواقيت اليوم",
-            "${home.prayers.count { it.done }.localized(ar)} من ٥ صلوات",
-            polished = false) { navController.navigate(RafiqRoute.PrayerTimes.route) }
+            "${home.prayers.count { it.done }.localized(ar)} من ٥ صلوات · ${home.nextPrayerTime.localizedDigits(ar)}",
+            polished = home.prayers.count { it.done } >= 5) { navController.navigate(RafiqRoute.PrayerTimes.route) }
 
         Door(RIconOf.Compass, "القبلة", "اتجاه الكعبة من موقعك",
-            polished = false) { navController.navigate(RafiqRoute.Qibla.route) }
-
-        Door(RIconOf.Day, "يومك",
-            "${done.localized(ar)} من ${total.localized(ar)} محطّات",
-            polished = done > 0, half = done in 1 until total,
-            last = true) { navController.navigate(RafiqRoute.DayPage.route) }
+            polished = false, last = true) { navController.navigate(RafiqRoute.Qibla.route) }
     }
 }
 
@@ -153,237 +137,202 @@ private fun HubHeader(hijri: String, ar: Boolean) {
     }
 }
 
-/* ── اللوح ─────────────────────────────────────────────────────── */
+/* ── اللوح: خطّة يومك محفورةً على المعدن ────────────────────────
+
+   عنصر واحد يقول خمسة أشياء: الصلاة القادمة · خطّتك كاملة · أين وصلت ·
+   ما فعلت · وما التالي. فلا قائمة ثانية تحته ولا تكرار.
+
+   الجلاء ينزل من الأعلى لا يصعد من الأسفل — لأن الخطّة تُقرأ من أعلى
+   إلى أسفل، فلو صعد الجلاء لكان المُنجَز في الأعلى والصقل في الأسفل،
+   وهما يتناقضان. النزول يجعل خطّ الضوء يقف عند موضعك تماماً.
+───────────────────────────────────────────────────────────────── */
+
+private val HeadZone = 78.dp
+private val RowH     = 29.dp
+private val NowRowH  = 58.dp
 
 @Composable
 private fun Plate(
     nextName: String, countdown: String, atTime: String,
-    done: Int, total: Int, ar: Boolean, onClick: () -> Unit,
+    stations: List<DayCompanionViewModel.StationUi>,
+    nowId: String?, done: Int, ar: Boolean,
+    onStart: () -> Unit, onOpenDay: () -> Unit,
 ) {
-    val rc = LocalRafiqColors.current
-    val target = (done.toFloat() / total).coerceIn(0f, 1f)
-    val fill by animateFloatAsState(target, progressSpec(950), label = "polish")
-    val lit = fill >= LitThreshold
+    if (stations.isEmpty()) return
+    val nowIdx = stations.indexOfFirst { it.id == nowId }
 
-    // اللمعة تمرّ على المعدن — تجعله يبدو معدناً حيّاً لا صورة معدن
+    // ارتفاع اللوح محسوب من الصفوف نفسها، فيقف خطّ الجلاء على حدّ صفٍّ
+    // بالضبط لا في منتصفه
+    val planH = stations.indices.sumOf { i -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }
+    val plateH = HeadZone + planH.dp
+    val cutTarget = HeadZone.value + stations.take(done.coerceAtMost(stations.size))
+        .withIndex().sumOf { (i, _) -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }.toFloat()
+    val cut by animateFloatAsState(cutTarget, progressSpec(950), label = "cut")
+
     val glint by stillableFloat(
         initialValue = -0.45f, targetValue = 0.45f, durationMs = 7000,
         easing = FastOutSlowInEasing, label = "glint", restValue = 0f,
     )
-
-    val ink  by animateColorAsState(if (lit) LitInk  else PlateInk, progressSpec(900), label = "pInk")
-    val med  by animateColorAsState(if (lit) LitMed  else PlateMed, progressSpec(900), label = "pMed")
-    val gold by animateColorAsState(if (lit) LitGold else PlateGold, progressSpec(900), label = "pGold")
 
     Box(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 18.dp)
             .padding(top = 12.dp)
-            .height(212.dp)
+            .height(plateH)
             .clip(RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick)
     ) {
         Canvas(Modifier.matchParentSize()) {
             val w = size.width; val h = size.height
+            val cutPx = cut.dp.toPx().coerceIn(0f, h)
 
-            // المعدن المصدوء — تبقيع خفيف يمنع السطح المسطّح
             drawRect(Rust)
-            drawCircle(RustDeep.copy(alpha = .55f), radius = w * .42f, center = Offset(w * .76f, h * .70f))
-            drawCircle(Color.White.copy(alpha = .06f), radius = w * .34f, center = Offset(w * .24f, h * .20f))
-            drawCircle(Color(0xFF545E4A).copy(alpha = .34f), radius = w * .28f, center = Offset(w * .16f, h * .86f))
+            drawCircle(RustDeep.copy(alpha = .55f), radius = w * .46f, center = Offset(w * .78f, h * .74f))
+            drawCircle(Color.White.copy(alpha = .055f), radius = w * .36f, center = Offset(w * .22f, h * .16f))
+            drawCircle(Color(0xFF545E4A).copy(alpha = .30f), radius = w * .30f, center = Offset(w * .14f, h * .88f))
 
-            // شعيرات الصقل — على الوجهين، فتُقرأ الحافّة بينهما كحدّ صقل
+            // شعيرات الصقل — على الوجهين بزاوية واحدة، فتُقرأ الحافّة
+            // بينهما كحدّ صقلٍ حقيقي لا كخطّ ملوّن
             var x = -h
             while (x < w + h) {
-                drawLine(Color.White.copy(alpha = .035f), Offset(x, h), Offset(x + h * .35f, 0f), 1f)
+                drawLine(Color.White.copy(alpha = .035f), Offset(x, h), Offset(x + h * .18f, 0f), 1f)
                 x += 4f
             }
 
-            // الجلاء يصعد من الأسفل بمقدار ما أُتمّ من اليوم
-            val top = h * (1f - fill)
-            if (fill > 0.001f) {
+            if (cutPx > 1f) {
                 drawRect(
                     brush = Brush.verticalGradient(
-                        listOf(Brass3, Brass2, Brass1, Brass0), startY = top, endY = h,
+                        listOf(Brass3, Brass2, Brass1, Brass0), startY = 0f, endY = cutPx,
                     ),
-                    topLeft = Offset(0f, top), size = Size(w, h - top),
+                    size = Size(w, cutPx),
                 )
                 var bx = -h
                 while (bx < w + h) {
                     drawLine(Color(0xFF785C24).copy(alpha = .10f),
-                        Offset(bx, h), Offset(bx + h * .35f, top), 1f)
+                        Offset(bx, cutPx), Offset(bx + cutPx * .18f, 0f), 1f)
                     bx += 4f
                 }
-                // خطّ الضوء عند حدّ الصقل — كأن يداً تمسحه للتوّ
-                drawLine(Color(0xFFFFFCEC), Offset(0f, top), Offset(w, top), 2.4f)
-                drawLine(Color(0xFFFFFCEC).copy(alpha = .32f), Offset(0f, top), Offset(w, top), 9f)
+                drawLine(Color(0xFFFFFCEC), Offset(0f, cutPx), Offset(w, cutPx), 2.4f)
+                drawLine(Color(0xFFFFFCEC).copy(alpha = .30f), Offset(0f, cutPx), Offset(w, cutPx), 9f)
             }
 
-            // اللمعة المارّة
             val gx = w * (0.5f + glint)
             drawRect(
                 brush = Brush.linearGradient(
-                    listOf(Color.Transparent, Color.White.copy(alpha = .20f), Color.Transparent),
+                    listOf(Color.Transparent, Color.White.copy(alpha = .18f), Color.Transparent),
                     start = Offset(gx - w * .30f, 0f), end = Offset(gx + w * .30f, h),
                 ),
                 size = size,
             )
         }
 
-        // الحافّة الذهبية
         Box(Modifier.matchParentSize()
             .border(1.dp, PlateGold.copy(alpha = .34f), RoundedCornerShape(22.dp)))
 
-        // محطّات اليوم على الحافّة — شكل يومك كلّه بلا سطر إضافي
-        Column(
-            Modifier.fillMaxHeight().padding(start = 12.dp, top = 20.dp, bottom = 20.dp).width(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            for (i in (total - 1) downTo 0) {
-                StationMark(state = when {
-                    i < done - 1  -> 2
-                    i == done - 1 -> 1
-                    else          -> 0
-                })
-            }
-        }
+        Column(Modifier.fillMaxSize()) {
 
-        Column(
-            Modifier.fillMaxSize().padding(start = 32.dp, top = 18.dp, end = 20.dp, bottom = 18.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text("الصلاة القادمة", style = RafiqType.micro, color = med)
-                    Text(nextName, style = RafiqType.ayah.copy(fontSize = RafiqType.display.fontSize),
-                        color = ink, fontWeight = FontWeight.Bold)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(countdown.localizedDigits(ar),
-                        style = RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize),
-                        color = gold, fontWeight = FontWeight.Bold)
-                    Text(atTime.localizedDigits(ar), style = RafiqType.micro, color = med)
+            // رأس اللوح — يبقى داكناً دائماً، فلا ينقلب حبره
+            Column(
+                Modifier.fillMaxWidth().height(HeadZone).padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom) {
+                    Column {
+                        Text("الصلاة القادمة", style = RafiqType.micro, color = PlateMed)
+                        Text(nextName, style = RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize),
+                            color = PlateInk, fontWeight = FontWeight.Bold)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(countdown.localizedDigits(ar),
+                            style = RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize),
+                            color = PlateGold, fontWeight = FontWeight.Bold)
+                        Text(atTime.localizedDigits(ar), style = RafiqType.micro, color = PlateMed)
+                    }
                 }
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom) {
-                Text(
-                    if (done >= total) "جُلي يومك كلّه"
-                    else "جُلي ${done.localized(ar)} من ${total.localized(ar)}",
-                    style = RafiqType.micro, color = med,
+
+            stations.forEachIndexed { i, st ->
+                PlanRow(
+                    st = st, index = i, isNow = i == nowIdx, isDone = i < done,
+                    ar = ar, onStart = onStart, onOpen = onOpenDay,
                 )
-                Text("أوراقي ←", style = RafiqType.micro, color = med)
             }
         }
     }
 }
 
 @Composable
-private fun StationMark(state: Int) {
-    // ٢ = أُنجز · ١ = الآن · ٠ = لم يأتِ
+private fun PlanRow(
+    st: DayCompanionViewModel.StationUi,
+    index: Int, isNow: Boolean, isDone: Boolean, ar: Boolean,
+    onStart: () -> Unit, onOpen: () -> Unit,
+) {
+    // الحبر ينقلب مع مرور الجلاء فوق الصفّ: فاتحٌ على المعدن المصدوء،
+    // داكنٌ على النحاس. كلاهما مقيس ويعبر ٤٫٥:١
+    val ink  = if (isDone) LitInk else if (isNow) PlateInk else PlateInk.copy(alpha = .62f)
+    val med  = if (isDone) LitMed else PlateMed
     val pulse by stillableFloat(
-        initialValue = .55f, targetValue = 1f, durationMs = 1300,
-        easing = FastOutSlowInEasing, label = "markPulse", restValue = 1f,
+        initialValue = .5f, targetValue = 1f, durationMs = 1300,
+        easing = FastOutSlowInEasing, label = "nowDot", restValue = 1f,
     )
-    val size = if (state == 1) 12.dp else 7.dp
-    Box(
-        Modifier.size(size).clip(CircleShape).background(
-            when (state) {
-                2    -> Color(0xFF3A2E11)
-                1    -> Color(0xFFFFFCEC).copy(alpha = pulse)
-                else -> PlateInk.copy(alpha = .24f)
-            }
-        )
-    )
-}
 
-/* ── ما وقته الآن ──────────────────────────────────────────────── */
-
-@Composable
-private fun DueNow(title: String, sub: String, onStart: () -> Unit) {
-    val rc = LocalRafiqColors.current
-    // وميض خافت على القضيب المصدوء — الشيء الوحيد الذي يومض في الشاشة،
-    // لأنه الشيء الوحيد الذي لم يُفعل بعد
-    val hint by stillableFloat(
-        initialValue = 0f, targetValue = 1f, durationMs = 3400,
-        easing = LinearEasing, repeatMode = RepeatMode.Restart,
-        label = "dueHint", restValue = 0f,
-    )
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(top = 12.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = .30f), RoundedCornerShape(18.dp))
-            .padding(14.dp),
+            .height(if (isNow) NowRowH else RowH)
+            .clickable(onClick = if (isNow) onStart else onOpen)
+            .padding(horizontal = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(13.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Box(Modifier.width(6.dp).height(52.dp).clip(RoundedCornerShape(3.dp)).background(Rust)) {
-            val t = ((hint - .62f) / .20f).coerceIn(0f, 1f)
-            if (hint > .62f) {
-                Box(
-                    Modifier.fillMaxWidth().fillMaxHeight(.34f)
-                        .offset(y = (52.dp * (t * 1.6f - .3f)))
-                        .background(Brush.verticalGradient(
-                            listOf(Color.Transparent, Color(0xFFFFFCEC).copy(alpha = .45f), Color.Transparent)))
-                )
-            }
-        }
-        Column(Modifier.weight(1f)) {
-            Text(title, style = RafiqType.titleL, color = rc.ink, fontWeight = FontWeight.Bold)
-            Text(sub, style = RafiqType.caption, color = rc.gold, maxLines = 2)
-        }
         Box(
-            Modifier
-                .clip(RoundedCornerShape(13.dp))
-                .background(rc.emerald)
-                .clickable(onClick = onStart)
-                .padding(horizontal = 22.dp, vertical = 13.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("ابدأ", style = RafiqType.titleM, color = rc.onEmerald)
+            Modifier.size(if (isNow) 11.dp else 7.dp).clip(CircleShape).background(
+                when {
+                    isNow  -> Color(0xFFFFFCEC).copy(alpha = pulse)
+                    isDone -> Color(0xFF3A2E11)
+                    else   -> PlateInk.copy(alpha = .26f)
+                }
+            )
+        )
+        Text(
+            st.title,
+            style = if (isNow) RafiqType.titleM else RafiqType.bodyS,
+            color = ink,
+            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+            maxLines = 1,
+            modifier = Modifier.weight(1f),
+        )
+        if (isNow) {
+            Box(
+                Modifier
+                    .clip(RafiqShape.chip)
+                    .background(Color(0xFF0A3B24))
+                    .clickable(onClick = onStart)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            ) { Text("ابدأ", style = RafiqType.label, color = PlateGold) }
+        } else {
+            Text(clockOfLabel(st).localizedDigits(ar), style = RafiqType.micro, color = med)
         }
     }
 }
 
-@Composable
-private fun ThenLine(
-    stations: List<DayCompanionViewModel.StationUi>,
-    now: DayCompanionViewModel.StationUi,
-    ar: Boolean,
-) {
-    val rc = LocalRafiqColors.current
-    val idx = stations.indexOfFirst { it.id == now.id }
-    val next = if (idx >= 0) stations.drop(idx + 1).take(2) else emptyList()
-    val text = if (next.isEmpty()) "وهي آخر محطّات يومك"
-               else next.joinToString(" · ") { "ثمّ ${it.title} ${it.timeLabel}" }
-    Text(
-        text.localizedDigits(ar),
-        style = RafiqType.caption, color = rc.inkMed,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 10.dp),
-        maxLines = 1,
-    )
+private fun clockOfLabel(st: DayCompanionViewModel.StationUi): String {
+    val d = java.util.Date(st.startMillis)
+    return java.text.SimpleDateFormat("h:mm", java.util.Locale("ar")).format(d)
 }
 
 /* ── الأبواب ───────────────────────────────────────────────────── */
 
-private enum class RIconOf { Quran, Misbaha, Dua, Mosque, Compass, Day }
+private enum class RIconOf { Misbaha, Mosque, Compass }
 
 @Composable
 private fun DoorIcon(kind: RIconOf, tint: Color) {
     when (kind) {
-        RIconOf.Quran   -> IcoQuran(20.dp, tint)
-        RIconOf.Misbaha -> IcoMisbaha(20.dp, tint)
-        RIconOf.Dua     -> IcoDua(20.dp, tint)
-        RIconOf.Mosque  -> IcoMosque(20.dp, tint)
+            RIconOf.Misbaha -> IcoMisbaha(20.dp, tint)
+            RIconOf.Mosque  -> IcoMosque(20.dp, tint)
         RIconOf.Compass -> IcoCompass(20.dp, tint)
-        RIconOf.Day     -> IcoBookmark(20.dp, tint)
-    }
+        }
 }
 
 @Composable
