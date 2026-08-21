@@ -50,6 +50,13 @@ import org.koin.androidx.compose.koinViewModel
    حالٌ لا نسبةٌ مئوية.
 ═══════════════════════════════════════════════════════════════════ */
 
+/*  الشعيرات واللمعة المارّة حُذفتا من اللوح.
+    كانت الشعيرات كل ٤ بكسل — تردّدٌ قريب من سنّات الحروف العربية
+    ونقاطها، فيتنافس النقش مع الخطّ على العين بنفس الحجم. وكانت اللمعة
+    ضوءاً متحرّكاً فوق نصّ يُقرأ.
+    أُضيفتا حين كان اللوح سطحَ عرضٍ لرقم واحد كبير، ثم صار يحمل تسعة
+    أسطر ولم يُعَد النظر فيهما. الإحساس المعدني يأتي الآن من التدرّج
+    وحدّ الصقل والحافّة الذهبية — وكلّها بترددات بعيدة عن حجم الحرف.  */
 private val Rust      = Color(0xFF39443A)
 private val RustDeep  = Color(0xFF2A332C)
 private val Brass0    = Color(0xFFBE9F5C)
@@ -60,7 +67,7 @@ private val PlateInk  = Color(0xFFF6F2E6)
 private val PlateMed  = Color(0xFFA9B7A7)
 private val PlateGold = Color(0xFFF0CE7E)
 private val LitInk    = Color(0xFF201A0C)
-private val LitMed    = Color(0xFF4E4326)
+private val LitMed    = Color(0xFF3E3419)  // 4.86 على أغمق النحاس (كان 3.85)
 private val LitGold   = Color(0xFF6B4708)
 
 /** فوق هذه النسبة يبلغ الجلاء منطقة النصّ، فينقلب الحبر داكناً ليبقى مقروءاً. */
@@ -165,14 +172,10 @@ private fun Plate(
     // بالضبط لا في منتصفه
     val planH = stations.indices.sumOf { i -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }
     val plateH = HeadZone + planH.dp
-    val cutTarget = HeadZone.value + stations.take(done.coerceAtMost(stations.size))
+    // يُقاس من رأس منطقة الصفوف لا من رأس اللوح: رأس اللوح خارج الجلاء
+    val cutTarget = stations.take(done.coerceAtMost(stations.size))
         .withIndex().sumOf { (i, _) -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }.toFloat()
     val cut by animateFloatAsState(cutTarget, progressSpec(950), label = "cut")
-
-    val glint by stillableFloat(
-        initialValue = -0.45f, targetValue = 0.45f, durationMs = 7000,
-        easing = FastOutSlowInEasing, label = "glint", restValue = 0f,
-    )
 
     Box(
         Modifier
@@ -184,46 +187,27 @@ private fun Plate(
     ) {
         Canvas(Modifier.matchParentSize()) {
             val w = size.width; val h = size.height
-            val cutPx = cut.dp.toPx().coerceIn(0f, h)
+            val headPx = HeadZone.toPx()
+            val cutPx  = headPx + cut.dp.toPx().coerceAtLeast(0f)
 
             drawRect(Rust)
             drawCircle(RustDeep.copy(alpha = .55f), radius = w * .46f, center = Offset(w * .78f, h * .74f))
             drawCircle(Color.White.copy(alpha = .055f), radius = w * .36f, center = Offset(w * .22f, h * .16f))
             drawCircle(Color(0xFF545E4A).copy(alpha = .30f), radius = w * .30f, center = Offset(w * .14f, h * .88f))
 
-            // شعيرات الصقل — على الوجهين بزاوية واحدة، فتُقرأ الحافّة
-            // بينهما كحدّ صقلٍ حقيقي لا كخطّ ملوّن
-            var x = -h
-            while (x < w + h) {
-                drawLine(Color.White.copy(alpha = .035f), Offset(x, h), Offset(x + h * .18f, 0f), 1f)
-                x += 4f
-            }
-
-            if (cutPx > 1f) {
+            if (cutPx > headPx + 1f) {
                 drawRect(
                     brush = Brush.verticalGradient(
-                        listOf(Brass3, Brass2, Brass1, Brass0), startY = 0f, endY = cutPx,
+                        listOf(Brass3, Brass2, Brass1, Brass0), startY = headPx, endY = cutPx,
                     ),
-                    size = Size(w, cutPx),
+                    topLeft = Offset(0f, headPx), size = Size(w, cutPx - headPx),
                 )
-                var bx = -h
-                while (bx < w + h) {
-                    drawLine(Color(0xFF785C24).copy(alpha = .10f),
-                        Offset(bx, cutPx), Offset(bx + cutPx * .18f, 0f), 1f)
-                    bx += 4f
-                }
                 drawLine(Color(0xFFFFFCEC), Offset(0f, cutPx), Offset(w, cutPx), 2.4f)
                 drawLine(Color(0xFFFFFCEC).copy(alpha = .30f), Offset(0f, cutPx), Offset(w, cutPx), 9f)
             }
+            // خيط يعلن أن الرأس بيانٌ عن اللوح لا جزءٌ من خطّة اليوم
+            drawLine(PlateGold.copy(alpha = .22f), Offset(0f, headPx), Offset(w, headPx), 1f)
 
-            val gx = w * (0.5f + glint)
-            drawRect(
-                brush = Brush.linearGradient(
-                    listOf(Color.Transparent, Color.White.copy(alpha = .18f), Color.Transparent),
-                    start = Offset(gx - w * .30f, 0f), end = Offset(gx + w * .30f, h),
-                ),
-                size = size,
-            )
         }
 
         Box(Modifier.matchParentSize()
