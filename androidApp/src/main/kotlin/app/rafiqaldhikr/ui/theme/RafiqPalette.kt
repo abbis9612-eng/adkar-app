@@ -102,31 +102,34 @@ data class RafiqPalette(
 val LightRafiqPalette = RafiqPalette(
     // ورق لا خلفية. الكريمي الفاتح يقول «خلفية تطبيق»؛ هذا يقول ورقاً،
     // والبطاقة فوقه ورقةٌ أفتح لا بياضاً نقياً.
-    bg             = Color(0xFFEDE6D6),
-    card           = Color(0xFFF7F2E6),
+    // سلّم النبرات: كان الورق ↔ البطاقة 1.09:1 — أي غير مرئي (العين تبدأ
+    // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
+    // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
+    bg             = Color(0xFFE7DFCD),
+    card           = Color(0xFFFEFCF7),
     cardPrayed     = Color(0xFFE0D9C6),
-    chipBg         = Color(0xFFEAE3D3),  // inkMed فوقه 4.41:1
+    chipBg         = Color(0xFFDCD2B9),  // inkMed فوقه 4.41:1
 
-    emerald        = Color(0xFF09472B),
+    emerald        = Color(0xFF0A5433),
     emeraldMed     = Color(0xFF0B5E38),
     emeraldLight   = Color(0xFF0D7446),
     emeraldPastel  = Color(0xFFE0EFE7),
 
-    gold           = Color(0xFF9A6B14),  // 3.79:1 على الورق — عُمِّق مع الورق
+    gold           = Color(0xFF7A5109),  // 3.79:1 على الورق — عُمِّق مع الورق
     goldLight      = Color(0xFFB98A2B),
 
     onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
 
     // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
-    ink            = Color(0xFF14261C),   // 12.76:1
+    ink            = Color(0xFF14201A),   // 12.76:1
     inkDark        = Color(0xFF2B3B31),
-    inkMed         = Color(0xFF5C6B5F),   //  4.54:1
+    inkMed         = Color(0xFF555244),   //  4.54:1
     // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
     inkLight       = Color(0xFF747D71),   //  3.44:1
 
     // خطّ المسطرة — لا فاصل رمادي
-    divider        = Color(0xFFCDC1A6),
+    divider        = Color(0xFFCFC5AC),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),

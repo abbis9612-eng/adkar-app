@@ -44,6 +44,8 @@ sealed class RafiqRoute(val route: String) {
     @HiddenInV1 data object EmotionalDua      : RafiqRoute("emotional_dua")
 
     // ═══ M1 — Others ═══
+    /** ورقة اليوم — كانت الشاشة الأولى، وصارت باباً في الرئيسية. */
+    data object DayPage           : RafiqRoute("day_page")
     data object Profile           : RafiqRoute("profile")
     data object Statistics        : RafiqRoute("statistics")
 

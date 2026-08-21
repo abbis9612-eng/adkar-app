@@ -16,6 +16,7 @@ import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
 import app.rafiqaldhikr.ui.components.CityListViewModel
+import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
@@ -25,6 +26,7 @@ val viewModelModule = module {
     viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::HomeViewModel)
+    viewModelOf(::HomeHubViewModel)
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)
