@@ -114,9 +114,11 @@ fun HomeHubScreen(
         )
 
         NowAction(
-            station = day.nowStation,
-            ar      = ar,
-            onStart = { day.nowStation?.route?.let { navController.navigate(it) } },
+            station    = day.nowStation,
+            ar         = ar,
+            onStart    = { day.nowStation?.route?.let { navController.navigate(it) } },
+            onDayPage  = { navController.navigate(RafiqRoute.DayPage.route) },
+            onLocation = { navController.navigate(RafiqRoute.PrayerTimes.route) },
         )
 
         DayRow(
@@ -251,11 +253,16 @@ private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
 @Composable
 private fun NextPrayerLine(name: String, countdown: String, ar: Boolean) {
     val rc = LocalRafiqColors.current
+    val human = humanCountdown(countdown)
     Row(verticalAlignment = Alignment.Bottom) {
-        Text(name, style = RafiqType.titleM, color = rc.ink)
-        // «بعد —» نصٌّ مكسور. حين لا عدّاد (لا موقع بعد) يُحذف السطر كلّه.
-        val human = humanCountdown(countdown)
-        if (human != null) {
+        // بلا موقعٍ لا وقت — و«الفجر» وحدها اسمٌ معلَّق يوهم أن الوقت
+        // قادم. تقول الشاشة سبب النقص بدل عرض نصفِ معلومة.
+        if (human == null) {
+            Text("المواقيت", style = RafiqType.titleM, color = rc.inkMed)
+            Spacer(Modifier.width(9.dp))
+            Text("بانتظار موقعك", style = RafiqType.bodyS, color = rc.inkMed)
+        } else {
+            Text(name, style = RafiqType.titleM, color = rc.ink)
             Spacer(Modifier.width(9.dp))
             Text("بعد ${human.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
         }
@@ -298,19 +305,55 @@ private fun humanCountdown(raw: String): String? {
 private fun NowAction(
     station: DayCompanionViewModel.StationUi?,
     ar: Boolean,
-    onStart: () -> Unit,
+    onStart:    () -> Unit,
+    onDayPage:  () -> Unit,
+    onLocation: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
+
+    /*  زرٌّ لا يفعل شيئاً ولا يقول لماذا هو أسوأ من غياب الزرّ.
+     *
+     *  كان `enabled = station?.route != null`، فيموت في حالتين:
+     *    ١) لا موقع ← لا مواقيت ← لا محطّات ← station == null
+     *    ٢) «الاستيقاظ» و«صلاة الضحى» route = null أصلاً — لا شاشة
+     *       أذكارٍ لهما، وإنما تفصيلُهما في صفحة اليوم.
+     *
+     *  الآن لكل حالةٍ وجهةٌ ونصٌّ يشرحها. ولا يُعطَّل أبداً.
+     */
+    val title: String
+    val subtitle: String
+    val cta: String
+    val action: () -> Unit
+    when {
+        station == null -> {
+            title    = "حدّد موقعك"
+            subtitle = "لتظهر مواقيتك ومحطّاتك اليومية — يمكنك اختيار مدينتك يدوياً"
+            cta      = "افتح"
+            action   = onLocation
+        }
+        station.route == null -> {
+            title    = station.title
+            subtitle = station.description.localizedDigits(ar)
+            cta      = "التفصيل"
+            action   = onDayPage
+        }
+        else -> {
+            title    = station.title
+            subtitle = station.description.localizedDigits(ar)
+            cta      = "ابدأ"
+            action   = onStart
+        }
+    }
+
     Row(
         Modifier.fillMaxWidth().padding(top = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(station?.title ?: "يومك يبدأ", style = RafiqType.titleXL, color = rc.ink)
+            Text(title, style = RafiqType.titleXL, color = rc.ink)
             Spacer(Modifier.height(4.dp))
             Text(
-                station?.description?.localizedDigits(ar)
-                    ?: "افتح أوّل محطّة حين يحين وقتها",
+                subtitle,
                 style = RafiqType.bodyS,
                 color = rc.inkMed,
                 maxLines = 2,
@@ -322,12 +365,12 @@ private fun NowAction(
             Modifier
                 .clip(CircleShape)
                 .background(rc.emeraldFill)
-                .clickable(enabled = station?.route != null, onClick = onStart)
+                .clickable(onClick = action)
                 .defaultMinSize(minWidth = 96.dp, minHeight = 52.dp)
-                .padding(horizontal = 30.dp, vertical = 15.dp),
+                .padding(horizontal = 26.dp, vertical = 15.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Text("ابدأ", style = RafiqType.titleM, color = rc.onEmeraldFill)
+            Text(cta, style = RafiqType.titleM, color = rc.onEmeraldFill, maxLines = 1)
         }
     }
 }
