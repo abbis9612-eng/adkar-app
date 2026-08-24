@@ -1,6 +1,14 @@
 package app.rafiqaldhikr.ui.screens.hub
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -111,10 +120,13 @@ fun HomeHubScreen(
         )
 
         DayRow(
-            stations = day.stations,
-            nowId    = day.nowStation?.id,
-            ar       = ar,
-            onOpen   = { navController.navigate(RafiqRoute.DayPage.route) },
+            stations   = day.stations,
+            nowId      = day.nowStation?.id,
+            ar         = ar,
+            onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
+            // بلا موقعٍ لا محطّات — فالضغط يفتح المواقيت حيث يُضبط الموقع،
+            // لا صفحةَ اليوم التي ستكون فارغة هي الأخرى.
+            onLocation = { navController.navigate(RafiqRoute.PrayerTimes.route) },
         )
 
         DoorsRow(
@@ -330,9 +342,10 @@ private fun NowAction(
 @Composable
 private fun DayRow(
     stations: List<DayCompanionViewModel.StationUi>,
-    nowId:    String?,
-    ar:       Boolean,
-    onOpen:   () -> Unit,
+    nowId:      String?,
+    ar:         Boolean,
+    onOpen:     () -> Unit,
+    onLocation: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
     var expanded by remember { mutableStateOf(false) }
@@ -347,48 +360,46 @@ private fun DayRow(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp)
+            .padding(top = 22.dp)
             .animateContentSize()
-            .clickable(enabled = waiting, onClick = onOpen),
+            .clickable(enabled = waiting, onClick = onLocation),
     ) {
         Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            verticalAlignment = Alignment.Bottom,
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment     = Alignment.Bottom,
         ) {
             names.forEachIndexed { i, short ->
                 val isNow  = i == nowIdx
                 val isPast = nowIdx >= 0 && i < nowIdx
+                // اللون يتحرّك حين تتقدّم المحطّة الحاضرة — فلا تقفز الحالة
+                val nameColor by animateColorAsState(
+                    when {
+                        isNow  -> rc.ink
+                        isPast -> rc.inkMed
+                        else   -> rc.inkLight
+                    },
+                    progressSpec(500), label = "stationColor",
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    // IntrinsicSize.Max ضروريّ: القيد الأفقي داخل صفٍّ مُمرَّر
-                    // لانهائي، فـfillMaxWidth أدناه لا يرسم شيئاً بدونه.
-                    modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .padding(end = if (i == names.lastIndex) 0.dp else 10.dp),
+                    // IntrinsicSize.Max يجعل الخطّ أدناه بعرض الاسم بالضبط
+                    modifier = Modifier.width(IntrinsicSize.Max),
                 ) {
                     Text(
                         short,
                         fontSize   = 14.sp,
                         fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-                        color      = when {
-                            isNow  -> rc.ink
-                            isPast -> rc.inkMed
-                            else   -> rc.inkLight
-                        },
+                        color      = nameColor,
+                        maxLines   = 1,
                     )
-                    Spacer(Modifier.height(7.dp))
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(if (isNow) rc.emeraldFill else Color.Transparent),
-                    )
+                    Spacer(Modifier.height(8.dp))
+                    NowUnderline(active = isNow)
                 }
             }
         }
 
-        Box(Modifier.fillMaxWidth().padding(top = 10.dp).height(1.dp).background(rc.divider))
+        Box(Modifier.fillMaxWidth().padding(top = 12.dp).height(1.dp).background(rc.divider))
 
         Row(
             Modifier
@@ -408,7 +419,12 @@ private fun DayRow(
                 style = RafiqType.bodyS,
                 color = rc.inkMed,
             )
-            Text(if (expanded) "▴" else "▾", style = RafiqType.bodyS, color = rc.inkMed)
+            val turn by animateFloatAsState(
+                if (expanded) 90f else 0f, tapSpec(), label = "chevron",
+            )
+            Box(Modifier.rotate(turn)) {
+                RafiqIcon(RIcon.ChevronLeft, size = 18.dp, tint = rc.inkMed)
+            }
         }
 
         if (expanded) {
@@ -456,6 +472,41 @@ private fun DayRow(
     }
 }
 
+/**
+ * خطُّ المحطّة الحاضرة.
+ *
+ * ينبض نبضاً خافتاً (0.55↔1.0 في 1.4 ثانية) — وهو الحركةُ الوحيدة في
+ * الشاشة، فتقع العين على «الآن» بلا أن يُقال لها ذلك. والنبض على
+ * الشفافية لا على الحجم: تغيّرُ الحجم يزحزح ما حوله ويشتّت القراءة.
+ *
+ * ويحترم LocalReducedMotion فيثبت على الوضوح الكامل.
+ */
+@Composable
+private fun NowUnderline(active: Boolean) {
+    val rc = LocalRafiqColors.current
+    val reduced = LocalReducedMotion.current
+    val alpha = if (!active || reduced) 1f else {
+        val t = rememberInfiniteTransition(label = "nowPulse")
+        t.animateFloat(
+            initialValue = 0.55f,
+            targetValue  = 1f,
+            animationSpec = infiniteRepeatable(
+                tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse,
+            ),
+            label = "nowPulseAlpha",
+        ).value
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(3.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .background(
+                if (active) rc.emeraldFill.copy(alpha = alpha) else Color.Transparent,
+            ),
+    )
+}
+
 /** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
  *  يومه قبل أن يحدّد موقعه. مطابقة لـ`short` في محطّات DayCompanion. */
 private val FALLBACK_DAY = listOf(
@@ -477,12 +528,12 @@ private fun DoorsRow(
     onTimes:   () -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().padding(top = 20.dp),
+        Modifier.fillMaxWidth().padding(top = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(18.dp, it) }
-        DoorChip("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(18.dp, it) }
-        DoorChip("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(18.dp, it) }
+        DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
+        DoorChip("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
+        DoorChip("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
     }
 }
 
@@ -504,7 +555,7 @@ private fun DoorChip(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        icon(rc.inkLight)
+        icon(rc.inkMed)
         Spacer(Modifier.width(7.dp))
         Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
     }
