@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -83,18 +83,16 @@ fun HomeHubScreen(
             .fillMaxSize()
             .background(rc.bg)
             .statusBarsPadding()
-            .padding(horizontal = 20.dp)
-            .padding(bottom = 104.dp),
+            .padding(horizontal = 20.dp),
     ) {
         HubTopBar(onSettings = { navController.navigate(RafiqRoute.Settings.route) })
 
         Greeting(hijri = home.hijriDate, ar = ar)
 
+        // بلا verticalScroll: الحاوية المُمرَّرة تُقاس بحجم محتواها فيسقط
+        // contentAlignment ولا تتوسّط الكلمة. والنصوص قصيرة فلا تحتاج تمريراً.
         Box(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+            Modifier.weight(1f).fillMaxWidth(),
             contentAlignment = Alignment.Center,
         ) {
             hub.wisdom?.let { WordOfDay(it) }
@@ -108,6 +106,7 @@ fun HomeHubScreen(
 
         NowAction(
             station = day.nowStation,
+            ar      = ar,
             onStart = { day.nowStation?.route?.let { navController.navigate(it) } },
         )
 
@@ -242,13 +241,43 @@ private fun NextPrayerLine(name: String, countdown: String, ar: Boolean) {
     val rc = LocalRafiqColors.current
     Row(verticalAlignment = Alignment.Bottom) {
         Text(name, style = RafiqType.titleM, color = rc.ink)
-        // «بعد —» نصٌّ مكسور. حين لا عدّاد (لا موقع بعد) يُحذف السطر كلّه
-        // بدل عرض شرطة في موضع الوقت.
-        if (countdown.isNotBlank() && countdown != "—") {
+        // «بعد —» نصٌّ مكسور. حين لا عدّاد (لا موقع بعد) يُحذف السطر كلّه.
+        val human = humanCountdown(countdown)
+        if (human != null) {
             Spacer(Modifier.width(9.dp))
-            Text("بعد ${countdown.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
+            Text("بعد ${human.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
         }
     }
+}
+
+/**
+ * «٠٠:٥٦:٤٤» رقمُ مؤقّتٍ لا جملةُ رفيق. الشاشة تقول «بعد ٥٦ دقيقة» —
+ * والثواني تُحذف لأنها تُعيد التركيب كل ثانية بلا فائدة للقارئ.
+ *
+ * وتصريفُ العدد عربيّ: ساعة · ساعتان · ٣ ساعات — لا «١ ساعة».
+ * تُرجع null حين لا عدّاد بعد، فيُحذف السطر كلّه.
+ */
+private fun humanCountdown(raw: String): String? {
+    val p = raw.split(":")
+    if (p.size != 3) return null
+    val h = p[0].toIntOrNull() ?: return null
+    val m = p[1].toIntOrNull() ?: return null
+    if (h == 0 && m == 0) return null
+    val hs = when (h) {
+        0    -> null
+        1    -> "ساعة"
+        2    -> "ساعتين"
+        in 3..10 -> "$h ساعات"
+        else -> "$h ساعة"
+    }
+    val ms = when (m) {
+        0    -> null
+        1    -> "دقيقة"
+        2    -> "دقيقتين"
+        in 3..10 -> "$m دقائق"
+        else -> "$m دقيقة"
+    }
+    return listOfNotNull(hs, ms).joinToString(" و")
 }
 
 /* ── الطبقة ٢: زوجٌ كبير — الفعلُ ملتصقٌ بما يفعله ─────────────── */
@@ -256,6 +285,7 @@ private fun NextPrayerLine(name: String, countdown: String, ar: Boolean) {
 @Composable
 private fun NowAction(
     station: DayCompanionViewModel.StationUi?,
+    ar: Boolean,
     onStart: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -267,9 +297,12 @@ private fun NowAction(
             Text(station?.title ?: "يومك يبدأ", style = RafiqType.titleXL, color = rc.ink)
             Spacer(Modifier.height(4.dp))
             Text(
-                station?.description ?: "افتح أوّل محطّة حين يحين وقتها",
+                station?.description?.localizedDigits(ar)
+                    ?: "افتح أوّل محطّة حين يحين وقتها",
                 style = RafiqType.bodyS,
                 color = rc.inkMed,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Spacer(Modifier.width(15.dp))
@@ -327,7 +360,11 @@ private fun DayRow(
                 val isPast = nowIdx >= 0 && i < nowIdx
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(end = if (i == names.lastIndex) 0.dp else 10.dp),
+                    // IntrinsicSize.Max ضروريّ: القيد الأفقي داخل صفٍّ مُمرَّر
+                    // لانهائي، فـfillMaxWidth أدناه لا يرسم شيئاً بدونه.
+                    modifier = Modifier
+                        .width(IntrinsicSize.Max)
+                        .padding(end = if (i == names.lastIndex) 0.dp else 10.dp),
                 ) {
                     Text(
                         short,
@@ -351,10 +388,12 @@ private fun DayRow(
             }
         }
 
+        Box(Modifier.fillMaxWidth().padding(top = 10.dp).height(1.dp).background(rc.divider))
+
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = 11.dp)
+                .padding(top = 10.dp)
                 .clickable(enabled = !waiting) { expanded = !expanded }
                 .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

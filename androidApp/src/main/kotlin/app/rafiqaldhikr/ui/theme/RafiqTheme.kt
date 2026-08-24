@@ -12,9 +12,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.R
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -94,14 +93,14 @@ fun RafiqTheme(
      *  التطبيق كلّه معكوساً: العلامة يساراً، والأبواب مقلوبة، وكل
      *  start/end في التطبيق على غير موضعه.
      *
-     *  اللغة تُضبط بـAppCompatDelegate.setApplicationLocales في
-     *  LanguageScreen وRafiqApplication، فمنها يُقرأ الاتجاه.
+     *  والاشتقاق من AppCompatDelegate.getApplicationLocales() جُرِّب وفشل:
+     *  القيمة قد تكون فارغة لحظةَ أوّل تركيب فيسقط إلى لغة الجهاز. أمّا
+     *  R.bool.is_rtl فيتبع مجلّد الموارد الذي اختاره أندرويد فعلاً لتحميل
+     *  النصوص — فلا يفترق الاتجاه عن اللغة المعروضة أبداً.
      */
-    val appLang = AppCompatDelegate.getApplicationLocales()
-        .takeIf { !it.isEmpty }?.get(0)?.language
-        ?: LocalConfiguration.current.locales[0].language
     val direction =
-        if (appLang == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+        if (LocalContext.current.resources.getBoolean(R.bool.is_rtl)) LayoutDirection.Rtl
+        else LayoutDirection.Ltr
 
     CompositionLocalProvider(
         LocalRafiqColors    provides rafiqPalette,
