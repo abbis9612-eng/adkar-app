@@ -53,6 +53,7 @@ sealed class RafiqRoute(val route: String) {
     data object Settings              : RafiqRoute("settings")
     data object NotificationSettings  : RafiqRoute("notification_settings")
     data object ThemeSettings         : RafiqRoute("theme_settings")
+    data object Colors                : RafiqRoute("colors")
     data object FontSettings          : RafiqRoute("font_settings")
     data object AccessibilitySettings : RafiqRoute("accessibility_settings")
     data object About             : RafiqRoute("about")

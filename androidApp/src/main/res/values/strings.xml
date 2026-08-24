@@ -268,4 +268,5 @@
     <string name="dua_title">الأدعية</string>
     <string name="dua_subtitle">أدعية مأثورة من القرآن والسنة</string>
     <string name="emotional_title">أدعية حسب المشاعر</string>
+    <string name="settings_colors">الألوان</string>
 </resources>

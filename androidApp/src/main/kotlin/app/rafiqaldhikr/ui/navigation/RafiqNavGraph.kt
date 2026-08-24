@@ -139,6 +139,7 @@ fun RafiqNavGraph(
         // ═══ Settings ═══
         composable(RafiqRoute.Settings.route)              { SettingsScreen(navController) }
         composable(RafiqRoute.ThemeSettings.route)         { ThemeSettingsScreen(navController) }
+        composable(RafiqRoute.Colors.route)                { app.rafiqaldhikr.ui.screens.colors.ColorsScreen(navController) }
         composable(RafiqRoute.FontSettings.route)          { FontSettingsScreen(navController) }
         composable(RafiqRoute.NotificationSettings.route)  { NotificationSettingsScreen(navController) }
         composable(RafiqRoute.AccessibilitySettings.route) { AccessibilitySettingsScreen(navController) }

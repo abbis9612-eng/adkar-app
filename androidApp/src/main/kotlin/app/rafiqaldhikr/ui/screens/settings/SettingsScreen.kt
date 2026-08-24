@@ -64,6 +64,7 @@ private val GROUP_1 = listOf(
     SettingItem(RIcon.Clock,    R.string.settings_prayer_method, { it.gold }, route = "prayer_method"),
     SettingItem(RIcon.User,     R.string.settings_accessibility,    { it.emerald }, route = "accessibility_settings"),
     SettingItem(RIcon.Globe,    R.string.settings_language,             { it.gold }, route = "language"),
+    SettingItem(RIcon.Palette,  R.string.settings_colors,            { it.emerald }, route = "colors"),
 )
 
 private val GROUP_2 = listOf(

@@ -82,7 +82,13 @@ fun RafiqTheme(
         else      -> LightScheme
     }
 
-    val rafiqPalette = if (darkTheme) DarkRafiqPalette else LightRafiqPalette
+    /*  اختيارُ المستخدم يُطبَّق على اللوحة كلّها لا على الرئيسية وحدها:
+     *  يكفي لونان (الورق واللهجة) ويُشتقّ الباقي في [tuned] — فيبقى كل
+     *  نصٍّ في التطبيق مقروءاً مهما اختار. و٢٢٥ تركيبة يحرسها اختبار.  */
+    @Suppress("UNUSED_EXPRESSION") LocalColorTick.current   // إعادة تركيبٍ عند التغيير
+    val prefs = rememberColorPrefs()
+    val rafiqPalette = (if (darkTheme) DarkRafiqPalette else LightRafiqPalette)
+        .tuned(prefs.paper(), prefs.accent())
 
     /*  الاتجاه يتبع لغة التطبيق — لا لغة الجهاز.
      *
