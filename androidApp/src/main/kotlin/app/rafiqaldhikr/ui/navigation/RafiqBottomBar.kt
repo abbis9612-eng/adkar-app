@@ -78,12 +78,15 @@ fun RafiqBottomBar(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 6.dp)
                     .navigationBarsPadding(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                // weight(1f) لكل عنصر بدل SpaceEvenly: الأخير كان يتجاوز
+                // نصيبه فيُقصّ عند حافة الشاشة («أوراقي» مقطوعة).
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 items.forEach { item ->
                     val isSelected = currentRoute == item.route.route
                     BottomBarItemEnhanced(
+                        modifier = Modifier.weight(1f),
                         item = item,
                         isSelected = isSelected,
                         onClick = {
@@ -104,7 +107,8 @@ fun RafiqBottomBar(navController: NavHostController) {
 private fun BottomBarItemEnhanced(
     item: BottomNavItem,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val rc = LocalRafiqColors.current
 
@@ -138,7 +142,7 @@ private fun BottomBarItemEnhanced(
     )
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .scale(scale)
             .clip(RafiqShape.item)
             .clickable(
@@ -146,7 +150,7 @@ private fun BottomBarItemEnhanced(
                 indication = null,
                 onClick = onClick
             )
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Icon container with subtle border
@@ -156,7 +160,7 @@ private fun BottomBarItemEnhanced(
                 // الطبقتين في عنصر صغير.
                 .clip(RafiqShape.item)
                 .background(bgColor)
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+                .padding(horizontal = 14.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             item.icon(22.dp, iconColor)
@@ -170,7 +174,8 @@ private fun BottomBarItemEnhanced(
                 fontSize = 11.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
             ),
-            color = labelColor
+            color = labelColor,
+            maxLines = 1,
         )
 
         // Gold underline dot for active

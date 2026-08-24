@@ -528,7 +528,9 @@ private fun DoorsRow(
     onTimes:   () -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().padding(top = 16.dp),
+        // الحشوة السفلية ضرورية: Scaffold يفصل ارتفاع الشريط عن المحتوى
+        // لكنه لا يترك متنفَّساً بينهما، فبدت الأبواب ملتصقةً بالتنقّل.
+        Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
