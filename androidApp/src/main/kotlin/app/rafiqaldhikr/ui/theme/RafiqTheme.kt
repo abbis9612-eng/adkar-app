@@ -12,6 +12,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -83,9 +85,27 @@ fun RafiqTheme(
 
     val rafiqPalette = if (darkTheme) DarkRafiqPalette else LightRafiqPalette
 
-    // الاتجاه يتبع لغة التطبيق (RTL للعربية، LTR للإنجليزية) بدل فرض RTL دائماً
+    /*  الاتجاه يتبع لغة التطبيق — لا لغة الجهاز.
+     *
+     *  كان هنا تعليقٌ يقول هذا بالضبط، ولا كودَ يفعله: الاستيرادان
+     *  LocalLayoutDirection وLayoutDirection موجودان منذ البداية بلا
+     *  استعمال. فكان Compose يشتقّ الاتجاه من لغة النظام وحدها — ومن
+     *  فتح التطبيق بالعربية على هاتفٍ لغتُه تركية أو إنجليزية رأى
+     *  التطبيق كلّه معكوساً: العلامة يساراً، والأبواب مقلوبة، وكل
+     *  start/end في التطبيق على غير موضعه.
+     *
+     *  اللغة تُضبط بـAppCompatDelegate.setApplicationLocales في
+     *  LanguageScreen وRafiqApplication، فمنها يُقرأ الاتجاه.
+     */
+    val appLang = AppCompatDelegate.getApplicationLocales()
+        .takeIf { !it.isEmpty }?.get(0)?.language
+        ?: LocalConfiguration.current.locales[0].language
+    val direction =
+        if (appLang == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+
     CompositionLocalProvider(
-        LocalRafiqColors provides rafiqPalette,
+        LocalRafiqColors    provides rafiqPalette,
+        LocalLayoutDirection provides direction,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

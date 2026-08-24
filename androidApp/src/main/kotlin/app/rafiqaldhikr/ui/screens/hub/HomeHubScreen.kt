@@ -75,12 +75,14 @@ fun HomeHubScreen(
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
 
+    // التوزيع كما في النموذج: الكلمة تأخذ ما بقي من الارتفاع فتتوسّطه
+    // وتدفع الطبقات الثلاث إلى أسفل الشاشة. بلا هذا الوزن تتكدّس الشاشة
+    // في أعلاها ويبقى ثلثها الأسفل فراغاً.
     Column(
         Modifier
             .fillMaxSize()
             .background(rc.bg)
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(bottom = 104.dp),
     ) {
@@ -88,9 +90,15 @@ fun HomeHubScreen(
 
         Greeting(hijri = home.hijriDate, ar = ar)
 
-        hub.wisdom?.let { WordOfDay(it) }
-
-        Spacer(Modifier.height(30.dp))
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.Center,
+        ) {
+            hub.wisdom?.let { WordOfDay(it) }
+        }
 
         NextPrayerLine(
             name      = home.nextPrayerName.ifEmpty { "—" },
@@ -136,7 +144,7 @@ private fun HubTopBar(onSettings: () -> Unit) {
                     .background(rc.emeraldFill),
                 contentAlignment = Alignment.Center,
             ) {
-                RafiqIcon(RIcon.Sparkles, size = 24.dp, tint = rc.onEmeraldFill)
+                IcoMoon(24.dp, rc.onEmeraldFill)
             }
             Spacer(Modifier.width(11.dp))
             Column {
@@ -234,8 +242,12 @@ private fun NextPrayerLine(name: String, countdown: String, ar: Boolean) {
     val rc = LocalRafiqColors.current
     Row(verticalAlignment = Alignment.Bottom) {
         Text(name, style = RafiqType.titleM, color = rc.ink)
-        Spacer(Modifier.width(9.dp))
-        Text("بعد ${countdown.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
+        // «بعد —» نصٌّ مكسور. حين لا عدّاد (لا موقع بعد) يُحذف السطر كلّه
+        // بدل عرض شرطة في موضع الوقت.
+        if (countdown.isNotBlank() && countdown != "—") {
+            Spacer(Modifier.width(9.dp))
+            Text("بعد ${countdown.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
+        }
     }
 }
 
@@ -289,25 +301,36 @@ private fun DayRow(
     ar:       Boolean,
     onOpen:   () -> Unit,
 ) {
-    if (stations.isEmpty()) return
     val rc = LocalRafiqColors.current
     var expanded by remember { mutableStateOf(false) }
     val nowIdx = stations.indexOfFirst { it.id == nowId }
 
-    Column(Modifier.fillMaxWidth().padding(top = 20.dp).animateContentSize()) {
+    // بلا موقعٍ لا مواقيت، وبلا مواقيت لا محطّات — فكان الصفّ يختفي صامتاً
+    // وتفقد الشاشة عمودها الفقري. يظهر الآن بأسماء اليوم مطفأةً وسطرٍ
+    // يقول للمستخدم ما ينقصه، بدل فراغٍ لا يفسّر نفسه.
+    val waiting = stations.isEmpty()
+    val names = if (waiting) FALLBACK_DAY else stations.map { it.short }
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp)
+            .animateContentSize()
+            .clickable(enabled = waiting, onClick = onOpen),
+    ) {
         Row(
             Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             verticalAlignment = Alignment.Bottom,
         ) {
-            stations.forEachIndexed { i, st ->
+            names.forEachIndexed { i, short ->
                 val isNow  = i == nowIdx
                 val isPast = nowIdx >= 0 && i < nowIdx
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(end = if (i == stations.lastIndex) 0.dp else 10.dp),
+                    modifier = Modifier.padding(end = if (i == names.lastIndex) 0.dp else 10.dp),
                 ) {
                     Text(
-                        st.short,
+                        short,
                         fontSize   = 14.sp,
                         fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
                         color      = when {
@@ -332,13 +355,17 @@ private fun DayRow(
             Modifier
                 .fillMaxWidth()
                 .padding(top = 11.dp)
-                .clickable { expanded = !expanded }
+                .clickable(enabled = !waiting) { expanded = !expanded }
                 .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                if (expanded) "اضغط للإغلاق" else "اضغط لتفصيل يومك",
+                when {
+                    waiting  -> "حدّد موقعك لتظهر مواقيتك ومحطّاتك"
+                    expanded -> "اضغط للإغلاق"
+                    else     -> "اضغط لتفصيل يومك"
+                },
                 style = RafiqType.bodyS,
                 color = rc.inkMed,
             )
@@ -390,6 +417,12 @@ private fun DayRow(
     }
 }
 
+/** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
+ *  يومه قبل أن يحدّد موقعه. مطابقة لـ`short` في محطّات DayCompanion. */
+private val FALLBACK_DAY = listOf(
+    "الاستيقاظ", "الفجر", "الضحى", "الظهر", "العصر", "المغرب", "العشاء", "النوم",
+)
+
 /* ── الطبقة ٤: الأبواب الثلاثة في صفّ ───────────────────────────
 
    ثلاثةٌ لا سِتّ: المصحف والأدعية والأذكار وأوراقي كلّها في الشريط
@@ -408,18 +441,18 @@ private fun DoorsRow(
         Modifier.fillMaxWidth().padding(top = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        DoorChip(RIcon.Sparkles, "المسبحة", Modifier.weight(1f), onTasbeeh)
-        DoorChip(RIcon.Compass,  "القبلة",  Modifier.weight(1f), onQibla)
-        DoorChip(RIcon.Clock,    "المواقيت", Modifier.weight(1f), onTimes)
+        DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(18.dp, it) }
+        DoorChip("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(18.dp, it) }
+        DoorChip("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(18.dp, it) }
     }
 }
 
 @Composable
 private fun DoorChip(
-    icon: RIcon,
     label: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    icon: @Composable (Color) -> Unit,
 ) {
     val rc = LocalRafiqColors.current
     Row(
@@ -432,7 +465,7 @@ private fun DoorChip(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RafiqIcon(icon, size = 18.dp, tint = rc.inkLight)
+        icon(rc.inkLight)
         Spacer(Modifier.width(7.dp))
         Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
     }

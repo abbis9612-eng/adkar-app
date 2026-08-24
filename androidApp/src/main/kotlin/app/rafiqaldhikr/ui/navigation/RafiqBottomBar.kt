@@ -59,7 +59,9 @@ fun RafiqBottomBar(navController: NavHostController) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape,
-        color = rc.card,
+        // سطحٌ واحد: الورق يمتدّ من أعلى الشاشة إلى أسفلها، والفصلُ بالحدّ
+        // الرفيع وحده. كان rc.card فيظهر الشريط لوحاً منفصلاً بلونٍ آخر.
+        color = rc.bg,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
     ) {
