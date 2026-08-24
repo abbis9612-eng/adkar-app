@@ -1,11 +1,10 @@
 package app.rafiqaldhikr.ui.screens.hub
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -16,13 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.*
@@ -35,43 +32,35 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
 
 /* ═══════════════════════════════════════════════════════════════════
-   الرئيسية — مركز انطلاق لا صفحة قراءة
+   الرئيسية — كلمةٌ تتصدّرها، وأربعُ طبقاتٍ تحتها
 
-   كانت الرئيسية ورقةَ اليوم: صفحةً تجلس معها وتقرؤها، ولا يصلها من
-   أقسام التطبيق إلا الإعدادات. والمستخدم يفتح تطبيقه عشر مرات في اليوم
-   ليصل إلى شيء — لا ليقرأ.
+   كان قبلها «اللوح»: خطّة اليوم محفورةً على معدن. عنصرٌ واحد يحمل تسعة
+   أسطر، والصقلُ ينزل عليه بمقدار ما أتممت. حُذف كلُّه — لا لأنه رديء،
+   بل لأن الشاشة صارت تُقرأ قائمةً رأسية طويلة، والمستخدم يفتح تطبيقه
+   ليفعل شيئاً في ثوانٍ لا ليقرأ لوحاً.
 
-   فصارت مركزاً: ستّة أبواب، وثلاثة منها (المسبحة والمواقيت والقبلة) لا
-   باب لها في الشريط السفلي إطلاقاً. وورقة اليوم بقيت كما هي خلف باب
-   «يومك» — فهي أحسن ما في التطبيق، لكن مكانها ليس الشاشة الأولى.
+   والبنية الآن أربع طبقات لا عشر:
 
-   وكل باب يحمل حاله: قضيبٌ مصقول إن فعلتَه اليوم، مصدوءٌ إن لم تفعله.
-   من معنى «صدأ القلب وجلاؤه» عند ابن القيّم في الوابل الصيّب: التقدّم
-   حالٌ لا نسبةٌ مئوية.
+     ١) الكلمة    — اقتباسٌ مسنَد يتصدّر الشاشة، وتحته مصدره ظاهراً
+     ٢) سطرٌ رفيع — الصلاة القادمة وكم بقي لها
+     ٣) زوجٌ كبير — ما تفعله الآن، وزرُّ «ابدأ» بجانبه لا تحته
+     ٤) صفّان     — صفُّ اليوم، وصفُّ الأبواب الثلاثة
+
+   وصفُّ اليوم بديلٌ عن القائمة السباعية: تسعةُ أسماءٍ قصيرة في سطر،
+   ما مضى باهتٌ والحاضرُ داكنٌ تحته علامة. المكانُ نفسه هو المعلومة —
+   فلا عدّاد ولا علامةُ صحّ ولا شريطُ تقدّم. ومن أراد التفصيل ضغطه
+   فانفتح بالأسماء الكاملة والأوقات.
+
+   ═══ الأخضران ═══
+   [RafiqPalette.emerald] داكنٌ يُقرأ نصّاً على الورق (7.61) ولا يصلح
+   ملءاً. و[RafiqPalette.emeraldFill] فاتحٌ عكسه: ملءٌ ممتاز (8.54 بحبر
+   داكن فوقه) ونصٌّ لا يُقرأ (1.66). لونان لدورين — لا لونٌ واحد يُجبَر
+   على الدورين.
+
+   ═══ سطحٌ واحد ═══
+   لا بطاقةَ في هذه الشاشة ولا حبّةَ ملوّنة: الورق يمتدّ من أعلاها إلى
+   أسفلها، والفصلُ من خطوط `divider` الرفيعة والفراغ وثقلِ الحرف.
 ═══════════════════════════════════════════════════════════════════ */
-
-/*  الشعيرات واللمعة المارّة حُذفتا من اللوح.
-    كانت الشعيرات كل ٤ بكسل — تردّدٌ قريب من سنّات الحروف العربية
-    ونقاطها، فيتنافس النقش مع الخطّ على العين بنفس الحجم. وكانت اللمعة
-    ضوءاً متحرّكاً فوق نصّ يُقرأ.
-    أُضيفتا حين كان اللوح سطحَ عرضٍ لرقم واحد كبير، ثم صار يحمل تسعة
-    أسطر ولم يُعَد النظر فيهما. الإحساس المعدني يأتي الآن من التدرّج
-    وحدّ الصقل والحافّة الذهبية — وكلّها بترددات بعيدة عن حجم الحرف.  */
-private val Rust      = Color(0xFF39443A)
-private val RustDeep  = Color(0xFF2A332C)
-private val Brass0    = Color(0xFFBE9F5C)
-private val Brass1    = Color(0xFFE9D49E)
-private val Brass2    = Color(0xFFF9EDC8)
-private val Brass3    = Color(0xFFFFFEF6)
-private val PlateInk  = Color(0xFFF6F2E6)
-private val PlateMed  = Color(0xFFA9B7A7)
-private val PlateGold = Color(0xFFF0CE7E)
-private val LitInk    = Color(0xFF201A0C)
-private val LitMed    = Color(0xFF3E3419)  // 4.86 على أغمق النحاس (كان 3.85)
-private val LitGold   = Color(0xFF6B4708)
-
-/** فوق هذه النسبة يبلغ الجلاء منطقة النصّ، فينقلب الحبر داكناً ليبقى مقروءاً. */
-private const val LitThreshold = 0.68f
 
 @Composable
 fun HomeHubScreen(
@@ -86,289 +75,365 @@ fun HomeHubScreen(
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
 
-    val total = day.stations.size.coerceAtLeast(1)
-    val done  = day.doneCount
-
     Column(
         Modifier
             .fillMaxSize()
             .background(rc.bg)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 96.dp)
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 104.dp),
     ) {
-        HubHeader(home.hijriDate, ar)
+        HubTopBar(onSettings = { navController.navigate(RafiqRoute.Settings.route) })
 
-        Plate(
-            nextName  = home.nextPrayerName.ifEmpty { "—" },
+        Greeting(hijri = home.hijriDate, ar = ar)
+
+        hub.wisdom?.let { WordOfDay(it) }
+
+        Spacer(Modifier.height(30.dp))
+
+        NextPrayerLine(
+            name      = home.nextPrayerName.ifEmpty { "—" },
             countdown = home.countdown.ifEmpty { "—" },
-            atTime    = home.nextPrayerTime,
-            stations  = day.stations,
-            nowId     = day.nowStation?.id,
-            done      = done,
             ar        = ar,
-            onStart   = { day.nowStation?.route?.let { navController.navigate(it) } },
-            onOpenDay = { navController.navigate(RafiqRoute.DayPage.route) },
         )
 
-        Spacer(Modifier.height(10.dp))
+        NowAction(
+            station = day.nowStation,
+            onStart = { day.nowStation?.route?.let { navController.navigate(it) } },
+        )
 
-        // الأبواب هنا هي ما لا يصله الشريط السفلي. المصحف والأدعية
-        // والأذكار وأوراقي كلّها تبويبات أسفل الشاشة — فوضعها هنا يهدر
-        // أثمن مساحة في التطبيق على أبوابٍ على بُعد ضغطة.
-        Door(RIconOf.Misbaha, "المسبحة",
-            if (hub.tasbeeh > 0) "${hub.tasbeeh.localized(ar)} تسبيحة اليوم" else "لم تبدأ اليوم",
-            polished = hub.tasbeeh > 0) { navController.navigate(RafiqRoute.Tasbeeh.route) }
+        DayRow(
+            stations = day.stations,
+            nowId    = day.nowStation?.id,
+            ar       = ar,
+            onOpen   = { navController.navigate(RafiqRoute.DayPage.route) },
+        )
 
-        Door(RIconOf.Mosque, "مواقيت اليوم",
-            "${home.prayers.count { it.done }.localized(ar)} من ٥ صلوات · ${home.nextPrayerTime.localizedDigits(ar)}",
-            polished = home.prayers.count { it.done } >= 5) { navController.navigate(RafiqRoute.PrayerTimes.route) }
-
-        Door(RIconOf.Compass, "القبلة", "اتجاه الكعبة من موقعك",
-            polished = false, last = true) { navController.navigate(RafiqRoute.Qibla.route) }
+        DoorsRow(
+            onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
+            onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
+            onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+        )
     }
 }
 
-/* ── الرأس ─────────────────────────────────────────────────────── */
+/* ── الشريط العلوي ─────────────────────────────────────────────── */
 
 @Composable
-private fun HubHeader(hijri: String, ar: Boolean) {
+private fun HubTopBar(onSettings: () -> Unit) {
     val rc = LocalRafiqColors.current
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 10.dp, bottom = 2.dp),
+        Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("رفيق الذِّكر", style = RafiqType.caption, color = rc.inkMed)
-        Text(hijri.localizedDigits(ar), style = RafiqType.caption, color = rc.inkMed)
-    }
-}
-
-/* ── اللوح: خطّة يومك محفورةً على المعدن ────────────────────────
-
-   عنصر واحد يقول خمسة أشياء: الصلاة القادمة · خطّتك كاملة · أين وصلت ·
-   ما فعلت · وما التالي. فلا قائمة ثانية تحته ولا تكرار.
-
-   الجلاء ينزل من الأعلى لا يصعد من الأسفل — لأن الخطّة تُقرأ من أعلى
-   إلى أسفل، فلو صعد الجلاء لكان المُنجَز في الأعلى والصقل في الأسفل،
-   وهما يتناقضان. النزول يجعل خطّ الضوء يقف عند موضعك تماماً.
-───────────────────────────────────────────────────────────────── */
-
-private val HeadZone = 78.dp
-private val RowH     = 29.dp
-private val NowRowH  = 58.dp
-
-@Composable
-private fun Plate(
-    nextName: String, countdown: String, atTime: String,
-    stations: List<DayCompanionViewModel.StationUi>,
-    nowId: String?, done: Int, ar: Boolean,
-    onStart: () -> Unit, onOpenDay: () -> Unit,
-) {
-    if (stations.isEmpty()) return
-    val nowIdx = stations.indexOfFirst { it.id == nowId }
-
-    // ارتفاع اللوح محسوب من الصفوف نفسها، فيقف خطّ الجلاء على حدّ صفٍّ
-    // بالضبط لا في منتصفه
-    val planH = stations.indices.sumOf { i -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }
-    val plateH = HeadZone + planH.dp
-    // يُقاس من رأس منطقة الصفوف لا من رأس اللوح: رأس اللوح خارج الجلاء
-    val cutTarget = stations.take(done.coerceAtMost(stations.size))
-        .withIndex().sumOf { (i, _) -> (if (i == nowIdx) NowRowH else RowH).value.toDouble() }.toFloat()
-    val cut by animateFloatAsState(cutTarget, progressSpec(950), label = "cut")
-
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(top = 12.dp)
-            .height(plateH)
-            .clip(RoundedCornerShape(22.dp))
-    ) {
-        Canvas(Modifier.matchParentSize()) {
-            val w = size.width; val h = size.height
-            val headPx = HeadZone.toPx()
-            val cutPx  = headPx + cut.dp.toPx().coerceAtLeast(0f)
-
-            drawRect(Rust)
-            drawCircle(RustDeep.copy(alpha = .55f), radius = w * .46f, center = Offset(w * .78f, h * .74f))
-            drawCircle(Color.White.copy(alpha = .055f), radius = w * .36f, center = Offset(w * .22f, h * .16f))
-            drawCircle(Color(0xFF545E4A).copy(alpha = .30f), radius = w * .30f, center = Offset(w * .14f, h * .88f))
-
-            if (cutPx > headPx + 1f) {
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        listOf(Brass3, Brass2, Brass1, Brass0), startY = headPx, endY = cutPx,
-                    ),
-                    topLeft = Offset(0f, headPx), size = Size(w, cutPx - headPx),
-                )
-                drawLine(Color(0xFFFFFCEC), Offset(0f, cutPx), Offset(w, cutPx), 2.4f)
-                drawLine(Color(0xFFFFFCEC).copy(alpha = .30f), Offset(0f, cutPx), Offset(w, cutPx), 9f)
-            }
-            // خيط يعلن أن الرأس بيانٌ عن اللوح لا جزءٌ من خطّة اليوم
-            drawLine(PlateGold.copy(alpha = .22f), Offset(0f, headPx), Offset(w, headPx), 1f)
-
-        }
-
-        Box(Modifier.matchParentSize()
-            .border(1.dp, PlateGold.copy(alpha = .34f), RoundedCornerShape(22.dp)))
-
-        Column(Modifier.fillMaxSize()) {
-
-            // رأس اللوح — يبقى داكناً دائماً، فلا ينقلب حبره
-            Column(
-                Modifier.fillMaxWidth().height(HeadZone).padding(horizontal = 18.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom) {
-                    Column {
-                        Text("الصلاة القادمة", style = RafiqType.micro, color = PlateMed)
-                        Text(nextName, style = RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize),
-                            color = PlateInk, fontWeight = FontWeight.Bold)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(countdown.localizedDigits(ar),
-                            style = RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize),
-                            color = PlateGold, fontWeight = FontWeight.Bold)
-                        Text(atTime.localizedDigits(ar), style = RafiqType.micro, color = PlateMed)
-                    }
-                }
-            }
-
-            stations.forEachIndexed { i, st ->
-                PlanRow(
-                    st = st, index = i, isNow = i == nowIdx, isDone = i < done,
-                    ar = ar, onStart = onStart, onOpen = onOpenDay,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PlanRow(
-    st: DayCompanionViewModel.StationUi,
-    index: Int, isNow: Boolean, isDone: Boolean, ar: Boolean,
-    onStart: () -> Unit, onOpen: () -> Unit,
-) {
-    // الحبر ينقلب مع مرور الجلاء فوق الصفّ: فاتحٌ على المعدن المصدوء،
-    // داكنٌ على النحاس. كلاهما مقيس ويعبر ٤٫٥:١
-    val ink  = if (isDone) LitInk else if (isNow) PlateInk else PlateInk.copy(alpha = .62f)
-    val med  = if (isDone) LitMed else PlateMed
-    val pulse by stillableFloat(
-        initialValue = .5f, targetValue = 1f, durationMs = 1300,
-        easing = FastOutSlowInEasing, label = "nowDot", restValue = 1f,
-    )
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(if (isNow) NowRowH else RowH)
-            .clickable(onClick = if (isNow) onStart else onOpen)
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Box(
-            Modifier.size(if (isNow) 11.dp else 7.dp).clip(CircleShape).background(
-                when {
-                    isNow  -> Color(0xFFFFFCEC).copy(alpha = pulse)
-                    isDone -> Color(0xFF3A2E11)
-                    else   -> PlateInk.copy(alpha = .26f)
-                }
-            )
-        )
-        Text(
-            st.title,
-            style = if (isNow) RafiqType.titleM else RafiqType.bodyS,
-            color = ink,
-            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-            maxLines = 1,
-            modifier = Modifier.weight(1f),
-        )
-        if (isNow) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .clip(RafiqShape.chip)
-                    .background(Color(0xFF0A3B24))
-                    .clickable(onClick = onStart)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) { Text("ابدأ", style = RafiqType.label, color = PlateGold) }
-        } else {
-            Text(clockOfLabel(st).localizedDigits(ar), style = RafiqType.micro, color = med)
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(16.dp, 16.dp, 16.dp, 6.dp))
+                    .background(rc.emeraldFill),
+                contentAlignment = Alignment.Center,
+            ) {
+                RafiqIcon(RIcon.Sparkles, size = 24.dp, tint = rc.onEmeraldFill)
+            }
+            Spacer(Modifier.width(11.dp))
+            Column {
+                Text("رفيق الذِّكر", style = RafiqType.titleL, color = rc.emerald)
+                Text("رفيقُك في يومك", style = RafiqType.bodyS, color = rc.inkMed)
+            }
+        }
+        RafiqIconButton(onClick = onSettings, label = "الإعدادات") {
+            RafiqIcon(RIcon.Settings, size = 21.dp, tint = rc.inkMed)
         }
     }
 }
 
-private fun clockOfLabel(st: DayCompanionViewModel.StationUi): String {
-    val d = java.util.Date(st.startMillis)
-    return java.text.SimpleDateFormat("h:mm", java.util.Locale("ar")).format(d)
-}
-
-/* ── الأبواب ───────────────────────────────────────────────────── */
-
-private enum class RIconOf { Misbaha, Mosque, Compass }
+/* ── التحية ─────────────────────────────────────────────────────── */
 
 @Composable
-private fun DoorIcon(kind: RIconOf, tint: Color) {
-    when (kind) {
-            RIconOf.Misbaha -> IcoMisbaha(20.dp, tint)
-            RIconOf.Mosque  -> IcoMosque(20.dp, tint)
-        RIconOf.Compass -> IcoCompass(20.dp, tint)
+private fun Greeting(hijri: String, ar: Boolean) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier.fillMaxWidth().padding(top = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Column {
+            Text("السلام عليكم", style = RafiqType.bodyS, color = rc.inkMed)
+            Spacer(Modifier.height(3.dp))
+            Text(greetingText(), style = RafiqType.titleXL, color = rc.ink)
         }
+        Text(
+            hijri.localizedDigits(ar),
+            style = RafiqType.bodyS,
+            color = rc.inkMed,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
+    }
 }
 
+/**
+ * تحيّةُ الوقت. تُشتقّ من ساعة الجهاز لا من مواقيت الصلاة عمداً: الجملة
+ * مجاملةٌ لا معلومة، ولو ربطتُها بالمواقيت لصارت تقول «صباحٌ مبارك» بعد
+ * الفجر في ليل الشتاء الطويل.
+ */
+private fun greetingText(): String {
+    val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    return when (h) {
+        in 4..10  -> "صباحٌ مبارك"
+        in 11..15 -> "نهارٌ طيّب"
+        in 16..19 -> "مساءٌ مطمئن"
+        else      -> "ليلةٌ هادئة"
+    }
+}
+
+/* ── الكلمة — بطلةُ الشاشة ──────────────────────────────────────
+
+   الاقتباس أوّل ما تقع عليه العين، ومصدرُه تحته مباشرةً لا في حاشية:
+   خيطٌ أخضر رأسيّ ثم اسم القائل ثم كتابه. وهذه علامة السند نفسها التي
+   تتكرّر حيثما ورد نصٌّ ديني في التطبيق.
+──────────────────────────────────────────────────────────────── */
+
 @Composable
-private fun Door(
-    icon: RIconOf, title: String, sub: String,
-    polished: Boolean, half: Boolean = false, last: Boolean = false,
-    onClick: () -> Unit,
+private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
+    val rc = LocalRafiqColors.current
+    Column(
+        Modifier.fillMaxWidth().padding(top = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            w.text,
+            style = RafiqType.ayah,
+            color = rc.ink,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(20.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .width(3.dp)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(rc.emeraldFill),
+            )
+            Spacer(Modifier.width(9.dp))
+            Column {
+                Text(w.author, style = RafiqType.titleM, color = rc.emerald)
+                Text(w.source, style = RafiqType.bodyS, color = rc.inkMed)
+            }
+        }
+    }
+}
+
+/* ── الطبقة ١: سطرٌ رفيع ────────────────────────────────────────── */
+
+@Composable
+private fun NextPrayerLine(name: String, countdown: String, ar: Boolean) {
+    val rc = LocalRafiqColors.current
+    Row(verticalAlignment = Alignment.Bottom) {
+        Text(name, style = RafiqType.titleM, color = rc.ink)
+        Spacer(Modifier.width(9.dp))
+        Text("بعد ${countdown.localizedDigits(ar)}", style = RafiqType.bodyS, color = rc.inkMed)
+    }
+}
+
+/* ── الطبقة ٢: زوجٌ كبير — الفعلُ ملتصقٌ بما يفعله ─────────────── */
+
+@Composable
+private fun NowAction(
+    station: DayCompanionViewModel.StationUi?,
+    onStart: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    Column {
+    Row(
+        Modifier.fillMaxWidth().padding(top = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(station?.title ?: "يومك يبدأ", style = RafiqType.titleXL, color = rc.ink)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                station?.description ?: "افتح أوّل محطّة حين يحين وقتها",
+                style = RafiqType.bodyS,
+                color = rc.inkMed,
+            )
+        }
+        Spacer(Modifier.width(15.dp))
+        Box(
+            Modifier
+                .clip(CircleShape)
+                .background(rc.emeraldFill)
+                .clickable(enabled = station?.route != null, onClick = onStart)
+                .defaultMinSize(minWidth = 96.dp, minHeight = 52.dp)
+                .padding(horizontal = 30.dp, vertical = 15.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("ابدأ", style = RafiqType.titleM, color = rc.onEmeraldFill)
+        }
+    }
+}
+
+/* ── الطبقة ٣: صفُّ اليوم ───────────────────────────────────────
+
+   بديلٌ عن قائمةٍ رأسية بتسعة صفوف. الأسماء القصيرة في سطرٍ واحد،
+   وموضعُ الاسم الداكن يقول أين أنت. يُمرَّر أفقياً حين لا تتّسع
+   التسعة — ولا يُقصّ منها شيء.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun DayRow(
+    stations: List<DayCompanionViewModel.StationUi>,
+    nowId:    String?,
+    ar:       Boolean,
+    onOpen:   () -> Unit,
+) {
+    if (stations.isEmpty()) return
+    val rc = LocalRafiqColors.current
+    var expanded by remember { mutableStateOf(false) }
+    val nowIdx = stations.indexOfFirst { it.id == nowId }
+
+    Column(Modifier.fillMaxWidth().padding(top = 20.dp).animateContentSize()) {
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            stations.forEachIndexed { i, st ->
+                val isNow  = i == nowIdx
+                val isPast = nowIdx >= 0 && i < nowIdx
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(end = if (i == stations.lastIndex) 0.dp else 10.dp),
+                ) {
+                    Text(
+                        st.short,
+                        fontSize   = 14.sp,
+                        fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+                        color      = when {
+                            isNow  -> rc.ink
+                            isPast -> rc.inkMed
+                            else   -> rc.inkLight
+                        },
+                    )
+                    Spacer(Modifier.height(7.dp))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (isNow) rc.emeraldFill else Color.Transparent),
+                    )
+                }
+            }
+        }
+
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .clip(RafiqShape.item)
-                .clickable(onClick = onClick)
-                .padding(horizontal = 8.dp, vertical = 13.dp),
+                .padding(top = 11.dp)
+                .clickable { expanded = !expanded }
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(13.dp),
         ) {
-            MetalBar(polished = polished, half = half)
-            DoorIcon(icon, rc.inkMed)
-            Column(Modifier.weight(1f)) {
-                Text(title, style = RafiqType.titleM, color = rc.ink)
-                Text(sub, style = RafiqType.caption, color = rc.inkMed, maxLines = 1)
-            }
-            Text("‹", style = RafiqType.titleM, color = rc.divider)
+            Text(
+                if (expanded) "اضغط للإغلاق" else "اضغط لتفصيل يومك",
+                style = RafiqType.bodyS,
+                color = rc.inkMed,
+            )
+            Text(if (expanded) "▴" else "▾", style = RafiqType.bodyS, color = rc.inkMed)
         }
-        if (!last) {
-            Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(1.dp).background(rc.divider))
-        }
-    }
-}
 
-/** قضيب الحال: مصقول = فعلتَه اليوم · مصدوء = لم تفعله · نصفان = جزئي. */
-@Composable
-private fun MetalBar(polished: Boolean, half: Boolean) {
-    val rc = LocalRafiqColors.current
-    Box(Modifier.width(6.dp).height(34.dp).clip(RoundedCornerShape(3.dp))) {
-        when {
-            half -> {
-                Column(Modifier.fillMaxSize()) {
-                    Box(Modifier.fillMaxWidth().weight(.52f)
-                        .background(Brush.verticalGradient(listOf(Brass3, Brass1))))
-                    Box(Modifier.fillMaxWidth().weight(.48f).background(rc.divider))
+        if (expanded) {
+            stations.forEachIndexed { i, st ->
+                val isNow  = i == nowIdx
+                val isPast = nowIdx >= 0 && i < nowIdx
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .clickable(onClick = onOpen),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        Modifier
+                            .size(if (isNow) 10.dp else 6.dp)
+                            .clip(CircleShape)
+                            .background(
+                                when {
+                                    isNow  -> rc.emeraldFill
+                                    isPast -> rc.emeraldFill.copy(alpha = .85f)
+                                    else   -> rc.inkLight.copy(alpha = .45f)
+                                },
+                            ),
+                    )
+                    Spacer(Modifier.width(13.dp))
+                    Text(
+                        st.title,
+                        style = RafiqType.titleM,
+                        fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isNow || isPast) rc.ink else rc.inkMed,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        st.timeLabel.localizedDigits(ar),
+                        style = RafiqType.bodyS,
+                        color = rc.inkMed,
+                    )
+                }
+                if (i != stations.lastIndex) {
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
                 }
             }
-            polished -> Box(Modifier.fillMaxSize()
-                .background(Brush.verticalGradient(listOf(Brass3, Color(0xFFD9BE7C)))))
-            else -> Box(Modifier.fillMaxSize().background(rc.divider))
         }
     }
 }
 
-private fun Int.localized(arabic: Boolean): String = toString().localizedDigits(arabic)
+/* ── الطبقة ٤: الأبواب الثلاثة في صفّ ───────────────────────────
+
+   ثلاثةٌ لا سِتّ: المصحف والأدعية والأذكار وأوراقي كلّها في الشريط
+   السفلي، فوضعُها هنا يهدر أثمن مساحة على أبوابٍ على بُعد ضغطة.
+   وصفٌّ واحد (٥٠dp) بدل صفّين كاملين (١٥٨dp) — والصفُّ يُقرأ بنظرةٍ
+   واحدة كمجموعة، والصفّان يُقرآن سطراً سطراً كقائمة.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun DoorsRow(
+    onTasbeeh: () -> Unit,
+    onQibla:   () -> Unit,
+    onTimes:   () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(top = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        DoorChip(RIcon.Sparkles, "المسبحة", Modifier.weight(1f), onTasbeeh)
+        DoorChip(RIcon.Compass,  "القبلة",  Modifier.weight(1f), onQibla)
+        DoorChip(RIcon.Clock,    "المواقيت", Modifier.weight(1f), onTimes)
+    }
+}
+
+@Composable
+private fun DoorChip(
+    icon: RIcon,
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    Row(
+        modifier
+            .heightIn(min = 50.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, rc.divider, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RafiqIcon(icon, size = 18.dp, tint = rc.inkLight)
+        Spacer(Modifier.width(7.dp))
+        Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
+    }
+}

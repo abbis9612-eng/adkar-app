@@ -123,10 +123,10 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                     Box(
                         Modifier
                             .clip(RafiqShape.item)
-                            .background(rc.emerald)
+                            .background(rc.emeraldFill)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("الأحدث", fontWeight = FontWeight.Bold, color = rc.bg, style = RafiqType.micro)
+                        Text("الأحدث", fontWeight = FontWeight.Bold, color = rc.onEmeraldFill, style = RafiqType.micro)
                     }
                 }
             }

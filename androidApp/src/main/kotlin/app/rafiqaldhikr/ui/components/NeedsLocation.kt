@@ -120,10 +120,10 @@ fun NeedsLocation(
         Text(
             text = if (asking) "جارٍ تحديد الموقع…" else "تفعيل الموقع",
             style = RafiqType.label,
-            color = rc.onEmerald,
+            color = rc.onEmeraldFill,
             modifier = Modifier
                 .clip(RafiqShape.chip)
-                .background(rc.emerald)
+                .background(rc.emeraldFill)
                 .clickable(enabled = !asking) {
                     denied = false
                     asking = true

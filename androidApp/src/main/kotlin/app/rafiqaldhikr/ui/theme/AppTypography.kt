@@ -113,6 +113,11 @@ object RafiqType {
     /** الرقم الضخم — عدّاد المسبحة وحده. */
     val display = arabic(UiFamily, FontWeight.Bold, 32, 44, "tnum")
 
+    /** الفعلُ الحاضر في الرئيسية — أكبر ما يُقرأ بعد الكلمة، وأصغر من
+        [display] لأنه كلامٌ لا رقم. بينهما فجوة كانت تُسدّ بـtitleL فيبدو
+        الفعل بحجم عنوان الشريط. */
+    val titleXL = arabic(UiFamily, FontWeight.Bold, 26, 38)
+
     /** عنوان الشاشة في الشريط العلوي. */
     val titleL = arabic(UiFamily, FontWeight.Bold, 22, 32)
 

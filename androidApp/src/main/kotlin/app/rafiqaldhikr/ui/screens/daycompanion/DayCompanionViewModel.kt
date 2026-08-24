@@ -38,6 +38,8 @@ class DayCompanionViewModel(
     data class StationUi(
         val id:          String,
         val title:       String,
+        /** اسمٌ من كلمة واحدة لصفّ اليوم في الرئيسية — تسعةٌ منها تتّسع في سطر. */
+        val short:       String,
         val description: String,
         val virtue:      String,          // الفضل الوارد بدليله
         val timeLabel:   String,          // «بعد الفجر حتى الشروق»
@@ -150,6 +152,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "wake",
                 title = "الاستيقاظ",
+                short = "الاستيقاظ",
                 description = "«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك",
                 virtue = "هدي النبي ﷺ عند الاستيقاظ — رواه البخاري",
                 timeLabel = "قبل الفجر",
@@ -159,6 +162,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "fajr_morning",
                 title = "الفجر وأذكار الصباح",
+                short = "الفجر",
                 description = "صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس",
                 virtue = "«من صلى الغداة في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كانت له كأجر حجة وعمرة تامة تامة تامة» — الترمذي (حسن)",
                 timeLabel = "من الفجر إلى الشروق",
@@ -168,6 +172,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "duha",
                 title = "صلاة الضحى",
+                short = "الضحى",
                 description = "ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك",
                 virtue = "«يصبح على كل سُلامى من أحدكم صدقة... ويجزئ من ذلك ركعتان يركعهما من الضحى» — رواه مسلم",
                 timeLabel = "من بعد الشروق إلى قبيل الظهر",
@@ -177,6 +182,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "dhuhr",
                 title = "الظهر وأذكار بعد الصلاة",
+                short = "الظهر",
                 description = "الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي",
                 virtue = "«من سبّح الله دبر كل صلاة... غُفرت خطاياه وإن كانت مثل زبد البحر» — رواه مسلم",
                 timeLabel = "من الظهر إلى العصر",
@@ -186,6 +192,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "asr_evening",
                 title = "العصر وأذكار المساء",
+                short = "العصر",
                 description = "صلاة العصر ثم أذكار المساء قبل الغروب",
                 virtue = "اختار ابن القيم في الوابل الصيّب أن وقت أذكار المساء بين العصر والغروب",
                 timeLabel = "من العصر إلى المغرب",
@@ -195,6 +202,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "maghrib",
                 title = "المغرب وأذكار بعد الصلاة",
+                short = "المغرب",
                 description = "الصلاة وأذكارها" + if (friday) " — وأكثر من الدعاء فآخر ساعة من الجمعة ساعة إجابة" else "",
                 virtue = "«لا مانع لما أعطيت ولا معطي لما منعت» — متفق عليه",
                 timeLabel = "من المغرب إلى العشاء",
@@ -204,6 +212,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "isha",
                 title = "العشاء والوتر",
+                short = "العشاء",
                 description = "صلاة العشاء ثم الوتر ولو بركعة",
                 virtue = "«اجعلوا آخر صلاتكم بالليل وتراً» — متفق عليه",
                 timeLabel = "بعد العشاء",
@@ -213,6 +222,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "sleep",
                 title = "أذكار النوم",
+                short = "النوم",
                 description = "الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح",
                 virtue = "«إذا أويت إلى فراشك فاقرأ آية الكرسي... لن يزال عليك من الله حافظ ولا يقربك شيطان حتى تصبح» — رواه البخاري",
                 timeLabel = "عند النوم",
@@ -223,6 +233,7 @@ class DayCompanionViewModel(
             StationUi(
                 id = "friday_kahf",
                 title = "سورة الكهف والصلاة على النبي ﷺ",
+                short = "الكهف",
                 description = "قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة",
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",
                 timeLabel = "طوال يوم الجمعة",

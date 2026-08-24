@@ -129,7 +129,7 @@ fun ShareCardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RafiqShape.card)
-                        .background(rc.emerald)
+                        .background(rc.emeraldFill)
                         .clickable {
                             val shareText = "${cards[selectedCard].title}\n${cards[selectedCard].value}\n${cards[selectedCard].subtitle}\n\nعبر تطبيق رفيق الذكر"
                             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -144,7 +144,7 @@ fun ShareCardScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoShare(20.dp, rc.bg)
                         Spacer(Modifier.width(8.dp))
-                        Text("مشاركة البطاقة", fontWeight = FontWeight.Bold, color = rc.bg, style = RafiqType.body)
+                        Text("مشاركة البطاقة", fontWeight = FontWeight.Bold, color = rc.onEmeraldFill, style = RafiqType.body)
                     }
                 }
             }

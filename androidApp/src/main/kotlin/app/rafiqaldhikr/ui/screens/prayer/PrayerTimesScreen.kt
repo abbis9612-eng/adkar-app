@@ -172,7 +172,7 @@ private fun PrayerTimesContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RafiqShape.item)
-                        .background(rc.emerald)
+                        .background(rc.emeraldFill)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Row(
@@ -182,7 +182,7 @@ private fun PrayerTimesContent(
                     ) {
                         Text("الصلوات المؤداة: $prayedCount / 5",
                             fontWeight = FontWeight.Bold,
-                            color = rc.onEmerald, style = RafiqType.bodyS)
+                            color = rc.onEmeraldFill, style = RafiqType.bodyS)
                         Text(
                             methodLabel(state.method) + " · " + madhabLabel(state.madhab),
                             color = Color.White.copy(alpha = 0.8f), style = RafiqType.caption,
@@ -316,7 +316,7 @@ private fun PrayerCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
-                        .background(rc.emerald)
+                        .background(rc.emeraldFill)
                 )
             }
         }

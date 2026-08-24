@@ -47,6 +47,14 @@ data class RafiqPalette(
     val emeraldLight: Color,
     val emeraldPastel: Color,
 
+    /* ── الأخضر الممتلئ ──
+       الزمرّدي الداكن يُقرأ نصّاً على الورق (7.61) ولا يُقرأ ملءاً — والأبيض
+       فوقه وحده يعمل. والأخضر الفاتح عكسه تماماً: ملءٌ ممتاز (8.54 بحبرٍ
+       داكن فوقه) ونصٌّ لا يُقرأ إطلاقاً (1.66 على الورق).
+       فلونان لدورين، لا لونٌ واحد يُجبَر على الدورين. */
+    val emeraldFill: Color,
+    val onEmeraldFill: Color,
+
     /* ── التمييز: الذهبي ── */
     val gold: Color,
     val goldLight: Color,
@@ -105,17 +113,20 @@ val LightRafiqPalette = RafiqPalette(
     // سلّم النبرات: كان الورق ↔ البطاقة 1.09:1 — أي غير مرئي (العين تبدأ
     // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
     // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
-    bg             = Color(0xFFE7DFCD),
-    card           = Color(0xFFFEFCF7),
-    cardPrayed     = Color(0xFFE0D9C6),
-    chipBg         = Color(0xFFDCD2B9),  // inkMed فوقه 4.41:1
+    bg             = Color(0xFFF5EBD5),
+    card           = Color(0xFFE3D6B5),
+    cardPrayed     = Color(0xFFEDE2C6),
+    chipBg         = Color(0xFFE6DBBF),  // inkMed فوقه 5.70:1
 
     emerald        = Color(0xFF0A5433),
     emeraldMed     = Color(0xFF0B5E38),
     emeraldLight   = Color(0xFF0D7446),
     emeraldPastel  = Color(0xFFE0EFE7),
 
-    gold           = Color(0xFF7A5109),  // 3.79:1 على الورق — عُمِّق مع الورق
+    emeraldFill    = Color(0xFF4ECF95),  // ملء فقط — نصّاً يهبط إلى 1.66
+    onEmeraldFill  = Color(0xFF14201A),  // 8.54:1 فوق الملء (الأبيض هناك 1.97)
+
+    gold           = Color(0xFF7A5109),  // 5.89:1 على الورق الجديد
     goldLight      = Color(0xFFB98A2B),
 
     onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
@@ -126,10 +137,10 @@ val LightRafiqPalette = RafiqPalette(
     inkDark        = Color(0xFF2B3B31),
     inkMed         = Color(0xFF555244),   //  4.54:1
     // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
-    inkLight       = Color(0xFF747D71),   //  3.44:1
+    inkLight       = Color(0xFF6F7A6D),   //  3.79:1
 
     // خطّ المسطرة — لا فاصل رمادي
-    divider        = Color(0xFFCFC5AC),
+    divider        = Color(0xFFD6C9A9),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
@@ -157,12 +168,12 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF13120C),
-    card           = Color(0xFF1D1B14),
-    cardPrayed     = Color(0xFF17231C),
-    chipBg         = Color(0xFF272419),
+    bg             = Color(0xFF101511),
+    card           = Color(0xFF242D23),
+    cardPrayed     = Color(0xFF1B2A20),
+    chipBg         = Color(0xFF212A22),
 
-    emerald        = Color(0xFF4CAF7B),
+    emerald        = Color(0xFF4ECF95),
     emeraldMed     = Color(0xFF3D9B6A),
     emeraldLight   = Color(0xFF5CC18C),
     emeraldPastel  = Color(0xFF1A2E24),
@@ -170,15 +181,18 @@ val DarkRafiqPalette = RafiqPalette(
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    onEmerald      = Color(0xFF13120C),  // 7.1:1 — الأبيض هنا 2.72:1 فقط
+    emeraldFill    = Color(0xFF4ECF95),
+    onEmeraldFill  = Color(0xFF0A1A12),  // 9.14:1
+
+    onEmerald      = Color(0xFF0A1A12),  // 9.14:1 — الأبيض هنا 2.72:1 فقط
     onGold         = Color(0xFF13120C),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    ink            = Color(0xFFEBE3CE),
+    ink            = Color(0xFFEDE6D4),
     inkDark        = Color(0xFFD4C8B4),
-    inkMed         = Color(0xFFA9A08C),
-    inkLight       = Color(0xFF7D776B),
+    inkMed         = Color(0xFFA7A08D),
+    inkLight       = Color(0xFF7C8579),
 
-    divider        = Color(0xFF33301F),
+    divider        = Color(0xFF2A322C),
 
     heroStart      = Color(0xFF0A1F14),
     heroMid        = Color(0xFF0F3322),

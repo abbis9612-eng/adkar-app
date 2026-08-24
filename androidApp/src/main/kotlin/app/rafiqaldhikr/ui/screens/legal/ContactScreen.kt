@@ -142,9 +142,9 @@ fun ContactScreen(navController: NavHostController) {
                     enabled = message.isNotBlank(),
                     shape = RafiqShape.card,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = rc.emerald,
-                        contentColor = rc.bg,
-                        disabledContainerColor = rc.emerald.copy(alpha = 0.5f)
+                        containerColor = rc.emeraldFill,
+                        contentColor = rc.onEmeraldFill,
+                        disabledContainerColor = rc.emeraldFill.copy(alpha = 0.5f)
                     )
                 ) {
                     IcoSend(20.dp, rc.bg)

@@ -117,7 +117,7 @@ fun AchievementsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RafiqShape.card)
-                            .background(rc.emerald)
+                            .background(rc.emeraldFill)
                             .padding(vertical = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -126,10 +126,10 @@ fun AchievementsScreen(
                                 "$unlocked / ${achievements.size}".localizedDigits(LocalArabicNumerals.current),
                                 style = NumbersStyle,
                                 fontSize = 32.sp,
-                                color = rc.onEmerald
+                                color = rc.onEmeraldFill
                             )
                             Text("إنجاز مفتوح",
-                                color = rc.onEmerald.copy(alpha = 0.8f), style = RafiqType.bodyS)
+                                color = rc.onEmeraldFill.copy(alpha = 0.8f), style = RafiqType.bodyS)
                             Spacer(Modifier.height(8.dp))
                             LinearProgressIndicator(
                                 progress = { unlocked / achievements.size.toFloat() },
@@ -137,8 +137,8 @@ fun AchievementsScreen(
                                     .fillMaxWidth(0.7f)
                                     .height(6.dp)
                                     .clip(RafiqShape.chip),
-                                color = rc.onEmerald,
-                                trackColor = rc.onEmerald.copy(alpha = 0.3f)
+                                color = rc.onEmeraldFill,
+                                trackColor = rc.onEmeraldFill.copy(alpha = 0.3f)
                             )
                         }
                     }
