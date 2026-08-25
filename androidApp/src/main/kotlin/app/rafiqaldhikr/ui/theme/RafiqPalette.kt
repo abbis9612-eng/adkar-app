@@ -113,21 +113,21 @@ val LightRafiqPalette = RafiqPalette(
     // سلّم النبرات: كان الورق ↔ البطاقة 1.09:1 — أي غير مرئي (العين تبدأ
     // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
     // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
-    bg             = Color(0xFFF5EBD5),
-    card           = Color(0xFFE3D6B5),
-    cardPrayed     = Color(0xFFEDE2C6),
-    chipBg         = Color(0xFFE6DBBF),  // inkMed فوقه 5.70:1
+    bg             = Color(0xFFF4F1E7),
+    card           = Color(0xFFDCD9D0),
+    cardPrayed     = Color(0xFFE4E2D9),
+    chipBg         = Color(0xFFE8E6DC),  // inkMed فوقه 5.70:1
 
-    emerald        = Color(0xFF0A5433),
-    emeraldMed     = Color(0xFF0B5E38),
-    emeraldLight   = Color(0xFF0D7446),
-    emeraldPastel  = Color(0xFFE0EFE7),
+    emerald        = Color(0xFF6F541E),
+    emeraldMed     = Color(0xFF61491A),
+    emeraldLight   = Color(0xFF795A20),
+    emeraldPastel  = Color(0xFFF0E7D3),
 
-    emeraldFill    = Color(0xFF4ECF95),  // ملء فقط — نصّاً يهبط إلى 1.66
+    emeraldFill    = Color(0xFFE0A83C),  // ملء فقط — نصّاً يهبط إلى 1.66
     onEmeraldFill  = Color(0xFF14201A),  // 8.54:1 فوق الملء (الأبيض هناك 1.97)
 
-    gold           = Color(0xFF7A5109),  // 5.89:1 على الورق الجديد
-    goldLight      = Color(0xFFB98A2B),
+    gold           = Color(0xFF7A5807),  // 5.89:1 على الورق الجديد
+    goldLight      = Color(0xFFB8860B),
 
     onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
@@ -135,12 +135,12 @@ val LightRafiqPalette = RafiqPalette(
     // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
     ink            = Color(0xFF14201A),   // 12.76:1
     inkDark        = Color(0xFF2B3B31),
-    inkMed         = Color(0xFF555244),   //  4.54:1
+    inkMed         = Color(0xFF505851),   //  4.54:1
     // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
-    inkLight       = Color(0xFF6F7A6D),   //  3.79:1
+    inkLight       = Color(0xFF70766E),   //  3.79:1
 
     // خطّ المسطرة — لا فاصل رمادي
-    divider        = Color(0xFFD6C9A9),
+    divider        = Color(0xFFD0D0C6),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
@@ -168,31 +168,31 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF101511),
-    card           = Color(0xFF242D23),
-    cardPrayed     = Color(0xFF1B2A20),
-    chipBg         = Color(0xFF212A22),
+    bg             = Color(0xFF12100A),
+    card           = Color(0xFF312F2A),
+    cardPrayed     = Color(0xFF26241D),
+    chipBg         = Color(0xFF221F19),
 
-    emerald        = Color(0xFF4ECF95),
-    emeraldMed     = Color(0xFF3D9B6A),
-    emeraldLight   = Color(0xFF5CC18C),
-    emeraldPastel  = Color(0xFF1A2E24),
+    emerald        = Color(0xFFE0A83C),
+    emeraldMed     = Color(0xFFD49B30),
+    emeraldLight   = Color(0xFFEDBB5C),
+    emeraldPastel  = Color(0xFF2E2718),
 
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    emeraldFill    = Color(0xFF4ECF95),
-    onEmeraldFill  = Color(0xFF0A1A12),  // 9.14:1
+    emeraldFill    = Color(0xFFE0A83C),
+    onEmeraldFill  = Color(0xFF14201A),  // 9.14:1
 
-    onEmerald      = Color(0xFF0A1A12),  // 9.14:1 — الأبيض هنا 2.72:1 فقط
-    onGold         = Color(0xFF13120C),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
+    onEmerald      = Color(0xFF14201A),  // 9.14:1 — الأبيض هنا 2.72:1 فقط
+    onGold         = Color(0xFF14201A),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    ink            = Color(0xFFEDE6D4),
-    inkDark        = Color(0xFFD4C8B4),
-    inkMed         = Color(0xFFA7A08D),
-    inkLight       = Color(0xFF7C8579),
+    ink            = Color(0xFFEFE8D8),
+    inkDark        = Color(0xFFD6CFBE),
+    inkMed         = Color(0xFFA7A194),
+    inkLight       = Color(0xFF837E73),
 
-    divider        = Color(0xFF2A322C),
+    divider        = Color(0xFF35332B),
 
     heroStart      = Color(0xFF0A1F14),
     heroMid        = Color(0xFF0F3322),

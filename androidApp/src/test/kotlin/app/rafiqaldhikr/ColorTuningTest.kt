@@ -56,6 +56,33 @@ class ColorTuningTest {
         check(Color(0xFF101511), Color(0xFF101511))
     }
 
+    /**
+     * اللوحتان المشحونتان — «ورقٌ وعنبر» — تُفحصان كما تُفحص أي تركيبة
+     * يختارها المستخدم. لا استثناء للافتراضي: هو ما يراه كلُّ من يفتح
+     * التطبيق قبل أن يمسّ الإعدادات، فهو الأولى بالحراسة لا العكس.
+     */
+    @Test fun shippedPalettesAreReadable() {
+        for (p in listOf(LightRafiqPalette, DarkRafiqPalette)) {
+            assertTrue("النصّ ${contrast(p.ink, p.bg)}", contrast(p.ink, p.bg) >= 4.5f)
+            assertTrue("الثانوي على البطاقة ${contrast(p.inkMed, p.card)}",
+                contrast(p.inkMed, p.card) >= 4.5f)
+            assertTrue("الثانوي على الورق ${contrast(p.inkMed, p.bg)}",
+                contrast(p.inkMed, p.bg) >= 4.5f)
+            assertTrue("الثانوي على الحبّة ${contrast(p.inkMed, p.chipBg)}",
+                contrast(p.inkMed, p.chipBg) >= 4.5f)
+            assertTrue("اللهجة نصّاً ${contrast(p.emerald, p.card)}",
+                contrast(p.emerald, p.card) >= 4.5f)
+            assertTrue("الذهبي ${contrast(p.gold, p.card)}", contrast(p.gold, p.card) >= 4.5f)
+            assertTrue("نصّ الزرّ ${contrast(p.onEmeraldFill, p.emeraldFill)}",
+                contrast(p.onEmeraldFill, p.emeraldFill) >= 4.5f)
+            assertTrue("الأيقونات ${contrast(p.inkLight, p.card)}",
+                contrast(p.inkLight, p.card) >= 3.0f)
+            assertTrue("نبرة البطاقة ${contrast(p.card, p.bg)}", contrast(p.card, p.bg) >= 1.2f)
+            assertTrue("onEmerald فوق اللهجة ${contrast(p.onEmerald, p.emerald)}",
+                contrast(p.onEmerald, p.emerald) >= 4.5f)
+        }
+    }
+
     /** بلا تخصيص تبقى اللوحة كما هي حرفياً. */
     @Test fun noOverrideKeepsPalette() {
         assertTrue(base.tuned(null, null) === base)
