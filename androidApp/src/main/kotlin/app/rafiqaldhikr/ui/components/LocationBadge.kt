@@ -57,7 +57,7 @@ fun LocationBadge(
             (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false)
         if (granted) {
             @SuppressLint("MissingPermission")
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            fusedLocationClient.requestUsableLocation { loc ->
                 if (loc != null) onLocationFetched(loc.latitude, loc.longitude)
             }
         }
@@ -72,7 +72,7 @@ fun LocationBadge(
         ) == PackageManager.PERMISSION_GRANTED
         if (hasFine || hasCoarse) {
             @SuppressLint("MissingPermission")
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            fusedLocationClient.requestUsableLocation { loc ->
                 if (loc != null) onLocationFetched(loc.latitude, loc.longitude)
             }
         } else {

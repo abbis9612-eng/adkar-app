@@ -85,14 +85,24 @@ fun NeedsLocation(
     var denied  by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf(false) }
 
-    @SuppressLint("MissingPermission")
-    fun readLastLocation() {
-        client.lastLocation
-            .addOnSuccessListener { loc ->
-                asking = false
-                if (loc != null) vm.save(loc.latitude, loc.longitude) else denied = true
-            }
-            .addOnFailureListener { asking = false; denied = true }
+    /*  كان هنا `client.lastLocation` وحده — وهو خطأ.
+     *
+     *  lastLocation يقرأ آخر موقعٍ خزّنه النظام، ولا يطلب موقعاً. وإن لم
+     *  يطلب أيُّ تطبيقٍ موقعاً مؤخّراً — أو بعد إعادة تشغيل الهاتف، أو على
+     *  جهازٍ جديد — يُرجع null. فكان الكود يسقط إلى «denied» صامتاً،
+     *  ويظهر للمستخدم أنه رفض الإذن وهو لم يرفض شيئاً.
+     *
+     *  الآن: يُجرَّب المخزون أوّلاً لأنه فوريّ، فإن كان فارغاً طُلب
+     *  موقعٌ جديد فعلاً بـgetCurrentLocation. وBALANCED تكفي: حساب
+     *  المواقيت لا يحتاج دقّة المتر، ويعمل بالشبكة والواي-فاي داخل
+     *  المباني حيث لا يصل GPS.
+     */
+    /** يستعمل [requestUsableLocation] — الشرحُ الكامل للعطل هناك. */
+    fun requestFix() {
+        client.requestUsableLocation { loc ->
+            asking = false
+            if (loc != null) vm.save(loc.latitude, loc.longitude) else denied = true
+        }
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -100,7 +110,7 @@ fun NeedsLocation(
     ) { granted ->
         if (granted[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             granted[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-        ) readLastLocation() else { asking = false; denied = true }
+        ) requestFix() else { asking = false; denied = true }
     }
 
     Column(
@@ -133,7 +143,7 @@ fun NeedsLocation(
                     val coarse = ContextCompat.checkSelfPermission(
                         context, Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
-                    if (fine || coarse) readLastLocation() else launcher.launch(
+                    if (fine || coarse) requestFix() else launcher.launch(
                         arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
