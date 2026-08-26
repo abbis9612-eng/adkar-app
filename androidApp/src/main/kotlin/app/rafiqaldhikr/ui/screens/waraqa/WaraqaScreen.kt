@@ -9,6 +9,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import app.rafiqaldhikr.ui.components.IcoCompass
+import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.components.IcoMosque
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -72,9 +76,11 @@ fun WaraqaScreen(
     navController: NavHostController,
     dayVm:  DayCompanionViewModel = koinViewModel(),
     homeVm: HomeViewModel         = koinViewModel(),
+    hubVm:  app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel = koinViewModel(),
 ) {
     val day  by dayVm.uiState.collectAsStateWithLifecycle()
     val home by homeVm.uiState.collectAsStateWithLifecycle()
+    val hub  by hubVm.uiState.collectAsStateWithLifecycle()
     val rc   = LocalRafiqColors.current
     val ar   = LocalArabicNumerals.current
 
@@ -109,6 +115,95 @@ fun WaraqaScreen(
                 Footer(day.doneCount, day.stations.size, ar)
             }
         }
+
+        // الأبواب الثلاثة: الطريق الوحيد إليها في التطبيق كلّه.
+        // المصحف والأذكار والأدعية وأوراقي كلُّها في الشريط السفلي،
+        // أمّا المسبحة والقبلة والمواقيت فلا باب لها سواه.
+        Doors(
+            onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
+            onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
+            onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+        )
+
+        hub.wisdom?.let { WordOfDay(it) }
+    }
+}
+
+/* ── كلمةُ اليوم: ختامُ الورقة لا صدرُها ───────────────────────
+
+   وُضعت أسفلَ الشاشة عن قصد. أعلاها موضعُ «أنت الآن في…» — وهي
+   الجملة التي تُجيب سؤال المستخدم حين يفتح تطبيقه. واقتباسٌ فوقها
+   يزاحمها على الموضع نفسه، فيُقرأ الاثنان ولا يبرز أحدهما.
+
+   وأسفلها تصير ما تُقرأ بعد أن تعرف يومك — لا قبله. ولها سندُها
+   تحتها كأي نصٍّ ديني في التطبيق.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
+    val rc = LocalRafiqColors.current
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(Modifier.width(34.dp).height(1.dp).background(rc.divider))
+        Spacer(Modifier.height(22.dp))
+        Text(
+            w.text,
+            style = RafiqType.ayah,
+            color = rc.ink,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.width(3.dp).height(30.dp)
+                    .clip(RoundedCornerShape(3.dp)).background(rc.emeraldFill),
+            )
+            Spacer(Modifier.width(9.dp))
+            Column {
+                Text(w.author, style = RafiqType.titleM, color = rc.emerald)
+                Text(w.source, style = RafiqType.bodyS, color = rc.inkMed)
+            }
+        }
+    }
+}
+
+/* ── الأبواب: صفٌّ واحد لا ثلاثة صفوف ─────────────────────────── */
+
+@Composable
+private fun Doors(onTasbeeh: () -> Unit, onQibla: () -> Unit, onTimes: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 22.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Door("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
+        Door("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
+        Door("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
+    }
+}
+
+@Composable
+private fun Door(
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    icon: @Composable (androidx.compose.ui.graphics.Color) -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    Row(
+        modifier
+            .heightIn(min = 50.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, rc.divider, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        icon(rc.inkMed)
+        Spacer(Modifier.width(7.dp))
+        Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
     }
 }
 

@@ -45,7 +45,9 @@ sealed class RafiqRoute(val route: String) {
 
     // ═══ M1 — Others ═══
     /** ورقة اليوم — كانت الشاشة الأولى، وصارت باباً في الرئيسية. */
-    data object DayPage           : RafiqRoute("day_page")
+    // DayPage دُمجت في الرئيسية: كانتا شاشتين تعرضان اليوم نفسه،
+    // والأغنى منهما مخبوءةٌ خلف زرّ. المسار محذوف لا مؤجَّل.
+
     data object Profile           : RafiqRoute("profile")
     data object Statistics        : RafiqRoute("statistics")
 
