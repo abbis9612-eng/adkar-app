@@ -423,7 +423,10 @@ private fun DayRow(
             .fillMaxWidth()
             .padding(top = 22.dp)
             .animateContentSize()
-            .clickable(enabled = waiting, onClick = onOpen),
+            // كان enabled = waiting: أي لا يُضغط إلّا حين لا موقع. فمن
+            // ضبط موقعه لم يبقَ له بابٌ إلى ورقة يومه — وهي أغنى شاشة
+            // في التطبيق. الصفُّ كلُّه بابٌ الآن.
+            .clickable(onClick = onOpen),
     ) {
         Row(
             Modifier.fillMaxWidth(),
@@ -465,27 +468,30 @@ private fun DayRow(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp)
-                .clickable(enabled = !waiting) { expanded = !expanded }
-                .padding(vertical = 4.dp),
+                .padding(top = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // فعلان مختلفان لا فعلٌ واحد: النصّ يفتح ورقة اليوم كاملةً،
+            // والشيفرون يطوي القائمة في مكانها. كانا مدموجين في ضغطةٍ
+            // واحدة تفعل الطيّ وحده — فلم يبقَ للورقة بابٌ من الرئيسية.
             Text(
-                when {
-                    // كانت «حدّد موقعك لتظهر مواقيتك ومحطّاتك» — نفس
-                    // الجملة التي فوقها بثلاثة عناصر، تُقرأ مرّتين.
-                    waiting  -> "افتح ورقة يومك"
-                    expanded -> "اضغط للإغلاق"
-                    else     -> "اضغط لتفصيل يومك"
-                },
+                "افتح ورقة يومك",
                 style = RafiqType.bodyS,
-                color = rc.inkMed,
+                color = rc.emerald,
+                modifier = Modifier
+                    .clickable(onClick = onOpen)
+                    .padding(vertical = 10.dp),
             )
             val turn by animateFloatAsState(
                 if (expanded) 90f else 0f, tapSpec(), label = "chevron",
             )
-            Box(Modifier.rotate(turn)) {
+            Box(
+                Modifier
+                    .clickable(enabled = !waiting) { expanded = !expanded }
+                    .padding(10.dp)
+                    .rotate(turn),
+            ) {
                 RafiqIcon(RIcon.ChevronLeft, size = 18.dp, tint = rc.inkMed)
             }
         }
