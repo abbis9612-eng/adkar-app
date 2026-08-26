@@ -150,12 +150,12 @@ fun RafiqPalette.tuned(paper: Color?, accent: Color?): RafiqPalette {
 data class ColorPreset(val name: String, val paper: Color, val accent: Color)
 
 val ColorPresets = listOf(
-    ColorPreset("ورقٌ وعنبر",    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي المشحون
-    ColorPreset("ورقٌ وزمرّد",   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
+    ColorPreset("ورقٌ وزمرّد",   Color(0xFFFFFDF5), Color(0xFF0B5934)),   // الافتراضي المشحون
+    ColorPreset("ورقٌ وعنبر",    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي السابق
+    ColorPreset("ورقٌ ونعناع",   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
     ColorPreset("رملٌ وزيتون",   Color(0xFFF2EFE4), Color(0xFF8CA83E)),
     ColorPreset("صنوبر ووردة",   Color(0xFFF5F2EF), Color(0xFFD98C97)),
     ColorPreset("أبيضُ وحبر",    Color(0xFFFBFAF7), Color(0xFF3E8F72)),
-    ColorPreset("رمادٌ وفيروز",  Color(0xFFEBE8E0), Color(0xFF4FC3C6)),
     ColorPreset("ليلٌ وزمرّد",   Color(0xFF101511), Color(0xFF4ECF95)),
     ColorPreset("ليلٌ وذهب",     Color(0xFF0A0B10), Color(0xFFE7C57C)),
     ColorPreset("ليلٌ وفضّة",    Color(0xFF0B0E1A), Color(0xFFB8CCE1)),

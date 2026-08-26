@@ -133,18 +133,22 @@ val LightRafiqPalette = RafiqPalette(
     cardPrayed     = Color(0xFFF2EDDF),
     chipBg         = Color(0xFFF3EEE1),  // inkMed فوقه 5.70:1
 
-    emerald        = Color(0xFF785A20),
-    emeraldMed     = Color(0xFF694F1C),
-    emeraldLight   = Color(0xFF816022),
-    emeraldPastel  = Color(0xFFFAEFD7),
+    // الزمرّد عاد زمرّداً. كان العنبر يشغل العائلة كلَّها فيقرأ البنّي
+    // «برتقالياً»، وهذا اللون هو heroMid الموجود في التطبيق أصلاً —
+    // فالبطاقة الخضراء الداكنة كانت تلبسه وحدها، وصار لَونَ الهويّة.
+    emerald        = Color(0xFF09472B),  // 10.78:1 على البطاقة · 10.59 على الورق
+    emeraldMed     = Color(0xFF062F1D),
+    emeraldLight   = Color(0xFF0B5934),  //  8.42:1
+    emeraldPastel  = Color(0xFFDCECE2),  // نبرته عن الورق 1.20 — أدنى ما تراه العين
 
-    emeraldFill    = Color(0xFFE0A83C),  // ملء فقط — نصّاً يهبط إلى 1.66
-    onEmeraldFill  = Color(0xFF14201A),  // 8.54:1 فوق الملء (الأبيض هناك 1.97)
+    // الملء أفتحُ درجةً من النصّ: لَونان لدورين كما كان، لكن كليهما أخضر.
+    emeraldFill    = Color(0xFF0B5934),
+    onEmeraldFill  = Color(0xFFF7F2E6),  // 7.54:1 فوق الملء (الحبر الداكن هناك 2.12)
 
     gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
     goldLight      = Color(0xFF9F7715),
 
-    onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
+    onEmerald      = Color(0xFFF7F2E6),  // 9.65:1 فوق الزمرّد
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
 
     // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
@@ -189,18 +193,19 @@ val DarkRafiqPalette = RafiqPalette(
     cardPrayed     = Color(0xFF26241D),
     chipBg         = Color(0xFF221F19),
 
-    emerald        = Color(0xFFE0A83C),
-    emeraldMed     = Color(0xFFD49B30),
-    emeraldLight   = Color(0xFFEDBB5C),
-    emeraldPastel  = Color(0xFF2E2718),
+    // في الداكن ينقلب السلّم: الأخضرُ الداكن يختفي في الليل، فيصير فاتحاً.
+    emerald        = Color(0xFF5CBF88),  // 7.52:1 على البطاقة
+    emeraldMed     = Color(0xFF4CAF7B),  // 6.27:1
+    emeraldLight   = Color(0xFF7BD3A4),  // 9.49:1
+    emeraldPastel  = Color(0xFF173126),  // الحبر فوقه 11.44:1
 
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    emeraldFill    = Color(0xFFE0A83C),
-    onEmeraldFill  = Color(0xFF14201A),  // 9.14:1
+    emeraldFill    = Color(0xFF4CAF7B),
+    onEmeraldFill  = Color(0xFF14201A),  // 6.17:1 — الأبيض فوقه 2.72 فقط
 
-    onEmerald      = Color(0xFF14201A),  // 9.14:1 — الأبيض هنا 2.72:1 فقط
+    onEmerald      = Color(0xFF14201A),  // 7.40:1 — الأبيض هنا 2.07:1 فقط
     onGold         = Color(0xFF14201A),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
     ink            = Color(0xFFEFE8D8),
