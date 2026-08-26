@@ -124,18 +124,6 @@
     <string name="dua_cat_sickness">أدعية المرض</string>
     <string name="dua_cat_general">أدعية جامعة</string>
     <string name="dua_cat_istikharah">دعاء الاستخارة</string>
-    <string name="ob1_title">رفيق الذّكر</string>
-    <string name="ob1_sub">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
-    <string name="ob1_body">رفيقك اليومي في رحلة الإيمان\nوالتقرب إلى الله عز وجل</string>
-    <string name="ob2_title">أذكارك اليومية</string>
-    <string name="ob2_sub">أذكار الصباح والمساء</string>
-    <string name="ob2_body">لا تفوّت أذكارك بتذكيرات ذكية\nفي الأوقات المناسبة لكل ذكر</string>
-    <string name="ob3_title">القرآن والتسبيح</string>
-    <string name="ob3_sub">تلاوة · تسبيح · متابعة</string>
-    <string name="ob3_body">اقرأ القرآن واستمع لأفضل القراء\nوسبّح بالمسبحة الرقمية مع التتبع</string>
-    <string name="ob4_title">مستعد للبدء؟</string>
-    <string name="ob4_sub">خطوة واحدة</string>
-    <string name="ob4_body">فعّل الإشعارات ليصلك تذكير\nبأذكارك ومواقيت صلاتك</string>
 
     <!-- العربية فيها مثنّى وصيغتا جمع؛ Android يعرف ذلك، فلا داعي لشروط يدوية -->
     <plurals name="dua_count">
@@ -269,4 +257,24 @@
     <string name="dua_subtitle">أدعية مأثورة من القرآن والسنة</string>
     <string name="emotional_title">أدعية حسب المشاعر</string>
     <string name="settings_colors">الألوان</string>
+    <string name="ob_brand">رفيق الذِّكر</string>
+    <string name="ob_brand_sub">أذكارُ يومك</string>
+    <string name="ob_skip">تخطّي</string>
+    <string name="ob_next">استمر</string>
+    <string name="ob1_title">يومٌ يمرُّ بلا ذِكرٍ\nيومٌ لا يعود.</string>
+    <string name="ob1_body">رفيقٌ يمشي معك من استيقاظك إلى نومك، فلا يفوتك وردُك وأنت مشغول.</string>
+    <string name="ob1_cta">ابدأ الآن</string>
+    <string name="ob2_hint">وتحت كلِّ ذكرٍ من رواه:</string>
+    <string name="ob2_dhikr">أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ</string>
+    <string name="ob2_dhikr_src">رواه مسلم</string>
+    <string name="ob2_dhikr_grade">صحيح · يُقال ثلاثاً</string>
+    <string name="ob2_title">ما تقرؤه هنا ثابتٌ عن النبيِّ ﷺ</string>
+    <string name="ob2_body">لا نُعيد صياغة ذكرٍ ولا نختصره — لتذكرَ وأنت مطمئنّ.</string>
+    <string name="ob3_hint">وترى أسبوعك حين تشاء:</string>
+    <string name="ob3_title">حافِظ على وِردك</string>
+    <string name="ob3_body">لا سلسلةٌ تنكسر ولا نقاطٌ تُجمع. صفحةٌ تفتحها لترى — لا تُفتح عليك لتُذكّرك بتقصير.</string>
+    <string name="ob4_title">اجعل لآخرتك\nنصيباً من يومك.</string>
+    <string name="ob4_body">ولو كلمةً واحدة، تُقال في وقتها.</string>
+    <string name="ob4_cta">أبدأ وِردي</string>
+    <string name="ob4_link">أذكّرني لاحقاً</string>
 </resources>

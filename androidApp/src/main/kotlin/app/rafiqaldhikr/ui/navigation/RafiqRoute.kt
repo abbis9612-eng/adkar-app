@@ -62,7 +62,7 @@ sealed class RafiqRoute(val route: String) {
     // ═══ M2 — New Features ═══
     @HiddenInV1 data object Breathing         : RafiqRoute("breathing")
     @HiddenInV1 data object Garden            : RafiqRoute("garden")
-    @HiddenInV1 data object Achievements      : RafiqRoute("achievements")
+    data object Achievements      : RafiqRoute("achievements")
     @HiddenInV1 data object ShareCard         : RafiqRoute("share_card")
     @HiddenInV1 data object RamadanHome       : RafiqRoute("ramadan")
     @HiddenInV1 data object WeeklyReport      : RafiqRoute("weekly_report")

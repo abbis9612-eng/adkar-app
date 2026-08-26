@@ -8,6 +8,13 @@ CREATE TABLE DayStationLog (
 getByDate:
 SELECT station FROM DayStationLog WHERE date = :date;
 
+-- مدى «أوراقي»: شبكة المحطّات × الأيّام. استعلام جديد على الجدول نفسه —
+-- لا تغيير في البنية، فلا هجرة.
+getRange:
+SELECT date, station FROM DayStationLog
+WHERE date BETWEEN :start AND :end
+ORDER BY date;
+
 complete:
 INSERT OR IGNORE INTO DayStationLog(date, station, completed_at) VALUES (:date, :station, :completed_at);
 

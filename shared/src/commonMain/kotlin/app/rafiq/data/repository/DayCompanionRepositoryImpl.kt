@@ -18,6 +18,12 @@ class DayCompanionRepositoryImpl(private val db: RafiqDatabase) : DayCompanionRe
             .mapToList(Dispatchers.IO)
             .map { it.toSet() }
 
+    override fun getCompletedRange(start: String, end: String): Flow<Map<String, Set<String>>> =
+        db.dayStationLogQueries.getRange(start, end)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { rows -> rows.groupBy({ it.date }, { it.station }).mapValues { it.value.toSet() } }
+
     override suspend fun completeStation(date: String, station: String) =
         withContext(Dispatchers.IO) {
             db.dayStationLogQueries.complete(date, station, Clock.System.now().toEpochMilliseconds())

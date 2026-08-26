@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -422,8 +423,9 @@ fun ProfileScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ QUICK LINKS ═══
-            // التقرير الأسبوعي والحديقة والإنجازات والمشاركة مؤجَّلة إلى ما بعد V1:
+            // التقرير الأسبوعي والحديقة والمشاركة مؤجَّلة إلى ما بعد V1:
             // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
+            // «أوراقي» خرجت من التأجيل بطلبٍ صريح، ولها مدخلها أدناه.
             SectionHeader(stringResource(R.string.quick_links))
             Spacer(Modifier.height(10.dp))
 
@@ -444,6 +446,28 @@ fun ProfileScreen(
                     label = stringResource(R.string.stat_detailed),
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
 
+                QuickLinkCard(
+                    icon = {
+                        // شبكةُ «أوراقي» نفسها مصغَّرة: ستُّ خاناتٍ منها أربعٌ ممتلئة
+                        Canvas(Modifier.size(18.dp)) {
+                            val w = size.width
+                            val s = w * 0.26f
+                            val g = w * 0.11f
+                            val filled = listOf(0, 1, 3, 5)
+                            for (i in 0 until 6) {
+                                val col = i % 3
+                                val row = i / 3
+                                drawRoundRect(
+                                    if (i in filled) rc.emerald else rc.emerald.copy(alpha = 0.22f),
+                                    Offset(col * (s + g), row * (s + g)),
+                                    Size(s, s),
+                                    cornerRadius = CornerRadius(w * 0.06f),
+                                )
+                            }
+                        }
+                    },
+                    label = "أوراقي",
+                ) { navController.navigate(RafiqRoute.Achievements.route) }
             }
 
             Spacer(Modifier.height(28.dp))

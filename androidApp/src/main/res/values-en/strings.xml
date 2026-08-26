@@ -124,18 +124,6 @@
     <string name="dua_cat_sickness">Duas for Illness</string>
     <string name="dua_cat_general">Comprehensive Duas</string>
     <string name="dua_cat_istikharah">Istikharah Dua</string>
-    <string name="ob1_title">Rafiq Al-Dhikr</string>
-    <string name="ob1_sub">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
-    <string name="ob1_body">Your daily companion on the path of faith\nand nearness to Allah</string>
-    <string name="ob2_title">Your Daily Adhkar</string>
-    <string name="ob2_sub">Morning and evening</string>
-    <string name="ob2_body">Never miss your adhkar, with gentle reminders\nat the right time for each one</string>
-    <string name="ob3_title">Quran and Tasbeeh</string>
-    <string name="ob3_sub">Recite · Glorify · Track</string>
-    <string name="ob3_body">Read the Quran, listen to the finest reciters,\nand keep count on the digital misbaha</string>
-    <string name="ob4_title">Ready to begin?</string>
-    <string name="ob4_sub">One step</string>
-    <string name="ob4_body">Enable notifications for reminders\nof your adhkar and prayer times</string>
 
     <plurals name="dua_count">
         <item quantity="one">%1$s dua</item>
@@ -265,4 +253,24 @@
     <string name="dua_subtitle">Transmitted duas from the Quran and Sunnah</string>
     <string name="emotional_title">Duas by Feeling</string>
     <string name="settings_colors">Colours</string>
+    <string name="ob_brand">Rafiq Al-Dhikr</string>
+    <string name="ob_brand_sub">Your day\'s adhkar</string>
+    <string name="ob_skip">Skip</string>
+    <string name="ob_next">Continue</string>
+    <string name="ob1_title">A day that passes without dhikr\nis a day that does not return.</string>
+    <string name="ob1_body">A companion that walks with you from waking to sleep, so your wird is not lost to a busy day.</string>
+    <string name="ob1_cta">Begin now</string>
+    <string name="ob2_hint">And beneath every dhikr, who narrated it:</string>
+    <string name="ob2_dhikr">أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ</string>
+    <string name="ob2_dhikr_src">Narrated by Muslim</string>
+    <string name="ob2_dhikr_grade">Sahih · said three times</string>
+    <string name="ob2_title">What you read here is authentic from the Prophet ﷺ</string>
+    <string name="ob2_body">We never rephrase a dhikr nor shorten it — so you may remember with certainty.</string>
+    <string name="ob3_hint">And you see your week whenever you wish:</string>
+    <string name="ob3_title">Keep to your wird</string>
+    <string name="ob3_body">No streak to break, no points to collect. A page you open to see — never opened upon you to remind you of shortcoming.</string>
+    <string name="ob4_title">Give your hereafter\na share of your day.</string>
+    <string name="ob4_body">Even a single word, said in its time.</string>
+    <string name="ob4_cta">Begin my wird</string>
+    <string name="ob4_link">Remind me later</string>
 </resources>
