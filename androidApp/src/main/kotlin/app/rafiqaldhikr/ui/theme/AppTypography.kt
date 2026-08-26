@@ -110,6 +110,11 @@ object RafiqType {
 
     /* ── الواجهة ── */
 
+    /** عنوانُ شاشة الترحيب وحده — أميري عريض، أكبرُ كلامٍ في التطبيق.
+        كان `ayah` (26) يُستعمل هناك فبدا العنوانُ اقتباساً في وسط فراغ:
+        الشاشةُ نصفها خالٍ فوقه، والعينُ تقيس الحجم بما حوله لا بذاته. */
+    val hero = arabic(AmiriFamily, FontWeight.Bold, 32, 48)
+
     /** الرقم الضخم — عدّاد المسبحة وحده. */
     val display = arabic(UiFamily, FontWeight.Bold, 32, 44, "tnum")
 
@@ -123,6 +128,10 @@ object RafiqType {
 
     /** عنوان بطاقة. */
     val titleM = arabic(UiFamily, FontWeight.Bold, 18, 27)
+
+    /** وصفٌ تحت عنوانٍ ضخم — درجةٌ واحدة فوق [body]، لشاشة الترحيب.
+        نصُّ 16 تحت عنوان 32 يبدو هامشاً لا جواباً. */
+    val bodyL = arabic(UiFamily, FontWeight.Normal, 18, 32)
 
     /** النص العادي — الافتراضي (1.75). */
     val body = arabic(UiFamily, FontWeight.Normal, 16, 28)

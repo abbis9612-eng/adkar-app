@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -141,21 +143,23 @@ private fun OnboardingPage(
             .systemBarsPadding()
             .padding(horizontal = 24.dp, vertical = 20.dp),
     ) {
-        /* رأس الصفحة: الاسم يميناً، ومخرجٌ يساراً */
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.CenterVertically,
-        ) {
-            if (page == 0 || last) {
-                Column {
-                    Text(stringResource(R.string.ob_brand), style = RafiqType.titleM, color = rc.ink)
-                    Text(stringResource(R.string.ob_brand_sub), style = RafiqType.bodyS, color = rc.inkMed)
+        /* رأس الصفحة: الاسم يميناً، ومخرجٌ يساراً.
+           لا رأسَ في الأخيرة — لا اسمَ يُعرَّف بعد ثلاثِ شاشات، ولا مخرجَ
+           والزرُّ نفسه هو المخرج. وفراغُه يذهب إلى الخاتَم. */
+        if (!last) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment     = Alignment.CenterVertically,
+            ) {
+                if (page == 0) {
+                    Column {
+                        Text(stringResource(R.string.ob_brand), style = RafiqType.titleM, color = rc.ink)
+                        Text(stringResource(R.string.ob_brand_sub), style = RafiqType.bodyS, color = rc.inkMed)
+                    }
+                } else {
+                    Text(stringResource(R.string.ob_brand), style = RafiqType.bodyS, color = rc.inkMed)
                 }
-            } else {
-                Text(stringResource(R.string.ob_brand), style = RafiqType.bodyS, color = rc.inkMed)
-            }
-            if (!last) {
                 Text(
                     stringResource(R.string.ob_skip),
                     style    = RafiqType.bodyS,
@@ -168,40 +172,56 @@ private fun OnboardingPage(
             }
         }
 
-        /* المسرح: القطعةُ الحيّة — أو فراغٌ يدفع الكلام إلى أسفل */
+        /* المسرح: لكلِّ شاشةٍ قطعتُها — ولا شاشةَ فارغة.
+           كانت الأولى والأخيرة بلا قطعة، فبقي نصفُ الشاشة بياضاً في كلٍّ
+           منهما، وتشابهتا حتى قُرِئتا مكرَّرتين. */
         Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
             when (page) {
-                1 -> Stage(stringResource(R.string.ob2_hint)) { SanadCard(rc) }
-                2 -> Stage(stringResource(R.string.ob3_hint)) { WeekPreview(rc) }
+                0    -> ArcOfDay(rc)
+                1    -> SanadCard(rc)
+                2    -> WeekPreview(rc)
+                else -> Seal(rc)
             }
         }
 
         if (page == 1 || page == 2) {
+            Spacer(Modifier.height(18.dp))
             Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
+            Spacer(Modifier.height(18.dp))
+        } else {
             Spacer(Modifier.height(18.dp))
         }
 
-        Text(
-            stringResource(
-                when (page) {
-                    0 -> R.string.ob1_title; 1 -> R.string.ob2_title
-                    2 -> R.string.ob3_title; else -> R.string.ob4_title
-                },
-            ),
-            style = RafiqType.ayah,
-            color = rc.ink,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            stringResource(
-                when (page) {
-                    0 -> R.string.ob1_body; 1 -> R.string.ob2_body
-                    2 -> R.string.ob3_body; else -> R.string.ob4_body
-                },
-            ),
-            style = RafiqType.body,
-            color = rc.inkMed,
-        )
+        // الأخيرةُ توسَّط والباقياتُ تبدأ من الحافّة — فرقُ محورٍ يُرى قبل
+        // أن يُقرأ، وهو ما يفصل الخاتمةَ عن الدعوة.
+        val align = if (last) Alignment.CenterHorizontally else Alignment.Start
+        val textAlign = if (last) TextAlign.Center else TextAlign.Start
+
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = align) {
+            Text(
+                stringResource(
+                    when (page) {
+                        0 -> R.string.ob1_title; 1 -> R.string.ob2_title
+                        2 -> R.string.ob3_title; else -> R.string.ob4_title
+                    },
+                ),
+                style     = RafiqType.hero,
+                color     = rc.ink,
+                textAlign = textAlign,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                stringResource(
+                    when (page) {
+                        0 -> R.string.ob1_body; 1 -> R.string.ob2_body
+                        2 -> R.string.ob3_body; else -> R.string.ob4_body
+                    },
+                ),
+                style     = RafiqType.bodyL,
+                color     = rc.inkMed,
+                textAlign = textAlign,
+            )
+        }
 
         Spacer(Modifier.height(20.dp))
         Rosettes(current = page, rc = rc)
@@ -245,16 +265,99 @@ private fun OnboardingPage(
     }
 }
 
+/* ── قطعةُ الشاشة الأولى: قوسُ اليوم ────────────────────────────
+
+   ثمانيةُ مراسٍ على قوسٍ واحد — هي محطّاتُ «رفيق اليوم» نفسها. والقوسُ
+   يتدرّج من ليلٍ إلى فجرٍ إلى نهارٍ إلى غسقٍ إلى ليل، بألوان الضوء
+   الموجودة في اللوحة أصلاً (lightNight وlightDusk)، فيرسم العنوانَ
+   الذي تحته: «من استيقاظك إلى نومك».
+──────────────────────────────────────────────────────────────── */
+
 @Composable
-private fun Stage(hint: String, content: @Composable () -> Unit) {
-    val rc = LocalRafiqColors.current
+private fun ArcOfDay(rc: RafiqPalette) {
     Column(
+        Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
-        Text(hint, style = RafiqType.bodyS, color = rc.inkMed)
-        Spacer(Modifier.height(14.dp))
-        content()
+        Canvas(
+            Modifier
+                .fillMaxWidth()
+                .height(132.dp),
+        ) {
+            val w  = size.width
+            val h  = size.height
+            val y1 = h * 0.86f                   // طرفا القوس
+            val cy = -h * 0.28f                  // نقطةُ تحكّمٍ فوق الإطار: قمّةٌ ضحلة
+            val x0 = w * 0.06f
+            val x2 = w * 0.94f
+            val cx = w * 0.50f
+
+            fun at(tt: Float): Offset {
+                val u = 1f - tt
+                return Offset(
+                    u * u * x0 + 2f * u * tt * cx + tt * tt * x2,
+                    u * u * y1 + 2f * u * tt * cy + tt * tt * y1,
+                )
+            }
+
+            val path = Path().apply {
+                moveTo(x0, y1)
+                quadraticBezierTo(cx, cy, x2, y1)
+            }
+            drawPath(
+                path,
+                Brush.horizontalGradient(
+                    listOf(rc.lightNight, rc.lightDusk, rc.emeraldFill, rc.lightDusk, rc.lightNight),
+                ),
+                style = Stroke(w * 0.006f),
+            )
+
+            // ثمانيةُ مراسٍ موزَّعةٌ على القوس — أوّلُها وآخرُها أكبر
+            for (i in 0 until 8) {
+                val tt = i / 7f
+                val pt = at(tt)
+                val edge = i == 0 || i == 7
+                drawCircle(rc.bg, w * (if (edge) 0.030f else 0.020f), pt)
+                drawCircle(
+                    if (edge) rc.emerald else rc.emeraldFill,
+                    w * (if (edge) 0.022f else 0.013f),
+                    pt,
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(stringResource(R.string.ob_arc_start), style = RafiqType.caption, color = rc.inkMed)
+            Text(stringResource(R.string.ob_arc_end),   style = RafiqType.caption, color = rc.inkMed)
+        }
+    }
+}
+
+/* ── قطعةُ الشاشة الأخيرة: الخاتَم ──────────────────────────────
+
+   الوريدةُ نفسها التي تُعلّم الصفحات، مكبَّرةً وحدها في الوسط. لا تشرح
+   شيئاً — وهذه وظيفتُها: الشاشةُ الأخيرة خاتمةٌ لا صفحةُ بيع.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun Seal(rc: RafiqPalette) {
+    Canvas(Modifier.size(168.dp)) {
+        val w = size.width
+        val c = Offset(w / 2f, w / 2f)
+        drawCircle(
+            Brush.radialGradient(
+                listOf(rc.emeraldFill.copy(alpha = 0.22f), rc.emeraldFill.copy(alpha = 0f)),
+                center = c,
+                radius = w * 0.52f,
+            ),
+            radius = w * 0.52f,
+            center = c,
+        )
+        drawCircle(rc.emerald.copy(alpha = 0.28f), w * 0.46f, c, style = Stroke(w * 0.006f))
+        drawRosette(filled = true, color = rc.emerald)
     }
 }
 
@@ -320,47 +423,66 @@ private val PREVIEW_DAYS = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
 private fun WeekPreview(rc: RafiqPalette) {
     val on  = lerp(rc.emeraldFill, rc.ink, 0.10f)
     val off = lerp(rc.bg, rc.ink, 0.12f)
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.cardBorder, RafiqShape.card)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Spacer(Modifier.width(52.dp))
-            PREVIEW_DAYS.forEach {
-                Text(
-                    it,
-                    style     = RafiqType.caption,
-                    color     = rc.inkMed,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.weight(1f),
-                )
-            }
-        }
-        PREVIEW_ROWS.forEach { (label, cells) ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment     = Alignment.CenterVertically,
-            ) {
-                Text(label, style = RafiqType.caption, color = rc.inkMed, maxLines = 1,
-                    modifier = Modifier.width(52.dp))
-                cells.forEach { v ->
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (v == 1) on else off),
+    // البطاقةُ تقيس المساحةَ المتاحة وتشتقّ منها ضلعَ الخانة. بلا هذا كان
+    // ضلعُها من العرض وحده (aspectRatio)، فتُقصّ صفوفُها على شاشةٍ قصيرة.
+    BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        val rows    = PREVIEW_ROWS.size
+        val chrome  = CARD_PAD * 2 + HEAD_H + GAP
+        val byH     = ((maxHeight - chrome - GAP * (rows - 1)) / rows).coerceAtLeast(9.dp)
+        val byW     = ((maxWidth - CARD_PAD * 2 - LABEL_W - GAP * 6) / 7).coerceAtLeast(9.dp)
+        val cell    = minOf(byH, byW)
+
+        Column(
+            Modifier
+                .width(CARD_PAD * 2 + LABEL_W + GAP * 6 + cell * 7)
+                .clip(RafiqShape.card)
+                .background(rc.card)
+                .border(1.dp, rc.cardBorder, RafiqShape.card)
+                .padding(CARD_PAD),
+            verticalArrangement = Arrangement.spacedBy(GAP),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(GAP)) {
+                Spacer(Modifier.width(LABEL_W))
+                PREVIEW_DAYS.forEach {
+                    Text(
+                        it,
+                        style     = RafiqType.caption,
+                        color     = rc.inkMed,
+                        textAlign = TextAlign.Center,
+                        modifier  = Modifier.width(cell),
                     )
+                }
+            }
+            PREVIEW_ROWS.forEach { (label, cells) ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(GAP),
+                    verticalAlignment     = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        label,
+                        style    = RafiqType.caption,
+                        color    = rc.inkMed,
+                        maxLines = 1,
+                        modifier = Modifier.width(LABEL_W),
+                    )
+                    cells.forEach { v ->
+                        Box(
+                            Modifier
+                                .size(cell)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(if (v == 1) on else off),
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+private val CARD_PAD = 16.dp
+private val LABEL_W  = 52.dp
+private val HEAD_H   = 20.dp
+private val GAP      = 4.dp
 
 /* ── مؤشّر الصفحات: وريداتٌ لا نقاط ────────────────────────────
 
