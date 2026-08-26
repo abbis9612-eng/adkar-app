@@ -127,6 +127,9 @@ fun RafiqPalette.tuned(paper: Color?, accent: Color?): RafiqPalette {
     return copy(
         bg            = bg,
         card          = card,
+        // الحدّ أقوى من الفاصل: الفاصل يفصل سطرين داخل سطحٍ واحد،
+        // والحدّ يرسم حافّة سطحٍ كامل. 0.22 مقابل 0.16.
+        cardBorder    = mix(bg, ink, 0.22f),
         cardPrayed    = mix(bg, ink, cardT * 0.7f),
         chipBg        = mix(bg, ink, cardT * 0.55f),
         emeraldFill   = fill,

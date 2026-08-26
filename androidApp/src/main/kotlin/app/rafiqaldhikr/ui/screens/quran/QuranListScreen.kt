@@ -7,6 +7,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -90,28 +91,37 @@ private fun QuranSearchBar(
    SURAH ROW CARD
 ══════════════════════════════════════════════════════════════ */
 
+/**
+ * صفُّ سورة — سطرٌ بخطّ لا بطاقة.
+ *
+ * البطاقة تقول «هذه مجموعة». وحول ١١٤ سورة لا معنى للجملة: المصحف
+ * كلُّه مجموعةٌ واحدة، فتصير البطاقة إطاراً حول كل شيء — أي حول لا
+ * شيء. وفوق ذلك كانت ١١٤ حافّةً وظلّاً تُرسم في قائمةٍ تُمرَّر.
+ *
+ * والقاعدة في التطبيق بعد اليوم: قائمةٌ طويلة متجانسة ← خطوط،
+ * ومجموعةٌ قصيرة مختلفة ← بطاقة. (الإعدادات مثال الثانية.)
+ */
 @Composable
-private fun SurahCard(
+private fun SurahRow(
     number: Int,
     nameAr: String,
     nameEn: String,
     ayahCount: Int,
     revelation: String,
+    last: Boolean,
     onClick: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .rafiqCard()
-            .clickable(onClick = onClick)
-    ) {
+    Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(
-            Modifier.padding(14.dp).fillMaxWidth(),
+            Modifier.padding(vertical = 12.dp).fillMaxWidth().heightIn(min = 48.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // رقمٌ في حلقةٍ رفيعة: كان مربّعاً مملوءاً داخل بطاقة — طبقتان
+            // فوق بعضهما. وبلا بطاقةٍ يكفي الحدّ.
             Box(
-                Modifier.size(44.dp).clip(RafiqShape.item).background(rc.emeraldPastel),
+                Modifier.size(44.dp).clip(RafiqShape.item)
+                    .border(1.dp, rc.cardBorder, RafiqShape.item),
                 contentAlignment = Alignment.Center,
             ) {
                 Text("$number".localizedDigits(LocalArabicNumerals.current), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
@@ -133,6 +143,9 @@ private fun SurahCard(
             }
             Spacer(Modifier.width(8.dp))
             RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
+        }
+        if (!last) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
         }
     }
 }
@@ -209,9 +222,10 @@ fun QuranListScreen(
                     }
 
                     // ═══ SURAH LIST ═══
-                    items(state.filtered) { surah ->
-                        Box(Modifier.padding(horizontal = 14.dp, vertical = 4.dp)) {
-                            SurahCard(
+                    itemsIndexed(state.filtered) { i, surah ->
+                        Box(Modifier.padding(horizontal = 18.dp)) {
+                            SurahRow(
+                                last = i == state.filtered.lastIndex,
                                 number = surah.number,
                                 nameAr = surah.nameAr,
                                 nameEn = surah.nameEn,

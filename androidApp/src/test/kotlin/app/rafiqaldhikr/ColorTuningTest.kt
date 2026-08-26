@@ -16,6 +16,25 @@ class ColorTuningTest {
 
     private val base = LightRafiqPalette
 
+    /**
+     * البطاقة لا بدّ أن تُرى — لكن ليس بالنبرة بالضرورة.
+     *
+     * كان المعيار «نبرتها عن الورق ≥ 1.2». وهو صحيحٌ لبطاقةٍ معبّأة،
+     * وخاطئٌ للبطاقة البيضاء على ورقٍ شبه أبيض: نبرتُها 1.018 لأن
+     * التعبئة لا ترسمها أصلاً — يرسمها الحدُّ والظلّ. فالمطلوب أن
+     * تُميَّز بإحدى الآليتين لا بواحدةٍ بعينها.
+     */
+    private fun cardIsDistinguishable(p: RafiqPalette, where: String) {
+        val tone   = contrast(p.card, p.bg)
+        val border = contrast(p.cardBorder, p.bg)
+        assertTrue(
+            "$where: البطاقة غير مميَّزة — نبرة $tone وحدّ $border",
+            tone >= 1.15f || border >= 1.15f,
+        )
+        assertTrue("$where: الحدّ فوق البطاقة ${contrast(p.cardBorder, p.card)}",
+            contrast(p.cardBorder, p.card) >= 1.10f)
+    }
+
     private fun check(paper: Color, accent: Color) {
         val p = base.tuned(paper, accent)
         val where = "ورق=${paper.value.toString(16).take(8)} لهجة=${accent.value.toString(16).take(8)}"
@@ -32,7 +51,7 @@ class ColorTuningTest {
             contrast(p.emerald, p.card) >= 4.4f)
         assertTrue("$where: الأيقونات ${contrast(p.inkLight, p.card)}",
             contrast(p.inkLight, p.card) >= 3.0f)
-        assertTrue("$where: نبرة البطاقة ${contrast(p.card, p.bg)}", contrast(p.card, p.bg) >= 1.15f)
+        cardIsDistinguishable(p, where)
     }
 
     /** كل ورقٍ مع كل لهجة — ٢٢٥ تركيبة. */
@@ -77,7 +96,7 @@ class ColorTuningTest {
                 contrast(p.onEmeraldFill, p.emeraldFill) >= 4.5f)
             assertTrue("الأيقونات ${contrast(p.inkLight, p.card)}",
                 contrast(p.inkLight, p.card) >= 3.0f)
-            assertTrue("نبرة البطاقة ${contrast(p.card, p.bg)}", contrast(p.card, p.bg) >= 1.2f)
+            cardIsDistinguishable(p, "مشحونة")
             assertTrue("onEmerald فوق اللهجة ${contrast(p.onEmerald, p.emerald)}",
                 contrast(p.onEmerald, p.emerald) >= 4.5f)
         }

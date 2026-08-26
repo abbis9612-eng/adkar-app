@@ -35,7 +35,21 @@ import androidx.compose.ui.graphics.Color
 data class RafiqPalette(
     /* ── الأسطح ── */
     val bg: Color,
+    /** سطح البطاقة. أبيضُ نقيّ على الورق الفاتح — راجع [cardBorder]. */
     val card: Color,
+    /**
+     * حدُّ البطاقة.
+     *
+     * الورق #FFFDF5 شبه أبيض، وأفتحُ لونٍ في الوجود (الأبيض النقيّ)
+     * نبرتُه عنه 1.018 — والعين تبدأ التمييز عند 1.20. فالبطاقة لا
+     * يمكن أن تُرى بالتعبئة أبداً على هذا الورق، لا بأفتحَ ولا بأغمق:
+     * الأفتحُ مستحيل رياضياً، والأغمقُ يُقرأ رقعةً رمادية ملصوقة
+     * ويهبط بالنصّ من 17.56 إلى 13.98.
+     *
+     * فالذي يرسمها الحدُّ (1.24) والظلُّ، والتعبئةُ تُترك بيضاء —
+     * فيصير النصّ فوقها 17.89، أي أعلى من الورق نفسه.
+     */
+    val cardBorder: Color,
     /** خلفية بطاقة «مؤداة/مكتملة» — لون معتم (لا شفافية) حتى لا يظهر الظِل من خلفها. */
     val cardPrayed: Color,
     /** خلفية الحبّة الصغيرة (التاريخ الهجري، الوسوم). */
@@ -114,7 +128,8 @@ val LightRafiqPalette = RafiqPalette(
     // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
     // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
     bg             = Color(0xFFFFFDF5),
-    card           = Color(0xFFEAE3D2),
+    card           = Color(0xFFFFFFFF),
+    cardBorder    = Color(0xFFEDE4CE),
     cardPrayed     = Color(0xFFF2EDDF),
     chipBg         = Color(0xFFF3EEE1),  // inkMed فوقه 5.70:1
 
@@ -169,7 +184,8 @@ val LightRafiqPalette = RafiqPalette(
 
 val DarkRafiqPalette = RafiqPalette(
     bg             = Color(0xFF12100A),
-    card           = Color(0xFF312F2A),
+    card           = Color(0xFF1E1C15),
+    cardBorder    = Color(0xFF312D22),
     cardPrayed     = Color(0xFF26241D),
     chipBg         = Color(0xFF221F19),
 
