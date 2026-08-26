@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -87,21 +88,33 @@ fun HomeHubScreen(
     // التوزيع كما في النموذج: الكلمة تأخذ ما بقي من الارتفاع فتتوسّطه
     // وتدفع الطبقات الثلاث إلى أسفل الشاشة. بلا هذا الوزن تتكدّس الشاشة
     // في أعلاها ويبقى ثلثها الأسفل فراغاً.
+    /*  التمرير أوّلاً، والتنفّس ثانياً — لا العكس.
+     *
+     *  كانت الكلمة تأخذ Modifier.weight(1f) لتتوسّط ما بقي من الارتفاع.
+     *  وweight لا يعمل داخل عمودٍ قابل للتمرير (القيد الرأسي هناك لا
+     *  نهائي فلا «باقي» يُقسَّم)، فحُذف التمرير ليعمل التوسيط.
+     *
+     *  والأثر لا يظهر ما دامت قائمة اليوم مطويّة — فحين تُفتح تسعُ
+     *  محطّات يفيض المحتوى ولا شيء يتحرّك. شاشةٌ عالقة.
+     *
+     *  فالتمرير يعود، والتوسيط يُستبدل بارتفاعٍ أدنى للكلمة: تتنفّس
+     *  حين يتّسع المكان، ويُمرَّر ما زاد حين لا يتّسع.
+     */
     Column(
         Modifier
             .fillMaxSize()
             .background(rc.bg)
             .statusBarsPadding()
-            .padding(horizontal = 20.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 24.dp),
     ) {
         HubTopBar(onSettings = { navController.navigate(RafiqRoute.Settings.route) })
 
         Greeting(hijri = home.hijriDate, ar = ar)
 
-        // بلا verticalScroll: الحاوية المُمرَّرة تُقاس بحجم محتواها فيسقط
-        // contentAlignment ولا تتوسّط الكلمة. والنصوص قصيرة فلا تحتاج تمريراً.
         Box(
-            Modifier.weight(1f).fillMaxWidth(),
+            Modifier.fillMaxWidth().heightIn(min = 210.dp),
             contentAlignment = Alignment.Center,
         ) {
             hub.wisdom?.let { WordOfDay(it) }
