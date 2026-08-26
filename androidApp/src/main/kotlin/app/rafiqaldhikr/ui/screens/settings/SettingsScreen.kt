@@ -57,29 +57,42 @@ private data class SettingItem(
     val route: String,
 )
 
+/*  خمسُ نبراتٍ لها معنى، لا لونٌ واحد ولا قوسُ قزح.
+ *
+ *  كانت ثلاثاً: gold وemerald وinkMed. ومنذ صارت الهويّة عنبريةً صار
+ *  gold وemerald بنّيَّين متقاربين، وinkMed رمادياً — فبدت القائمة
+ *  لوناً واحداً باهتاً ومربّعاً رمادياً بينها.
+ *
+ *  والخمسُ كلُّها توكنز موجودة أصلاً في اللوحة ولها دلالة:
+ *    emerald   → الهويّة (المظهر · الألوان · المساعدة)
+ *    lightNight→ القراءة والمعرفة (الخطّ · اللغة · حول · تواصل)
+ *    lightDusk → التنبيه والوقت (التنبيهات · الشروط)
+ *    success   → الأمان والإتمام (الوصول · التصدير · الخصوصية)
+ *    gold      → التمييز (طريقة الحساب · ما الجديد)
+ */
 private val GROUP_1 = listOf(
-    SettingItem(RIcon.Palette,  R.string.settings_theme,    { it.gold }, route = "theme_settings"),
-    SettingItem(RIcon.Font,     R.string.settings_font,      { it.emerald }, route = "font_settings"),
-    SettingItem(RIcon.Bell,     R.string.settings_notifications, { it.inkMed }, route = "notification_settings"),
-    SettingItem(RIcon.Clock,    R.string.settings_prayer_method, { it.gold }, route = "prayer_method"),
-    SettingItem(RIcon.User,     R.string.settings_accessibility,    { it.emerald }, route = "accessibility_settings"),
-    SettingItem(RIcon.Globe,    R.string.settings_language,             { it.gold }, route = "language"),
-    SettingItem(RIcon.Palette,  R.string.settings_colors,            { it.emerald }, route = "colors"),
+    SettingItem(RIcon.Palette,  R.string.settings_theme,          { it.emerald },    route = "theme_settings"),
+    SettingItem(RIcon.Font,     R.string.settings_font,           { it.lightNight }, route = "font_settings"),
+    SettingItem(RIcon.Bell,     R.string.settings_notifications,  { it.lightDusk },  route = "notification_settings"),
+    SettingItem(RIcon.Clock,    R.string.settings_prayer_method,  { it.gold },       route = "prayer_method"),
+    SettingItem(RIcon.User,     R.string.settings_accessibility,  { it.success },    route = "accessibility_settings"),
+    SettingItem(RIcon.Globe,    R.string.settings_language,       { it.lightNight }, route = "language"),
+    SettingItem(RIcon.Palette,  R.string.settings_colors,         { it.emerald },    route = "colors"),
 )
 
 private val GROUP_2 = listOf(
     // شاشة "المميز" حُذفت في ط٠ — كانت أزرارها placeholder والمتاجر ترفض ذلك.
     // "إعدادات الودجت" مؤجَّلة إلى ما بعد V1 (@HiddenInV1).
-    SettingItem(RIcon.Upload,   R.string.settings_export,    { it.gold }, route = "export_data"),
+    SettingItem(RIcon.Upload,   R.string.settings_export,         { it.success },    route = "export_data"),
 )
 
 private val GROUP_3 = listOf(
-    SettingItem(RIcon.Info,      R.string.settings_about,       { it.inkMed }, route = "about"),
-    SettingItem(RIcon.Help,      R.string.settings_help,          { it.gold }, route = "help"),
-    SettingItem(RIcon.Sparkles,  R.string.settings_whats_new,         { it.emerald }, route = "whats_new"),
-    SettingItem(RIcon.Shield,    R.string.settings_privacy,    { it.gold }, route = "privacy_policy"),
-    SettingItem(RIcon.Document,  R.string.settings_terms,    { it.inkMed }, route = "terms"),
-    SettingItem(RIcon.Mail,      R.string.settings_contact,        { it.gold }, route = "contact"),
+    SettingItem(RIcon.Info,      R.string.settings_about,      { it.lightNight }, route = "about"),
+    SettingItem(RIcon.Help,      R.string.settings_help,       { it.emerald },    route = "help"),
+    SettingItem(RIcon.Sparkles,  R.string.settings_whats_new,  { it.gold },       route = "whats_new"),
+    SettingItem(RIcon.Shield,    R.string.settings_privacy,    { it.success },    route = "privacy_policy"),
+    SettingItem(RIcon.Document,  R.string.settings_terms,      { it.lightDusk },  route = "terms"),
+    SettingItem(RIcon.Mail,      R.string.settings_contact,    { it.lightNight }, route = "contact"),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -109,7 +122,13 @@ private fun SettingsGroup(items: List<SettingItem>, navController: NavHostContro
                     Modifier
                         .size(36.dp)
                         .clip(RafiqShape.item)
-                        .background(baseCol.copy(alpha = 0.15f)),
+                        // التظليل على الورق لا على البطاقة: البطاقة داكنة
+                        // أصلاً، فتظليلُها يغمقها أكثر ويخنق الأيقونة —
+                        // قِيست فهبطت إلى 3.74. وعلى الورق تصير الحاوية
+                        // أفتحَ من البطاقة فتُقرأ رقعةً مرفوعة، والأيقونة
+                        // فوقها 4.90–7.03.
+                        .background(rc.bg)
+                        .background(baseCol.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center,
                 ) {
                     RafiqIcon(item.icon, 18.dp, baseCol)

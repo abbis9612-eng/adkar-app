@@ -113,54 +113,54 @@ val LightRafiqPalette = RafiqPalette(
     // سلّم النبرات: كان الورق ↔ البطاقة 1.09:1 — أي غير مرئي (العين تبدأ
     // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
     // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
-    bg             = Color(0xFFF4F1E7),
-    card           = Color(0xFFDCD9D0),
-    cardPrayed     = Color(0xFFE4E2D9),
-    chipBg         = Color(0xFFE8E6DC),  // inkMed فوقه 5.70:1
+    bg             = Color(0xFFFFFDF5),
+    card           = Color(0xFFEAE3D2),
+    cardPrayed     = Color(0xFFF2EDDF),
+    chipBg         = Color(0xFFF3EEE1),  // inkMed فوقه 5.70:1
 
-    emerald        = Color(0xFF6F541E),
-    emeraldMed     = Color(0xFF61491A),
-    emeraldLight   = Color(0xFF795A20),
-    emeraldPastel  = Color(0xFFF0E7D3),
+    emerald        = Color(0xFF785A20),
+    emeraldMed     = Color(0xFF694F1C),
+    emeraldLight   = Color(0xFF816022),
+    emeraldPastel  = Color(0xFFFAEFD7),
 
     emeraldFill    = Color(0xFFE0A83C),  // ملء فقط — نصّاً يهبط إلى 1.66
     onEmeraldFill  = Color(0xFF14201A),  // 8.54:1 فوق الملء (الأبيض هناك 1.97)
 
-    gold           = Color(0xFF7A5807),  // 5.89:1 على الورق الجديد
-    goldLight      = Color(0xFFB8860B),
+    gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
+    goldLight      = Color(0xFF9F7715),
 
     onEmerald      = Color(0xFFF7F2E6),  // 10.4:1
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
 
     // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
-    ink            = Color(0xFF14201A),   // 12.76:1
-    inkDark        = Color(0xFF2B3B31),
-    inkMed         = Color(0xFF505851),   //  4.54:1
+    ink            = Color(0xFF1A1710),   // 12.76:1
+    inkDark        = Color(0xFF35332B),
+    inkMed         = Color(0xFF5F5C55),   //  4.54:1
     // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
-    inkLight       = Color(0xFF70766E),   //  3.79:1
+    inkLight       = Color(0xFF7E7B74),   //  3.79:1
 
     // خطّ المسطرة — لا فاصل رمادي
-    divider        = Color(0xFFD0D0C6),
+    divider        = Color(0xFFE4DCC9),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
     heroEnd        = Color(0xFF0B5934),
 
-    meccanBg       = Color(0xFFFEF8EC),
-    meccanText     = Color(0xFF8B6914),
-    madaniBg       = Color(0xFFE0EFE7),
-    madaniText     = Color(0xFF09472B),
+    meccanBg       = Color(0xFFF7F0DB),
+    meccanText     = Color(0xFF8B6608),
+    madaniBg       = Color(0xFFEAF0E2),
+    madaniText     = Color(0xFF2D7931),
 
-    lightDusk      = Color(0xFF9C5109),  // 4.70:1 على الورق الأغمق
+    lightDusk      = Color(0xFF9B5009),  // 4.70:1 على الورق الأغمق
     lightNight     = Color(0xFF3A4A78),  // 6.95:1
 
-    tintGold       = Color(0xFFF6EDD9),
-    tintDusk       = Color(0xFFF6E8D4),
-    tintNight      = Color(0xFFE7E7EF),
+    tintGold       = Color(0xFFFBF1DB),
+    tintDusk       = Color(0xFFF4EADB),
+    tintNight      = Color(0xFFEBEBE8),
 
-    success        = Color(0xFF2E7D32),
-    warning        = Color(0xFFF9A825),
-    error          = Color(0xFFC62828),
+    success        = Color(0xFF2A722E),
+    warning        = Color(0xFF8B5A00),
+    error          = Color(0xFFC02727),
 )
 
 /* ═══════════════════════════════════════════

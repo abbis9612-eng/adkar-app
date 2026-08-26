@@ -84,10 +84,17 @@ fun RafiqPalette.tuned(paper: Color?, accent: Color?): RafiqPalette {
     val ink     = if (light) Color(0xFF14201A) else Color(0xFFEDE6D4)
     val fill    = accent ?: this.emeraldFill
 
-    // البطاقة أوّلاً: نبرةٌ مرئية (≥1.2). الورق الفاتح جداً لا يقبل أفتحَ
-    // منه، فتصير غائرةً أغمق — وهو ما اضطُررنا إليه مع #F5EBD5 يدوياً.
-    val cardT = if (light) 0.10f else 0.13f
-    val card  = mix(bg, if (light) Color.Black else Color.White, cardT)
+    /*  البطاقة أوّلاً: نبرةٌ مرئية (≥1.2). الورق الفاتح جداً لا يقبل
+     *  أفتحَ منه، فتصير غائرةً أغمق.
+     *
+     *  والمزجُ نحو الأسود يُنتج رمادياً على ورقٍ دافئ: قِيس دفءُ البطاقة
+     *  (فرق الأحمر عن الأزرق) فكان +9 مع الأسود و+24 مع البنّيّ العنبريّ.
+     *  فالمزج نحو نبرةٍ دافئة، وتُرفع النسبة لتعويض قلّة الفرق فيها.
+     */
+    val warmDark  = Color(0xFF7A5A18)
+    val warmLight = Color(0xFFFFF6E0)
+    val cardT = if (light) 0.16f else 0.15f
+    val card  = mix(bg, if (light) warmDark else warmLight, cardT)
 
     /*  الثانوي يُضبط على البطاقة لا على الورق.
      *

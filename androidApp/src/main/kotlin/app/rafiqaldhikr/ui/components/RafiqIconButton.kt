@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqShape
 
@@ -35,12 +34,22 @@ fun RafiqIconButton(
     content:  @Composable () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
+    /*  سطحٌ زجاجيّ لا مربّعٌ مصمت.
+     *
+     *  كان rc.card — أي رقعةً معتمة بلون البطاقة، فتبدو مربّعاً رمادياً
+     *  ملصوقاً على الورق. والزجاج في أندرويد بلا طمسٍ حقيقي (RenderEffect
+     *  من API 31 فقط، وminSdk هنا 23) يُبنى بطبقتين: حبرٌ شديد الشفافية
+     *  يعطي عمقاً، وحدٌّ شعرة أوضح منه قليلاً يرسم الحافّة.
+     *
+     *  والشفافية تعني أن الزرّ يأخذ لون ما تحته مهما كان — فيعمل على
+     *  الورق وعلى البطاقة وعلى الزمرّد سواء، ولا يحتاج نسخةً لكل سطح.
+     */
     Box(
         modifier
             .size(40.dp)
             .clip(RafiqShape.item)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
+            .background(rc.ink.copy(alpha = 0.045f))
+            .border(1.dp, rc.ink.copy(alpha = 0.10f), RafiqShape.item)
             .clickable(onClick = onClick)
             .minimumInteractiveComponentSize()
             .semantics { contentDescription = label },
