@@ -114,7 +114,10 @@ fun HomeHubScreen(
         Greeting(hijri = home.hijriDate, ar = ar)
 
         Box(
-            Modifier.fillMaxWidth().heightIn(min = 210.dp),
+            // 210 كانت تدفع الأبواب تحت الشريط السفلي فتُقصّ. 132 تكفي
+            // لتتنفّس الكلمة، وتُبقي الشاشة كاملةً بلا تمرير — والتمرير
+            // يبقى متاحاً حين تُفتح قائمة اليوم.
+            Modifier.fillMaxWidth().heightIn(min = 132.dp),
             contentAlignment = Alignment.Center,
         ) {
             hub.wisdom?.let { WordOfDay(it) }
@@ -123,7 +126,7 @@ fun HomeHubScreen(
         // خطٌّ يفصل منطقتين متناقضتين: كلمةٌ تتأمّلها فوقه، وعملٌ تفعله
         // تحته. كانتا ملتصقتين بصفر مسافة، فيلتقي السند بسطر الوقت.
         Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
-        Spacer(Modifier.height(26.dp))
+        Spacer(Modifier.height(20.dp))
 
         NextPrayerLine(
             name      = home.nextPrayerName.ifEmpty { "—" },
@@ -191,7 +194,7 @@ private fun HubTopBar(onSettings: () -> Unit) {
 private fun Greeting(hijri: String, ar: Boolean) {
     val rc = LocalRafiqColors.current
     Row(
-        Modifier.fillMaxWidth().padding(top = 16.dp),
+        Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
     ) {
@@ -235,7 +238,7 @@ private fun greetingText(): String {
 private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
     val rc = LocalRafiqColors.current
     Column(
-        Modifier.fillMaxWidth().padding(top = 32.dp),
+        Modifier.fillMaxWidth().padding(top = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -421,7 +424,7 @@ private fun DayRow(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 22.dp)
+            .padding(top = 18.dp)
             .animateContentSize()
             // كان enabled = waiting: أي لا يُضغط إلّا حين لا موقع. فمن
             // ضبط موقعه لم يبقَ له بابٌ إلى ورقة يومه — وهي أغنى شاشة
@@ -599,7 +602,7 @@ private fun DoorsRow(
     Row(
         // الحشوة السفلية ضرورية: Scaffold يفصل ارتفاع الشريط عن المحتوى
         // لكنه لا يترك متنفَّساً بينهما، فبدت الأبواب ملتصقةً بالتنقّل.
-        Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 20.dp),
+        Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
