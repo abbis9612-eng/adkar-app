@@ -42,6 +42,15 @@ class DayCompanionViewModel(
         val short:       String,
         val description: String,
         val virtue:      String,          // الفضل الوارد بدليله
+        /**
+         * تخريجُ [virtue] وحده — شارةُ المصدر في بطاقة الميقات.
+         *
+         * حقلٌ صريحٌ لا اقتطاعٌ من [virtue]: نصُّ الفضل ليس كلُّه حديثاً
+         * (فضلُ أذكار المساء اختيارُ ابن القيّم لا حديثٌ مرفوع)، ولا كلُّه
+         * ينتهي بفاصلةٍ يُعتمد عليها. وشارةُ مصدرٍ مشتقّةٌ بالتحليل النصّي
+         * تكذب يوماً، والكذبُ هنا في الإسناد لا في الواجهة.
+         */
+        val source:      String,
         val timeLabel:   String,          // «بعد الفجر حتى الشروق»
         val startMillis: Long,
         val endMillis:   Long,
@@ -155,6 +164,7 @@ class DayCompanionViewModel(
                 short = "الاستيقاظ",
                 description = "«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك",
                 virtue = "هدي النبي ﷺ عند الاستيقاظ — رواه البخاري",
+                source = "رواه البخاري",
                 timeLabel = "قبل الفجر",
                 startMillis = t.fajr - 90 * 60_000L, endMillis = t.fajr,
                 route = null,
@@ -165,6 +175,7 @@ class DayCompanionViewModel(
                 short = "الفجر",
                 description = "صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس",
                 virtue = "«من صلى الغداة في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كانت له كأجر حجة وعمرة تامة تامة تامة» — الترمذي (حسن)",
+                source = "الترمذي · حسن",
                 timeLabel = "من الفجر إلى الشروق",
                 startMillis = t.fajr, endMillis = t.sunrise,
                 route = "dhikr_reading/morning",
@@ -175,6 +186,7 @@ class DayCompanionViewModel(
                 short = "الضحى",
                 description = "ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك",
                 virtue = "«يصبح على كل سُلامى من أحدكم صدقة... ويجزئ من ذلك ركعتان يركعهما من الضحى» — رواه مسلم",
+                source = "رواه مسلم",
                 timeLabel = "من بعد الشروق إلى قبيل الظهر",
                 startMillis = t.sunrise + 20 * 60_000L, endMillis = t.dhuhr - 10 * 60_000L,
                 route = null,
@@ -185,6 +197,7 @@ class DayCompanionViewModel(
                 short = "الظهر",
                 description = "الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي",
                 virtue = "«من سبّح الله دبر كل صلاة... غُفرت خطاياه وإن كانت مثل زبد البحر» — رواه مسلم",
+                source = "رواه مسلم",
                 timeLabel = "من الظهر إلى العصر",
                 startMillis = t.dhuhr, endMillis = t.asr,
                 route = "dhikr_reading/prayer",
@@ -195,6 +208,7 @@ class DayCompanionViewModel(
                 short = "العصر",
                 description = "صلاة العصر ثم أذكار المساء قبل الغروب",
                 virtue = "اختار ابن القيم في الوابل الصيّب أن وقت أذكار المساء بين العصر والغروب",
+                source = "اختيار ابن القيّم · الوابل الصيّب",
                 timeLabel = "من العصر إلى المغرب",
                 startMillis = t.asr, endMillis = t.maghrib,
                 route = "dhikr_reading/evening",
@@ -205,6 +219,7 @@ class DayCompanionViewModel(
                 short = "المغرب",
                 description = "الصلاة وأذكارها" + if (friday) " — وأكثر من الدعاء فآخر ساعة من الجمعة ساعة إجابة" else "",
                 virtue = "«لا مانع لما أعطيت ولا معطي لما منعت» — متفق عليه",
+                source = "متفق عليه",
                 timeLabel = "من المغرب إلى العشاء",
                 startMillis = t.maghrib, endMillis = t.isha,
                 route = "dhikr_reading/prayer",
@@ -215,6 +230,7 @@ class DayCompanionViewModel(
                 short = "العشاء",
                 description = "صلاة العشاء ثم الوتر ولو بركعة",
                 virtue = "«اجعلوا آخر صلاتكم بالليل وتراً» — متفق عليه",
+                source = "متفق عليه",
                 timeLabel = "بعد العشاء",
                 startMillis = t.isha, endMillis = sleepStart,
                 route = "dhikr_reading/prayer",
@@ -225,6 +241,7 @@ class DayCompanionViewModel(
                 short = "النوم",
                 description = "الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح",
                 virtue = "«إذا أويت إلى فراشك فاقرأ آية الكرسي... لن يزال عليك من الله حافظ ولا يقربك شيطان حتى تصبح» — رواه البخاري",
+                source = "رواه البخاري",
                 timeLabel = "عند النوم",
                 startMillis = sleepStart, endMillis = dayEnd,
                 route = "dhikr_reading/sleep",
@@ -236,6 +253,7 @@ class DayCompanionViewModel(
                 short = "الكهف",
                 description = "قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة",
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",
+                source = "الحاكم والبيهقي · صحيح",
                 timeLabel = "طوال يوم الجمعة",
                 startMillis = t.fajr, endMillis = t.isha,
                 route = "quran_reading/18",

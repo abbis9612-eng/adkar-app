@@ -92,6 +92,15 @@ data class RafiqPalette(
     val heroStart: Color,
     val heroMid: Color,
     val heroEnd: Color,
+    /**
+     * المحتوى فوق تدرّج البطل — كريميٌّ في الوضعين.
+     *
+     * ولا يصلح [onEmerald] مكانه: ذاك يتبع اللهجة، واللهجةُ تنقلب فاتحةً
+     * في الليل فيصير محتواها داكناً. أمّا تدرّجُ البطل فأخضرُ داكنٌ في
+     * الوضعين معاً، فمحتواه فاتحٌ دائماً. وكانت البطاقتان الوحيدتان
+     * اللتان تستعملانه تكتبان `Color.White` يدوياً لهذا السبب بالذات.
+     */
+    val onHero: Color,
 
     /* ── شارات المصحف: مكيّة/مدنية — تمييز بيانات حقيقي ── */
     val meccanBg: Color,
@@ -164,6 +173,7 @@ val LightRafiqPalette = RafiqPalette(
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
     heroEnd        = Color(0xFF0B5934),
+    onHero         = Color(0xFFF7F2E6),  // 7.54:1 على أفتحِ طرفٍ · 14.06 على أغمقه
 
     meccanBg       = Color(0xFFF7F0DB),
     meccanText     = Color(0xFF8B6608),
@@ -215,9 +225,13 @@ val DarkRafiqPalette = RafiqPalette(
 
     divider        = Color(0xFF35332B),
 
-    heroStart      = Color(0xFF0A1F14),
-    heroMid        = Color(0xFF0F3322),
-    heroEnd        = Color(0xFF144430),
+    // كان التدرّج #0A1F14→#144430، ونبرةُ أغمقِ طرفٍ عن الصفحة 1.10 —
+    // أي بطاقةٌ لا تُرى إطلاقاً (العين تبدأ التمييز عند 1.20). أُزيح
+    // التدرّجُ كلُّه إلى أعلى فصار 1.54 و1.92 و2.32.
+    heroStart      = Color(0xFF113C2B),
+    heroMid        = Color(0xFF174C36),
+    heroEnd        = Color(0xFF1E5941),
+    onHero         = Color(0xFFF7F2E6),  // 7.34:1 على أفتحِ طرفٍ · 11.03 على أغمقه
 
     meccanBg       = Color(0xFF2A2010),
     meccanText     = Color(0xFFDAA520),

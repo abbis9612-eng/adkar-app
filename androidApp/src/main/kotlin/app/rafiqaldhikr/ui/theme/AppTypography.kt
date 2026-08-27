@@ -123,6 +123,10 @@ object RafiqType {
         الفعل بحجم عنوان الشريط. */
     val titleXL = arabic(UiFamily, FontWeight.Bold, 26, 38)
 
+    /** عنوانُ بطاقة الميقات — أكبرُ ما يُقرأ في الرئيسية، وأميريٌّ لأنّ
+        البطاقة سطحٌ داكنٌ يحتمل خطّاً ذا تباينٍ عالٍ لا يحتمله الورق. */
+    val heroCard = arabic(AmiriFamily, FontWeight.Bold, 30, 40)
+
     /** عنوان الشاشة في الشريط العلوي. */
     val titleL = arabic(UiFamily, FontWeight.Bold, 22, 32)
 
