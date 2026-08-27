@@ -47,6 +47,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
+import app.rafiqaldhikr.ui.components.LocationRequestViewModel
+import app.rafiqaldhikr.ui.components.LocationPermissionEffect
 
 /* ═══════════════════════════════════════════════════════════════════
    الرئيسية — كلمةٌ تتصدّرها، وأربعُ طبقاتٍ تحتها
@@ -91,6 +93,24 @@ fun HomeHubScreen(
     val home by homeVm.uiState.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
+    val locVm: LocationRequestViewModel = koinViewModel()
+
+    /*  الرئيسية هي التي تطلب الموقع — ولم يكن أحدٌ يطلبه.
+     *
+     *  LocationPermissionEffect معرَّفٌ في المشروع منذ البداية ولا
+     *  يُستدعى من أيّ شاشة إطلاقاً (تحقّقٌ بالبحث: صفرُ مواضع). فمن
+     *  ثبّت التطبيق حديثاً لا يُسأل عن موقعه أبداً، ولا مواقيت، ولا
+     *  محطّات — وبطاقةُ الميقات تظهر فارغةً بلا نافذةٍ ولا خيط، ولا
+     *  شيء يخبره لماذا ولا كيف يصلحها.
+     *
+     *  يُطلب مرّةً واحدة حين لا يكون هناك موقع. ومن رفض يبقى له مدخلُ
+     *  البطاقة أدناه وشاشةُ ورقة اليوم بمنتقي المدن.
+     */
+    LocationPermissionEffect(
+        hasLocation = !day.needsLocation,
+        isLoading   = day.isLoading,
+        onLocationFetched = { lat, lng -> locVm.save(lat, lng) },
+    )
 
     // التوزيع كما في النموذج: الكلمة تأخذ ما بقي من الارتفاع فتتوسّطه
     // وتدفع الطبقات الثلاث إلى أسفل الشاشة. بلا هذا الوزن تتكدّس الشاشة
@@ -137,6 +157,7 @@ fun HomeHubScreen(
 
         MeeqatCard(
             station   = day.nowStation,
+            needsLoc  = day.needsLocation,
             nextName  = home.nextPrayerName,
             nextTime  = home.nextPrayerTime,
             ar        = ar,
@@ -318,6 +339,7 @@ private fun humanRemaining(millis: Long): String? {
 @Composable
 private fun MeeqatCard(
     station:   DayCompanionViewModel.StationUi?,
+    needsLoc:  Boolean,
     nextName:  String,
     nextTime:  String,
     ar:        Boolean,
@@ -337,6 +359,15 @@ private fun MeeqatCard(
     val cta:    String
     val action: () -> Unit
     when {
+        // بلا إحداثيات لا مواقيت، وبلا مواقيت لا محطّات — فكانت البطاقة
+        // تعرض «أذكار يومك» عامّةً بلا نافذةٍ ولا خيطٍ ولا إسناد، ولا
+        // تقول لماذا هي كذلك. الآن تقول السبب وتحمل علاجه.
+        needsLoc -> {
+            title = "حدِّد مدينتك"
+            desc = "محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. " +
+                "حدِّدها مرّةً واحدة ويُحسب الباقي."
+            source = null; cta = "حدِّد الموقع"; action = onDayPage
+        }
         station == null -> {
             title = "أذكار يومك"
             desc = "من الاستيقاظ إلى النوم — افتح ورقتك"
@@ -393,8 +424,12 @@ private fun MeeqatCard(
                     Spacer(Modifier.width(8.dp))
                 }
                 Text(
-                    if (station == null) "ورقةُ يومك"
-                    else "نافذةُ ${station.short}" + (remaining?.let { " · بقي ${it.localizedDigits(ar)}" } ?: ""),
+                    when {
+                        needsLoc      -> "مواقيتُك لم تُضبط بعد"
+                        station == null -> "ورقةُ يومك"
+                        else -> "نافذةُ ${station.short}" +
+                            (remaining?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
+                    },
                     style = RafiqType.bodyS,
                     color = rc.onHero,
                     maxLines = 1,
@@ -412,8 +447,20 @@ private fun MeeqatCard(
             }
         }
 
-        /* الخيط — وهو الفاصلُ بين الرأس والجسم */
-        MeeqatThread(progress, station?.let { lightOf(it.id, rc) } ?: rc.onHero, rc)
+        /* الخيط — وهو الفاصلُ بين الرأس والجسم.
+           ويُستبدل بخطٍّ ساكنٍ حين لا نافذة: خيطٌ خامدٌ بلا حبّة يُقرأ
+           عطلاً لا حالة. */
+        if (progress != null) {
+            MeeqatThread(progress, station?.let { lightOf(it.id, rc) } ?: rc.onHero, rc)
+        } else {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp)
+                    .height(1.dp)
+                    .background(rc.onHero.copy(alpha = 0.16f)),
+            )
+        }
 
         /* الجسم */
         Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp)) {
