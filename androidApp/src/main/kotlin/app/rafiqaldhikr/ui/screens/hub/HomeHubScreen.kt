@@ -49,6 +49,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.components.LocationPermissionEffect
+import app.rafiqaldhikr.ui.sky.sunPosition
+import app.rafiqaldhikr.ui.sky.skyInk
+import app.rafiqaldhikr.ui.sky.skyColors
+import app.rafiqaldhikr.ui.sky.moonPhase
+import app.rafiqaldhikr.ui.sky.SkyCanvas
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.layout.Box
 
 /* ═══════════════════════════════════════════════════════════════════
    الرئيسية — كلمةٌ تتصدّرها، وأربعُ طبقاتٍ تحتها
@@ -127,56 +135,188 @@ fun HomeHubScreen(
      *  فالتمرير يعود، والتوسيط يُستبدل بارتفاعٍ أدنى للكلمة: تتنفّس
      *  حين يتّسع المكان، ويُمرَّر ما زاد حين لا يتّسع.
      */
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(rc.bg)
-            .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(bottom = 24.dp),
-    ) {
-        HubTopBar(onSettings = { navController.navigate(RafiqRoute.Settings.route) })
+    /*  السماءُ فوق والورقةُ تحت — والأفقُ حيث يلتقيان.
+     *
+     *  السماءُ ليست خلفيةً مرسومة: موضعُ الشمس يُحسب من إحداثيات صاحبها
+     *  ودقيقته، وهو الحسابُ نفسه الذي تُشتقّ منه المواقيت. فرسمُ مسجدٍ
+     *  ثابتٍ هو نفسُه في السويد وفي عُمان وفي الفجر وفي العشاء — وهذه
+     *  تختلف بالمدينة وباليوم وبالدقيقة، ولا تتكرّر مرّتين.
+     *
+     *  والورقةُ ترتفع من الأفق فتغطّي ٨٢dp من السماء: فلا يُدفع من
+     *  الارتفاع إلا ٢٣٦، ويُسترجَع منها الشريطُ العلويّ والتحيّةُ وسطرُ
+     *  النافذة — إذ صاروا فوقها.
+     */
+    val now = System.currentTimeMillis()
+    val sun = remember(now / 60_000L, home.lat, home.lng) {
+        sunPosition(now, home.lat, home.lng)
+    }
+    val moon = remember(now / 3_600_000L) { moonPhase(now) }
+    val sky = remember(sun.altitude) { skyColors(sun.altitude.toFloat()) }
+    val skyInk = remember(sky) { skyInk(sky) }
 
-        Greeting(hijri = home.hijriDate, ar = ar)
+    Box(Modifier.fillMaxSize().background(rc.bg)) {
+        SkyCanvas(
+            altitude = sun.altitude.toFloat(),
+            azimuth  = sun.azimuth.toFloat(),
+            moon     = moon,
+            rc       = rc,
+            modifier = Modifier.fillMaxWidth().height(SKY_H),
+        )
 
-        Box(
-            // 210 كانت تدفع الأبواب تحت الشريط السفلي فتُقصّ. 132 تكفي
-            // لتتنفّس الكلمة، وتُبقي الشاشة كاملةً بلا تمرير — والتمرير
-            // يبقى متاحاً حين تُفتح قائمة اليوم.
-            Modifier.fillMaxWidth().heightIn(min = 132.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            hub.wisdom?.let { WordOfDay(it) }
+        Column(Modifier.fillMaxSize().statusBarsPadding()) {
+            /* فوق السماء */
+            CompositionLocalProvider(LocalContentColor provides skyInk) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                    SkyTopBar(
+                        clock = home.nextPrayerTime,
+                        hijri = home.hijriDate,
+                        ink   = skyInk,
+                        onSettings = { navController.navigate(RafiqRoute.Settings.route) },
+                    )
+                    Spacer(Modifier.height(24.dp))
+                    Text("السلام عليكم", style = RafiqType.bodyS, color = skyInk.copy(alpha = 0.82f))
+                    Text(
+                        if (sun.altitude > 8) "نهارٌ طيّب" else if (sun.altitude > -1) "وقتٌ مبارك" else "مساءُ الخير",
+                        style = RafiqType.hero,
+                        color = skyInk,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    WindowPill(day.nowStation, day.needsLocation, ar, skyInk)
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            /* الورقة — ترتفع حيث ينتهي كلامُ السماء، فتتبع مقاسَ الخطّ
+               بدل ارتفاعٍ مثبَّتٍ يُقصّ حين يكبّره صاحبُه. */
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
+                    .background(
+                        Brush.verticalGradient(
+                            0f to lerp(rc.bg, sky.second, 0.14f),
+                            0.46f to rc.bg,
+                        ),
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 18.dp),
+            ) {
+                Box(
+                    Modifier
+                        .padding(top = 9.dp, bottom = 2.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .width(34.dp).height(4.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(rc.divider),
+                )
+
+                MeeqatCard(
+                    station   = day.nowStation,
+                    needsLoc  = day.needsLocation,
+                    nextName  = home.nextPrayerName,
+                    nextTime  = home.nextPrayerTime,
+                    ar        = ar,
+                    onStart   = { day.nowStation?.route?.let { navController.navigate(it) } },
+                    onDayPage = { navController.navigate(RafiqRoute.DayPage.route) },
+                )
+
+                DayRow(
+                    stations   = day.stations,
+                    nowId      = day.nowStation?.id,
+                    doneIds    = day.completedIds,
+                    ar         = ar,
+                    onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
+                )
+
+                hub.wisdom?.let { WordOfDay(it) }
+
+                DoorsRow(
+                    onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
+                    onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
+                    onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+                )
+            }
         }
+    }
+}
 
-        // خطٌّ يفصل منطقتين متناقضتين: كلمةٌ تتأمّلها فوقه، وعملٌ تفعله
-        // تحته. كانتا ملتصقتين بصفر مسافة، فيلتقي السند بسطر الوقت.
-        Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
-        Spacer(Modifier.height(20.dp))
+/** ارتفاعُ السماء. والورقةُ تغطّي أسفلَها، فالمدفوعُ فعلاً أقلُّ منه. */
+private val SKY_H = 318.dp
 
-        MeeqatCard(
-            station   = day.nowStation,
-            needsLoc  = day.needsLocation,
-            nextName  = home.nextPrayerName,
-            nextTime  = home.nextPrayerTime,
-            ar        = ar,
-            onStart   = { day.nowStation?.route?.let { navController.navigate(it) } },
-            onDayPage = { navController.navigate(RafiqRoute.DayPage.route) },
-        )
+/* ── الشريطُ العلويُّ فوق السماء ─────────────────────────────────
 
-        DayRow(
-            stations   = day.stations,
-            nowId      = day.nowStation?.id,
-            ar         = ar,
-            onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
-        )
+   زجاجُه يشتقّ من الحبر: كان أبيضَ دائماً ولو انقلب الحبرُ داكناً في
+   الظهيرة، فيصير حبرٌ داكنٌ فوق زجاجٍ أبيضَ فوق سماءٍ فاتحة — ثلاثُ
+   طبقاتٍ تتنازع.
+──────────────────────────────────────────────────────────────── */
 
-        DoorsRow(
-            onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
-            onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
-            onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
-        )
+@Composable
+private fun SkyTopBar(clock: String, hijri: String, ink: Color, onSettings: () -> Unit) {
+    val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
+    val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
+    Row(
+        Modifier.fillMaxWidth().padding(top = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size(width = 40.dp, height = 45.dp)
+                    .clip(RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp))
+                    .background(glassBg)
+                    .border(1.dp, glassBd, RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp)),
+                contentAlignment = Alignment.Center,
+            ) { Text("ر", style = RafiqType.hero, color = ink) }
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text("رفيق الذِّكر", style = RafiqType.titleM, color = ink)
+                Text(hijri, style = RafiqType.bodyS, color = ink.copy(alpha = 0.78f), maxLines = 1)
+            }
+        }
+        Box(
+            Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(glassBg)
+                .border(1.dp, glassBd, CircleShape)
+                .clickable(onClick = onSettings),
+            contentAlignment = Alignment.Center,
+        ) { RafiqIcon(RIcon.Settings, 19.dp, ink) }
+    }
+}
+
+/** «نافذةُ الضحى · بقي ١٢ دقيقة» — على السماء، فوق الأفق. */
+@Composable
+private fun WindowPill(
+    station: DayCompanionViewModel.StationUi?,
+    needsLoc: Boolean,
+    ar: Boolean,
+    ink: Color,
+) {
+    val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
+    val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
+    val label = when {
+        needsLoc -> "مواقيتُك لم تُضبط بعد"
+        station == null -> "ورقةُ يومك"
+        else -> {
+            val left = humanRemaining(station.endMillis - System.currentTimeMillis())
+            "نافذةُ ${station.short}" + (left?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
+        }
+    }
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(glassBg)
+            .border(1.dp, glassBd, CircleShape)
+            .padding(horizontal = 13.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(6.dp).clip(CircleShape).background(ink.copy(alpha = 0.8f)))
+        Spacer(Modifier.width(8.dp))
+        Text(label, style = RafiqType.bodyS, color = ink, maxLines = 1)
     }
 }
 
@@ -315,20 +455,6 @@ private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
    يكلّف ارتفاعاً وهو أوّلُ ما تقع عليه العين.
 ══════════════════════════════════════════════════════════════ */
 
-/** أطرافُ سلَّم الضوء داكنةٌ فلا تُقرأ على بطاقةٍ خضراء داكنة: goldLight
- *  نبرتُه هناك 2.63 وlightNight 1.25. تُرفع نحو [RafiqPalette.onHero]
- *  حتى تتجاوز عتبةَ الرسم 3.0 — فتصير 4.46 و3.86 و3.47. */
-private fun lightOf(stationId: String, rc: RafiqPalette): Color {
-    val base = when (stationId) {
-        "fajr_morning", "duha", "dhuhr", "friday_kahf" -> rc.goldLight
-        "asr_evening", "maghrib"                       -> rc.lightDusk
-        else                                           -> rc.lightNight   // العشاء والنوم والاستيقاظ
-    }
-    // في الليل تكون أطرافُ السلّم فاتحةً أصلاً، فيكفيها رفعٌ يسير
-    val lift = if (rc.bg.luminance() > 0.5f) 0.55f else 0.18f
-    return lerp(base, rc.onHero, lift)
-}
-
 /** «بقي ١٢ دقيقة» من فارقٍ بالمللي ثانية — بتصريف العدد العربي. */
 private fun humanRemaining(millis: Long): String? {
     if (millis <= 0) return null
@@ -392,84 +518,25 @@ private fun MeeqatCard(
         ((now - station!!.startMillis).toFloat() / span).coerceIn(0f, 1f) else null
     val remaining = station?.let { humanRemaining(it.endMillis - now) }
 
+    /*  كانت البطاقةُ سطحاً أخضرَ داكناً لأنّها كانت مركزَ ثقل الشاشة.
+     *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. فهي الآن على
+     *  الورق نفسه، والفعلُ وحده ملوّن. */
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
-            .clip(MeeqatShape)
-            .background(
-                Brush.linearGradient(
-                    // أفتحُ طرفٍ أعلى: هناك يقع الخيط، وهناك أصعبُ تباين
-                    listOf(rc.heroEnd, rc.heroMid, rc.heroStart),
-                    start = Offset(Float.POSITIVE_INFINITY, 0f),
-                    end   = Offset(0f, Float.POSITIVE_INFINITY),
-                )
-            )
-            .border(1.dp, rc.onHero.copy(alpha = 0.11f), MeeqatShape),
+            .padding(top = 12.dp),
     ) {
-        /* الرأس: النافذةُ وما بقي منها يميناً، وما بعدها يساراً */
-        Row(
-            Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 11.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.CenterVertically,
-        ) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                if (station != null) {
-                    Box(
-                        Modifier
-                            .size(7.dp)
-                            .clip(CircleShape)
-                            .background(lightOf(station.id, rc)),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
-                Text(
-                    when {
-                        needsLoc      -> "مواقيتُك لم تُضبط بعد"
-                        station == null -> "ورقةُ يومك"
-                        else -> "نافذةُ ${station.short}" +
-                            (remaining?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
-                    },
-                    style = RafiqType.bodyS,
-                    color = rc.onHero,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            if (nextName.isNotEmpty() && nextTime.isNotEmpty() && nextTime != "—") {
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    "ثمّ $nextName ${nextTime.localizedDigits(ar)}",
-                    style = RafiqType.caption,
-                    color = rc.onHero.copy(alpha = 0.72f),
-                    maxLines = 1,
-                )
-            }
-        }
-
-        /* الخيط — وهو الفاصلُ بين الرأس والجسم.
-           ويُستبدل بخطٍّ ساكنٍ حين لا نافذة: خيطٌ خامدٌ بلا حبّة يُقرأ
-           عطلاً لا حالة. */
-        if (progress != null) {
-            MeeqatThread(progress, station?.let { lightOf(it.id, rc) } ?: rc.onHero, rc)
-        } else {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp)
-                    .height(1.dp)
-                    .background(rc.onHero.copy(alpha = 0.16f)),
-            )
-        }
-
+        /*  رأسُ البطاقة وخيطُها انتقلا إلى السماء: النافذةُ وما بقي
+         *  منها في الحبّة فوق الأفق، وموضعُ الوقت في موضع الشمس نفسِه.
+         *  وإبقاؤهما هنا تكرارٌ لما تقوله السماءُ بلا كلمة. */
         /* الجسم */
         Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp)) {
-            Text(title, style = RafiqType.heroCard, color = rc.onHero)
+            Text(title, style = RafiqType.heroCard, color = rc.ink)
             Spacer(Modifier.height(5.dp))
             Text(
                 desc,
                 style = RafiqType.bodyS,
-                color = rc.onHero.copy(alpha = 0.86f),
+                color = rc.inkMed,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -478,8 +545,8 @@ private fun MeeqatCard(
                 Row(
                     Modifier
                         .clip(RoundedCornerShape(10.dp))
-                        .background(rc.onHero.copy(alpha = 0.08f))
-                        .border(1.dp, rc.onHero.copy(alpha = 0.13f), RoundedCornerShape(10.dp))
+                        .background(rc.card)
+                        .border(1.dp, rc.cardBorder, RoundedCornerShape(10.dp))
                         .padding(start = 9.dp, end = 11.dp, top = 7.dp, bottom = 7.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -488,10 +555,10 @@ private fun MeeqatCard(
                             .width(3.dp)
                             .height(15.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(station?.let { lightOf(it.id, rc) } ?: rc.onHero),
+                            .background(rc.gold),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(source, style = RafiqType.caption, color = rc.onHero)
+                    Text(source, style = RafiqType.caption, color = rc.gold)
                 }
             }
         }
@@ -507,25 +574,25 @@ private fun MeeqatCard(
                     .weight(1f)
                     .heightIn(min = 54.dp)
                     .clip(CtaShape)
-                    .background(rc.card)
+                    .background(rc.emerald)
                     .clickable(onClick = action)
                     .padding(horizontal = 18.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment     = Alignment.CenterVertically,
             ) {
-                Text(cta, style = RafiqType.titleM, color = rc.emerald, maxLines = 1)
-                RafiqIcon(RIcon.ChevronLeft, 19.dp, rc.emerald)
+                Text(cta, style = RafiqType.titleM, color = rc.onEmerald, maxLines = 1)
+                RafiqIcon(RIcon.ChevronLeft, 19.dp, rc.onEmerald)
             }
             Box(
                 Modifier
                     .size(54.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(rc.onHero.copy(alpha = 0.07f))
-                    .border(1.dp, rc.onHero.copy(alpha = 0.20f), RoundedCornerShape(16.dp))
+                    .background(Color.Transparent)
+                    .border(1.dp, rc.cardBorder, RoundedCornerShape(16.dp))
                     .clickable(onClick = onDayPage),
                 contentAlignment = Alignment.Center,
             ) {
-                RafiqIcon(RIcon.Info, 21.dp, rc.onHero)
+                RafiqIcon(RIcon.Info, 21.dp, rc.emerald)
             }
         }
     }
@@ -540,40 +607,6 @@ private val CtaShape = RoundedCornerShape(
     topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 26.dp,
 )
 
-@Composable
-private fun MeeqatThread(progress: Float?, tone: Color, rc: RafiqPalette) {
-    BoxWithConstraints(
-        Modifier.fillMaxWidth().padding(horizontal = 18.dp).height(16.dp),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(2.dp)
-                .clip(CircleShape)
-                .background(rc.onHero.copy(alpha = 0.18f)),
-        )
-        if (progress != null) {
-            Box(
-                Modifier
-                    .fillMaxWidth(progress.coerceAtLeast(0.02f))
-                    .height(3.dp)
-                    .clip(CircleShape)
-                    .background(tone),
-            )
-            // offset يحترم اتّجاه التخطيط، فتمشي الحبّةُ يميناً←يساراً
-            Box(
-                Modifier
-                    .offset(x = (maxWidth - BEAD) * progress)
-                    .size(BEAD)
-                    .clip(CircleShape)
-                    .background(rc.card),
-            )
-        }
-    }
-}
-
-private val BEAD = 13.dp
 
 /**
  * «٠٠:٥٦:٤٤» رقمُ مؤقّتٍ لا جملةُ رفيق. الشاشة تقول «بعد ٥٦ دقيقة» —
@@ -616,6 +649,7 @@ private fun humanCountdown(raw: String): String? {
 private fun DayRow(
     stations: List<DayCompanionViewModel.StationUi>,
     nowId:      String?,
+    doneIds:    Set<String> = emptySet(),
     ar:         Boolean,
     onOpen:     () -> Unit,
 ) {
@@ -646,12 +680,19 @@ private fun DayRow(
         ) {
             names.forEachIndexed { i, short ->
                 val isNow  = i == nowIdx
-                val isPast = nowIdx >= 0 && i < nowIdx
-                // اللون يتحرّك حين تتقدّم المحطّة الحاضرة — فلا تقفز الحالة
+                /*  ثلاثُ حالاتٍ لا اثنتان.
+                 *
+                 *  التطبيقُ يعرف أنّ الوقت مضى، ولا يعرف أنّ صاحبَه صلّى.
+                 *  فما مرَّ وقتُه «مضت» بحبرٍ خافت، ولا يصير «تمّت» ذهبيّةً
+                 *  إلّا إن سجّلها هو. وكتابةُ «تمّت» لانقضاء الوقت وحده
+                 *  شهادةٌ له بعبادةٍ لم يفعلها — وهي أسوأُ من كلِّ عدّاد. */
+                val isDone = !waiting && stations.getOrNull(i)?.id in doneIds
+                val isGone = nowIdx >= 0 && i < nowIdx && !isDone
                 val nameColor by animateColorAsState(
                     when {
                         isNow  -> rc.ink
-                        isPast -> rc.inkMed
+                        isDone -> rc.gold
+                        isGone -> rc.inkLight
                         else   -> rc.inkLight
                     },
                     progressSpec(500), label = "stationColor",
@@ -661,13 +702,19 @@ private fun DayRow(
                     // IntrinsicSize.Max يجعل الخطّ أدناه بعرض الاسم بالضبط
                     modifier = Modifier.width(IntrinsicSize.Max),
                 ) {
-                    Text(
-                        short,
-                        fontSize   = 14.sp,
-                        fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-                        color      = nameColor,
-                        maxLines   = 1,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (isDone) {
+                            RafiqIcon(RIcon.Check, 11.dp, rc.gold)
+                            Spacer(Modifier.width(3.dp))
+                        }
+                        Text(
+                            short,
+                            fontSize   = 14.sp,
+                            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+                            color      = nameColor,
+                            maxLines   = 1,
+                        )
+                    }
                     Spacer(Modifier.height(8.dp))
                     NowUnderline(active = isNow)
                 }

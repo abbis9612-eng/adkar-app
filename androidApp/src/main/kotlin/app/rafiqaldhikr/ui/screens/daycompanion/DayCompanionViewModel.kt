@@ -66,6 +66,14 @@ class DayCompanionViewModel(
         val isLoading:  Boolean         = true,
         /** لا إحداثيات محفوظة — محطّات اليوم موقوتة بالصلاة فلا تُبنى بدونها. */
         val needsLocation: Boolean      = false,
+        /**
+         * ما سجّله صاحبُه فعلاً — لا ما مرَّ وقتُه.
+         *
+         * التطبيقُ يعرف أنّ الوقت مضى، ولا يعرف أنّه صلّى. وكتابةُ «تمّت»
+         * لمجرّد انقضاء الوقت شهادةٌ له بعبادةٍ لم تُسجَّل — وهي كذبٌ عليه
+         * في أخصِّ ما عنده. فما مضى يُكتب «مضت»، و«تمّت» لهؤلاء وحدهم.
+         */
+        val completedIds: Set<String>   = emptySet(),
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -136,6 +144,7 @@ class DayCompanionViewModel(
                 }
 
                 UiState(
+                    completedIds = allDone,
                     stations   = stations,
                     nowStation = stations.firstOrNull { it.status == StationStatus.ACTIVE }
                         ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
