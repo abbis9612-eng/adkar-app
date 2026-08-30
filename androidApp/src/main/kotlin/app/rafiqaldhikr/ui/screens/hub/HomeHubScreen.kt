@@ -183,8 +183,7 @@ fun HomeHubScreen(
                         ink   = skyInk,
                         onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                     )
-                    Spacer(Modifier.height(18.dp))
-                    Text("السلام عليكم", style = RafiqType.bodyS, color = skyInk.copy(alpha = 0.82f))
+                    Spacer(Modifier.height(16.dp))
                     Text(
                         if (sun.altitude > 8) "نهارٌ طيّب" else if (sun.altitude > -1) "وقتٌ مبارك" else "مساءُ الخير",
                         style = RafiqType.hero,
@@ -252,8 +251,8 @@ fun HomeHubScreen(
 }
 
 /** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
-private val SKY_H = 344.dp
-private val SKY_TEXT_H = 268.dp
+private val SKY_H = 360.dp
+private val SKY_TEXT_H = 288.dp
 
 /* ── الشريطُ العلويُّ فوق السماء ─────────────────────────────────
 

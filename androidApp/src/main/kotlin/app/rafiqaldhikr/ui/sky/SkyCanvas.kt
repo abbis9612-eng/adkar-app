@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -84,28 +85,31 @@ private val STARS: List<Star> = Random(7).let { rnd ->
 }
 
 /** غيومٌ ثابتةُ المواضع، لونُها من ضوء الساعة. */
-private class Cloud(val x: Float, val y: Float, val w: Float, val a: Float)
+private class Cloud(val x: Float, val y: Float, val r: Float, val a: Float)
 
-/*  خمسٌ لا تسع، وناعمةُ الحواف.
+/*  ثلاثُ محاولاتٍ حتى نعمت الحافّة — وسببُ فشل الاثنتين قياسيّ.
  *
- *  أوّلُ نسخةٍ نُقلت عن نموذج HTML حرفياً — وهناك كان `filter: blur(11px)`
- *  يذيب حوافَّها. وليس لـ`drawOval` في Compose مقابلٌ لذلك، فنُقلت
- *  الأشكالُ وسقط الضباب: تسعُ غيماتٍ × ثلاثِ كتلٍ = سبعٌ وعشرون قطعةً
- *  بيضاءَ حادّةَ الحافّة بشفافية 0.75. لُطخٌ لا غيوم.
+ *  الأولى: `drawOval` بتدرّجٍ رأسيّ. لُطخٌ حادّةٌ بشفافية 0.75، لأنّ
+ *  نموذج HTML كان يذيبها بـ`filter: blur(11px)` ولا مقابلَ له هنا.
  *
- *  والعلاجُ ليس ضباباً بل تدرّجٌ شعاعيّ يتلاشى إلى الشفافية عند الحافّة:
- *  ناعمٌ بطبعه، وأرخصُ من أيّ مرشِّح.
+ *  الثانية: `drawOval` بتدرّجٍ شعاعيّ نصفُ قطره rw/2. والبيضةُ ارتفاعُها
+ *  0.30·rw، فالتلاشي يبلغ الصفرَ أفقياً ويُقطَع رأسياً عند 30٪ من مساره
+ *  والشفافيةُ ما تزال 70٪ من قيمتها. والشكلُ مفلطحٌ فالحافّةُ المرئيّة هي
+ *  العليا والسفلى — أي المقصوصةُ بالضبط. فلم يتغيّر شيء.
+ *
+ *  والصواب: دائرةٌ يبلغ تدرّجُها الصفرَ عند حافّتها تماماً، ثمّ تُسطَّح
+ *  بـ`scale` رأسياً. فيُحفظ التلاشي في الاتجاهين ولا حافّةَ أصلاً.
+ *
+ *  ومواضعُها موزَّعةٌ لا عشوائية: بذرةُ العشوائيّ السابقة كدّستها كلَّها
+ *  في الثلث الأيسر.
  */
-private val CLOUDS: List<Cloud> = kotlin.random.Random(23).let { rnd ->
-    List(5) {
-        Cloud(
-            x = rnd.nextFloat() * 1.24f - 0.12f,
-            y = 0.30f + rnd.nextFloat() * 0.30f,
-            w = 0.34f + rnd.nextFloat() * 0.26f,
-            a = 0.62f + rnd.nextFloat() * 0.38f,
-        )
-    }
-}
+private val CLOUDS = listOf(
+    Cloud(x = 0.14f, y = 0.30f, r = 0.30f, a = 0.85f),
+    Cloud(x = 0.46f, y = 0.20f, r = 0.24f, a = 0.62f),
+    Cloud(x = 0.78f, y = 0.34f, r = 0.27f, a = 0.72f),
+    Cloud(x = 0.30f, y = 0.50f, r = 0.22f, a = 0.55f),
+    Cloud(x = 0.92f, y = 0.56f, r = 0.25f, a = 0.60f),
+)
 
 /**
  * @param altitude ارتفاعُ الشمس بالدرجات · @param azimuth سَمْتُها
@@ -150,8 +154,13 @@ fun SkyCanvas(
         /*  القرصُ كان يقع خلف «نهارٌ طيّب»: عند ارتفاع 47° موضعُه 36٪
             من السماء، والنصُّ يشغل أعلى 44٪. فحُصر في النطاق الخالي بين
             التحيّة والحبّة — 40٪–70٪ — ويبقى تدرّجُه مقروءاً. */
-        val x = (((azimuth - 55f) / 250f).coerceIn(0.08f, 0.92f)) * w
-        val y = (0.70f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.30f) * h
+        /*  إحداثياتُ الـCanvas مطلقةٌ ولا تنقلب مع RTL — وفي نموذج HTML
+            كان `inset-inline-start` ينقلب. فكانت الشمسُ تشرق يساراً
+            وتغرب يميناً: عكسَ قراءة العربية وعكسَ صفِّ اليوم تحتها،
+            ولذلك كانت تقع عصراً فوق النصّ. */
+        val t = ((azimuth - 55f) / 250f).coerceIn(0.08f, 0.92f)
+        val x = (1f - t) * w
+        val y = (0.64f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.20f) * h
 
         // الغيومُ خلف القرص: أعلاها من السماء وأسفلُها من ضوء الشمس
         val cloudTint = when {
@@ -177,8 +186,8 @@ fun SkyCanvas(
             )
         } else {
             // القمرُ مقابلُ الشمس تقريباً، وبطورِه المحسوب
-            val mx = w - x
-            val my = (1.10f - (y / h)).coerceIn(0.38f, 0.68f) * h
+            val mx = x
+            val my = (1.08f - (y / h)).coerceIn(0.42f, 0.62f) * h
             drawCircle(
                 Brush.radialGradient(
                     listOf(Color(0xFFC6D4F2).copy(alpha = 0.20f), Color.Transparent),
@@ -202,7 +211,7 @@ fun SkyCanvas(
         drawRect(
             Brush.radialGradient(
                 listOf(warm, Color.Transparent),
-                center = Offset(w - x, h * 1.04f),
+                center = Offset(x, h * 1.04f),
                 radius = w * 1.2f,
             ),
         )
@@ -223,27 +232,26 @@ private fun DrawScope.drawClouds(tint: Color, vis: Float) {
     val w = size.width
     val h = size.height
     CLOUDS.forEach { c ->
-        val cw = c.w * w
-        val ch = cw * 0.30f
+        val r = c.r * w
         val cx = c.x * w
         val cy = c.y * h
-        // ثلاثُ نفخاتٍ متداخلةٍ تصنع غيمةً — وكلُّ نفخةٍ تتلاشى عند حافّتها
-        listOf(-0.30f to 0.74f, 0.02f to 1f, 0.31f to 0.66f).forEach { (dx, sc) ->
-            val rw = cw * sc
-            val rh = ch * sc
-            val left = cx + dx * cw - rw / 2f
-            val topY = cy - rh / 2f
-            drawOval(
-                Brush.radialGradient(
-                    0f to tint.copy(alpha = c.a * vis * 0.22f),
-                    0.55f to tint.copy(alpha = c.a * vis * 0.15f),
-                    1f to Color.Transparent,
-                    center = Offset(left + rw / 2f, topY + rh / 2f),
-                    radius = rw / 2f,
-                ),
-                topLeft = Offset(left, topY),
-                size = Size(rw, rh),
-            )
+        // نفخاتٌ ثلاثٌ متداخلة، وكلُّها دوائرُ مسطَّحةٌ بالمقياس رأسياً
+        scale(scaleX = 1f, scaleY = 0.34f, pivot = Offset(cx, cy)) {
+            listOf(-0.62f to 0.72f, 0f to 1f, 0.66f to 0.64f).forEach { (dx, sc) ->
+                val rr = r * sc
+                val center = Offset(cx + dx * r, cy)
+                drawCircle(
+                    Brush.radialGradient(
+                        0f to tint.copy(alpha = c.a * vis * 0.20f),
+                        0.5f to tint.copy(alpha = c.a * vis * 0.13f),
+                        1f to Color.Transparent,
+                        center = center,
+                        radius = rr,
+                    ),
+                    radius = rr,
+                    center = center,
+                )
+            }
         }
     }
 }
