@@ -86,8 +86,25 @@ private val STARS: List<Star> = Random(7).let { rnd ->
 /** غيومٌ ثابتةُ المواضع، لونُها من ضوء الساعة. */
 private class Cloud(val x: Float, val y: Float, val w: Float, val a: Float)
 
-private val CLOUDS: List<Cloud> = Random(91).let { rnd ->
-    List(9) { Cloud(rnd.nextFloat() * 1.3f - 0.15f, 0.12f + rnd.nextFloat() * 0.6f, 0.17f + rnd.nextFloat() * 0.24f, 0.55f + rnd.nextFloat() * 0.4f) }
+/*  خمسٌ لا تسع، وناعمةُ الحواف.
+ *
+ *  أوّلُ نسخةٍ نُقلت عن نموذج HTML حرفياً — وهناك كان `filter: blur(11px)`
+ *  يذيب حوافَّها. وليس لـ`drawOval` في Compose مقابلٌ لذلك، فنُقلت
+ *  الأشكالُ وسقط الضباب: تسعُ غيماتٍ × ثلاثِ كتلٍ = سبعٌ وعشرون قطعةً
+ *  بيضاءَ حادّةَ الحافّة بشفافية 0.75. لُطخٌ لا غيوم.
+ *
+ *  والعلاجُ ليس ضباباً بل تدرّجٌ شعاعيّ يتلاشى إلى الشفافية عند الحافّة:
+ *  ناعمٌ بطبعه، وأرخصُ من أيّ مرشِّح.
+ */
+private val CLOUDS: List<Cloud> = kotlin.random.Random(23).let { rnd ->
+    List(5) {
+        Cloud(
+            x = rnd.nextFloat() * 1.24f - 0.12f,
+            y = 0.30f + rnd.nextFloat() * 0.30f,
+            w = 0.34f + rnd.nextFloat() * 0.26f,
+            a = 0.62f + rnd.nextFloat() * 0.38f,
+        )
+    }
 }
 
 /**
@@ -130,20 +147,21 @@ fun SkyCanvas(
 
         /*  السَّمْتُ يعطي الموضع الأفقيّ والارتفاعُ الرأسيّ. والمدى
             55°–305° هو قوسُ النهار المرئيّ؛ خارجَه القرصُ تحت الأفق. */
-        val x = (((azimuth - 55f) / 250f).coerceIn(0.06f, 0.94f)) * w
-        val y = (0.86f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.74f) * h
+        /*  القرصُ كان يقع خلف «نهارٌ طيّب»: عند ارتفاع 47° موضعُه 36٪
+            من السماء، والنصُّ يشغل أعلى 44٪. فحُصر في النطاق الخالي بين
+            التحيّة والحبّة — 40٪–70٪ — ويبقى تدرّجُه مقروءاً. */
+        val x = (((azimuth - 55f) / 250f).coerceIn(0.08f, 0.92f)) * w
+        val y = (0.70f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.30f) * h
 
         // الغيومُ خلف القرص: أعلاها من السماء وأسفلُها من ضوء الشمس
-        val cloudTop = when {
-            altitude > 14f -> Color(0xFFFFFFFF); altitude > 2f -> Color(0xFFF4E7DA)
-            altitude > -6f -> Color(0xFF8E7C89); else -> Color(0xFF39415C)
-        }
-        val cloudBot = when {
-            altitude > 14f -> Color(0xFFDCE9F3); altitude > 2f -> Color(0xFFFFD9A0)
-            altitude > -6f -> Color(0xFFE8A07A); else -> Color(0xFF2A3050)
+        val cloudTint = when {
+            altitude > 14f -> Color(0xFFFFFFFF)
+            altitude > 2f  -> Color(0xFFFFE6C0)
+            altitude > -6f -> Color(0xFFE8A07A)
+            else           -> Color(0xFF5A6488)
         }
         val cloudVis = if (altitude > -9f) 1f else ((altitude + 16f) / 7f).coerceIn(0f, 1f)
-        if (cloudVis > 0.01f) drawClouds(cloudTop, cloudBot, cloudVis)
+        if (cloudVis > 0.01f) drawClouds(cloudTint, cloudVis)
 
         if (up) {
             drawCircle(
@@ -155,12 +173,12 @@ fun SkyCanvas(
             )
             drawCircle(
                 if (altitude < 8f) Color(0xFFFFE0A8) else Color(0xFFFFF6DE),
-                radius = w * 0.037f, center = Offset(x, y),
+                radius = w * 0.052f, center = Offset(x, y),
             )
         } else {
             // القمرُ مقابلُ الشمس تقريباً، وبطورِه المحسوب
             val mx = w - x
-            val my = (1f - (y / h)).coerceIn(0.10f, 0.62f) * h
+            val my = (1.10f - (y / h)).coerceIn(0.38f, 0.68f) * h
             drawCircle(
                 Brush.radialGradient(
                     listOf(Color(0xFFC6D4F2).copy(alpha = 0.20f), Color.Transparent),
@@ -168,7 +186,7 @@ fun SkyCanvas(
                 ),
                 radius = w * 0.24f, center = Offset(mx, my),
             )
-            drawMoon(Offset(mx, my), w * 0.034f, moon)
+            drawMoon(Offset(mx, my), w * 0.048f, moon)
         }
 
         /*  الوهجُ يتمركز على الشمس لا على وسط الشاشة — فعند المغرب
@@ -192,34 +210,39 @@ fun SkyCanvas(
         /*  شريطُ ذهبٍ حيث تلتقي السماءُ الورق — goldLight من اللوحة،
             الفاصلُ الذي تستعمله المصاحفُ بين اللازورد والذهب. كان
             اللقاءُ حافّةً حادّةً بين لونين لا يجمعهما شيء (نبرة 1.93). */
-        val edge = lerp(sky.second, rc.goldLight, 0.30f)
+        val edge = lerp(sky.second, rc.goldLight, 0.34f)
         drawRect(
-            Brush.verticalGradient(
-                0f to Color.Transparent, 0.58f to Color.Transparent, 1f to edge,
-            ),
-            topLeft = Offset(0f, h * 0.62f),
-            size = Size(w, h * 0.38f),
+            Brush.verticalGradient(0f to Color.Transparent, 1f to edge),
+            topLeft = Offset(0f, h * 0.74f),
+            size = Size(w, h * 0.26f),
         )
     }
 }
 
-private fun DrawScope.drawClouds(top: Color, bottom: Color, vis: Float) {
+private fun DrawScope.drawClouds(tint: Color, vis: Float) {
     val w = size.width
     val h = size.height
     CLOUDS.forEach { c ->
         val cw = c.w * w
-        val ch = cw * 0.38f
+        val ch = cw * 0.30f
         val cx = c.x * w
         val cy = c.y * h
-        // ثلاثُ كتلٍ متداخلةٍ تصنع غيمةً واحدة — والتدرّجُ يضيئها من أسفل
-        listOf(-0.28f to 0.78f, 0f to 1f, 0.3f to 0.7f).forEach { (dx, sc) ->
+        // ثلاثُ نفخاتٍ متداخلةٍ تصنع غيمةً — وكلُّ نفخةٍ تتلاشى عند حافّتها
+        listOf(-0.30f to 0.74f, 0.02f to 1f, 0.31f to 0.66f).forEach { (dx, sc) ->
+            val rw = cw * sc
+            val rh = ch * sc
+            val left = cx + dx * cw - rw / 2f
+            val topY = cy - rh / 2f
             drawOval(
-                Brush.verticalGradient(
-                    listOf(top.copy(alpha = c.a * vis * 0.55f), bottom.copy(alpha = c.a * vis * 0.75f)),
-                    startY = cy - ch * sc / 2f, endY = cy + ch * sc / 2f,
+                Brush.radialGradient(
+                    0f to tint.copy(alpha = c.a * vis * 0.22f),
+                    0.55f to tint.copy(alpha = c.a * vis * 0.15f),
+                    1f to Color.Transparent,
+                    center = Offset(left + rw / 2f, topY + rh / 2f),
+                    radius = rw / 2f,
                 ),
-                topLeft = Offset(cx + dx * cw - cw * sc / 2f, cy - ch * sc / 2f),
-                size = Size(cw * sc, ch * sc),
+                topLeft = Offset(left, topY),
+                size = Size(rw, rh),
             )
         }
     }

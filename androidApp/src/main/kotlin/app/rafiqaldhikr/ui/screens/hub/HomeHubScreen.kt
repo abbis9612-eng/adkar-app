@@ -164,28 +164,37 @@ fun HomeHubScreen(
         )
 
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
-            /* فوق السماء */
+            /*  ترتيبُ السماء: كلامٌ أعلى · صورةٌ وسطى · حبّةٌ على الأفق.
+             *
+             *  كان الكلامُ كلُّه مكدَّساً في الأعلى (شريطٌ فتحيّةٌ فحبّة)،
+             *  فبقي أسفلُ السماء فراغاً ميّتاً، ووقع القرصُ خلف «نهارٌ
+             *  طيّب». الآن للصورة نطاقٌ خالصٌ بينهما، والحبّةُ — وهي
+             *  أقربُ ما يُقرأ إلى الفعل — تجلس على حافّة الورقة مباشرةً.
+             */
             CompositionLocalProvider(LocalContentColor provides skyInk) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(SKY_TEXT_H)
+                        .padding(horizontal = 20.dp),
+                ) {
                     SkyTopBar(
-                        clock = home.nextPrayerTime,
-                        hijri = home.hijriDate,
+                        hijri = home.hijriDate.localizedDigits(ar),
                         ink   = skyInk,
                         onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                     )
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(18.dp))
                     Text("السلام عليكم", style = RafiqType.bodyS, color = skyInk.copy(alpha = 0.82f))
                     Text(
                         if (sun.altitude > 8) "نهارٌ طيّب" else if (sun.altitude > -1) "وقتٌ مبارك" else "مساءُ الخير",
                         style = RafiqType.hero,
                         color = skyInk,
                     )
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.weight(1f))          // نطاقُ الصورة
                     WindowPill(day.nowStation, day.needsLocation, ar, skyInk)
+                    Spacer(Modifier.height(14.dp))
                 }
             }
-
-            Spacer(Modifier.height(16.dp))
 
             /* الورقة — ترتفع حيث ينتهي كلامُ السماء، فتتبع مقاسَ الخطّ
                بدل ارتفاعٍ مثبَّتٍ يُقصّ حين يكبّره صاحبُه. */
@@ -242,8 +251,9 @@ fun HomeHubScreen(
     }
 }
 
-/** ارتفاعُ السماء. والورقةُ تغطّي أسفلَها، فالمدفوعُ فعلاً أقلُّ منه. */
-private val SKY_H = 318.dp
+/** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
+private val SKY_H = 344.dp
+private val SKY_TEXT_H = 268.dp
 
 /* ── الشريطُ العلويُّ فوق السماء ─────────────────────────────────
 
@@ -253,7 +263,7 @@ private val SKY_H = 318.dp
 ──────────────────────────────────────────────────────────────── */
 
 @Composable
-private fun SkyTopBar(clock: String, hijri: String, ink: Color, onSettings: () -> Unit) {
+private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
     val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
     val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
     Row(
@@ -509,14 +519,6 @@ private fun MeeqatCard(
         }
     }
 
-    // الوقتُ يتقدّم بنبضة الدقيقة في DayCompanionViewModel: كلُّ نبضةٍ
-    // تُعيد بناء الحالة فتُعاد قراءةُ الساعة هنا. ودقيقةٌ هي دقّةُ ما
-    // يُعرض أصلاً («بقي ١٢ دقيقة»)، فلا حاجة إلى مؤقّتٍ ثانٍ.
-    val now = System.currentTimeMillis()
-    val span = station?.let { it.endMillis - it.startMillis } ?: 0L
-    val progress = if (span > 0L)
-        ((now - station!!.startMillis).toFloat() / span).coerceIn(0f, 1f) else null
-    val remaining = station?.let { humanRemaining(it.endMillis - now) }
 
     /*  كانت البطاقةُ سطحاً أخضرَ داكناً لأنّها كانت مركزَ ثقل الشاشة.
      *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. فهي الآن على
@@ -540,27 +542,6 @@ private fun MeeqatCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (source != null) {
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.cardBorder, RoundedCornerShape(10.dp))
-                        .padding(start = 9.dp, end = 11.dp, top = 7.dp, bottom = 7.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        Modifier
-                            .width(3.dp)
-                            .height(15.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(rc.gold),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(source, style = RafiqType.caption, color = rc.gold)
-                }
-            }
         }
 
         /* الفعل: «ابدأ» وزرُّ «لماذا هذا الآن؟» */
@@ -569,6 +550,21 @@ private fun MeeqatCard(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment     = Alignment.CenterVertically,
         ) {
+            if (source != null) {
+                // كانت سطراً وحدها فوق الزرّين، فتُقرأ لصاقةً معلَّقة.
+                // وهي في صفّ الفعل تُقرأ ما تُقرأ به: سنداً لِما ستفعل.
+                Row(
+                    Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(1.dp, rc.cardBorder, RoundedCornerShape(10.dp))
+                        .padding(start = 9.dp, end = 11.dp, top = 9.dp, bottom = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(Modifier.width(3.dp).height(15.dp).clip(RoundedCornerShape(2.dp)).background(rc.gold))
+                    Spacer(Modifier.width(8.dp))
+                    Text(source, style = RafiqType.caption, color = rc.gold, maxLines = 1)
+                }
+            }
             Row(
                 Modifier
                     .weight(1f)
