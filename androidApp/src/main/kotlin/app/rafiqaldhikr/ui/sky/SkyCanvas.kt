@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -85,31 +84,24 @@ private val STARS: List<Star> = Random(7).let { rnd ->
 }
 
 /** غيومٌ ثابتةُ المواضع، لونُها من ضوء الساعة. */
-private class Cloud(val x: Float, val y: Float, val r: Float, val a: Float)
-
-/*  ثلاثُ محاولاتٍ حتى نعمت الحافّة — وسببُ فشل الاثنتين قياسيّ.
+/*  حُذفت الغيوم — بعد ثلاثِ محاولات.
  *
- *  الأولى: `drawOval` بتدرّجٍ رأسيّ. لُطخٌ حادّةٌ بشفافية 0.75، لأنّ
- *  نموذج HTML كان يذيبها بـ`filter: blur(11px)` ولا مقابلَ له هنا.
+ *  الأولى: بيضاتٌ بتدرّجٍ رأسيّ، حوافُّها حادّةٌ لأنّ `filter: blur` في
+ *  نموذج HTML لا مقابلَ له في `drawOval`.
+ *  الثانية: تدرّجٌ شعاعيٌّ دائريٌّ في بيضةٍ مفلطحة — يُقصّ رأسياً عند
+ *  ثلث مساره والشفافيةُ ما تزال 70٪.
+ *  الثالثة: دائرةٌ ناعمةٌ تُسطَّح بالمقياس. نعمت الحافّةُ فعلاً — ورُسمت
+ *  الخوارزميّةُ وفُحصت صورتُها — لكنّها تُقرأ لطخاتٍ رماديةً على زجاج.
  *
- *  الثانية: `drawOval` بتدرّجٍ شعاعيّ نصفُ قطره rw/2. والبيضةُ ارتفاعُها
- *  0.30·rw، فالتلاشي يبلغ الصفرَ أفقياً ويُقطَع رأسياً عند 30٪ من مساره
- *  والشفافيةُ ما تزال 70٪ من قيمتها. والشكلُ مفلطحٌ فالحافّةُ المرئيّة هي
- *  العليا والسفلى — أي المقصوصةُ بالضبط. فلم يتغيّر شيء.
+ *  والسببُ بنيويّ لا في الضبط: غيمةٌ من إهليلجاتٍ متراصّة تبقى لطخةً
+ *  مهما نعمت، لأنّ الغيمةَ الحقيقيّة نُتوءٌ من فوقٍ وقاعٌ مسطَّحٌ من
+ *  تحتٍ وتظليلٌ داخليّ. ورسمُها صدقاً يحتاج ضجيجاً محسوباً أو صورةً —
+ *  والصورةُ تنقض القاعدة التي وُلدت السماءُ منها.
  *
- *  والصواب: دائرةٌ يبلغ تدرّجُها الصفرَ عند حافّتها تماماً، ثمّ تُسطَّح
- *  بـ`scale` رأسياً. فيُحفظ التلاشي في الاتجاهين ولا حافّةَ أصلاً.
- *
- *  ومواضعُها موزَّعةٌ لا عشوائية: بذرةُ العشوائيّ السابقة كدّستها كلَّها
- *  في الثلث الأيسر.
+ *  وهي كانت العنصرَ الوحيد في السماء غيرَ المحسوب: التدرّجُ من ارتفاع
+ *  الشمس، وموضعُ القرص من سَمْتها، وطورُ القمر من عمره، والوهجُ على
+ *  السَّمْت. والغيومُ وحدها زينةٌ مخترعة — وهي وحدها التي سقطت ثلاثاً.
  */
-private val CLOUDS = listOf(
-    Cloud(x = 0.14f, y = 0.30f, r = 0.30f, a = 0.85f),
-    Cloud(x = 0.46f, y = 0.20f, r = 0.24f, a = 0.62f),
-    Cloud(x = 0.78f, y = 0.34f, r = 0.27f, a = 0.72f),
-    Cloud(x = 0.30f, y = 0.50f, r = 0.22f, a = 0.55f),
-    Cloud(x = 0.92f, y = 0.56f, r = 0.25f, a = 0.60f),
-)
 
 /**
  * @param altitude ارتفاعُ الشمس بالدرجات · @param azimuth سَمْتُها
@@ -163,15 +155,6 @@ fun SkyCanvas(
         val y = (0.64f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.20f) * h
 
         // الغيومُ خلف القرص: أعلاها من السماء وأسفلُها من ضوء الشمس
-        val cloudTint = when {
-            altitude > 14f -> Color(0xFFFFFFFF)
-            altitude > 2f  -> Color(0xFFFFE6C0)
-            altitude > -6f -> Color(0xFFE8A07A)
-            else           -> Color(0xFF5A6488)
-        }
-        val cloudVis = if (altitude > -9f) 1f else ((altitude + 16f) / 7f).coerceIn(0f, 1f)
-        if (cloudVis > 0.01f) drawClouds(cloudTint, cloudVis)
-
         if (up) {
             drawCircle(
                 Brush.radialGradient(
@@ -225,34 +208,6 @@ fun SkyCanvas(
             topLeft = Offset(0f, h * 0.74f),
             size = Size(w, h * 0.26f),
         )
-    }
-}
-
-private fun DrawScope.drawClouds(tint: Color, vis: Float) {
-    val w = size.width
-    val h = size.height
-    CLOUDS.forEach { c ->
-        val r = c.r * w
-        val cx = c.x * w
-        val cy = c.y * h
-        // نفخاتٌ ثلاثٌ متداخلة، وكلُّها دوائرُ مسطَّحةٌ بالمقياس رأسياً
-        scale(scaleX = 1f, scaleY = 0.34f, pivot = Offset(cx, cy)) {
-            listOf(-0.62f to 0.72f, 0f to 1f, 0.66f to 0.64f).forEach { (dx, sc) ->
-                val rr = r * sc
-                val center = Offset(cx + dx * r, cy)
-                drawCircle(
-                    Brush.radialGradient(
-                        0f to tint.copy(alpha = c.a * vis * 0.20f),
-                        0.5f to tint.copy(alpha = c.a * vis * 0.13f),
-                        1f to Color.Transparent,
-                        center = center,
-                        radius = rr,
-                    ),
-                    radius = rr,
-                    center = center,
-                )
-            }
-        }
     }
 }
 
