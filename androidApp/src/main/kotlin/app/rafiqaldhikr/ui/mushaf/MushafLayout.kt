@@ -42,7 +42,15 @@ data class MushafPage(
     val t: List<Int>,
     /** أرقامُ السور لألواح العناوين في هذه الصفحة. */
     val s: List<Int> = emptyList(),
+    /*  عرضُ كلِّ سطرٍ بأجزاءِ المئةِ من الـem — مقيسٌ من جداول `hmtx`
+        في الخطّ نفسِه لا مُقدَّر. به يُحسب مقاسُ الخطّ فيملأ السطرُ
+        عرضَ الورقة، ويُعرف السطرُ القصيرُ من الممتلئ. */
+    val lw: List<Int> = emptyList(),
 ) {
+    /** أعرضُ سطرٍ في الصفحة بالـem — عليه يُبنى المقاس. */
+    val widestEm: Float
+        get() = (lw.maxOrNull() ?: 1630) / 100f
+
     /** الرمزُ الحقيقيّ كمحرفٍ من منطقة الاستعمال الخاصّ. */
     fun glyph(delta: Int): String = String(Character.toChars(b + delta))
 }
@@ -94,6 +102,7 @@ data class MushafLayout(
                 val vArr = o.getJSONArray("v")
                 val tArr = o.getJSONArray("t")
                 val sArr = o.optJSONArray("s")
+                val wArr = o.optJSONArray("lw")
                 pages += MushafPage(
                     p = o.getInt("p"),
                     b = o.getInt("b"),
@@ -101,6 +110,7 @@ data class MushafLayout(
                     v = List(vArr.length()) { vArr.getString(it) },
                     t = List(tArr.length()) { tArr.getInt(it) },
                     s = if (sArr == null) emptyList() else List(sArr.length()) { sArr.getInt(it) },
+                    lw = if (wArr == null) emptyList() else List(wArr.length()) { wArr.getInt(it) },
                 )
             }
             return MushafLayout(root.optInt("v", 1), fonts, pageFont, pages)

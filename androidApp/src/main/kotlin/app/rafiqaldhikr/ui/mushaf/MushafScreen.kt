@@ -163,7 +163,6 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
                     MushafPageView(
                         page = data,
                         family = family,
-                        fontSize = fontSize.sp,
                         selectedVerse = selected,
                         onVerseClick = { selected = if (selected == it) null else it },
                         modifier = Modifier.fillMaxSize(),
@@ -204,6 +203,7 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
         SettingsSheet(
             mode = mode,
             fontSize = fontSize,
+            sizeApplies = !effective.needsFonts,
             ready = ready,
             downloaded = layout?.let { fonts.downloadedCount(it) } ?: 0,
             totalFonts = layout?.fonts?.size ?: 0,
@@ -374,6 +374,9 @@ private fun MushafFooter(page: Int, hizb: Int, surah: String, ar: Boolean, ink: 
 private fun SettingsSheet(
     mode: MushafMode,
     fontSize: Int,
+    /*  الورقةُ المصحفية مقاسُها يُشتقّ من عرض الشاشة لتستوي الأسطرُ كما
+        في المصحف — فلا معنى لمقياسٍ يدويٍّ معها. */
+    sizeApplies: Boolean,
     ready: Boolean,
     downloaded: Int,
     totalFonts: Int,
@@ -443,6 +446,13 @@ private fun SettingsSheet(
 
             Spacer(Modifier.height(10.dp))
             Text("مقاسُ الخطّ", style = RafiqType.titleM, color = rc.ink)
+            if (!sizeApplies) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "الورقةُ المصحفيةُ تضبط مقاسَها بنفسها لتستويَ الأسطر — والمقياسُ لِعرضِ النصّ.",
+                    style = RafiqType.caption, color = rc.inkMed,
+                )
+            }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 listOf(18, 22, 26, 30).forEach { s ->
