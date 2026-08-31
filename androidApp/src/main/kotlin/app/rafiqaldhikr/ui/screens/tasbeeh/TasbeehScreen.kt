@@ -43,6 +43,10 @@ import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
 import app.rafiqaldhikr.ui.components.RafiqIconButton
+import app.rafiqaldhikr.ui.utils.localized
+import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.PI
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -308,24 +312,30 @@ fun TasbeehScreen(
                         )
                 )
 
-                ArcProgress(
-                    value = state.count,
-                    max = state.target.coerceAtLeast(1),
-                    sizeDp = 200.dp,
-                    strokeColor = primaryColor,
-                    bgColor = primaryColor.copy(alpha = 0.12f),
-                    strokeW = 10.dp,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            "${state.count}".localizedDigits(LocalArabicNumerals.current),
-                            style = NumbersStyle,
-                            fontSize = 56.sp,
-                            color = primaryColor,
-                        )
-                        Text("مرة",
-                            color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
-                    }
+                /*  ثلاثٌ وثلاثون حبّة — لا قوسُ تقدّمٍ مجرَّد.
+                 *
+                 *  المسبحةُ ثلاثٌ وثلاثون حبّةً تُدار، فحلقتُها هي الشيءُ
+                 *  نفسُه لا رسمٌ يمثّله. والمضيئةُ الأخيرةُ أكبرُ وذهبيّة،
+                 *  فتُرى الحركةُ قبل أن يُقرأ الرقم.
+                 *
+                 *  وكانت الشاشةُ دائرتين: حلقةٌ باهتةٌ فيها العدّاد صغيراً،
+                 *  وتحتها دائرةٌ خضراءُ ضخمةٌ مكتوبٌ عليها «اضغط» — فأكبرُ
+                 *  عنصرٍ أمرٌ وأصغرُها الجواب. صارت واحدة: الرقمُ هو البطل،
+                 *  والحلقةُ نفسُها مساحةُ اللمس. */
+                MisbahaRing(
+                    count = state.count,
+                    target = state.target.coerceAtLeast(1),
+                    scale = tapScale,
+                    rc = LocalRafiqColors.current,
+                    onTap = {
+                        isPressed = true
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.increment()
+                    },
+                )
+                LaunchedEffect(state.count) {
+                    kotlinx.coroutines.delay(120)
+                    isPressed = false
                 }
             }
 
@@ -355,48 +365,6 @@ fun TasbeehScreen(
             }
 
             Spacer(Modifier.height(24.dp))
-
-            // ═══ TAP BUTTON ═══
-            Box(
-                Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    Modifier
-                        .size(160.dp)
-                        .scale(tapScale)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                listOf(primaryColor.copy(alpha = 0.85f), primaryColor),
-                                radius = 300f
-                            )
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            isPressed = true
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.increment()
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    // Release press after short delay
-                    LaunchedEffect(state.count) {
-                        kotlinx.coroutines.delay(120)
-                        isPressed = false
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IcoMisbaha(40.dp, Color.White)
-                        Spacer(Modifier.height(4.dp))
-                        Text("اضغط",
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White.copy(alpha = 0.85f), style = RafiqType.bodyS)
-                    }
-                }
-            }
 
             // ═══ COMPLETION BADGE ═══
             if (state.isCompleted) {
@@ -534,3 +502,78 @@ fun TasbeehScreen(
         )
     }
 }
+
+/* ── حلقةُ المسبحة ────────────────────────────────────────────── */
+
+@Composable
+private fun MisbahaRing(
+    count: Int,
+    target: Int,
+    scale: Float,
+    rc: app.rafiqaldhikr.ui.theme.RafiqPalette,
+    onTap: () -> Unit,
+) {
+    val ar = LocalArabicNumerals.current
+    val laps = count / target
+    val cycle = if (count == 0) 0 else (count % target).let { if (it == 0) target else it }
+    val lit = (cycle.toFloat() / target * BEADS).toInt()
+
+    Box(
+        Modifier
+            .size(252.dp)
+            .scale(scale)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onTap,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val c = Offset(size.width / 2f, size.height / 2f)
+            val r = size.minDimension / 2f - 12.dp.toPx()
+            for (i in 0 until BEADS) {
+                val a = (i.toFloat() / BEADS) * 2f * PI.toFloat() - PI.toFloat() / 2f
+                val p = Offset(c.x + r * cos(a), c.y + r * sin(a))
+                val on = i < lit
+                val cur = i == lit - 1
+                if (cur) {
+                    drawCircle(rc.goldLight.copy(alpha = 0.22f), 11.dp.toPx(), p)
+                    drawCircle(rc.goldLight, 8.dp.toPx(), p)
+                } else {
+                    drawCircle(if (on) rc.emerald else rc.divider, 5.dp.toPx(), p)
+                }
+            }
+        }
+        Column(
+            Modifier
+                .size(180.dp)
+                .clip(CircleShape)
+                .background(rc.card)
+                .border(1.dp, rc.cardBorder, CircleShape),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text("عددُك", style = RafiqType.caption, color = rc.gold)
+            // الصفرُ العربيُّ «٠» نقطةٌ صغيرة، فيبدو وحده عطباً لا رقماً
+            Text(
+                if (count == 0) "ابدأ" else count.localized(ar),
+                style = if (count == 0) RafiqType.titleXL else NumbersStyle,
+                fontSize = if (count == 0) 30.sp else 64.sp,
+                color = rc.ink,
+            )
+            Spacer(Modifier.height(5.dp))
+            Text(
+                if (laps > 0) "أتممتَ ${laps.localized(ar)} " +
+                    (if (laps == 1) "دورة" else "دورات")
+                else "علامةُ الوِرد عند ${target.localized(ar)}",
+                style = RafiqType.caption,
+                color = rc.inkMed,
+            )
+        }
+    }
+}
+
+/** حبّاتُ المسبحة — ثلاثٌ وثلاثون، وهي عددُها المعروف. */
+private const val BEADS = 33

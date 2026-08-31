@@ -1,5 +1,12 @@
 package app.rafiqaldhikr.ui.screens.qibla
 
+import android.hardware.SensorManager
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
 import androidx.lifecycle.viewModelScope
@@ -13,6 +20,23 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** أكبرُ فرقٍ زاويٍّ داخل نافذة القراءات، مع مراعاة الالتفاف عند 360°. */
+private fun angularSpread(values: Collection<Float>): Float {
+    val ref = values.first()
+    val rel = values.map { ((it - ref + 540f) % 360f) - 180f }
+    return (rel.max() - rel.min())
+}
+
+/** المسافةُ إلى الكعبة على دائرةٍ عظمى — نصفُ قطر الأرض المتوسّط 6371.0088 كم. */
+private fun greatCircleKm(lat: Double, lng: Double): Double {
+    val p1 = Math.toRadians(lat)
+    val p2 = Math.toRadians(21.4225)
+    val dp = p2 - p1
+    val dl = Math.toRadians(39.8262 - lng)
+    val h = sin(dp / 2).pow(2) + cos(p1) * cos(p2) * sin(dl / 2).pow(2)
+    return 2 * 6371.0088 * asin(sqrt(h))
+}
+
 class QiblaViewModel(
     private val calculateQibla: CalculateQiblaUseCase,
     private val compassManager: CompassManager,
@@ -25,8 +49,23 @@ class QiblaViewModel(
         val rotationToQibla:   Float   = 0f,
         val isCompassAvailable: Boolean = true,
         val isLocationKnown:   Boolean  = false,
-        val error:             String?  = null
-    )
+        val error:             String?  = null,
+        /** المسافةُ إلى الكعبة بالكيلومترات — تُحسب مع الاتّجاه من الإحداثيات نفسها. */
+        val distanceKm:        Int     = 0,
+        /**
+         * بوّابتا الثقة.
+         *
+         * شاشةُ قبلةٍ تجزم بلا تحفّظٍ أسوأُ من شاشةٍ تعتذر: المصلّي يستقبل ما
+         * تقول. فلا يُعلَن الاتّجاه مطمئنّاً حتى تصدق الاثنتان.
+         *
+         * ولم تُضَف بوّابةٌ ثالثة لاستواء الهاتف رغم حُسنها في العرض: تحتاج
+         * مقياسَ تسارعٍ لا يُقرأ هنا، وبوّابةٌ مزيَّنةٌ تُبطل معنى البوّابات.
+         */
+        val compassTrusted:    Boolean = false,
+        val readingSteady:     Boolean = false,
+    ) {
+        val trustworthy: Boolean get() = compassTrusted && readingSteady
+    }
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -47,6 +86,7 @@ class QiblaViewModel(
                 _uiState.update {
                     it.copy(
                         qiblaBearing = bearing,
+                        distanceKm = greatCircleKm(here.lat, here.lng).roundToInt(),
                         isLocationKnown = true
                     )
                 }
@@ -58,12 +98,21 @@ class QiblaViewModel(
                 _uiState.update { it.copy(isCompassAvailable = false) }
                 return@launch
             }
-            compassManager.getHeadingFlow().collect { heading ->
+            /*  ثباتُ القراءة يُقاس ولا يُدّعى: آخرُ اثنتي عشرة قراءةً،
+                والمدى بينها بالدرجات. فإن جاوز 6° فالإبرةُ ترتجف — إمّا
+                معدنٌ قريبٌ أو يدٌ تتحرّك — ولا يُعلَن اتّجاهٌ عليها. */
+            val window = ArrayDeque<Float>()
+            compassManager.getReadingFlow().collect { reading ->
                 val qibla = _uiState.value.qiblaBearing
+                window.addLast(reading.heading)
+                if (window.size > 12) window.removeFirst()
+                val steady = window.size >= 8 && angularSpread(window) <= 6f
                 _uiState.update {
                     it.copy(
-                        deviceHeading   = heading,
-                        rotationToQibla = (qibla - heading + 360f) % 360f
+                        deviceHeading   = reading.heading,
+                        rotationToQibla = (qibla - reading.heading + 360f) % 360f,
+                        compassTrusted  = reading.accuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM,
+                        readingSteady   = steady,
                     )
                 }
             }
