@@ -36,14 +36,20 @@ class MushafPrefs(context: Context) {
     private val sp = context.getSharedPreferences("rafiq_mushaf", Context.MODE_PRIVATE)
 
     var mode: MushafMode
+        // المصحفيةُ هي الأصل — وهي ما يُفتح عليه المصحف. والباقيةُ خيارات.
         get() = runCatching { MushafMode.valueOf(sp.getString(KEY_MODE, null) ?: "") }
-            .getOrDefault(MushafMode.PAGE)
+            .getOrDefault(MushafMode.MUSHAF)
         set(v) = sp.edit().putString(KEY_MODE, v.name).apply()
 
     /** مقاسُ الخطّ بالنقاط — يُضبط في ورقة الإعدادات. */
     var fontSize: Int
         get() = sp.getInt(KEY_SIZE, 22).coerceIn(16, 34)
         set(v) = sp.edit().putInt(KEY_SIZE, v.coerceIn(16, 34)).apply()
+
+    /** هل عُرض طلبُ التنزيل مرّةً؟ لا يُلحّ بعدها. */
+    var askedOnce: Boolean
+        get() = sp.getBoolean(KEY_ASKED, false)
+        set(v) = sp.edit().putBoolean(KEY_ASKED, v).apply()
 
     var lastPage: Int
         get() = sp.getInt(KEY_PAGE, 1).coerceIn(1, 604)
@@ -53,6 +59,7 @@ class MushafPrefs(context: Context) {
         const val KEY_MODE = "mode"
         const val KEY_SIZE = "size"
         const val KEY_PAGE = "page"
+        const val KEY_ASKED = "asked"
     }
 }
 

@@ -65,6 +65,17 @@ fun MushafScreen(navController: NavHostController) {
     var progress by remember { mutableStateOf<MushafDownloader.Progress?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
+    var offer by remember { mutableStateOf(false) }
+
+    /*  الصفحةُ المصحفية هي المقصودُ من الشاشة، لا خيارٌ في ورقة إعدادات.
+     *  فيُعرض طلبُ التنزيل أوّلَ فتحٍ مرّةً واحدة — ولا يُلحّ بعدها. */
+    LaunchedEffect(Unit) {
+        if (!ready && !prefs.askedOnce && layout != null) {
+            offer = true
+            prefs.askedOnce = true
+        }
+    }
+
     val pager = rememberPagerState(initialPage = prefs.lastPage - 1, pageCount = { 604 })
     LaunchedEffect(pager.currentPage) { prefs.lastPage = pager.currentPage + 1 }
 
@@ -84,6 +95,16 @@ fun MushafScreen(navController: NavHostController) {
             onSettings = { sheet = true },
             onList = { navController.navigate(RafiqRoute.QuranList.route) },
         )
+
+        if (mode.needsFonts && !ready && progress == null) {
+            MushafBanner(
+                onDownload = { offer = true },
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
+            )
+        }
+        if (progress != null) {
+            DownloadStrip(progress!!, Modifier.padding(horizontal = 14.dp, vertical = 6.dp))
+        }
 
         Box(Modifier.weight(1f)) {
             HorizontalPager(
@@ -111,6 +132,22 @@ fun MushafScreen(navController: NavHostController) {
         }
 
         MushafFooter(pager.currentPage + 1, ar, ink)
+    }
+
+    if (offer) {
+        OfferDialog(
+            onYes = {
+                offer = false
+                error = null
+                scope.launch {
+                    val l = layout ?: return@launch
+                    error = MushafDownloader(ctx).download(l, fonts) { progress = it }
+                    ready = fonts.isReady(l)
+                    progress = null
+                }
+            },
+            onNo = { offer = false },
+        )
     }
 
     if (sheet) {
@@ -426,5 +463,100 @@ private fun SettingsSheet(
             }
             Spacer(Modifier.height(20.dp))
         }
+    }
+}
+
+/* ── طلبُ التنزيل — مرّةً واحدةً أوّلَ فتح ───────────────────────
+
+   الصفحةُ المصحفية هي المقصودُ من هذه الشاشة، فلا يُخبَّأ ما يجعلها
+   تعمل في ورقة إعدادات. ويُسأل مرّةً: من قَبِل عمل المصحفُ كما في
+   الورقة، ومن أبى بقيت الصفحةُ المضبوطةُ تعمل دون إنترنت.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun OfferDialog(onYes: () -> Unit, onNo: () -> Unit) {
+    val rc = LocalRafiqColors.current
+    Box(
+        Modifier.fillMaxSize().background(Color(0x88101A14)).clickable(onClick = onNo),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth(0.88f)
+                .clip(RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
+                .background(rc.card)
+                .border(1.dp, rc.cardBorder, RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
+                .clickable(enabled = false) {}
+                .padding(20.dp),
+        ) {
+            Text("الصفحةُ المصحفية", style = RafiqType.hero, color = rc.emerald)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها " +
+                    "والسطرُ يقطع حيث يقطع في الورقة.",
+                style = RafiqType.body, color = rc.inkMed,
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "تحتاج خطوطَ المصحف: نحو ٨٩ م.ب تُنزَّل مرّةً واحدة، ثمّ تعمل دون إنترنت للأبد.",
+                style = RafiqType.bodyS, color = rc.inkMed,
+            )
+            Spacer(Modifier.height(18.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth().heightIn(min = 54.dp)
+                    .clip(RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
+                    .background(rc.emerald)
+                    .clickable(onClick = onYes),
+                contentAlignment = Alignment.Center,
+            ) { Text("نزِّلْها الآن", style = RafiqType.titleM, color = rc.onEmerald) }
+            Spacer(Modifier.height(9.dp))
+            Text(
+                "لاحقاً — واقرأ بالصفحة المضبوطة",
+                style = RafiqType.bodyS, color = rc.inkMed,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onNo).padding(vertical = 6.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun MushafBanner(onDownload: () -> Unit, modifier: Modifier = Modifier) {
+    val rc = LocalRafiqColors.current
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+            .background(rc.emeraldPastel)
+            .border(1.dp, rc.emerald.copy(alpha = 0.22f), RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+            .clickable(onClick = onDownload)
+            .padding(horizontal = 13.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text("هذه الصفحةُ المضبوطة", style = RafiqType.label, color = rc.emerald)
+            Text("نزِّلْ خطوطَ المصحف لتراها كما في الورقة", style = RafiqType.caption, color = rc.inkMed)
+        }
+        RafiqIcon(RIcon.ChevronLeft, 17.dp, rc.emerald)
+    }
+}
+
+@Composable
+private fun DownloadStrip(p: MushafDownloader.Progress, modifier: Modifier = Modifier) {
+    val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
+    Column(modifier.fillMaxWidth()) {
+        Text(
+            "يُنزَّل المصحف · ${p.done.localized(ar)} من ${p.total.localized(ar)} " +
+                "· ${(p.bytes / 1_048_576).toInt().localized(ar)} م.ب",
+            style = RafiqType.caption, color = rc.inkMed,
+        )
+        Spacer(Modifier.height(5.dp))
+        LinearProgressIndicator(
+            progress = { p.done.toFloat() / p.total },
+            modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
+            color = rc.emerald, trackColor = rc.divider,
+        )
     }
 }
