@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                     RafiqRoute.Onboarding.route,
                     RafiqRoute.Celebration.route,
                     RafiqRoute.QuranReading.route,
-                    RafiqRoute.DhikrReading.route
+                    RafiqRoute.DhikrReading.route,
                 )
 
                 Scaffold(

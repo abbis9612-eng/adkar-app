@@ -79,6 +79,14 @@ fun MushafScreen(navController: NavHostController) {
     val pager = rememberPagerState(initialPage = prefs.lastPage - 1, pageCount = { 604 })
     LaunchedEffect(pager.currentPage) { prefs.lastPage = pager.currentPage + 1 }
 
+    /*  رأسُ الصفحة يقول أين أنت: السورةُ والجزءُ والحزب. وكانت الشاشةُ
+     *  تعرض رقمَ الصفحة وحده — ورقمٌ بلا سورةٍ لا يقول شيئاً لمن يقرأ. */
+    val ctxVm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
+    val pageAyat by ctxVm.pageFlow(pager.currentPage + 1).collectAsState(initial = emptyList())
+    val head = pageAyat.firstOrNull()
+    val suraName = head?.let { SurahNames.of(ctx, it.surah) } ?: ""
+
+
     // النمطُ المصحفيُّ بلا خطوطٍ يسقط إلى المضبوطة بدل صفحةٍ فارغة
     val effective = if (mode.needsFonts && !ready) MushafMode.PAGE else mode
     val night = effective == MushafMode.MUSHAF_NIGHT
@@ -90,6 +98,8 @@ fun MushafScreen(navController: NavHostController) {
     ) {
         MushafTopBar(
             page = pager.currentPage + 1,
+            surah = suraName,
+            juz = head?.juz ?: 0,
             ink = ink,
             onBack = { navController.popBackStack() },
             onSettings = { sheet = true },
@@ -131,7 +141,7 @@ fun MushafScreen(navController: NavHostController) {
             }
         }
 
-        MushafFooter(pager.currentPage + 1, ar, ink)
+        MushafFooter(pager.currentPage + 1, head?.hizb ?: 0, suraName, ar, ink)
     }
 
     if (offer) {
@@ -246,51 +256,75 @@ private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
 
 @Composable
 private fun MushafTopBar(
-    page: Int, ink: Color,
+    page: Int, surah: String, juz: Int, ink: Color,
     onBack: () -> Unit, onSettings: () -> Unit, onList: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onBack),
-                contentAlignment = Alignment.Center,
-            ) { RafiqIcon(RIcon.ChevronLeft, 18.dp, ink.copy(alpha = 0.75f)) }
+            Chip(surah.ifEmpty { "المصحف" }, accent = true, ink = ink)
+            Spacer(Modifier.width(6.dp))
+            IconDot(RIcon.ChevronLeft, ink, onBack)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Box(
-                Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onList),
-                contentAlignment = Alignment.Center,
-            ) { RafiqIcon(RIcon.Book, 18.dp, ink.copy(alpha = 0.75f)) }
-            Box(
-                Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onSettings),
-                contentAlignment = Alignment.Center,
-            ) { RafiqIcon(RIcon.Settings, 18.dp, ink.copy(alpha = 0.75f)) }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconDot(RIcon.Book, ink, onList)
+            IconDot(RIcon.Settings, ink, onSettings)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Chip(if (juz > 0) "الجزء ${juz.localized(ar)}" else "…", accent = false, ink = ink)
         }
     }
 }
 
 @Composable
-private fun MushafFooter(page: Int, ar: Boolean, ink: Color) {
+private fun Chip(text: String, accent: Boolean, ink: Color) {
     val rc = LocalRafiqColors.current
+    Box(
+        Modifier
+            .heightIn(min = 34.dp)
+            .clip(CircleShape)
+            .background(ink.copy(alpha = if (accent) 0.07f else 0.05f))
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text,
+            style = if (accent) RafiqType.label else RafiqType.bodyS,
+            color = if (accent) ink else ink.copy(alpha = 0.78f),
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun IconDot(icon: RIcon, ink: Color, onClick: () -> Unit) {
+    Box(
+        Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) { RafiqIcon(icon, 18.dp, ink.copy(alpha = 0.72f)) }
+}
+
+@Composable
+private fun MushafFooter(page: Int, hizb: Int, surah: String, ar: Boolean, ink: Color) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp)
-            .navigationBarsPadding(),
-        horizontalArrangement = Arrangement.Center,
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 7.dp).navigationBarsPadding(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Text(surah, style = RafiqType.caption, color = ink.copy(alpha = 0.62f), maxLines = 1)
         Box(
-            Modifier
-                .clip(CircleShape)
-                .background(ink.copy(alpha = 0.06f))
-                .padding(horizontal = 14.dp, vertical = 6.dp),
-        ) {
-            Text(page.localized(ar), style = RafiqType.titleM, color = ink)
-        }
+            Modifier.clip(CircleShape).background(ink.copy(alpha = 0.06f))
+                .padding(horizontal = 15.dp, vertical = 5.dp),
+        ) { Text(page.localized(ar), style = RafiqType.titleM, color = ink) }
+        Text(
+            if (hizb > 0) "الحزب ${((hizb - 1) / 4 + 1).localized(ar)}" else "",
+            style = RafiqType.caption, color = ink.copy(alpha = 0.62f), maxLines = 1,
+        )
     }
 }
 

@@ -41,7 +41,9 @@ data class BottomNavItem(
 fun RafiqBottomBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem(R.string.nav_home,    { s, c -> RafiqIcon(RIcon.Home, s, c) },     RafiqRoute.Home),
-        BottomNavItem(R.string.nav_quran,   { s, c -> RafiqIcon(RIcon.Book, s, c) },     RafiqRoute.QuranList),
+        // تبويبُ المصحف يفتح المصحف نفسَه لا قائمةَ السور: الصفحةُ هي
+        // المقصود، والقائمةُ بابٌ داخلَها لمن أراد الانتقالَ بالسورة.
+        BottomNavItem(R.string.nav_quran,   { s, c -> RafiqIcon(RIcon.Book, s, c) },     RafiqRoute.Mushaf),
         BottomNavItem(R.string.nav_tasbeeh, { s, c -> MisbahaIcon(s, c) },             RafiqRoute.AdhkarCategories),
         BottomNavItem(R.string.nav_dua,     { s, c -> RafiqIcon(RIcon.Heart, s, c) }, RafiqRoute.DuaCategories),
         BottomNavItem(R.string.nav_profile, { s, c -> RafiqIcon(RIcon.User, s, c) },  RafiqRoute.Profile),
