@@ -142,6 +142,7 @@ fun MushafScreen(
         والجزءُ ورقمُ الصفحة في الهامش حيث موضعُها. فالشاشةُ ورقةٌ
         خالصة، ولمسةٌ واحدةٌ في متنها تُظهر الأدواتِ وتُخفيها.  */
     var toolsOn by remember { mutableStateOf(false) }
+    var hint by remember { mutableStateOf(!prefs.hintSeen) }
 
     Box(Modifier.fillMaxSize().background(paper)) {
         HorizontalPager(
@@ -187,6 +188,7 @@ fun MushafScreen(
                             accent = if (night) rc.goldLight else rc.gold,
                             marker = if (night) rc.goldLight else rc.goldLight,
                             selectedVerse = selected,
+                            onTap = { toolsOn = !toolsOn },
                             onVerseClick = { selected = if (selected == it) null else it },
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -201,6 +203,13 @@ fun MushafScreen(
         /*  ما لا يُخفى: البلاغُ حين ينقص خطٌّ، وشريطُ التنزيل حين يجري.
             هذان حالُ النظام لا زينتُه، فيبقيان ظاهرين. */
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding()) {
+            if (hint) {
+                HintBar(
+                    ink = ink,
+                    onDismiss = { hint = false; prefs.hintSeen = true },
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                )
+            }
             if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
                 MushafBanner(
                     onDownload = { allowed = true; prefs.fontsAllowed = true },
@@ -418,6 +427,35 @@ private fun PageFoot(page: Int, ar: Boolean, ink: Color) {
             fontSize = 13.sp,
             color = ink.copy(alpha = 0.52f),
         )
+    }
+}
+
+/* ── تلميحُ اللمس ────────────────────────────────────────────────
+
+   الضغطةُ المطوّلةُ لا يكتشفها أحدٌ بلا قول، والنقرةُ صارت للأدوات لأنّ
+   الورقةَ كلَّها كلماتٌ قابلةٌ للمس — فلو فتحت النقرةُ الآيةَ لما بقي في
+   الصفحة موضعٌ يُلمس. فيُقال مرّةً واحدة، ثمّ لا يعود.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun HintBar(ink: Color, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    val rc = LocalRafiqColors.current
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+            .background(rc.tintGold)
+            .clickable(onClick = onDismiss)
+            .padding(horizontal = 13.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "المسِ الورقةَ لتظهر الأدوات · واضغط كلمةً مطوّلاً لتفتح آيتَها",
+            style = RafiqType.caption,
+            color = ink.copy(alpha = 0.82f),
+            modifier = Modifier.weight(1f),
+        )
+        Text("فهمت", style = RafiqType.label, color = rc.emerald)
     }
 }
 

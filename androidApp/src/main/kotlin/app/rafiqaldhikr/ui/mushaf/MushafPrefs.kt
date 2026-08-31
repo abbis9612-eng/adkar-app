@@ -56,6 +56,11 @@ class MushafPrefs(context: Context) {
         get() = sp.getBoolean(KEY_ALLOW, false)
         set(v) = sp.edit().putBoolean(KEY_ALLOW, v).apply()
 
+    /** هل عُرض تلميحُ اللمس؟ الضغطةُ المطوّلةُ لا تُعرف بلا قولٍ مرّة. */
+    var hintSeen: Boolean
+        get() = sp.getBoolean(KEY_HINT, false)
+        set(v) = sp.edit().putBoolean(KEY_HINT, v).apply()
+
     /** هل عُرض طلبُ التنزيل مرّةً؟ لا يُلحّ بعدها. */
     var askedOnce: Boolean
         get() = sp.getBoolean(KEY_ASKED, false)
@@ -71,6 +76,7 @@ class MushafPrefs(context: Context) {
         const val KEY_PAGE = "page"
         const val KEY_ASKED = "asked"
         const val KEY_ALLOW = "allow"
+        const val KEY_HINT = "hint_seen"
     }
 }
 

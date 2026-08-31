@@ -1,7 +1,8 @@
 package app.rafiqaldhikr.ui.mushaf
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -72,6 +73,7 @@ private val MARGIN_OUTER = 26.dp
 private val MARGIN_INNER = 15.dp
 private val SPINE_WIDTH = 22.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MushafPageView(
     page: MushafPage,
@@ -80,6 +82,9 @@ fun MushafPageView(
     accent: Color,
     marker: Color,
     selectedVerse: String?,
+    /** نقرةٌ قصيرة — تُظهر الأدواتِ وتُخفيها. */
+    onTap: () -> Unit,
+    /** ضغطةٌ مطوّلة — تفتح الآية. */
     onVerseClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -168,8 +173,20 @@ fun MushafPageView(
                                         },
                                     )
                                     .then(
+                                        /*  نقرةٌ للأدوات وضغطةٌ مطوّلةٌ للآية.
+
+                                            الورقةُ كلُّها كلماتٌ قابلةٌ للمس، فلو
+                                            فتحت النقرةُ الآيةَ لما بقي في الصفحة
+                                            موضعٌ يُلمس لإظهار الأدوات إلّا الهوامش.
+                                            والتفريقُ بالضغط المطوَّل هو صنيعُ مصاحف
+                                            الهاتف. */
                                         if (vk.isNotEmpty()) {
-                                            Modifier.clickable { onVerseClick(vk) }
+                                            Modifier.combinedClickable(
+                                                indication = null,
+                                                interactionSource = null,
+                                                onLongClick = { onVerseClick(vk) },
+                                                onClick = onTap,
+                                            )
                                         } else {
                                             Modifier
                                         },
