@@ -172,6 +172,10 @@ fun QuranListScreen(
         ) {
             // ═══ TOP BAR ═══
             RafiqTopBar(title = stringResource(R.string.quran_title)) {
+                // بابُ المصحف صفحةً صفحة — والقائمةُ تبقى للبحث والانتقال بالسورة
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Mushaf.route) }, label = "المصحف") {
+                    RafiqIcon(RIcon.Book, 17.dp, rc.emerald)
+                }
                 RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = stringResource(R.string.quran_bookmarks)) {
                     RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
                 }

@@ -25,6 +25,8 @@ sealed class RafiqRoute(val route: String) {
 
     // ═══ M1 — Quran ═══
     data object QuranList         : RafiqRoute("quran_list")
+    /** المصحف صفحةً صفحة — أربعةُ أنماطِ عرضٍ في شاشةٍ واحدة. */
+    data object Mushaf            : RafiqRoute("mushaf")
     data object QuranReading      : RafiqRoute("quran_reading/{surah}") {
         fun withSurah(number: Int) = "quran_reading/$number"
     }

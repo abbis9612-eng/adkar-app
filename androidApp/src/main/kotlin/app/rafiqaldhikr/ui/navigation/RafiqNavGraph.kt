@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import app.rafiqaldhikr.ui.screens.about.AboutScreen
 import app.rafiqaldhikr.ui.screens.achievements.AchievementsScreen
+import app.rafiqaldhikr.ui.mushaf.MushafScreen
 import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesScreen
 import app.rafiqaldhikr.ui.screens.adhkar.CelebrationScreen
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingScreen
@@ -158,6 +159,7 @@ fun RafiqNavGraph(
         // Gamification
         composable(RafiqRoute.Garden.route)       { GardenScreen(navController) }
         composable(RafiqRoute.Achievements.route) { AchievementsScreen(navController) }
+        composable(RafiqRoute.Mushaf.route) { MushafScreen(navController) }
 
         // Social
         composable(RafiqRoute.ShareCard.route) { ShareCardScreen(navController) }

@@ -15,6 +15,7 @@ import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.screens.achievements.AwraqViewModel
+import app.rafiqaldhikr.ui.mushaf.MushafPageViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
 import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
@@ -39,6 +40,7 @@ val viewModelModule = module {
     viewModelOf(::ExportDataViewModel)
     viewModelOf(::DayCompanionViewModel)
     viewModelOf(::AwraqViewModel)
+    viewModelOf(::MushafPageViewModel)
     viewModelOf(::MeeqatViewModel)
     viewModelOf(::DaysGridViewModel)
 }
