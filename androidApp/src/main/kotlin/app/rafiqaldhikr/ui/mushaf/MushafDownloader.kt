@@ -30,6 +30,36 @@ class MushafDownloader(private val context: Context) {
     data class Progress(val done: Int, val total: Int, val bytes: Long)
 
     /**
+     * خطُّ صفحةٍ واحدة — نحو مليونَي بايت، ثوانٍ لا دقائق.
+     *
+     * وهذا ما يجعل الصفحةَ المصحفية تظهر عند أوّل فتحٍ بدل انتظار
+     * تسعةٍ وثمانين ميغابايت: كلُّ خطٍّ يخدم ثلاثَ عشرةَ صفحةً وسطياً،
+     * فيُجلَب الذي تحتاجه الصفحةُ الحاضرة وحدَه، ويُجلَب ما بعده حين
+     * تُقلَب إليه. والتنزيلُ الكامل يبقى خياراً لمن أراد المصحفَ كلَّه
+     * دون إنترنت.
+     *
+     * @return true إن صار الخطُّ على الجهاز.
+     */
+    suspend fun fetchOne(fonts: MushafFonts, name: String): Boolean = withContext(Dispatchers.IO) {
+        val out = fonts.fileFor(name)
+        if (out.exists() && out.length() > 0) return@withContext true
+        val tmp = File(out.parentFile, "$name.part")
+        try {
+            val conn = (URL(urlFor(name)).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 20_000
+                readTimeout = 60_000
+            }
+            conn.inputStream.use { input ->
+                tmp.outputStream().use { output -> input.copyTo(output, 64 * 1024) }
+            }
+            tmp.renameTo(out)
+        } catch (e: Exception) {
+            tmp.delete()
+            false
+        }
+    }
+
+    /**
      * @return null عند التمام، أو رسالةَ الخطأ.
      */
     suspend fun download(

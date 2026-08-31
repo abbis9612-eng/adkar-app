@@ -33,7 +33,6 @@ import app.rafiqaldhikr.ui.screens.profile.ProfileScreen
 import app.rafiqaldhikr.ui.screens.qibla.QiblaScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranBookmarksScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranListScreen
-import app.rafiqaldhikr.ui.screens.quran.QuranReadingScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranSearchScreen
 import app.rafiqaldhikr.ui.screens.ramadan.RamadanHomeScreen
 import app.rafiqaldhikr.ui.screens.report.WeeklyReportScreen
@@ -99,16 +98,6 @@ fun RafiqNavGraph(
 
         // ═══ Quran ═══
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }
-        composable(
-            route     = RafiqRoute.QuranReading.route,
-            arguments = listOf(navArgument("surah") { type = NavType.IntType }),
-            deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/quran/{surah}" })
-        ) { entry ->
-            QuranReadingScreen(
-                surahNumber   = entry.arguments?.getInt("surah") ?: 1,
-                navController = navController
-            )
-        }
         composable(RafiqRoute.QuranSearch.route)    { QuranSearchScreen(navController) }
         composable(RafiqRoute.QuranBookmarks.route) { QuranBookmarksScreen(navController) }
 
@@ -159,7 +148,12 @@ fun RafiqNavGraph(
         // Gamification
         composable(RafiqRoute.Garden.route)       { GardenScreen(navController) }
         composable(RafiqRoute.Achievements.route) { AchievementsScreen(navController) }
-        composable(RafiqRoute.Mushaf.route) { MushafScreen(navController) }
+        composable(
+            route = RafiqRoute.Mushaf.route,
+            arguments = listOf(navArgument("page") { type = NavType.IntType; defaultValue = 0 }),
+        ) { entry ->
+            MushafScreen(navController, entry.arguments?.getInt("page") ?: 0)
+        }
 
         // Social
         composable(RafiqRoute.ShareCard.route) { ShareCardScreen(navController) }

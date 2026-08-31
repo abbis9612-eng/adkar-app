@@ -236,7 +236,7 @@ fun QuranListScreen(
                                 ayahCount = surah.ayahCount,
                                 revelation = surah.revelation,
                                 onClick = {
-                                    navController.navigate(RafiqRoute.QuranReading.withSurah(surah.number))
+                                    navController.navigate(RafiqRoute.Mushaf.atPage(surah.pageStart))
                                 }
                             )
                         }

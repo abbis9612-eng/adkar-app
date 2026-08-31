@@ -46,6 +46,16 @@ class MushafPrefs(context: Context) {
         get() = sp.getInt(KEY_SIZE, 22).coerceIn(16, 34)
         set(v) = sp.edit().putInt(KEY_SIZE, v.coerceIn(16, 34)).apply()
 
+    /**
+     * أذِن بجلب خطوط الصفحات عند القراءة.
+     *
+     * ولا يُجلَب شيءٌ قبله: التطبيقُ لا يفتح اتّصالاً بلا إذنٍ من صاحبه،
+     * وإن أبى بقيت الصفحةُ المضبوطة تعمل كما هي.
+     */
+    var fontsAllowed: Boolean
+        get() = sp.getBoolean(KEY_ALLOW, false)
+        set(v) = sp.edit().putBoolean(KEY_ALLOW, v).apply()
+
     /** هل عُرض طلبُ التنزيل مرّةً؟ لا يُلحّ بعدها. */
     var askedOnce: Boolean
         get() = sp.getBoolean(KEY_ASKED, false)
@@ -60,6 +70,7 @@ class MushafPrefs(context: Context) {
         const val KEY_SIZE = "size"
         const val KEY_PAGE = "page"
         const val KEY_ASKED = "asked"
+        const val KEY_ALLOW = "allow"
     }
 }
 

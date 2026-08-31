@@ -7,7 +7,6 @@ import app.rafiqaldhikr.ui.screens.prayer.PrayerTimesViewModel
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.screens.qibla.QiblaViewModel
 import app.rafiqaldhikr.ui.screens.quran.QuranListViewModel
-import app.rafiqaldhikr.ui.screens.quran.QuranReadingViewModel
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehViewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -32,7 +31,6 @@ val viewModelModule = module {
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)
-    viewModelOf(::QuranReadingViewModel)
     viewModelOf(::PrayerTimesViewModel)  // ✅ مُضاف
     viewModelOf(::QiblaViewModel)        // ✅ مُضاف
     viewModelOf(::DuaViewModel)

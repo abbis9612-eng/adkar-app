@@ -25,10 +25,17 @@ sealed class RafiqRoute(val route: String) {
 
     // ═══ M1 — Quran ═══
     data object QuranList         : RafiqRoute("quran_list")
-    /** المصحف صفحةً صفحة — أربعةُ أنماطِ عرضٍ في شاشةٍ واحدة. */
-    data object Mushaf            : RafiqRoute("mushaf")
-    data object QuranReading      : RafiqRoute("quran_reading/{surah}") {
-        fun withSurah(number: Int) = "quran_reading/$number"
+    /**
+     * المصحف صفحةً صفحة — وهو قارئُ القرآن الوحيد.
+     *
+     * وكانت معه شاشةُ قراءةٍ ثانيةٌ مبنيّةٌ على السورة، فيرى القارئ
+     * تصميمين مختلفين حسب الباب الذي دخل منه. حُذفت، وصار كلُّ ما
+     * يفتح القرآن — القائمةُ والبحثُ والعلامات — يفتح صفحتَه هنا.
+     */
+    data object Mushaf            : RafiqRoute("mushaf?page={page}") {
+        fun atPage(page: Int) = "mushaf?page=$page"
+        /** بلا صفحة: يُفتح على آخر ما قرأ. */
+        val tab = "mushaf?page=0"
     }
     data object QuranSearch       : RafiqRoute("quran_search")
     data object QuranBookmarks    : RafiqRoute("quran_bookmarks")

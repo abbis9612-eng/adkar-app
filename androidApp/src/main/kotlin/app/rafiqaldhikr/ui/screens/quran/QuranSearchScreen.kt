@@ -106,7 +106,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                                 SearchResultCard(
                                     ayah    = ayah,
                                     onClick = {
-                                        navController.navigate(RafiqRoute.QuranReading.withSurah(ayah.surah))
+                                        navController.navigate(RafiqRoute.Mushaf.atPage(ayah.page))
                                     },
                                     rc = rc
                                 )

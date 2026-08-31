@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 ══════════════════════════════════════════════════════════════ */
 
 @Composable
-fun MushafScreen(navController: NavHostController) {
+fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
     val ctx = LocalContext.current
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
@@ -66,6 +66,10 @@ fun MushafScreen(navController: NavHostController) {
     var error by remember { mutableStateOf<String?>(null) }
 
     var offer by remember { mutableStateOf(false) }
+    /** يُبدَّل كلّما وصل خطٌّ جديد فتُعاد قراءةُ الخطوط. */
+    var fontTick by remember { mutableIntStateOf(0) }
+    var fetching by remember { mutableStateOf(false) }
+    var allowed by remember { mutableStateOf(prefs.fontsAllowed) }
 
     /*  الصفحةُ المصحفية هي المقصودُ من الشاشة، لا خيارٌ في ورقة إعدادات.
      *  فيُعرض طلبُ التنزيل أوّلَ فتحٍ مرّةً واحدة — ولا يُلحّ بعدها. */
@@ -76,11 +80,27 @@ fun MushafScreen(navController: NavHostController) {
         }
     }
 
-    val pager = rememberPagerState(initialPage = prefs.lastPage - 1, pageCount = { 604 })
+    // صفر يعني: افتح على آخر ما قرأ. وما عداه صفحةٌ طُلبت من القائمة أو البحث.
+    val startPage = if (openPage in 1..604) openPage else prefs.lastPage
+    val pager = rememberPagerState(initialPage = startPage - 1, pageCount = { 604 })
     LaunchedEffect(pager.currentPage) { prefs.lastPage = pager.currentPage + 1 }
 
     /*  رأسُ الصفحة يقول أين أنت: السورةُ والجزءُ والحزب. وكانت الشاشةُ
      *  تعرض رقمَ الصفحة وحده — ورقمٌ بلا سورةٍ لا يقول شيئاً لمن يقرأ. */
+    /*  خطُّ الصفحة الحاضرة يُجلَب وحدَه — مليونا بايتٍ في ثوانٍ بدل
+     *  تسعةٍ وثمانين ميغابايت. فتظهر الصفحةُ المصحفية من أوّل فتحٍ
+     *  لمن أذِن، ويمتلئ الباقي كلّما قلَب ورقة. */
+    LaunchedEffect(pager.currentPage, mode, fontTick, allowed) {
+        val l = layout ?: return@LaunchedEffect
+        if (!mode.needsFonts || !allowed) return@LaunchedEffect
+        val need = l.fontOf(pager.currentPage + 1) ?: return@LaunchedEffect
+        if (fonts.fileFor(need).exists()) return@LaunchedEffect
+        fetching = true
+        val got = MushafDownloader(ctx).fetchOne(fonts, need)
+        fetching = false
+        if (got) { fontTick++; ready = fonts.isReady(l) }
+    }
+
     val ctxVm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
     val pageAyat by ctxVm.pageFlow(pager.currentPage + 1).collectAsState(initial = emptyList())
     val head = pageAyat.firstOrNull()
@@ -88,7 +108,13 @@ fun MushafScreen(navController: NavHostController) {
 
 
     // النمطُ المصحفيُّ بلا خطوطٍ يسقط إلى المضبوطة بدل صفحةٍ فارغة
-    val effective = if (mode.needsFonts && !ready) MushafMode.PAGE else mode
+    /*  كان السقوطُ إلى المضبوطة مشروطاً بتمام الخطوط كلِّها — فتبقى
+     *  الصفحةُ بسيطةً وإن كان خطُّها حاضراً. الآن الشرطُ خطُّ هذه
+     *  الصفحة وحدَه. */
+    val pageFontReady = layout?.let { l ->
+        l.fontOf(pager.currentPage + 1)?.let { fonts.fileFor(it).exists() }
+    } ?: false
+    val effective = if (mode.needsFonts && !pageFontReady) MushafMode.PAGE else mode
     val night = effective == MushafMode.MUSHAF_NIGHT
     val paper = if (night) Color(0xFF15130E) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
@@ -106,9 +132,9 @@ fun MushafScreen(navController: NavHostController) {
             onList = { navController.navigate(RafiqRoute.QuranList.route) },
         )
 
-        if (mode.needsFonts && !ready && progress == null) {
+        if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
             MushafBanner(
-                onDownload = { offer = true },
+                onDownload = { allowed = true; prefs.fontsAllowed = true },
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
             )
         }
@@ -124,7 +150,9 @@ fun MushafScreen(navController: NavHostController) {
             ) { index ->
                 val pageNo = index + 1
                 val data = layout?.page(pageNo)
-                val family = if (effective.needsFonts) layout?.let { fonts.familyFor(it, pageNo) } else null
+                val family = if (effective.needsFonts) {
+                    remember(pageNo, fontTick) { layout?.let { fonts.familyFor(it, pageNo) } }
+                } else null
 
                 if (effective.needsFonts && data != null && family != null) {
                     MushafPageView(
@@ -146,8 +174,15 @@ fun MushafScreen(navController: NavHostController) {
 
     if (offer) {
         OfferDialog(
-            onYes = {
+            onNow = {
                 offer = false
+                allowed = true
+                prefs.fontsAllowed = true
+            },
+            onAll = {
+                offer = false
+                allowed = true
+                prefs.fontsAllowed = true
                 error = null
                 scope.launch {
                     val l = layout ?: return@launch
@@ -508,7 +543,7 @@ private fun SettingsSheet(
 ──────────────────────────────────────────────────────────────── */
 
 @Composable
-private fun OfferDialog(onYes: () -> Unit, onNo: () -> Unit) {
+private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) {
     val rc = LocalRafiqColors.current
     Box(
         Modifier.fillMaxSize().background(Color(0x88101A14)).clickable(onClick = onNo),
@@ -516,7 +551,7 @@ private fun OfferDialog(onYes: () -> Unit, onNo: () -> Unit) {
     ) {
         Column(
             Modifier
-                .fillMaxWidth(0.88f)
+                .fillMaxWidth(0.9f)
                 .clip(RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
                 .background(rc.card)
                 .border(1.dp, rc.cardBorder, RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
@@ -530,21 +565,39 @@ private fun OfferDialog(onYes: () -> Unit, onNo: () -> Unit) {
                     "والسطرُ يقطع حيث يقطع في الورقة.",
                 style = RafiqType.body, color = rc.inkMed,
             )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                "تحتاج خطوطَ المصحف: نحو ٨٩ م.ب تُنزَّل مرّةً واحدة، ثمّ تعمل دون إنترنت للأبد.",
-                style = RafiqType.bodyS, color = rc.inkMed,
-            )
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(16.dp))
             Box(
                 Modifier
                     .fillMaxWidth().heightIn(min = 54.dp)
                     .clip(RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
                     .background(rc.emerald)
-                    .clickable(onClick = onYes),
+                    .clickable(onClick = onNow),
                 contentAlignment = Alignment.Center,
-            ) { Text("نزِّلْها الآن", style = RafiqType.titleM, color = rc.onEmerald) }
-            Spacer(Modifier.height(9.dp))
+            ) { Text("اعرِضْها الآن", style = RafiqType.titleM, color = rc.onEmerald) }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "يُجلَب خطُّ ما تقرؤه وحدَه — نحو مليونَي بايت، ثوانٍ. " +
+                    "ويمتلئ الباقي كلّما قلبتَ ورقة.",
+                style = RafiqType.caption, color = rc.inkMed,
+            )
+            Spacer(Modifier.height(14.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth().heightIn(min = 50.dp)
+                    .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+                    .border(1.dp, rc.divider, RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+                    .clickable(onClick = onAll),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("نزِّلِ المصحفَ كلَّه — ٨٩ م.ب", style = RafiqType.label, color = rc.emerald)
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "لقراءةٍ كاملةٍ دون إنترنت",
+                style = RafiqType.caption, color = rc.inkMed,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(10.dp))
             Text(
                 "لاحقاً — واقرأ بالصفحة المضبوطة",
                 style = RafiqType.bodyS, color = rc.inkMed,
@@ -570,7 +623,7 @@ private fun MushafBanner(onDownload: () -> Unit, modifier: Modifier = Modifier) 
     ) {
         Column(Modifier.weight(1f)) {
             Text("هذه الصفحةُ المضبوطة", style = RafiqType.label, color = rc.emerald)
-            Text("نزِّلْ خطوطَ المصحف لتراها كما في الورقة", style = RafiqType.caption, color = rc.inkMed)
+            Text("اضغط لتظهر الصفحةُ كما في الورقة", style = RafiqType.caption, color = rc.inkMed)
         }
         RafiqIcon(RIcon.ChevronLeft, 17.dp, rc.emerald)
     }

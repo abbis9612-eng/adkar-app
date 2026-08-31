@@ -76,7 +76,6 @@ class MainActivity : AppCompatActivity() {
                 val showBottomBar = currentRoute !in listOf(
                     RafiqRoute.Onboarding.route,
                     RafiqRoute.Celebration.route,
-                    RafiqRoute.QuranReading.route,
                     RafiqRoute.DhikrReading.route,
                 )
 

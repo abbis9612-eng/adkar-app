@@ -72,7 +72,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                         BookmarkCard(
                             bookmark  = bookmark,
                             onClick   = {
-                                navController.navigate(RafiqRoute.QuranReading.withSurah(bookmark.surah))
+                                navController.navigate(RafiqRoute.Mushaf.atPage(bookmark.page))
                             },
                             rc = rc
                         )
