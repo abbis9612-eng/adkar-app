@@ -146,7 +146,12 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
             HorizontalPager(
                 state = pager,
                 modifier = Modifier.fillMaxSize(),
-                reverseLayout = true,   // تُقلَب الورقةُ يميناً كما في المصحف
+                /*  لا `reverseLayout` هنا.
+                 *
+                 *  HorizontalPager يتبع اتّجاهَ التخطيط أصلاً، والتطبيقُ
+                 *  كلُّه RTL — فهو يقلب الورقةَ كما تُقلَب في المصحف بلا
+                 *  شيء. وإضافةُ `reverseLayout = true` تعكس المعكوسَ
+                 *  فيعود إلى اتّجاه الإنكليزية، وهو ما وقع. */
             ) { index ->
                 val pageNo = index + 1
                 val data = layout?.page(pageNo)

@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+        الإنترنت: لتنزيل خطوط المصحف وحدَها، لا لغيرها.
+
+        وكان التطبيق بلا هذه الصلاحية إطلاقاً — وهو أمرٌ حسنٌ في نفسه:
+        تطبيقٌ لا يملك فتحَ اتّصالٍ لا يُسأل عمّا يرسل. فلمّا طُلبت
+        الصفحةُ المصحفية وجب تنزيلُ خطوطها، وبدونها كان التنزيل يفشل
+        بـ«Permission denied» بلا أن يفهم أحدٌ لماذا.
+
+        وكلُّ ما عدا الخطوط يبقى دون إنترنت: المصحفُ والتفسيرُ والأذكارُ
+        والأدعيةُ والمواقيتُ والقبلةُ — كلُّها محسوبةٌ أو مشحونةٌ في
+        الحزمة. ولا يُفتح اتّصالٌ إلّا بإذنٍ صريحٍ من صاحبه.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
