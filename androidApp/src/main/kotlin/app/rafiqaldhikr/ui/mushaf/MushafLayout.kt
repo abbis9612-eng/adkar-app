@@ -46,13 +46,27 @@ data class MushafPage(
         في الخطّ نفسِه لا مُقدَّر. به يُحسب مقاسُ الخطّ فيملأ السطرُ
         عرضَ الورقة، ويُعرف السطرُ القصيرُ من الممتلئ. */
     val lw: List<Int> = emptyList(),
+    /*  جزءُ الصفحة وربعُها (١–٣٠ و١–٢٤٠) — من أوّل آيةٍ فيها.
+
+        وهما في التخطيط لا في قاعدة البيانات ليكون الهامشُ في المصحف
+        مقروءاً بلا استعلام: الورقةُ تصف نفسَها، فتتحرّك بياناتُها معها
+        حين تُقلَب بدل أن تلحق بها متأخّرة. */
+    val juz: Int = 0,
+    val rub: Int = 0,
 ) {
-    /** أعرضُ سطرٍ في الصفحة بالـem — عليه يُبنى المقاس. */
-    val widestEm: Float
-        get() = (lw.maxOrNull() ?: 1630) / 100f
+    /** رقمُ سورةِ أوّلِ آيةٍ في الصفحة — لاسمها في الهامش. */
+    val firstSurah: Int
+        get() = v.firstOrNull { it.isNotEmpty() }?.substringBefore(':')?.toIntOrNull() ?: 0
 
     /** الرمزُ الحقيقيّ كمحرفٍ من منطقة الاستعمال الخاصّ. */
     fun glyph(delta: Int): String = String(Character.toChars(b + delta))
+
+    /** أنواعُ العناصر في سطرٍ ما — بها يُعرف خطُّه ومقاسُه. */
+    fun typesOf(line: Int): Set<Int> {
+        var n = 0
+        for (i in 0 until line) n += l[i].size
+        return (n until n + l[line].size).mapNotNull { t.getOrNull(it) }.toSet()
+    }
 }
 
 data class MushafLayout(
@@ -61,6 +75,18 @@ data class MushafLayout(
     /** خطُّ كلِّ صفحة — فهرسٌ في [fonts]، ٦٠٤ عنصراً. */
     val pageFont: List<Int>,
     val pages: List<MushafPage>,
+    /*  لوحُ السورة والبسملةُ لا يُرسمان بخطّ الصفحة:
+
+        اللوحُ على خطٍّ منفصلٍ اسمُه QCF4_QBSML يحمل أسماءَ السور
+        المئةَ والأربعَ عشرةَ وحدَها، والبسملةُ على QCF4_Hafs_01 ثابتاً
+        مهما كان خطُّ الصفحة — فبسملةُ صفحة ٦٠٤ من الخطّ الأوّل وإن
+        كانت كلماتُها من السابع والأربعين.
+
+        وهذا منصوصٌ في مخطّط المصدر، ومؤكَّدٌ بمقابلة الصفحات ١ و٢
+        و١٨٧ و٢٩٣ و٦٠٤. ورمزُ لوحِ الفاتحة 0xF100 هو عينُ رمزِ كلمة
+        «بِسْمِ» في خطّ الصفحة — فرسمُه بخطّ الصفحة يُخرج كلمةً أخرى. */
+    val qbsmlIndex: Int = -1,
+    val bismIndex: Int = -1,
 ) {
     private val byPage by lazy { pages.associateBy { it.p } }
 
@@ -69,6 +95,29 @@ data class MushafLayout(
     /** اسمُ ملفّ الخطّ لصفحةٍ ما — «QCF4_Hafs_01». */
     fun fontOf(page: Int): String? =
         pageFont.getOrNull(page - 1)?.let { fonts.getOrNull(it) }
+
+    /** خطُّ لوحِ السور. */
+    val plateFont: String? get() = fonts.getOrNull(qbsmlIndex)
+
+    /** خطُّ البسملة — ثابتٌ لكلّ الصفحات. */
+    val bismFont: String? get() = fonts.getOrNull(bismIndex)
+
+    /**
+     * الخطوطُ التي تحتاجها صفحةٌ لتُرسَم كاملةً.
+     *
+     * ليست ثلاثةً دائماً: خطُّ اللوح لا يلزم إلّا الصفحاتِ المئةَ
+     * والأربعَ عشرةَ التي تبدأ فيها سورة، وخطُّ البسملة لا يلزم إلّا
+     * التي فيها بسملة. فأكثرُ الصفحات خطٌّ واحدٌ يكفيها.
+     */
+    fun fontsNeeded(page: Int): List<String> {
+        val pg = page(page) ?: return emptyList()
+        val out = ArrayList<String>(3)
+        fontOf(page)?.let { out += it }
+        val types = pg.t.toSet()
+        if (GlyphType.SURAH_HEADER in types) plateFont?.let { if (it !in out) out += it }
+        if (GlyphType.BISMILLAH in types) bismFont?.let { if (it !in out) out += it }
+        return out
+    }
 
     companion object {
         private const val ASSET = "mushaf_layout.json"
@@ -111,9 +160,18 @@ data class MushafLayout(
                     t = List(tArr.length()) { tArr.getInt(it) },
                     s = if (sArr == null) emptyList() else List(sArr.length()) { sArr.getInt(it) },
                     lw = if (wArr == null) emptyList() else List(wArr.length()) { wArr.getInt(it) },
+                    juz = o.optInt("j", 0),
+                    rub = o.optInt("h", 0),
                 )
             }
-            return MushafLayout(root.optInt("v", 1), fonts, pageFont, pages)
+            return MushafLayout(
+                v = root.optInt("v", 1),
+                fonts = fonts,
+                pageFont = pageFont,
+                pages = pages,
+                qbsmlIndex = root.optInt("qbsml", -1),
+                bismIndex = root.optInt("bismFont", -1),
+            )
         }
     }
 }

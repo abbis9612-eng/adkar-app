@@ -107,6 +107,7 @@ private fun SurahRow(
     nameAr: String,
     nameEn: String,
     ayahCount: Int,
+    pageStart: Int,
     revelation: String,
     last: Boolean,
     onClick: () -> Unit,
@@ -130,7 +131,15 @@ private fun SurahRow(
             Column(Modifier.weight(1f)) {
                 Text(nameAr, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.ink)
                 Spacer(Modifier.height(2.dp))
-                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
+                /*  رقمُ الصفحة من `page_start` لا من صيغةٍ مخترعة.
+                    كانت `number * 5 + 1` فتُعرض الكهفُ «صفحة ٩١» وموضعُها
+                    ٢٩٣. والبيانةُ الصحيحة كانت حاضرةً في السجلّ نفسِه،
+                    مطابقةً لتخطيط المصحف في ١١٤ سورةً من ١١٤. */
+                Text(
+                    "$ayahCount آية · صفحة $pageStart".localizedDigits(LocalArabicNumerals.current),
+                    color = LocalRafiqColors.current.inkMed,
+                    style = RafiqType.caption,
+                )
             }
             Box(
                 Modifier.clip(RafiqShape.item)
@@ -173,7 +182,7 @@ fun QuranListScreen(
             // ═══ TOP BAR ═══
             RafiqTopBar(title = stringResource(R.string.quran_title)) {
                 // بابُ المصحف صفحةً صفحة — والقائمةُ تبقى للبحث والانتقال بالسورة
-                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Mushaf.route) }, label = "المصحف") {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Mushaf.tab) }, label = "المصحف") {
                     RafiqIcon(RIcon.Book, 17.dp, rc.emerald)
                 }
                 RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = stringResource(R.string.quran_bookmarks)) {
@@ -234,6 +243,7 @@ fun QuranListScreen(
                                 nameAr = surah.nameAr,
                                 nameEn = surah.nameEn,
                                 ayahCount = surah.ayahCount,
+                                pageStart = surah.pageStart,
                                 revelation = surah.revelation,
                                 onClick = {
                                     navController.navigate(RafiqRoute.Mushaf.atPage(surah.pageStart))

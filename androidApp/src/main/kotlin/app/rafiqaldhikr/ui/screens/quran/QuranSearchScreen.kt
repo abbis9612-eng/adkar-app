@@ -36,6 +36,10 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.mushaf.SurahNames
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 
 @Composable
 fun QuranSearchScreen(navController: NavHostController) {
@@ -90,12 +94,12 @@ fun QuranSearchScreen(navController: NavHostController) {
                     }
                     results.isEmpty() -> {
                         EmptyState(
-                            message = "لا توجد نتائج لـ \"$query\"",
+                            message = "لم أجد «$query» في المصحف\nجرّب كلمةً من الآية بلا تشكيل",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     else -> {
-                        Text("${results.size} نتيجة",
+                        Text("${results.size} آية".localizedDigits(LocalArabicNumerals.current),
                             color = rc.inkMed, style = RafiqType.bodyS)
                         Spacer(Modifier.height(8.dp))
                         LazyColumn(
@@ -106,7 +110,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                                 SearchResultCard(
                                     ayah    = ayah,
                                     onClick = {
-                                        navController.navigate(RafiqRoute.Mushaf.atPage(ayah.page))
+                                        navController.navigate(RafiqRoute.Mushaf.atVerse(ayah.page, "${ayah.surah}:${ayah.ayahNumber}"))
                                     },
                                     rc = rc
                                 )
@@ -136,7 +140,9 @@ private fun SearchResultCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("سورة ${ayah.surah} — آية ${ayah.ayahNumber}",
+            Text(
+                "${SurahNames.of(LocalContext.current, ayah.surah)} · الآية ${ayah.ayahNumber}"
+                    .localizedDigits(LocalArabicNumerals.current),
                 fontWeight = FontWeight.Bold,
                 color = rc.emerald, style = RafiqType.bodyS)
             Text("ص ${ayah.page}",

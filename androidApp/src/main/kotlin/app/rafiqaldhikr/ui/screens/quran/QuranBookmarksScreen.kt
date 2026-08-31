@@ -34,6 +34,8 @@ import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.mushaf.SurahNames
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun QuranBookmarksScreen(navController: NavHostController) {
@@ -59,7 +61,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
 
             if (bookmarks.isEmpty()) {
                 EmptyState(
-                    message  = "لا توجد علامات مرجعية بعد\nأضف علامات أثناء القراءة",
+                    message  = "لم تضع علامةً بعد\nانقُر آيةً في المصحف ثمّ «ضَعْ علامة»",
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -72,7 +74,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                         BookmarkCard(
                             bookmark  = bookmark,
                             onClick   = {
-                                navController.navigate(RafiqRoute.Mushaf.atPage(bookmark.page))
+                                navController.navigate(RafiqRoute.Mushaf.atVerse(bookmark.page, "${bookmark.surah}:${bookmark.ayah}"))
                             },
                             rc = rc
                         )
@@ -102,7 +104,9 @@ private fun BookmarkCard(
             verticalAlignment     = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("سورة ${bookmark.surah} — آية ${bookmark.ayah}",
+                Text(
+                    "${SurahNames.of(LocalContext.current, bookmark.surah)} · الآية ${bookmark.ayah}"
+                        .localizedDigits(LocalArabicNumerals.current),
                     fontWeight = FontWeight.Bold,
                     color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))

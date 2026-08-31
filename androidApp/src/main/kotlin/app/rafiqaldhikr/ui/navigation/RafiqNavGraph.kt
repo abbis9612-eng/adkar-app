@@ -150,9 +150,16 @@ fun RafiqNavGraph(
         composable(RafiqRoute.Achievements.route) { AchievementsScreen(navController) }
         composable(
             route = RafiqRoute.Mushaf.route,
-            arguments = listOf(navArgument("page") { type = NavType.IntType; defaultValue = 0 }),
+            arguments = listOf(
+                navArgument("page") { type = NavType.IntType; defaultValue = 0 },
+                navArgument("aya") { type = NavType.StringType; defaultValue = "" },
+            ),
         ) { entry ->
-            MushafScreen(navController, entry.arguments?.getInt("page") ?: 0)
+            MushafScreen(
+                navController = navController,
+                openPage = entry.arguments?.getInt("page") ?: 0,
+                openVerse = entry.arguments?.getString("aya").orEmpty(),
+            )
         }
 
         // Social

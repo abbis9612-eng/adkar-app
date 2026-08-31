@@ -10,7 +10,7 @@ import java.net.URL
 /* ══════════════════════════════════════════════════════════════
    تنزيلُ خطوط المصحف — مرّةً واحدةً بإذنٍ صريح
 
-   سبعةٌ وأربعون ملفّاً، نحو تسعةٍ وثمانين ميغابايت. لا تُشحن في
+   ثمانيةٌ وأربعون ملفّاً، نحو تسعين ميغابايت. لا تُشحن في
    الحزمة لأنّ التطبيق ٢٥٫٣ فيصير سبعين وما فوق، ولأنّ ترخيصَها لم
    يُحسم بعد.
 
@@ -23,9 +23,14 @@ import java.net.URL
 
 class MushafDownloader(private val context: Context) {
 
-    /** المصدر — يُغيَّر من مكانٍ واحد إن تبدّل المستودع. */
-    private fun urlFor(name: String) =
-        "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/fonts/${name}_W.ttf"
+    /*  المصدر — يُغيَّر من مكانٍ واحد إن تبدّل المستودع.
+
+        وخطوطُ المتن وحدَها تحمل لاحقةَ `_W` في أسمائها؛ أمّا خطُّ لوحِ
+        السور فاسمُ ملفِّه `QCF4_QBSML.ttf` مجرّداً. */
+    private fun urlFor(name: String): String {
+        val file = if (name.startsWith("QCF4_Hafs")) "${name}_W.ttf" else "$name.ttf"
+        return "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/fonts/$file"
+    }
 
     data class Progress(val done: Int, val total: Int, val bytes: Long)
 
@@ -33,7 +38,7 @@ class MushafDownloader(private val context: Context) {
      * خطُّ صفحةٍ واحدة — نحو مليونَي بايت، ثوانٍ لا دقائق.
      *
      * وهذا ما يجعل الصفحةَ المصحفية تظهر عند أوّل فتحٍ بدل انتظار
-     * تسعةٍ وثمانين ميغابايت: كلُّ خطٍّ يخدم ثلاثَ عشرةَ صفحةً وسطياً،
+     * تسعين ميغابايت: كلُّ خطٍّ يخدم ثلاثَ عشرةَ صفحةً وسطياً،
      * فيُجلَب الذي تحتاجه الصفحةُ الحاضرة وحدَه، ويُجلَب ما بعده حين
      * تُقلَب إليه. والتنزيلُ الكامل يبقى خياراً لمن أراد المصحفَ كلَّه
      * دون إنترنت.

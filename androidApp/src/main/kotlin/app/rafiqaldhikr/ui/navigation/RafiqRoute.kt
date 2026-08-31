@@ -32,10 +32,19 @@ sealed class RafiqRoute(val route: String) {
      * تصميمين مختلفين حسب الباب الذي دخل منه. حُذفت، وصار كلُّ ما
      * يفتح القرآن — القائمةُ والبحثُ والعلامات — يفتح صفحتَه هنا.
      */
-    data object Mushaf            : RafiqRoute("mushaf?page={page}") {
-        fun atPage(page: Int) = "mushaf?page=$page"
+    data object Mushaf            : RafiqRoute("mushaf?page={page}&aya={aya}") {
+        fun atPage(page: Int) = "mushaf?page=$page&aya="
+
+        /**
+         * صفحةٌ وآيةٌ بعينها — تُفتح الورقةُ وقد أُبرزت الآيةُ فيها.
+         *
+         * كان البحثُ يفتح الصفحةَ وحدَها، فتجد آيةً في الكهف فتُفتح
+         * صفحةُ ٢٩٣ وعليك أن تلتقطها بعينك بين خمسةَ عشرَ سطراً.
+         */
+        fun atVerse(page: Int, verse: String) = "mushaf?page=$page&aya=$verse"
+
         /** بلا صفحة: يُفتح على آخر ما قرأ. */
-        val tab = "mushaf?page=0"
+        val tab = "mushaf?page=0&aya="
     }
     data object QuranSearch       : RafiqRoute("quran_search")
     data object QuranBookmarks    : RafiqRoute("quran_bookmarks")

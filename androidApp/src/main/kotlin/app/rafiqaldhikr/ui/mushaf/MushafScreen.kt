@@ -34,6 +34,15 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.graphics.Brush
+import app.rafiqaldhikr.ui.theme.NaskhFamily
+import app.rafiqaldhikr.ui.utils.localizedDigits
 
 /* ══════════════════════════════════════════════════════════════
    شاشةُ المصحف — أربعةُ أنماطٍ في مكانٍ واحد
@@ -47,7 +56,12 @@ import kotlinx.coroutines.launch
 ══════════════════════════════════════════════════════════════ */
 
 @Composable
-fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
+fun MushafScreen(
+    navController: NavHostController,
+    openPage: Int = 0,
+    /** آيةٌ تُبرَز عند الفتح — يأتي بها البحثُ أو العلامات. */
+    openVerse: String = "",
+) {
     val ctx = LocalContext.current
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
@@ -60,7 +74,7 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
     var mode by remember { mutableStateOf(prefs.mode) }
     var fontSize by remember { mutableIntStateOf(prefs.fontSize) }
     var sheet by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf<String?>(null) }
+    var selected by remember { mutableStateOf(openVerse.takeIf { it.isNotBlank() }) }
     var ready by remember { mutableStateOf(layout?.let { fonts.isReady(it) } ?: false) }
     var progress by remember { mutableStateOf<MushafDownloader.Progress?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -88,15 +102,16 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
     /*  رأسُ الصفحة يقول أين أنت: السورةُ والجزءُ والحزب. وكانت الشاشةُ
      *  تعرض رقمَ الصفحة وحده — ورقمٌ بلا سورةٍ لا يقول شيئاً لمن يقرأ. */
     /*  خطُّ الصفحة الحاضرة يُجلَب وحدَه — مليونا بايتٍ في ثوانٍ بدل
-     *  تسعةٍ وثمانين ميغابايت. فتظهر الصفحةُ المصحفية من أوّل فتحٍ
+     *  تسعين ميغابايت. فتظهر الصفحةُ المصحفية من أوّل فتحٍ
      *  لمن أذِن، ويمتلئ الباقي كلّما قلَب ورقة. */
     LaunchedEffect(pager.currentPage, mode, fontTick, allowed) {
         val l = layout ?: return@LaunchedEffect
         if (!mode.needsFonts || !allowed) return@LaunchedEffect
-        val need = l.fontOf(pager.currentPage + 1) ?: return@LaunchedEffect
-        if (fonts.fileFor(need).exists()) return@LaunchedEffect
+        val need = l.fontsNeeded(pager.currentPage + 1).filterNot { fonts.fileFor(it).exists() }
+        if (need.isEmpty()) return@LaunchedEffect
         fetching = true
-        val got = MushafDownloader(ctx).fetchOne(fonts, need)
+        val dl = MushafDownloader(ctx)
+        val got = need.map { dl.fetchOne(fonts, it) }.all { it }
         fetching = false
         if (got) { fontTick++; ready = fonts.isReady(l) }
     }
@@ -112,68 +127,109 @@ fun MushafScreen(navController: NavHostController, openPage: Int = 0) {
      *  الصفحةُ بسيطةً وإن كان خطُّها حاضراً. الآن الشرطُ خطُّ هذه
      *  الصفحة وحدَه. */
     val pageFontReady = layout?.let { l ->
-        l.fontOf(pager.currentPage + 1)?.let { fonts.fileFor(it).exists() }
+        /*  ليس خطَّ المتن وحدَه: لو نقص خطُّ اللوح رُسم اسمُ السورة
+            بخطّ الصفحة فخرج كلمةً أخرى — فالنقصُ نصٌّ خاطئٌ لا فراغ. */
+        fonts.isPageReady(l, pager.currentPage + 1)
     } ?: false
     val effective = if (mode.needsFonts && !pageFontReady) MushafMode.PAGE else mode
     val night = effective == MushafMode.MUSHAF_NIGHT
     val paper = if (night) Color(0xFF15130E) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
 
-    Column(
-        Modifier.fillMaxSize().background(paper).statusBarsPadding(),
-    ) {
-        MushafTopBar(
-            page = pager.currentPage + 1,
-            surah = suraName,
-            juz = head?.juz ?: 0,
-            ink = ink,
-            onBack = { navController.popBackStack() },
-            onSettings = { sheet = true },
-            onList = { navController.navigate(RafiqRoute.QuranList.route) },
-        )
+    /*  الأدواتُ تذوب.
 
-        if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
-            MushafBanner(
-                onDownload = { allowed = true; prefs.fontsAllowed = true },
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
-            )
-        }
-        if (progress != null) {
-            DownloadStrip(progress!!, Modifier.padding(horizontal = 14.dp, vertical = 6.dp))
-        }
+        ليس في المصحف الورقيّ شريطٌ علويٌّ ولا سفليّ — واسمُ السورة
+        والجزءُ ورقمُ الصفحة في الهامش حيث موضعُها. فالشاشةُ ورقةٌ
+        خالصة، ولمسةٌ واحدةٌ في متنها تُظهر الأدواتِ وتُخفيها.  */
+    var toolsOn by remember { mutableStateOf(false) }
 
-        Box(Modifier.weight(1f)) {
-            HorizontalPager(
-                state = pager,
-                modifier = Modifier.fillMaxSize(),
-                /*  لا `reverseLayout` هنا.
-                 *
-                 *  HorizontalPager يتبع اتّجاهَ التخطيط أصلاً، والتطبيقُ
-                 *  كلُّه RTL — فهو يقلب الورقةَ كما تُقلَب في المصحف بلا
-                 *  شيء. وإضافةُ `reverseLayout = true` تعكس المعكوسَ
-                 *  فيعود إلى اتّجاه الإنكليزية، وهو ما وقع. */
-            ) { index ->
-                val pageNo = index + 1
-                val data = layout?.page(pageNo)
-                val family = if (effective.needsFonts) {
-                    remember(pageNo, fontTick) { layout?.let { fonts.familyFor(it, pageNo) } }
-                } else null
+    Box(Modifier.fillMaxSize().background(paper)) {
+        HorizontalPager(
+            state = pager,
+            modifier = Modifier.fillMaxSize(),
+            /*  لا `reverseLayout` هنا.
+             *
+             *  HorizontalPager يتبع اتّجاهَ التخطيط أصلاً، والتطبيقُ
+             *  كلُّه RTL — فهو يقلب الورقةَ كما تُقلَب في المصحف بلا
+             *  شيء. وإضافةُ `reverseLayout = true` تعكس المعكوسَ
+             *  فيعود إلى اتّجاه الإنكليزية، وهو ما وقع. */
+        ) { index ->
+            val pageNo = index + 1
+            val data = layout?.page(pageNo)
+            val pf = if (effective.needsFonts) {
+                remember(pageNo, fontTick) { layout?.let { fonts.pageFonts(it, pageNo) } }
+            } else {
+                null
+            }
 
-                if (effective.needsFonts && data != null && family != null) {
-                    MushafPageView(
-                        page = data,
-                        family = family,
-                        selectedVerse = selected,
-                        onVerseClick = { selected = if (selected == it) null else it },
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    TextPage(pageNo, fontSize, ink, classic = effective == MushafMode.CLASSIC)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) { toolsOn = !toolsOn },
+            ) {
+                PageMargin(
+                    surah = data?.let { SurahNames.of(ctx, it.firstSurah) }.orEmpty(),
+                    juz = data?.juz ?: 0,
+                    odd = pageNo % 2 == 1,
+                    ink = ink,
+                )
+                Box(Modifier.weight(1f)) {
+                    if (effective.needsFonts && data != null && pf != null) {
+                        MushafPageView(
+                            page = data,
+                            fonts = pf,
+                            ink = ink,
+                            accent = if (night) rc.goldLight else rc.gold,
+                            marker = if (night) rc.goldLight else rc.goldLight,
+                            selectedVerse = selected,
+                            onVerseClick = { selected = if (selected == it) null else it },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        TextPage(pageNo, fontSize, ink, classic = effective == MushafMode.CLASSIC)
+                    }
                 }
+                PageFoot(pageNo, ar, ink)
             }
         }
 
-        MushafFooter(pager.currentPage + 1, head?.hizb ?: 0, suraName, ar, ink)
+        /*  ما لا يُخفى: البلاغُ حين ينقص خطٌّ، وشريطُ التنزيل حين يجري.
+            هذان حالُ النظام لا زينتُه، فيبقيان ظاهرين. */
+        Column(Modifier.align(Alignment.TopCenter).statusBarsPadding()) {
+            if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
+                MushafBanner(
+                    onDownload = { allowed = true; prefs.fontsAllowed = true },
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
+                )
+            }
+            if (progress != null) {
+                DownloadStrip(progress!!, Modifier.padding(horizontal = 14.dp, vertical = 6.dp))
+            }
+        }
+
+        ToolBar(
+            visible = toolsOn,
+            paper = paper,
+            ink = ink,
+            onBack = { navController.popBackStack() },
+            onList = { navController.navigate(RafiqRoute.QuranList.route) },
+            onSearch = { navController.navigate(RafiqRoute.QuranSearch.route) },
+            onMarks = { navController.navigate(RafiqRoute.QuranBookmarks.route) },
+            onSettings = { sheet = true },
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
+
+        AyahSheet(
+            verse = selected,
+            page = pager.currentPage + 1,
+            night = night,
+            onDismiss = { selected = null },
+        )
     }
 
     if (offer) {
@@ -289,6 +345,118 @@ private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
             )
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/* ── هامشُ الورقة ────────────────────────────────────────────────
+
+   في المصحف المطبوع يحمل الهامشُ اسمَ السورة والجزءَ في أعلاه ورقمَ
+   الصفحة في أسفل وسطه — بحبرٍ أخفَّ من المتن، فيُقرأ حين يُطلب لا حين
+   يُقرأ القرآن. وخطُّه نسخٌ لا خطُّ الواجهة: هو من عالم الكتاب.
+
+   والهامشُ يميل إلى الطرف الخارجيّ للورقة كما في الكتاب المجلَّد،
+   والفرديّةُ يسارَ الفتحة فخارجُها عن يسارها.
+──────────────────────────────────────────────────────────────── */
+
+private val JUZ_NAMES = listOf(
+    "", "الأوّل", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع",
+    "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر",
+    "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر",
+    "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون",
+    "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون",
+    "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون",
+)
+
+@Composable
+private fun PageMargin(surah: String, juz: Int, odd: Boolean, ink: Color) {
+    val faint = ink.copy(alpha = 0.52f)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(
+                start = if (odd) 16.dp else 28.dp,
+                end = if (odd) 28.dp else 16.dp,
+                top = 12.dp,
+                bottom = 2.dp,
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            if (surah.isBlank()) "" else "سُورَةُ $surah",
+            fontFamily = NaskhFamily,
+            fontSize = 13.sp,
+            color = faint,
+            maxLines = 1,
+        )
+        Text(
+            JUZ_NAMES.getOrNull(juz)?.takeIf { it.isNotEmpty() }?.let { "الجُزْءُ $it" }.orEmpty(),
+            fontFamily = NaskhFamily,
+            fontSize = 13.sp,
+            color = ink.copy(alpha = 0.40f),
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun PageFoot(page: Int, ar: Boolean, ink: Color) {
+    Column(
+        Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            Modifier
+                .width(34.dp)
+                .height(1.dp)
+                .background(ink.copy(alpha = 0.18f)),
+        )
+        Spacer(Modifier.height(7.dp))
+        Text(
+            "$page".localizedDigits(ar),
+            fontFamily = NaskhFamily,
+            fontSize = 13.sp,
+            color = ink.copy(alpha = 0.52f),
+        )
+    }
+}
+
+/* ── الأدواتُ التي تذوب ─────────────────────────────────────────── */
+
+@Composable
+private fun ToolBar(
+    visible: Boolean,
+    paper: Color,
+    ink: Color,
+    onBack: () -> Unit,
+    onList: () -> Unit,
+    onSearch: () -> Unit,
+    onMarks: () -> Unit,
+    onSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInVertically { -it / 3 },
+        exit = fadeOut() + slideOutVertically { -it / 3 },
+        modifier = modifier,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(Brush.verticalGradient(listOf(paper, paper.copy(alpha = 0f))))
+                .statusBarsPadding()
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconDot(RIcon.ArrowRight, ink, onBack)
+            Spacer(Modifier.weight(1f))
+            IconDot(RIcon.Book, ink, onList)
+            IconDot(RIcon.Search, ink, onSearch)
+            IconDot(RIcon.Bookmark, ink, onMarks)
+            IconDot(RIcon.Settings, ink, onSettings)
+        }
     }
 }
 
@@ -535,7 +703,7 @@ private fun SettingsSheet(
                         }
                         Spacer(Modifier.height(7.dp))
                         Text(
-                            "نحو ٨٩ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.",
+                            "نحو ٩٠ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.",
                             style = RafiqType.caption, color = rc.inkMed,
                         )
                     }
@@ -604,7 +772,7 @@ private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) 
                     .clickable(onClick = onAll),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("نزِّلِ المصحفَ كلَّه — ٨٩ م.ب", style = RafiqType.label, color = rc.emerald)
+                Text("نزِّلِ المصحفَ كلَّه — ٩٠ م.ب", style = RafiqType.label, color = rc.emerald)
             }
             Spacer(Modifier.height(4.dp))
             Text(
