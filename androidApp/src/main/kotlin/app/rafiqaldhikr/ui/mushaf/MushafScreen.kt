@@ -40,7 +40,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.ui.graphics.Brush
 import app.rafiqaldhikr.ui.theme.NaskhFamily
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlinx.coroutines.withContext
@@ -500,10 +499,13 @@ private fun ToolBar(
         exit = fadeOut() + slideOutVertically { -it / 3 },
         modifier = modifier,
     ) {
+        /*  خلفيّةٌ صمّاء لا متدرّجة: الشريطُ يعلو هامشَ الورقة الذي فيه
+            اسمُ السورة والجزء، فالتدرّجُ يُظهرهما تحت الأيقونات فتتداخل
+            الكتابةُ بالكتابة — وهو ما وقع. */
         Row(
             Modifier
                 .fillMaxWidth()
-                .background(Brush.verticalGradient(listOf(paper, paper.copy(alpha = 0f))))
+                .background(paper)
                 .statusBarsPadding()
                 .padding(horizontal = 10.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),

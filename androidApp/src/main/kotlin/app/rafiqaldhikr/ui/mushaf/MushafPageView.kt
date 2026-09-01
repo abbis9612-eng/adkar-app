@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.material3.LocalTextStyle
 
 /* ══════════════════════════════════════════════════════════════
    الصفحةُ المصحفية
@@ -55,7 +57,14 @@ import androidx.compose.ui.unit.sp
       بمقاسٍ مشتقٍّ من العرض وحدَه تتجاوز ارتفاعَ الورقة على الشاشات
       الضيّقة فيُقصّ آخرُها — وهو ما وقع. فالمقاسُ أصغرُ المشتقَّين.
 
-   ٣) والضبطُ بتوسيع ما بين الكلمات — وهو صنيعُ الخطّاط نفسِه.
+   ٣) واتّجاهُ السطر يُفرَض فرضاً. رموزُ المصحف في منطقة الاستعمال
+      الخاصّ، وصنفُها في خوارزمية الاتّجاه `L` — أي أنّها تُرتَّب من
+      اليسار وإن كانت كلماتٍ عربية. والصفُّ (Row) كان ينجو لأنّ ترتيبَه
+      تخطيطٌ لا اتّجاهُ نصّ؛ فلمّا صار السطرُ نصّاً واحداً انقلب ترتيبُ
+      الكلمات. فيُطوَّق السطرُ بـ`U+202E` و`U+202C` — قلبٌ صريحٌ يقول
+      إنّ هذه عربيّةٌ تُقرأ من اليمين، وهو الحقّ فيها.
+
+   ٤) والضبطُ بتوسيع ما بين الكلمات — وهو صنيعُ الخطّاط نفسِه.
       و`letterSpacing` هو الوسيلة، لأنّ كلَّ رمزٍ كلمةٌ فما بين
       الرمزين هو ما بين الكلمتين.
 
@@ -70,6 +79,12 @@ import androidx.compose.ui.unit.sp
    والكعبُ يُلقي ظلاًّ. والفرديّةُ في الكتاب العربيّ يسارَ الفتحة
    فكعبُها عن يمينها.
 ══════════════════════════════════════════════════════════════ */
+
+/** قلبُ الاتّجاه إلى اليمين — `RIGHT-TO-LEFT OVERRIDE`. */
+private const val RLO = '\u202E'
+
+/** ورفعُه — `POP DIRECTIONAL FORMATTING`. */
+private const val PDF = '\u202C'
 
 /** صندوقُ السطر بالـem — مقيسٌ من `hhea` في الخطّ لا مُقدَّر. */
 private const val LINE_BOX = 2.28f
@@ -197,6 +212,7 @@ private fun MushafLine(
 ) {
     val text: AnnotatedString = remember(page, line, selectedVerse, ink, accent, marker) {
         buildAnnotatedString {
+            append(RLO)
             page.l[line].forEachIndexed { i, delta ->
                 val g = start + i
                 val type = page.t.getOrNull(g) ?: GlyphType.WORD
@@ -214,6 +230,7 @@ private fun MushafLine(
                     ),
                 ) { append(page.glyph(delta)) }
             }
+            append(PDF)
         }
     }
 
@@ -238,6 +255,7 @@ private fun MushafLine(
         lineHeight = (fontSize * LINE_BOX).sp,
         letterSpacing = spacing.em,
         textAlign = if (fills) TextAlign.Start else TextAlign.Center,
+        style = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl),
         maxLines = 1,
         softWrap = false,
         onTextLayout = { layout = it },
@@ -250,7 +268,9 @@ private fun MushafLine(
                         /*  رموزُ المصحف من المستوى الأساسيّ، فكلُّ رمزٍ
                             محرفٌ واحد ودليلُه دليلُ الكلمة. */
                         val l = layout ?: return@detectTapGestures
-                        val i = l.getOffsetForPosition(pos).coerceIn(0, (size - 1).coerceAtLeast(0))
+                        // ‑١ لأنّ `U+202E` يشغل الموضعَ الأوّل من النصّ
+                        val i = (l.getOffsetForPosition(pos) - 1)
+                            .coerceIn(0, (size - 1).coerceAtLeast(0))
                         page.v.getOrNull(start + i)
                             ?.takeIf { it.isNotEmpty() }
                             ?.let(onVerseClick)
