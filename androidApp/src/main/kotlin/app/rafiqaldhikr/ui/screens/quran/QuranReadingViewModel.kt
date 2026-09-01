@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * مصحف يُقلب صفحة صفحة: 604 صفحات مبنية على أرقام صفحات مصحف المدينة
@@ -64,12 +65,44 @@ class QuranReadingViewModel(
         }
     }
 
+    /** الصفحات التي يُحمَّل جوارها مسبقاً على كل جانب */
+    private val prefetchRadius = 2
+    /** نصف قطر الذاكرة المؤقتة — ما بَعُد عن الصفحة الحالية يُقلَّم */
+    private val cacheRadius = 4
+    /** استعلامات جارية — تمنع تكرار الاستعلام لنفس الصفحة */
+    private val inFlight = mutableSetOf<Int>()
+
+    /**
+     * يحمّل الصفحة وجيرانها قبل أن تصل إليها العين، ويقلّم البعيد.
+     * بهذا لا يقف التقليب على استعلام قاعدة البيانات ولا تتضخّم الذاكرة.
+     */
+    fun prefetchAround(page: Int) {
+        loadPage(page)
+        for (step in 1..prefetchRadius) {
+            loadPage(page + step)
+            loadPage(page - step)
+        }
+        trimCache(page)
+    }
+
+    private fun trimCache(center: Int) {
+        _uiState.update { st ->
+            if (st.pages.size <= cacheRadius * 2 + 1) st
+            else st.copy(pages = st.pages.filterKeys { abs(it - center) <= cacheRadius })
+        }
+    }
+
     fun loadPage(page: Int) {
         if (page < 1 || page > TOTAL_PAGES) return
         if (_uiState.value.pages.containsKey(page)) return
+        if (!inFlight.add(page)) return
         viewModelScope.launch {
-            val ayahs = repository.getAyahsByPage(page).first()
-            _uiState.update { it.copy(pages = it.pages + (page to ayahs)) }
+            try {
+                val ayahs = repository.getAyahsByPage(page).first()
+                _uiState.update { it.copy(pages = it.pages + (page to ayahs)) }
+            } finally {
+                inFlight.remove(page)
+            }
         }
     }
 
