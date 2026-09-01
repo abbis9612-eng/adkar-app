@@ -43,6 +43,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.graphics.Brush
 import app.rafiqaldhikr.ui.theme.NaskhFamily
 import app.rafiqaldhikr.ui.utils.localizedDigits
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 /* ══════════════════════════════════════════════════════════════
    شاشةُ المصحف — أربعةُ أنماطٍ في مكانٍ واحد
@@ -116,6 +118,21 @@ fun MushafScreen(
         if (got) { fontTick++; ready = fonts.isReady(l) }
     }
 
+    /*  تهيئةُ خطوطِ الصفحة والتي تليها والتي قبلها على خيطٍ خلفيّ.
+
+        `Typeface.createFromFile` لملفٍّ في مليونَي بايت عملٌ ثقيل، وكان
+        يقع داخلَ التأليف حين يُركّب المقلِّبُ الصفحةَ المجاورة — أي في
+        منتصف السحب بالضبط، فيتقطّع القلب. وهنا يقع قبلَه بخطوة. */
+    LaunchedEffect(pager.currentPage, fontTick) {
+        val l = layout ?: return@LaunchedEffect
+        withContext(Dispatchers.IO) {
+            val now = pager.currentPage + 1
+            for (p in (now - 1)..(now + 1)) {
+                if (p in 1..604) runCatching { fonts.pageFonts(l, p) }
+            }
+        }
+    }
+
     val ctxVm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
     val pageAyat by ctxVm.pageFlow(pager.currentPage + 1).collectAsState(initial = emptyList())
     val head = pageAyat.firstOrNull()
@@ -167,7 +184,11 @@ fun MushafScreen(
                 Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .navigationBarsPadding()
+                    /*  ولا `navigationBarsPadding` هنا: الشريطُ السفليُّ
+                        يحملها في `RafiqBottomBar`، والهيكلُ يطرح ارتفاعَه
+                        من المحتوى — فإعادتُها تقتطع من ارتفاع الورقة
+                        نحوَ ثمانيةٍ وأربعين نقطةً بلا سبب، وهو ما ضيّق
+                        الأسطرَ الخمسةَ عشر. */
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },

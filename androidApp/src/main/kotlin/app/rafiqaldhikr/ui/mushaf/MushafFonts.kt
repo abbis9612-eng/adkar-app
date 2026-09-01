@@ -37,7 +37,9 @@ class MushafFonts(private val context: Context) {
 
     private val dir: File get() = File(context.filesDir, "mushaf").apply { mkdirs() }
 
-    private val cache = HashMap<String, FontFamily>()
+    /*  خريطةٌ متزامنة: الخطوطُ تُهيَّأ مسبقاً على خيط الإدخال/الإخراج
+        وتُقرأ من خيط التأليف، فالخريطةُ العاديّة تتسابق عليها. */
+    private val cache = java.util.concurrent.ConcurrentHashMap<String, FontFamily>()
 
     /** هل نُزِّلت الخطوطُ كلُّها؟ */
     fun isReady(layout: MushafLayout): Boolean =
