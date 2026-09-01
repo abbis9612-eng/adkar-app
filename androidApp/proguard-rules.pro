@@ -39,3 +39,6 @@
 # ═══ Services & Widgets ═══
 -keep class app.rafiqaldhikr.service.** { *; }
 -keep class app.rafiqaldhikr.widget.**  { *; }
+
+# ═══ SLF4J (يأتي عبر Ktor) — الرابط اختياري وقت التشغيل ═══
+-dontwarn org.slf4j.impl.StaticLoggerBinder
