@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.prayer
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,11 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun PrayerMethodScreen(
@@ -30,17 +36,17 @@ fun PrayerMethodScreen(
     settingsVM: SettingsViewModel = koinViewModel()
 ) {
     val methods = listOf(
-        "mwl"         to "رابطة العالم الإسلامي (مُوصى به)",
-        "umm_al_qura" to "أم القرى (مكة)",
-        "egyptian"    to "الهيئة المصرية العامة للمساحة",
-        "isna"        to "الجمعية الإسلامية لأمريكا الشمالية",
-        "karachi"     to "جامعة العلوم الإسلامية كراتشي",
-        "turkey"      to "رئاسة الشؤون الدينية التركية"
+        "mwl"         to stringResource(R.string.method_mwl_full),
+        "umm_al_qura" to stringResource(R.string.method_umm_full),
+        "egyptian"    to stringResource(R.string.method_egypt_full),
+        "isna"        to stringResource(R.string.method_isna_full),
+        "karachi"     to stringResource(R.string.method_karachi_full),
+        "turkey"      to stringResource(R.string.method_turkey_full)
     )
 
     val madhabOptions = listOf(
-        "shafi"  to "الشافعي / المالكي / الحنبلي",
-        "hanafi" to "الحنفي"
+        "shafi"  to stringResource(R.string.madhab_majority),
+        "hanafi" to stringResource(R.string.madhab_hanafi_full)
     )
 
     val selected by settingsVM.prayerMethod.collectAsState()
@@ -60,22 +66,10 @@ fun PrayerMethodScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "طريقة الحساب",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.method_title),
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -90,10 +84,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     methods.forEachIndexed { index, (key, label) ->
                         Row(
@@ -103,7 +94,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = selected == key,
                                 onClick = { settingsVM.setPrayerMethod(key) },
@@ -119,16 +110,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ المذهب الفقهي (العصر) ═══
-                Text(
-                    text = "المذهب الفقهي (وقت العصر)",
-                    fontSize = 18.sp,
+                Text(text = stringResource(R.string.madhab_section),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يؤثر المذهب على حساب وقت صلاة العصر.",
+                    text = stringResource(R.string.madhab_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -138,10 +126,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     madhabOptions.forEachIndexed { index, (key, label) ->
                         Row(
@@ -151,7 +136,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = selectedMadhab == key,
                                 onClick = { settingsVM.setMadhab(key) },
@@ -167,16 +152,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ الارتفاع عن سطح البحر ═══
-                Text(
-                    text = "الارتفاع عن سطح البحر (بالمتر)",
-                    fontSize = 18.sp,
+                Text(text = stringResource(R.string.elevation_label),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يُصحّح وقت المغرب والشروق. مثال: السليمانية ≈ 850 متر.",
+                    text = stringResource(R.string.elevation_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -196,10 +178,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     presetElevations.forEachIndexed { index, (value, label) ->
                         Row(
@@ -209,7 +188,7 @@ fun PrayerMethodScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(label, fontSize = 16.sp, color = rc.ink, modifier = Modifier.weight(1f))
+                            Text(label, color = rc.ink, modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = elevation == value,
                                 onClick = { settingsVM.setElevation(value) },
@@ -221,12 +200,9 @@ fun PrayerMethodScreen(
                     
                     // Custom elevation slider
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "أو اختر يدوياً: ${elevation.toInt()} متر",
-                        fontSize = 16.sp,
+                    Text(text = "أو اختر يدوياً: ${elevation.toInt()} متر",
                         color = rc.ink,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                        modifier = Modifier.padding(horizontal = 16.dp), style = RafiqType.body)
                     Slider(
                         value = elevation.toFloat(),
                         onValueChange = { settingsVM.setElevation(it.toDouble()) },
@@ -258,16 +234,13 @@ fun PrayerMethodScreen(
                 Spacer(Modifier.height(24.dp))
                 
                 // ═══ التصحيح اليدوي ═══
-                Text(
-                    text = "التصحيح المخصص للأوقات (بالدقائق)",
-                    fontSize = 18.sp,
+                Text(text = stringResource(R.string.offsets_label),
                     fontWeight = FontWeight.Bold,
                     color = rc.emerald,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 8.dp), style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "يمكنك إضافة أو إنقاص دقائق لتطابق توقيت مدينتك أو المسجد المحلي.",
+                    text = stringResource(R.string.offsets_note),
                     fontSize = 13.sp,
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -277,10 +250,7 @@ fun PrayerMethodScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     val f = settingsVM.fajrOffset.collectAsState().value
                     val d = settingsVM.dhuhrOffset.collectAsState().value
@@ -288,15 +258,15 @@ fun PrayerMethodScreen(
                     val m = settingsVM.maghribOffset.collectAsState().value
                     val i = settingsVM.ishaOffset.collectAsState().value
                     
-                    OffsetRow("الفجر", f, rc) { settingsVM.setPrayerOffsets(it, d, a, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_fajr), f, rc) { settingsVM.setPrayerOffsets(it, d, a, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("الظهر", d, rc) { settingsVM.setPrayerOffsets(f, it, a, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_dhuhr), d, rc) { settingsVM.setPrayerOffsets(f, it, a, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("العصر", a, rc) { settingsVM.setPrayerOffsets(f, d, it, m, i) }
+                    OffsetRow(stringResource(R.string.prayer_asr), a, rc) { settingsVM.setPrayerOffsets(f, d, it, m, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("المغرب", m, rc) { settingsVM.setPrayerOffsets(f, d, a, it, i) }
+                    OffsetRow(stringResource(R.string.prayer_maghrib), m, rc) { settingsVM.setPrayerOffsets(f, d, a, it, i) }
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    OffsetRow("العشاء", i, rc) { settingsVM.setPrayerOffsets(f, d, a, m, it) }
+                    OffsetRow(stringResource(R.string.prayer_isha), i, rc) { settingsVM.setPrayerOffsets(f, d, a, m, it) }
                 }
                 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -314,36 +284,33 @@ fun OffsetRow(label: String, value: Int, rc: RafiqPalette, onValueChange: (Int) 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 16.sp, color = rc.ink)
+        Text(label, color = rc.ink, style = RafiqType.body)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.bg)
-                    .border(1.dp, rc.gold.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value - 1) },
                 contentAlignment = Alignment.Center
-            ) { Text("-", fontSize = 18.sp, color = rc.emerald) }
+            ) { Text("-", color = rc.emerald, style = RafiqType.titleM) }
             
-            Text(
-                text = if (value > 0) "+$value" else value.toString(),
+            Text(text = if (value > 0) "+$value" else value.toString(),
                 modifier = Modifier.width(48.dp),
                 textAlign = TextAlign.Center,
-                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = rc.ink
-            )
+                color = rc.ink, style = RafiqType.body)
             
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.bg)
-                    .border(1.dp, rc.gold.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                    .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                     .clickable { onValueChange(value + 1) },
                 contentAlignment = Alignment.Center
-            ) { Text("+", fontSize = 18.sp, color = rc.emerald) }
+            ) { Text("+", color = rc.emerald, style = RafiqType.titleM) }
         }
     }
 }

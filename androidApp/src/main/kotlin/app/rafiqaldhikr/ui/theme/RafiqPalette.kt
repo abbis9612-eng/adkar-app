@@ -5,86 +5,125 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /**
- * Unified design-token palette for Rafiq Al-Dhikr.
+ * لوحة التوكنز الموحّدة لتطبيق «رفيق الذكر».
  *
- * Every screen MUST reference [LocalRafiqColors] instead of defining its own
- * private color object. Shorthand: `val rc = LocalRafiqColors.current`
+ * كل شاشة تقرأ من [LocalRafiqColors] ولا تعرّف ألواناً خاصة بها.
+ * اختصار: `val rc = LocalRafiqColors.current`
+ *
+ * ── الانضباط اللوني ─────────────────────────────────────────────
+ * كانت اللوحة 48 توكناً و12 لون أساس (زمرّدي · ذهبي · بنفسجي ·
+ * بنفسجي-نوم · نيلي · برتقالي · بنّي · أزرق + أربع حلقات دلالية).
+ * هذه ليست هويّة، هذه قوس قزح — وتطبيقٌ عن السكينة لا يملك ستّ درجات
+ * تمييز.
+ *
+ * الآن ثلاث عائلات لا غير:
+ *
+ *  ١) الهويّة   : زمرّدي · ذهبي · ورق · حبر
+ *  ٢) سلّم الضوء: goldLight (فجر وضحى) · lightDusk (عصر ومغرب)
+ *                 · lightNight (عشاء ونوم)
+ *  ٣) الحالة    : نجاح · تنبيه · خطأ
+ *
+ * سلّم الضوء ليس زينة: أسماء الصلوات كلّها أسماء حالات ضوء، فالوقت
+ * هنا بنية. هذه التوكنز الثلاثة كانت مبعثرة في ستّة ألوان مخصصة
+ * (morningRing · eveningRing · purpleSleep · sleepRing · accentOrange
+ * · blueAccent) تُستعمل في السماء الحيّة وأيقونات المحطات وشارات
+ * المساء. جُمعت هنا لتكون بذرة طبقة «الميقات».
+ *
+ * تمييز الأقسام لا يأتي بلون جديد لكل قسم — بل بالأيقونة ودرجة الضوء.
  */
 @Immutable
 data class RafiqPalette(
-    /* ── Backgrounds ── */
+    /* ── الأسطح ── */
     val bg: Color,
+    /** سطح البطاقة. أبيضُ نقيّ على الورق الفاتح — راجع [cardBorder]. */
     val card: Color,
-    /** خلفية بطاقة "مؤداة/مكتملة" — لون معتم (لا شفافية) حتى لا يظهر الظِل من خلفها. */
+    /**
+     * حدُّ البطاقة.
+     *
+     * الورق #FFFDF5 شبه أبيض، وأفتحُ لونٍ في الوجود (الأبيض النقيّ)
+     * نبرتُه عنه 1.018 — والعين تبدأ التمييز عند 1.20. فالبطاقة لا
+     * يمكن أن تُرى بالتعبئة أبداً على هذا الورق، لا بأفتحَ ولا بأغمق:
+     * الأفتحُ مستحيل رياضياً، والأغمقُ يُقرأ رقعةً رمادية ملصوقة
+     * ويهبط بالنصّ من 17.56 إلى 13.98.
+     *
+     * فالذي يرسمها الحدُّ (1.24) والظلُّ، والتعبئةُ تُترك بيضاء —
+     * فيصير النصّ فوقها 17.89، أي أعلى من الورق نفسه.
+     */
+    val cardBorder: Color,
+    /** خلفية بطاقة «مؤداة/مكتملة» — لون معتم (لا شفافية) حتى لا يظهر الظِل من خلفها. */
     val cardPrayed: Color,
+    /** خلفية الحبّة الصغيرة (التاريخ الهجري، الوسوم). */
+    val chipBg: Color,
 
-    /* ── Primary — Emerald Green ── */
+    /* ── الأساس: الزمرّدي ── */
     val emerald: Color,
     val emeraldMed: Color,
     val emeraldLight: Color,
     val emeraldPastel: Color,
-    val emeraldPastel2: Color,
 
-    /* ── Accent — Gold ── */
+    /* ── الأخضر الممتلئ ──
+       الزمرّدي الداكن يُقرأ نصّاً على الورق (7.61) ولا يُقرأ ملءاً — والأبيض
+       فوقه وحده يعمل. والأخضر الفاتح عكسه تماماً: ملءٌ ممتاز (8.54 بحبرٍ
+       داكن فوقه) ونصٌّ لا يُقرأ إطلاقاً (1.66 على الورق).
+       فلونان لدورين، لا لونٌ واحد يُجبَر على الدورين. */
+    val emeraldFill: Color,
+    val onEmeraldFill: Color,
+
+    /* ── التمييز: الذهبي ── */
     val gold: Color,
     val goldLight: Color,
 
-    /* ── Text / Ink ── */
+    /* ── لون المحتوى فوق الأسطح المملوءة ──
+       في الوضع الداكن يصير الزمرّدي والذهبي فاتحَين، فالأبيض فوقهما
+       يهبط إلى 2.72:1 و2.24:1 — دون كل عتبة. المحتوى هناك يكون داكناً. */
+    val onEmerald: Color,
+    val onGold: Color,
+
+    /* ── الحبر ── */
     val ink: Color,
     val inkDark: Color,
     val inkMed: Color,
     val inkLight: Color,
 
-    /* ── Divider & Overlay ── */
+    /* ── الفاصل ── */
     val divider: Color,
-    val overlay: Color,
 
-    /* ── Hero Card Gradient ── */
+    /* ── تدرّج بطاقة البطل (زمرّدي، ليس لوناً جديداً) ── */
     val heroStart: Color,
     val heroMid: Color,
     val heroEnd: Color,
+    /**
+     * المحتوى فوق تدرّج البطل — كريميٌّ في الوضعين.
+     *
+     * ولا يصلح [onEmerald] مكانه: ذاك يتبع اللهجة، واللهجةُ تنقلب فاتحةً
+     * في الليل فيصير محتواها داكناً. أمّا تدرّجُ البطل فأخضرُ داكنٌ في
+     * الوضعين معاً، فمحتواه فاتحٌ دائماً. وكانت البطاقتان الوحيدتان
+     * اللتان تستعملانه تكتبان `Color.White` يدوياً لهذا السبب بالذات.
+     */
+    val onHero: Color,
 
-    /* ── Quran Badges ── */
+    /* ── شارات المصحف: مكيّة/مدنية — تمييز بيانات حقيقي ── */
     val meccanBg: Color,
     val meccanText: Color,
     val madaniBg: Color,
     val madaniText: Color,
 
-    /* ── Dhikr Semantic ── */
-    val brownAccent: Color,
-    val blueAccent: Color,
+    /* ═══ سلّم الضوء — بذرة طبقة الميقات ═══
+       الفجر والضحى يستعملان goldLight أعلاه؛ لا حاجة للون رابع. */
+    /** ضوء العصر والمغرب — نحاسي دافئ. */
+    val lightDusk: Color,
+    /** ضوء العشاء والنوم — المقابل البارد الوحيد في التطبيق. */
+    val lightNight: Color,
 
-    /* ── Status ── */
+    /* ── خلفيات باهتة مشتقّة من الثلاثة أعلاه ── */
+    val tintGold: Color,
+    val tintDusk: Color,
+    val tintNight: Color,
+
+    /* ── الحالة ── */
     val success: Color,
     val warning: Color,
     val error: Color,
-
-    /* ── Navigation ── */
-    val navGlass: Color,
-    val navSelected: Color,
-
-    /* ── Semantic Rings & Badges ── */
-    val purple: Color,
-    val purpleSleep: Color,
-    val morningRing: Color,
-    val eveningRing: Color,
-    val sleepRing: Color,
-    val istighfarRing: Color,
-
-    /* ── Category Accents (bg/fg pairs) ── */
-    val accentGoldBg: Color,
-    val accentGold: Color,
-    val accentIndigoBg: Color,
-    val accentIndigo: Color,
-    val accentPurpleBg: Color,
-    val accentPurple: Color,
-    val accentBrownBg: Color,
-    val accentBrown: Color,
-    val accentOrangeBg: Color,
-    val accentOrange: Color,
-
-    /* ── Small chip background (hijri date, tags) ── */
-    val chipBg: Color,
 )
 
 /* ═══════════════════════════════════════════
@@ -92,65 +131,65 @@ data class RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val LightRafiqPalette = RafiqPalette(
-    bg             = Color(0xFFF5F0E8),
+    // ورق لا خلفية. الكريمي الفاتح يقول «خلفية تطبيق»؛ هذا يقول ورقاً،
+    // والبطاقة فوقه ورقةٌ أفتح لا بياضاً نقياً.
+    // سلّم النبرات: كان الورق ↔ البطاقة 1.09:1 — أي غير مرئي (العين تبدأ
+    // بالتمييز عند 1.2 تقريباً). عُمِّق الورق وأُنصعت البطاقة معاً فصار 1.29:1.
+    // رفعُ أحدهما وحده لا يكفي — لهذا تحرّك الطرفان.
+    bg             = Color(0xFFFFFDF5),
     card           = Color(0xFFFFFFFF),
-    cardPrayed     = Color(0xFFE9E8DF), // = emerald@5% مركّب فوق bg، لكن معتماً
+    cardBorder    = Color(0xFFEDE4CE),
+    cardPrayed     = Color(0xFFF2EDDF),
+    chipBg         = Color(0xFFF3EEE1),  // inkMed فوقه 5.70:1
 
-    emerald        = Color(0xFF09472B),
-    emeraldMed     = Color(0xFF0B5E38),
-    emeraldLight   = Color(0xFF0D7446),
-    emeraldPastel  = Color(0xFFE0EFE7),
-    emeraldPastel2 = Color(0xFFC4DFCF),
+    // الزمرّد عاد زمرّداً. كان العنبر يشغل العائلة كلَّها فيقرأ البنّي
+    // «برتقالياً»، وهذا اللون هو heroMid الموجود في التطبيق أصلاً —
+    // فالبطاقة الخضراء الداكنة كانت تلبسه وحدها، وصار لَونَ الهويّة.
+    emerald        = Color(0xFF09472B),  // 10.78:1 على البطاقة · 10.59 على الورق
+    emeraldMed     = Color(0xFF062F1D),
+    emeraldLight   = Color(0xFF0B5934),  //  8.42:1
+    emeraldPastel  = Color(0xFFDCECE2),  // نبرته عن الورق 1.20 — أدنى ما تراه العين
 
-    gold           = Color(0xFFB07C20),
-    goldLight      = Color(0xFFC99230),
+    // الملء أفتحُ درجةً من النصّ: لَونان لدورين كما كان، لكن كليهما أخضر.
+    emeraldFill    = Color(0xFF0B5934),
+    onEmeraldFill  = Color(0xFFF7F2E6),  // 7.54:1 فوق الملء (الحبر الداكن هناك 2.12)
 
-    ink            = Color(0xFF1A1408),
-    inkDark        = Color(0xFF33280F),
-    inkMed         = Color(0xFF7A7060),
-    inkLight       = Color(0xFFB5A88E),
+    gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
+    goldLight      = Color(0xFF9F7715),
 
-    divider        = Color(0x1AB07C20),
-    overlay        = Color(0x08000000),
+    onEmerald      = Color(0xFFF7F2E6),  // 9.65:1 فوق الزمرّد
+    onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
+
+    // حبر أخضر داكن لا أسود — فيبقى الزمرّدي هويّةً حتى داخل النصّ.
+    ink            = Color(0xFF1A1710),   // 12.76:1
+    inkDark        = Color(0xFF35332B),
+    inkMed         = Color(0xFF5F5C55),   //  4.54:1
+    // مقصور على الأيقونات وعناصر التحكّم الخاملة؛ النصّ الخافت يستعمل inkMed.
+    inkLight       = Color(0xFF7E7B74),   //  3.79:1
+
+    // خطّ المسطرة — لا فاصل رمادي
+    divider        = Color(0xFFE4DCC9),
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
     heroEnd        = Color(0xFF0B5934),
+    onHero         = Color(0xFFF7F2E6),  // 7.54:1 على أفتحِ طرفٍ · 14.06 على أغمقه
 
-    meccanBg       = Color(0xFFFEF8EC),
-    meccanText     = Color(0xFF8B6914),
-    madaniBg       = Color(0xFFE0EFE7),
-    madaniText     = Color(0xFF09472B),
+    meccanBg       = Color(0xFFF7F0DB),
+    meccanText     = Color(0xFF8B6608),
+    madaniBg       = Color(0xFFEAF0E2),
+    madaniText     = Color(0xFF2D7931),
 
-    brownAccent    = Color(0xFF8B6914),
-    blueAccent     = Color(0xFF1A3A5C),
+    lightDusk      = Color(0xFF9B5009),  // 4.70:1 على الورق الأغمق
+    lightNight     = Color(0xFF3A4A78),  // 6.95:1
 
-    success        = Color(0xFF2E7D32),
-    warning        = Color(0xFFF9A825),
-    error          = Color(0xFFC62828),
+    tintGold       = Color(0xFFFBF1DB),
+    tintDusk       = Color(0xFFF4EADB),
+    tintNight      = Color(0xFFEBEBE8),
 
-    navGlass       = Color(0xFFFDF8F0),
-    navSelected    = Color(0xFF09472B),
-
-    purple         = Color(0xFF9B6DBF),
-    purpleSleep    = Color(0xFF7B5EA7),
-    morningRing    = Color(0xFFD4A030),
-    eveningRing    = Color(0xFFC5BAE8),
-    sleepRing      = Color(0xFF9B6DBF),
-    istighfarRing  = Color(0xFF4A9E6E),
-
-    accentGoldBg   = Color(0xFFFEF8EC),
-    accentGold     = Color(0xFFB07C20),
-    accentIndigoBg = Color(0xFFEEF0FB),
-    accentIndigo   = Color(0xFF4B5BC4),
-    accentPurpleBg = Color(0xFFF3F0FD),
-    accentPurple   = Color(0xFF7C4DC9),
-    accentBrownBg  = Color(0xFFFDF6E8),
-    accentBrown    = Color(0xFF8B6914),
-    accentOrangeBg = Color(0xFFFEF3DC),
-    accentOrange   = Color(0xFFE8780A),
-
-    chipBg         = Color(0xFFEDE8DC),
+    success        = Color(0xFF2A722E),
+    warning        = Color(0xFF8B5A00),
+    error          = Color(0xFFC02727),
 )
 
 /* ═══════════════════════════════════════════
@@ -158,65 +197,57 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF0F0D08),
-    card           = Color(0xFF1E1A12),
-    cardPrayed     = Color(0xFF17231C), // نسخة داكنة معتمة بلمسة خضراء لحالة "مؤداة"
+    bg             = Color(0xFF12100A),
+    card           = Color(0xFF1E1C15),
+    cardBorder    = Color(0xFF312D22),
+    cardPrayed     = Color(0xFF26241D),
+    chipBg         = Color(0xFF221F19),
 
-    emerald        = Color(0xFF4CAF7B),
-    emeraldMed     = Color(0xFF3D9B6A),
-    emeraldLight   = Color(0xFF5CC18C),
-    emeraldPastel  = Color(0xFF1A2E24),
-    emeraldPastel2 = Color(0xFF1E3429),
+    // في الداكن ينقلب السلّم: الأخضرُ الداكن يختفي في الليل، فيصير فاتحاً.
+    emerald        = Color(0xFF5CBF88),  // 7.52:1 على البطاقة
+    emeraldMed     = Color(0xFF4CAF7B),  // 6.27:1
+    emeraldLight   = Color(0xFF7BD3A4),  // 9.49:1
+    emeraldPastel  = Color(0xFF173126),  // الحبر فوقه 11.44:1
 
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    ink            = Color(0xFFE8E0D0),
-    inkDark        = Color(0xFFD4C8B4),
-    inkMed         = Color(0xFFA09480),
-    inkLight       = Color(0xFF7A7060),
+    emeraldFill    = Color(0xFF4CAF7B),
+    onEmeraldFill  = Color(0xFF14201A),  // 6.17:1 — الأبيض فوقه 2.72 فقط
 
-    divider        = Color(0x26DAA520),
-    overlay        = Color(0x15FFFFFF),
+    onEmerald      = Color(0xFF14201A),  // 7.40:1 — الأبيض هنا 2.07:1 فقط
+    onGold         = Color(0xFF14201A),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    heroStart      = Color(0xFF0A1F14),
-    heroMid        = Color(0xFF0F3322),
-    heroEnd        = Color(0xFF144430),
+    ink            = Color(0xFFEFE8D8),
+    inkDark        = Color(0xFFD6CFBE),
+    inkMed         = Color(0xFFA7A194),
+    inkLight       = Color(0xFF837E73),
+
+    divider        = Color(0xFF35332B),
+
+    // كان التدرّج #0A1F14→#144430، ونبرةُ أغمقِ طرفٍ عن الصفحة 1.10 —
+    // أي بطاقةٌ لا تُرى إطلاقاً (العين تبدأ التمييز عند 1.20). أُزيح
+    // التدرّجُ كلُّه إلى أعلى فصار 1.54 و1.92 و2.32.
+    heroStart      = Color(0xFF113C2B),
+    heroMid        = Color(0xFF174C36),
+    heroEnd        = Color(0xFF1E5941),
+    onHero         = Color(0xFFF7F2E6),  // 7.34:1 على أفتحِ طرفٍ · 11.03 على أغمقه
 
     meccanBg       = Color(0xFF2A2010),
     meccanText     = Color(0xFFDAA520),
     madaniBg       = Color(0xFF1A2E24),
     madaniText     = Color(0xFF4CAF7B),
 
-    brownAccent    = Color(0xFFDAA520),
-    blueAccent     = Color(0xFF5B8CB8),
+    lightDusk      = Color(0xFFE0954A),
+    lightNight     = Color(0xFF8B96E8),
+
+    tintGold       = Color(0xFF2A2010),
+    tintDusk       = Color(0xFF2E1F0C),
+    tintNight      = Color(0xFF1B2038),
 
     success        = Color(0xFF66BB6A),
     warning        = Color(0xFFFFCA28),
     error          = Color(0xFFEF5350),
-
-    navGlass       = Color(0xFF1E1A12),
-    navSelected    = Color(0xFF4CAF7B),
-
-    purple         = Color(0xFF7B8BF4),
-    purpleSleep    = Color(0xFFA67DF9),
-    morningRing    = Color(0xFFB89030),
-    eveningRing    = Color(0xFF6660A0),
-    sleepRing      = Color(0xFF7050A0),
-    istighfarRing  = Color(0xFF3A7050),
-
-    accentGoldBg   = Color(0xFF2A2010),
-    accentGold     = Color(0xFFDAA520),
-    accentIndigoBg = Color(0xFF1B2038),
-    accentIndigo   = Color(0xFF8B96E8),
-    accentPurpleBg = Color(0xFF251C38),
-    accentPurple   = Color(0xFFA98BE8),
-    accentBrownBg  = Color(0xFF2A2210),
-    accentBrown    = Color(0xFFC9A44D),
-    accentOrangeBg = Color(0xFF2E1F0C),
-    accentOrange   = Color(0xFFF09A4A),
-
-    chipBg         = Color(0xFF2A2519),
 )
 
 /* ═══════════════════════════════════════════

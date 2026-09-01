@@ -20,6 +20,8 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 @Composable
 fun AboutScreen(navController: NavHostController) {
@@ -36,22 +38,10 @@ fun AboutScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "حول التطبيق",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "حول التطبيق",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -64,17 +54,14 @@ fun AboutScreen(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
                 Text("رفيق الذكر", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
                 Text("الإصدار " + app.rafiqaldhikr.BuildConfig.VERSION_NAME,
-                    fontSize = 14.sp, color = rc.inkMed)
+                    color = rc.inkMed, style = RafiqType.bodyS)
                 Spacer(Modifier.height(24.dp))
-                Text(
-                    "رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp,
+                Text("رفيقك اليومي في رحلة الإيمان.\nأذكار، قرآن، أدعية، مسبحة، ومواقيت الصلاة\nكل ذلك في تطبيق واحد.",
+                    lineHeight = 28.sp,
                     textAlign = TextAlign.Center,
-                    color = rc.inkMed
-                )
+                    color = rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(32.dp))
-                Text("صُنع بـ ❤️ لله", fontSize = 14.sp, color = rc.emerald)
+                Text("صُنع بـ ❤️ لله", color = rc.emerald, style = RafiqType.bodyS)
             }
         }
     }

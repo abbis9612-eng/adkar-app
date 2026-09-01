@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -21,10 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
-import app.rafiqaldhikr.ui.components.IcoDua
 import app.rafiqaldhikr.ui.components.IcoMoon
 import app.rafiqaldhikr.ui.components.OrnamentMedallion
 import app.rafiqaldhikr.ui.components.IcoMosque
@@ -34,6 +34,12 @@ import app.rafiqaldhikr.ui.components.IcoSunset
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.MisbahaIcon
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -66,9 +72,9 @@ private fun AdhkarCategoryIcon(key: String, color: Color, size: Dp = 28.dp) {
         "morning"   -> IcoSun(size, color)      // شمس — أذكار الصباح
         "evening"   -> IcoSunset(size, color)   // غروب — أذكار المساء
         "sleep"     -> IcoMoon(size, color)     // هلال — أذكار النوم
-        "istighfar" -> IcoDua(size, color)      // كفّان — الاستغفار
+        "misc"      -> IcoStar(size, color)     // نجمة — أذكار متنوعة
         "prayer"    -> IcoMosque(size, color)   // مسجد — أذكار الصلاة
-        else        -> IcoStar(size, color)     // نجمة — متنوعة
+        else        -> IcoStar(size, color)
     }
 }
 
@@ -83,12 +89,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, label = "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {
@@ -112,16 +113,42 @@ private fun GeomDecoration(
     }
 }
 
+/** مدخل المسبحة — أوّل ما في صفحة الذِّكر، لأنه أكثر ما يُفتح. */
+@Composable
+private fun MisbahaEntry(nav: NavHostController) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .rafiqCard()
+            .clickable { nav.navigate(RafiqRoute.Tasbeeh.route) }
+            .padding(horizontal = 16.dp, vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        MisbahaIcon(28.dp, rc.gold)
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.misbaha), style = RafiqType.titleM, color = rc.ink)
+            Text("عُدَّ تسبيحك بضغطة", style = RafiqType.bodyS, color = rc.inkMed)
+        }
+        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
+    }
+}
+
 /* ══════════════════════════════════════════════════════════════
    CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
-private enum class AdhkarAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN }
+/** تمييز القسم من سلّم الضوء — لا لون مخترَعاً لكل قسم. */
+private enum class AdhkarAccent { GOLD, NIGHT, GREEN }
 
 private data class AdhkarCatDef(
     val key: String,
-    val label: String,
-    val description: String,
+    // معرّفات موارد لا نصوص: القائمة تُبنى في مستوى الملف خارج أي
+    // @Composable، فلا سياق عندها لتحلّ stringResource.
+    @StringRes val label: Int,
+    @StringRes val description: Int,
     val accent: AdhkarAccent,
     val iconType: Int,
 )
@@ -130,20 +157,26 @@ private data class AdhkarCatDef(
 private fun AdhkarAccent.colors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this) {
-        AdhkarAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
-        AdhkarAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
-        AdhkarAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
-        AdhkarAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
-        AdhkarAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
+        AdhkarAccent.GOLD  -> rc.tintGold      to rc.gold
+        AdhkarAccent.NIGHT -> rc.tintNight     to rc.lightNight
+        AdhkarAccent.GREEN -> rc.emeraldPastel to rc.emerald
     }
 }
 
+/**
+ * الأقسام المعروضة = الأقسام التي يبذرها DatabaseSeeder بالضبط، لا أكثر.
+ *
+ * كان هنا قسم "istighfar" لا يبذره الباذر إطلاقاً — فالضغط عليه يفتح
+ * شاشة فارغة. وكان "misc" مبذوراً وغائباً عن هذه القائمة. وكانت هناك
+ * قائمة ثانية منافسة داخل AdhkarCategoriesViewModel تصف الشيء نفسه
+ * بتسميات مختلفة، وتعليقٌ يقول إنها «من قاعدة البيانات» وهي ليست كذلك.
+ */
 private val ADHKAR_CATS = listOf(
-    AdhkarCatDef("morning", "أذكار الصباح", "ابدأ يومك بذكر الله", AdhkarAccent.GOLD, 0),
-    AdhkarCatDef("evening", "أذكار المساء", "اختم يومك بذكر الله", AdhkarAccent.INDIGO, 1),
-    AdhkarCatDef("sleep",   "أذكار النوم",  "أذكار النوم والاستيقاظ", AdhkarAccent.PURPLE, 2),
-    AdhkarCatDef("istighfar", "الاستغفار",   "استغفر الله العظيم", AdhkarAccent.GREEN, 5),
-    AdhkarCatDef("prayer",  "أذكار الصلاة", "أذكار بعد الصلاة", AdhkarAccent.GREEN, 3),
+    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc, AdhkarAccent.GOLD,  0),
+    AdhkarCatDef("evening", R.string.cat_evening, R.string.cat_evening_desc, AdhkarAccent.NIGHT, 1),
+    AdhkarCatDef("sleep",   R.string.cat_sleep,   R.string.cat_sleep_desc,   AdhkarAccent.NIGHT, 2),
+    AdhkarCatDef("prayer",  R.string.cat_prayer,  R.string.cat_prayer_desc,  AdhkarAccent.GREEN, 3),
+    AdhkarCatDef("misc",    R.string.cat_misc,    R.string.cat_misc_desc,    AdhkarAccent.GREEN, 4),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -153,10 +186,8 @@ private val ADHKAR_CATS = listOf(
 @Composable
 fun AdhkarCategoriesScreen(
     navController: NavHostController,
-    viewModel: AdhkarCategoriesViewModel = koinViewModel(),
 ) {
     val rc = LocalRafiqColors.current
-    val dbCategories = viewModel.categories
 
     Box(
         Modifier
@@ -180,41 +211,23 @@ fun AdhkarCategoriesScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "الأذكار",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalRafiqColors.current.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
-
-            // Subtitle
-            Text(
-                "اختر نوع الذكر",
-                fontSize = 14.sp,
-                color = LocalRafiqColors.current.inkMed,
-                modifier = Modifier.padding(horizontal = 18.dp),
+            // جذر تبويب الآن — لا زرّ رجوع
+            RafiqTopBar(
+                title    = stringResource(R.string.dhikr_word),
+                subtitle = stringResource(R.string.adhkar_subtitle),
             )
 
-            Spacer(Modifier.height(20.dp))
+            // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.
+            MisbahaEntry(navController)
+
+            Spacer(Modifier.height(18.dp))
 
             // ═══ HERO CARD ═══
             Box(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp)
-                    .shadow(16.dp, RoundedCornerShape(24.dp),
-                        ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.18f))
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(RafiqShape.card)
             ) {
                 Box(
                     Modifier
@@ -243,40 +256,25 @@ fun AdhkarCategoriesScreen(
                         .fillMaxWidth()
                         .padding(24.dp),
                 ) {
-                    Text(
-                        "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
-                        fontSize = 14.sp,
-                        color = LocalRafiqColors.current.goldLight.copy(alpha = 0.7f),
-                    )
+                    Text("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+                        color = LocalRafiqColors.current.goldLight.copy(alpha = 0.7f), style = RafiqType.bodyS)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "أَلَا بِذِكْرِ اللَّهِ\nتَطْمَئِنُّ الْقُلُوبُ",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = RafiqType.titleL,
                         color = Color.White,
                         lineHeight = 34.sp,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text(
-                        "— سورة الرعد ٢٨",
-                        fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.5f),
-                    )
+                    Text("— سورة الرعد ٢٨",
+                        color = Color.White.copy(alpha = 0.5f), style = RafiqType.caption)
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
             // ═══ CATEGORY CARDS ═══
-            // Use DB categories if available, fallback to ADHKAR_CATS
-            val catsToShow = if (dbCategories.isNotEmpty()) {
-                dbCategories.map { (key, label) ->
-                    ADHKAR_CATS.find { it.key == key }
-                        ?: AdhkarCatDef(key, label, "أذكار متنوعة", AdhkarAccent.BROWN, 4)
-                }
-            } else {
-                ADHKAR_CATS
-            }
+            val catsToShow = ADHKAR_CATS
 
             catsToShow.forEach { cat ->
                 AdhkarCategoryCard(
@@ -306,10 +304,7 @@ private fun AdhkarCategoryCard(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .rafiqCard()
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
@@ -324,15 +319,12 @@ private fun AdhkarCategoryCard(
             Spacer(Modifier.width(14.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(
-                    cat.label,
-                    fontSize = 16.sp,
+                Text(stringResource(cat.label),
                     fontWeight = FontWeight.Bold,
-                    color = LocalRafiqColors.current.ink,
-                )
+                    color = LocalRafiqColors.current.ink, style = RafiqType.body)
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    cat.description,
+                    stringResource(cat.description),
                     fontSize = 13.sp,
                     color = LocalRafiqColors.current.inkMed,
                 )

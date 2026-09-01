@@ -10,14 +10,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /**
  * شريط علوي موحد لكل الشاشات الداخلية:
  * عنوان (وعنوان فرعي اختياري) يمين، وأزرار الإجراءات + زر الرجوع يسار.
+ *
+ * سطر واحد عن قصد. كان تحته شريط الميقات، فصار خطّاً أفقياً ممتدّاً
+ * مباشرةً أسفل العنوان — وهو بالضبط موضع «حدّ الشريط العلوي» في كل
+ * تطبيق، فقرأته العين حدّاً لا بيانات، وبدا الرأس طبقتين.
+ * الميقات باقٍ حيث يعني شيئاً: عمود الحبر في صفحة اليوم، وانحراف
+ * لون الورق مع الوقت.
  */
 @Composable
 fun RafiqTopBar(
@@ -30,23 +35,19 @@ fun RafiqTopBar(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
             Text(
                 title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                style = RafiqType.titleL,
                 color = rc.emerald,
             )
             if (subtitle != null) {
-                Text(
-                    subtitle,
-                    fontSize = 12.sp,
-                    color = rc.inkMed,
-                )
+                Text(subtitle,
+                    color = rc.inkMed, style = RafiqType.caption)
             }
         }
         Row(

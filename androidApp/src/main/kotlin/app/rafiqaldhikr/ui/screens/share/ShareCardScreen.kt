@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +27,10 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.IcoShare
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 @Composable
 fun ShareCardScreen(
@@ -57,22 +60,10 @@ fun ShareCardScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "مشاركة بطاقة",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "مشاركة بطاقة",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -87,8 +78,7 @@ fun ShareCardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.5f)
-                        .shadow(8.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(RafiqShape.card)
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(rc.emerald, rc.gold)
@@ -101,9 +91,9 @@ fun ShareCardScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(card.value, fontSize = 36.sp, fontWeight = FontWeight.ExtraBold, color = rc.bg)
                         Spacer(Modifier.height(8.dp))
-                        Text(card.subtitle, fontSize = 14.sp, color = rc.bg.copy(alpha = 0.8f))
+                        Text(card.subtitle, color = rc.bg.copy(alpha = 0.8f), style = RafiqType.bodyS)
                         Spacer(Modifier.height(16.dp))
-                        Text("رفيق الذكر", fontSize = 12.sp, color = rc.bg.copy(alpha = 0.6f))
+                        Text("رفيق الذكر", color = rc.bg.copy(alpha = 0.6f), style = RafiqType.caption)
                     }
                 }
 
@@ -118,20 +108,16 @@ fun ShareCardScreen(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .shadow(if (selectedCard == i) 2.dp else 0.dp, RoundedCornerShape(12.dp))
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (selectedCard == i) rc.emerald else rc.card)
-                                .border(1.dp, if (selectedCard == i) rc.emerald else rc.gold.copy(alpha = 0.1f), RoundedCornerShape(12.dp))
+                                .border(1.dp, if (selectedCard == i) rc.emerald else rc.gold.copy(alpha = BorderIdle), RafiqShape.item)
                                 .clickable { selectedCard = i }
                                 .padding(vertical = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = c.title,
-                                fontSize = 14.sp,
+                            Text(text = c.title,
                                 fontWeight = if (selectedCard == i) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedCard == i) rc.bg else rc.ink
-                            )
+                                color = if (selectedCard == i) rc.bg else rc.ink, style = RafiqType.bodyS)
                         }
                     }
                 }
@@ -142,9 +128,8 @@ fun ShareCardScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(rc.emerald)
+                        .clip(RafiqShape.card)
+                        .background(rc.emeraldFill)
                         .clickable {
                             val shareText = "${cards[selectedCard].title}\n${cards[selectedCard].value}\n${cards[selectedCard].subtitle}\n\nعبر تطبيق رفيق الذكر"
                             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -159,7 +144,7 @@ fun ShareCardScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoShare(20.dp, rc.bg)
                         Spacer(Modifier.width(8.dp))
-                        Text("مشاركة البطاقة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.bg)
+                        Text("مشاركة البطاقة", fontWeight = FontWeight.Bold, color = rc.onEmeraldFill, style = RafiqType.body)
                     }
                 }
             }

@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+        الإنترنت: لتنزيل خطوط المصحف وحدَها، لا لغيرها.
+
+        وكان التطبيق بلا هذه الصلاحية إطلاقاً — وهو أمرٌ حسنٌ في نفسه:
+        تطبيقٌ لا يملك فتحَ اتّصالٍ لا يُسأل عمّا يرسل. فلمّا طُلبت
+        الصفحةُ المصحفية وجب تنزيلُ خطوطها، وبدونها كان التنزيل يفشل
+        بـ«Permission denied» بلا أن يفهم أحدٌ لماذا.
+
+        وكلُّ ما عدا الخطوط يبقى دون إنترنت: المصحفُ والتفسيرُ والأذكارُ
+        والأدعيةُ والمواقيتُ والقبلةُ — كلُّها محسوبةٌ أو مشحونةٌ في
+        الحزمة. ولا يُفتح اتّصالٌ إلّا بإذنٍ صريحٍ من صاحبه.
+    -->
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
@@ -19,42 +29,30 @@
 
     <application
         android:name=".RafiqApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.RafiqAlDhikr"
         android:localeConfig="@xml/locales_config"
-        android:enableOnBackInvokedCallback="true"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:enableOnBackInvokedCallback="true">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.RafiqAlDhikr.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="rafiqaldhikr.app" />
             </intent-filter>
         </activity>
-
-        <!-- M2: Quran Audio Service -->
-        <service
-            android:name=".service.QuranAudioService"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
 
         <receiver android:name=".service.PrayerAlarmReceiver" android:exported="false" />
 

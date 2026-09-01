@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import app.rafiqaldhikr.util.coordsOrNull
 
 class HomeViewModel(
     private val progressRepo: ProgressRepository,
@@ -60,8 +61,9 @@ class HomeViewModel(
         val wirdTotal:       Int               = 1000,
         val wirdPercent:     Int               = 0,
         val isLoading:       Boolean           = true,
-        val lat:             Double            = 35.5558, // السليمانية كاحتياطي
-        val lng:             Double            = 45.4436, // السليمانية كاحتياطي
+        // 0.0/0.0 = لا موقع. hasLocation هو الحكم، لا الإحداثية نفسها.
+        val lat:             Double            = 0.0,
+        val lng:             Double            = 0.0,
         val hasLocation:     Boolean           = false
     )
 
@@ -90,9 +92,10 @@ class HomeViewModel(
             ) { progress, streak, prefs, _ ->
 
                 // ═══ حساب مواقيت الصلاة ═══
-                val lat = prefs.lastKnownLat.takeIf { it != 0.0 } ?: 35.5558
-                val lng = prefs.lastKnownLng.takeIf { it != 0.0 } ?: 45.4436
-                val prayerResult = try {
+                val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
+                val lat = here?.lat ?: 0.0
+                val lng = here?.lng ?: 0.0
+                val prayerResult = if (here == null) null else try {
                     val res = getPrayerTimes(
                         lat = lat,
                         lng = lng,
@@ -167,7 +170,7 @@ class HomeViewModel(
                     isLoading       = false,
                     lat             = lat,
                     lng             = lng,
-                    hasLocation     = prefs.lastKnownLat != 0.0
+                    hasLocation     = here != null
                 )
             }.collect { _uiState.value = it }
         }

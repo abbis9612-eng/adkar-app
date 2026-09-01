@@ -47,17 +47,6 @@ data class DuaJson(
     @SerialName("sort_order")   val sortOrder:    Int
 )
 
-@Serializable
-data class KhatiraJson(
-    @SerialName("day_of_year")      val dayOfYear:      Int,
-    @SerialName("verse_or_hadith")  val verseOrHadith:  String,
-    val source:       String,
-    val reflection:   String,
-    val season:       String    = "normal",
-    val reviewed:     Boolean   = false,
-    val reviewer:     String?   = null
-)
-
 @kotlinx.serialization.Serializable
 data class TafsirJson(
     val surah: Int,

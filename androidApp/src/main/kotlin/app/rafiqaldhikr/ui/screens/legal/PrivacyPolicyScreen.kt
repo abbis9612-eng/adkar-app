@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +19,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun PrivacyPolicyScreen(navController: NavHostController) {
@@ -36,22 +38,10 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "سياسة الخصوصية",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "سياسة الخصوصية",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -63,10 +53,7 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                         .padding(20.dp)
                 ) {
                     SectionTitle("مقدمة", rc)
@@ -78,7 +65,9 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                     SectionTitle("البيانات التي نجمعها", rc)
                     SectionBody("""
                         • بيانات الاستخدام: تقدم الأذكار، عدد التسبيح، صفحات القرآن المقروءة
-                        • الموقع الجغرافي: لحساب مواقيت الصلاة واتجاه القبلة (بإذنك فقط)
+                        • الموقع الجغرافي: لحساب مواقيت الصلاة واتجاه القبلة (بإذنك فقط).
+                          يُستعمل على الجهاز فقط ولا يُرسل لأحد. وإن لم تمنحه، لا نعرض
+                          مواقيت مُقدَّرة — نطلب الموقع بدل عرض أوقات ليست لك.
                         • التفضيلات: إعدادات المظهر والخط والإشعارات
                         
                         جميع هذه البيانات تُخزَّن محلياً على جهازك فقط.
@@ -97,8 +86,27 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
 
+                    // الجملة السابقة هنا كانت تدّعي تشفير قاعدة البيانات بـ
+                    // EncryptedSharedPreferences، وتَعِد بـ«ميزة مزامنة». الاثنان
+                    // غير موجودَين: القاعدة AndroidSqliteDriver عادية، ودالّة
+                    // التشفير كانت كوداً ميتاً غير مسجَّل، ولا مزامنة في التطبيق.
+                    // كل سطر أدناه يقابله سطر كود يمكن إثباته.
                     SectionTitle("التخزين والأمان", rc)
-                    SectionBody("تُخزَّن بياناتك بشكل مشفر على جهازك باستخدام EncryptedSharedPreferences وقاعدة بيانات SQLite محلية. لا تُرسل أي بيانات إلى خوادمنا إلا عند تفعيل ميزة المزامنة.", rc)
+                    SectionBody("""
+                        • تُخزَّن بياناتك كلّها على جهازك وحده، في قاعدة بيانات SQLite محلية
+                          وملفّ تفضيلات محلي. لا تغادر جهازك.
+                        • لا خوادم لنا تستقبل بياناتك، ولا حسابات، ولا مزامنة.
+                        • التطبيق لا يطلب إذن الإنترنت أصلاً، ولا يفتح أي اتصال
+                          بالشبكة. هذا ليس وعداً بل بنية: يمكنك التحقّق من أن
+                          «الإنترنت» ليس ضمن أذوناته في إعدادات جهازك.
+                        • هذه الملفات غير مشفَّرة، وهي محميّة بعزل التطبيقات في أندرويد:
+                          لا يصل إليها تطبيق آخر على جهاز غير مروَّت (non-rooted).
+                        • النسخ الاحتياطي السحابي مُعطَّل لهذا التطبيق، فلا تُرفع بياناتك
+                          إلى Google Drive.
+                        • حذف التطبيق يمحو كل بياناتك نهائياً.
+                        • المصحف والأذكار والأدعية والتفسير كلّها داخل التطبيق،
+                          فيعمل كاملاً بلا اتصال وفي وضع الطيران.
+                    """.trimIndent(), rc)
 
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
@@ -128,11 +136,11 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
 @Composable
 private fun SectionTitle(text: String, rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
-    Text(text, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+    Text(text, fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.titleM)
     Spacer(Modifier.height(6.dp))
 }
 
 @Composable
 private fun SectionBody(text: String, rc: RafiqPalette) {
-    Text(text, fontSize = 14.sp, color = rc.inkMed, lineHeight = 22.sp)
+    Text(text, color = rc.inkMed, lineHeight = 22.sp, style = RafiqType.bodyS)
 }

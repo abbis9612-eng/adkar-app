@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.BorderActive
 
 /**
  * مجموعة الأيقونات الإسلامية الاحترافية — أسلوب ثنائي اللون (خطّ زمرّدي + تعبئة ذهبية).
@@ -146,7 +147,7 @@ fun StationTile(id: String, size: Dp = 56.dp) {
             .size(size)
             .clip(RoundedCornerShape(size * 0.30f))
             .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.22f), RoundedCornerShape(size * 0.30f)),
+            .border(1.dp, rc.gold.copy(alpha = BorderActive), RoundedCornerShape(size * 0.30f)),
         contentAlignment = Alignment.Center,
     ) {
         StationGlyph(id, size * 0.54f, rc.emerald)

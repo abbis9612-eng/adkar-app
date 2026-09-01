@@ -21,9 +21,6 @@ kotlin {
             implementation(libs.adhan)
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content)
-            implementation(libs.ktor.serialization)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
@@ -38,13 +35,11 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
-            implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
         }
 
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
-            implementation(libs.ktor.client.darwin)
         }
     }
 }

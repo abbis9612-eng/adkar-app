@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.tasbeeh
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -36,6 +36,17 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.RafiqIconButton
+import app.rafiqaldhikr.ui.utils.localized
+import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.PI
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -64,8 +75,8 @@ private fun DhikrOption.resolveColors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this.type) {
         DhikrType.SUBHAN_ALLAH -> rc.emerald to rc.emeraldPastel
-        DhikrType.ALHAMDULILLAH -> rc.brownAccent to rc.meccanBg
-        DhikrType.ALLAHU_AKBAR -> rc.blueAccent to rc.blueAccent.copy(alpha = 0.1f)
+        DhikrType.ALHAMDULILLAH -> rc.gold to rc.meccanBg
+        DhikrType.ALLAHU_AKBAR -> rc.lightNight to rc.lightNight.copy(alpha = 0.1f)
     }
 }
 
@@ -107,25 +118,6 @@ private fun ArcProgress(
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier
-            .size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
-
 /* ══════════════════════════════════════════════════════════════
    MILESTONE CARD
 ══════════════════════════════════════════════════════════════ */
@@ -138,10 +130,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
     Column(
         Modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(20.dp))
+            .rafiqCard()
             .padding(18.dp)
     ) {
         Row(
@@ -150,10 +139,10 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
         ) {
             Box(
                 Modifier.width(4.dp).height(18.dp)
-                    .clip(RoundedCornerShape(2.dp))
+                    .clip(RafiqShape.chip)
                     .background(rc.gold)
             )
-            Text("محطات الإنجاز", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+            Text("محطات الإنجاز", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.body)
         }
 
         Spacer(Modifier.height(14.dp))
@@ -178,7 +167,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     if (done) {
                         RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                        Text("$m".localizedDigits(LocalArabicNumerals.current), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.micro)
                     }
                 }
 
@@ -188,14 +177,14 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                         Modifier
                             .fillMaxWidth()
                             .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp))
+                            .clip(RafiqShape.chip)
                             .background(accentColor.copy(alpha = 0.12f))
                     ) {
                         Box(
                             Modifier
                                 .fillMaxWidth(progress)
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(3.dp))
+                                .clip(RafiqShape.chip)
                                 .background(
                                     Brush.horizontalGradient(
                                         listOf(accentColor.copy(alpha = 0.6f), accentColor)
@@ -209,11 +198,8 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                 if (done) {
                     RafiqIcon(RIcon.Check, 14.dp, accentColor)
                 } else {
-                    Text(
-                        "${count}/$m".localizedDigits(LocalArabicNumerals.current),
-                        fontSize = 11.sp,
-                        color = rc.inkMed,
-                    )
+                    Text("${count}/$m".localizedDigits(LocalArabicNumerals.current),
+                        color = rc.inkMed, style = RafiqType.micro)
                 }
             }
         }
@@ -247,12 +233,7 @@ fun TasbeehScreen(
     )
 
     // Pulse animation for glow
-    val tr = rememberInfiniteTransition(label = "pulse")
-    val pulseAlpha by tr.animateFloat(
-        0.15f, 0.4f,
-        infiniteRepeatable(tween(2000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulseAlpha"
-    )
+    val pulseAlpha by stillableFloat(0.15f, 0.4f, 2000, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulseAlpha")
 
     val scrollState = rememberScrollState()
 
@@ -267,22 +248,15 @@ fun TasbeehScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Left: Reset + Edit
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PillBtn(onClick = {
+            RafiqTopBar(title = "المسبحة") {
+                RafiqIconButton(
+                    onClick = {
                         viewModel.saveSession()
                         viewModel.reset()
-                    }) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
-                    PillBtn(onClick = { showDhikrPicker = true }) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
-                }
-
-                // Title
-                Text("المسبحة", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                    },
+                    label = "تصفير العدّاد",
+                ) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
+                RafiqIconButton(onClick = { showDhikrPicker = true }, label = "اختيار الذكر") { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
             }
 
             // ═══ DHIKR SELECTOR — Horizontal ═══
@@ -298,24 +272,21 @@ fun TasbeehScreen(
                     val (optPrimary, optPastel) = opt.resolveColors()
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RafiqShape.card)
                             .background(if (selected) optPastel else rc.card)
                             .border(
                                 if (selected) 2.dp else 1.dp,
-                                if (selected) optPrimary.copy(alpha = 0.5f) else rc.gold.copy(alpha = 0.10f),
-                                RoundedCornerShape(16.dp)
+                                if (selected) optPrimary.copy(alpha = 0.5f) else rc.gold.copy(alpha = BorderIdle),
+                                RafiqShape.card
                             )
                             .clickable {
                                 viewModel.setDhikr(opt.text)
                             }
                             .padding(horizontal = 20.dp, vertical = 10.dp)
                     ) {
-                        Text(
-                            opt.text,
-                            fontSize = 16.sp,
+                        Text(opt.text,
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (selected) optPrimary else rc.inkDark,
-                        )
+                            color = if (selected) optPrimary else rc.inkDark, style = RafiqType.body)
                     }
                 }
             }
@@ -341,27 +312,30 @@ fun TasbeehScreen(
                         )
                 )
 
-                ArcProgress(
-                    value = state.count,
-                    max = state.target.coerceAtLeast(1),
-                    sizeDp = 200.dp,
-                    strokeColor = primaryColor,
-                    bgColor = primaryColor.copy(alpha = 0.12f),
-                    strokeW = 10.dp,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            "${state.count}".localizedDigits(LocalArabicNumerals.current),
-                            style = NumbersStyle,
-                            fontSize = 56.sp,
-                            color = primaryColor,
-                        )
-                        Text(
-                            "مرة",
-                            fontSize = 14.sp,
-                            color = LocalRafiqColors.current.inkMed,
-                        )
-                    }
+                /*  ثلاثٌ وثلاثون حبّة — لا قوسُ تقدّمٍ مجرَّد.
+                 *
+                 *  المسبحةُ ثلاثٌ وثلاثون حبّةً تُدار، فحلقتُها هي الشيءُ
+                 *  نفسُه لا رسمٌ يمثّله. والمضيئةُ الأخيرةُ أكبرُ وذهبيّة،
+                 *  فتُرى الحركةُ قبل أن يُقرأ الرقم.
+                 *
+                 *  وكانت الشاشةُ دائرتين: حلقةٌ باهتةٌ فيها العدّاد صغيراً،
+                 *  وتحتها دائرةٌ خضراءُ ضخمةٌ مكتوبٌ عليها «اضغط» — فأكبرُ
+                 *  عنصرٍ أمرٌ وأصغرُها الجواب. صارت واحدة: الرقمُ هو البطل،
+                 *  والحلقةُ نفسُها مساحةُ اللمس. */
+                MisbahaRing(
+                    count = state.count,
+                    target = state.target.coerceAtLeast(1),
+                    scale = tapScale,
+                    rc = LocalRafiqColors.current,
+                    onTap = {
+                        isPressed = true
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.increment()
+                    },
+                )
+                LaunchedEffect(state.count) {
+                    kotlinx.coroutines.delay(120)
+                    isPressed = false
                 }
             }
 
@@ -392,52 +366,6 @@ fun TasbeehScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ═══ TAP BUTTON ═══
-            Box(
-                Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    Modifier
-                        .size(160.dp)
-                        .scale(tapScale)
-                        .shadow(20.dp, CircleShape, ambientColor = primaryColor.copy(alpha = 0.3f))
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                listOf(primaryColor.copy(alpha = 0.85f), primaryColor),
-                                radius = 300f
-                            )
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            isPressed = true
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.increment()
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    // Release press after short delay
-                    LaunchedEffect(state.count) {
-                        kotlinx.coroutines.delay(120)
-                        isPressed = false
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IcoMisbaha(40.dp, Color.White)
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "اضغط",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White.copy(alpha = 0.85f),
-                        )
-                    }
-                }
-            }
-
             // ═══ COMPLETION BADGE ═══
             if (state.isCompleted) {
                 Spacer(Modifier.height(16.dp))
@@ -447,20 +375,17 @@ fun TasbeehScreen(
                 ) {
                     Row(
                         Modifier
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RafiqShape.card)
                             .background(pastelColor)
-                            .border(1.5.dp, primaryColor.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                            .border(1.5.dp, primaryColor.copy(alpha = 0.3f), RafiqShape.card)
                             .padding(horizontal = 20.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         RafiqIcon(RIcon.Check, 16.dp, primaryColor)
-                        Text(
-                            "أحسنت! اكتمل الذكر",
-                            fontSize = 14.sp,
+                        Text("أحسنت! اكتمل الذكر",
                             fontWeight = FontWeight.Bold,
-                            color = primaryColor,
-                        )
+                            color = primaryColor, style = RafiqType.bodyS)
                     }
                 }
             }
@@ -472,7 +397,7 @@ fun TasbeehScreen(
                 Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("العدد المستهدف", fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
+                Text("العدد المستهدف", color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
                 Spacer(Modifier.height(10.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -481,23 +406,20 @@ fun TasbeehScreen(
                         val sel = state.target == t
                         Box(
                             Modifier
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (sel) primaryColor else rc.card)
                                 .border(
                                     1.dp,
-                                    if (sel) primaryColor else rc.gold.copy(alpha = 0.15f),
-                                    RoundedCornerShape(12.dp)
+                                    if (sel) primaryColor else rc.gold.copy(alpha = BorderIdle),
+                                    RafiqShape.item
                                 )
                                 .clickable { viewModel.setTarget(t) }
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                "$t",
-                                fontSize = 14.sp,
+                            Text("$t",
                                 fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
-                                color = if (sel) Color.White else rc.inkDark,
-                            )
+                                color = if (sel) Color.White else rc.inkDark, style = RafiqType.bodyS)
                         }
                     }
                 }
@@ -529,7 +451,7 @@ fun TasbeehScreen(
         AlertDialog(
             onDismissRequest = { showDhikrPicker = false },
             containerColor = LocalRafiqColors.current.card,
-            shape = RoundedCornerShape(24.dp),
+            shape = RafiqShape.card,
             title = {
                 Text("اختر الذكر", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             },
@@ -539,14 +461,14 @@ fun TasbeehScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
+                                .clip(RafiqShape.item)
                                 .background(
                                     if (text == state.dhikrText) rc.emeraldPastel else rc.bg
                                 )
                                 .border(
                                     if (text == state.dhikrText) 1.5.dp else 0.dp,
                                     if (text == state.dhikrText) rc.emerald.copy(alpha = 0.3f) else Color.Transparent,
-                                    RoundedCornerShape(14.dp)
+                                    RafiqShape.item
                                 )
                                 .clickable {
                                     viewModel.setDhikr(text)
@@ -569,14 +491,89 @@ fun TasbeehScreen(
             confirmButton = {
                 Box(
                     Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RafiqShape.item)
                         .background(rc.emeraldPastel)
                         .clickable { showDhikrPicker = false }
                         .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
-                    Text("إغلاق", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                    Text("إغلاق", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
                 }
             },
         )
     }
 }
+
+/* ── حلقةُ المسبحة ────────────────────────────────────────────── */
+
+@Composable
+private fun MisbahaRing(
+    count: Int,
+    target: Int,
+    scale: Float,
+    rc: app.rafiqaldhikr.ui.theme.RafiqPalette,
+    onTap: () -> Unit,
+) {
+    val ar = LocalArabicNumerals.current
+    val laps = count / target
+    val cycle = if (count == 0) 0 else (count % target).let { if (it == 0) target else it }
+    val lit = (cycle.toFloat() / target * BEADS).toInt()
+
+    Box(
+        Modifier
+            .size(252.dp)
+            .scale(scale)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onTap,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val c = Offset(size.width / 2f, size.height / 2f)
+            val r = size.minDimension / 2f - 12.dp.toPx()
+            for (i in 0 until BEADS) {
+                val a = (i.toFloat() / BEADS) * 2f * PI.toFloat() - PI.toFloat() / 2f
+                val p = Offset(c.x + r * cos(a), c.y + r * sin(a))
+                val on = i < lit
+                val cur = i == lit - 1
+                if (cur) {
+                    drawCircle(rc.goldLight.copy(alpha = 0.22f), 11.dp.toPx(), p)
+                    drawCircle(rc.goldLight, 8.dp.toPx(), p)
+                } else {
+                    drawCircle(if (on) rc.emerald else rc.divider, 5.dp.toPx(), p)
+                }
+            }
+        }
+        Column(
+            Modifier
+                .size(180.dp)
+                .clip(CircleShape)
+                .background(rc.card)
+                .border(1.dp, rc.cardBorder, CircleShape),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text("عددُك", style = RafiqType.caption, color = rc.gold)
+            // الصفرُ العربيُّ «٠» نقطةٌ صغيرة، فيبدو وحده عطباً لا رقماً
+            Text(
+                if (count == 0) "ابدأ" else count.localized(ar),
+                style = if (count == 0) RafiqType.titleXL else NumbersStyle,
+                fontSize = if (count == 0) 30.sp else 64.sp,
+                color = rc.ink,
+            )
+            Spacer(Modifier.height(5.dp))
+            Text(
+                if (laps > 0) "أتممتَ ${laps.localized(ar)} " +
+                    (if (laps == 1) "دورة" else "دورات")
+                else "علامةُ الوِرد عند ${target.localized(ar)}",
+                style = RafiqType.caption,
+                color = rc.inkMed,
+            )
+        }
+    }
+}
+
+/** حبّاتُ المسبحة — ثلاثٌ وثلاثون، وهي عددُها المعروف. */
+private const val BEADS = 33

@@ -1,6 +1,7 @@
 package app.rafiqaldhikr.ui.screens.prayer
 
 import androidx.lifecycle.ViewModel
+import app.rafiqaldhikr.util.coordsOrNull
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.PrayerEntry
 import app.rafiq.domain.model.PrayerTimesResult
@@ -33,9 +34,12 @@ class PrayerTimesViewModel(
         val times:      PrayerTimesResult? = null,
         val prayerLogs: List<PrayerEntry>  = emptyList(),
         val method:     String             = "mwl",
+        val madhab:     String             = "shafi",
         val city:       String             = "",
         val isLoading:  Boolean            = true,
-        val error:      String?            = null
+        val error:      String?            = null,
+        /** لا إحداثيات محفوظة — الشاشة تطلب الموقع بدل عرض أوقات ليست للمستخدم. */
+        val needsLocation: Boolean         = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -48,19 +52,26 @@ class PrayerTimesViewModel(
         viewModelScope.launch {
             prefsRepo.getPrefs().collectLatest { prefs ->
                 if (prefs == null) return@collectLatest
-                _uiState.update { it.copy(method = prefs.prayerMethod, city = prefs.lastKnownCity) }
+                _uiState.update {
+                    it.copy(method = prefs.prayerMethod, madhab = prefs.madhab, city = prefs.lastKnownCity)
+                }
 
-                val lat = prefs.lastKnownLat.takeIf { it != 0.0 } ?: 35.5558
-                val lng = prefs.lastKnownLng.takeIf { it != 0.0 } ?: 45.4436
+                val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
+                if (here == null) {
+                    _uiState.update {
+                        it.copy(times = null, isLoading = false, error = null, needsLocation = true)
+                    }
+                    return@collectLatest
+                }
                 val result = getPrayerTimes(
-                    lat, lng, prefs.prayerMethod,
+                    here.lat, here.lng, prefs.prayerMethod,
                     elevation = prefs.elevation,
                     madhab = prefs.madhab
                 )
                 when (result) {
                     is RafiqResult.Success -> {
                         val times = result.data
-                        _uiState.update { it.copy(times = times, isLoading = false, error = null) }
+                        _uiState.update { it.copy(times = times, isLoading = false, error = null, needsLocation = false) }
                         if (prefs.notificationsEnabled) {
                             alarmManager.scheduleAllForToday(
                                 mapOf(

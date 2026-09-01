@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.animations
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.*
@@ -7,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 /**
  * A modifier that adds a micro-animation press effect (scale bounce)
@@ -49,15 +51,13 @@ fun Modifier.floatAnimation(
     amplitude: Float = 4f,
     durationMs: Int = 3000
 ): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "float")
-    val offsetY by transition.animateFloat(
+    val offsetY by stillableFloat(
         initialValue = -amplitude,
-        targetValue = amplitude,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "floatY"
+        targetValue  = amplitude,
+        durationMs   = durationMs,
+        easing       = FastOutSlowInEasing,
+        repeatMode   = RepeatMode.Reverse,
+        label        = "float",
     )
     graphicsLayer { translationY = offsetY }
 }
@@ -69,15 +69,13 @@ fun Modifier.wobbleAnimation(
     degrees: Float = 2f,
     durationMs: Int = 2500
 ): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "wobble")
-    val rotation by transition.animateFloat(
+    val rotation by stillableFloat(
         initialValue = -degrees,
-        targetValue = degrees,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "wobbleRot"
+        targetValue  = degrees,
+        durationMs   = durationMs,
+        easing       = FastOutSlowInEasing,
+        repeatMode   = RepeatMode.Reverse,
+        label        = "wobble",
     )
     graphicsLayer { rotationZ = rotation }
 }
@@ -90,15 +88,13 @@ fun Modifier.pulseAnimation(
     maxScale: Float = 1.05f,
     durationMs: Int = 1500
 ): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "pulse")
-    val scale by transition.animateFloat(
+    val scale by stillableFloat(
         initialValue = minScale,
-        targetValue = maxScale,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMs, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
+        targetValue  = maxScale,
+        durationMs   = durationMs,
+        easing       = FastOutSlowInEasing,
+        repeatMode   = RepeatMode.Reverse,
+        label        = "pulse",
     )
     graphicsLayer {
         scaleX = scale

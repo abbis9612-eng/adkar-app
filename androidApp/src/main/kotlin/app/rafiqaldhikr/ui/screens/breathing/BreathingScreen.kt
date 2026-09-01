@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.breathing
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +23,11 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlinx.coroutines.delay
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.theme.stillableFloat
 
 @Composable
 fun BreathingScreen(navController: NavHostController) {
@@ -31,26 +36,9 @@ fun BreathingScreen(navController: NavHostController) {
     var phase by remember { mutableStateOf("استعد") }
     var dhikrText by remember { mutableStateOf("سبحان الله") }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "breathe")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue  = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
+    val scale by stillableFloat(0.6f, 1.2f, 4000, EaseInOutCubic, RepeatMode.Reverse, label = "scale")
 
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue  = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
+    val alpha by stillableFloat(0.3f, 0.8f, 4000, EaseInOutCubic, RepeatMode.Reverse, label = "alpha")
 
     // Phase cycling
     LaunchedEffect(isRunning) {
@@ -74,22 +62,10 @@ fun BreathingScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "التنفس والذكر",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "التنفس والذكر",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -141,10 +117,9 @@ fun BreathingScreen(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp)
-                        .shadow(4.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(if (isRunning) rc.card else rc.emerald)
-                        .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
                         .clickable { isRunning = !isRunning },
                     contentAlignment = Alignment.Center
                 ) {
@@ -169,23 +144,20 @@ fun BreathingScreen(navController: NavHostController) {
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
+                                .clip(RafiqShape.item)
                                 .background(if (dhikrText == text) rc.emeraldPastel else rc.card)
                                 .border(
                                     1.dp,
                                     if (dhikrText == text) rc.emerald else rc.divider,
-                                    RoundedCornerShape(10.dp)
+                                    RafiqShape.item
                                 )
                                 .clickable { dhikrText = text }
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text,
-                                fontSize = 11.sp,
+                            Text(text,
                                 color    = if (dhikrText == text) rc.emerald else rc.inkMed,
-                                textAlign = TextAlign.Center
-                            )
+                                textAlign = TextAlign.Center, style = RafiqType.micro)
                         }
                     }
                 }

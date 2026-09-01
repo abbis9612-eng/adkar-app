@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,6 +23,9 @@ import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun GardenScreen(
@@ -63,22 +65,10 @@ fun GardenScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "الحديقة الروحية",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald,
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "الحديقة الروحية",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
@@ -88,10 +78,7 @@ fun GardenScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(6.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
+                        .rafiqCard()
                 ) {
                     Column(
                         modifier            = Modifier.padding(24.dp).fillMaxWidth(),
@@ -104,27 +91,20 @@ fun GardenScreen(
                         Spacer(Modifier.height(8.dp))
                         Text(
                             plantLabel(plantScore),
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = RafiqType.titleL,
                             color = rc.emerald
                         )
                         Spacer(Modifier.height(4.dp))
-                        Text(
-                            "نبتة اليوم تنمو بأعمالك",
-                            fontSize = 14.sp,
-                            color = rc.inkMed
-                        )
+                        Text("نبتة اليوم تنمو بأعمالك",
+                            color = rc.inkMed, style = RafiqType.bodyS)
                     }
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                Text(
-                    "حديقة الأسبوع",
-                    fontSize = 18.sp,
+                Text("حديقة الأسبوع",
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 // Week garden grid
@@ -139,10 +119,7 @@ fun GardenScreen(
                         Box(
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .shadow(2.dp, RoundedCornerShape(16.dp))
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+                                .rafiqCard()
                         ) {
                             Column(
                                 modifier            = Modifier.fillMaxSize().padding(8.dp),
@@ -151,11 +128,8 @@ fun GardenScreen(
                             ) {
                                 Text(plantEmoji(plant.stage), fontSize = 32.sp)
                                 Spacer(Modifier.height(4.dp))
-                                Text(
-                                    plant.date.takeLast(2),
-                                    fontSize = 12.sp,
-                                    color = rc.inkLight
-                                )
+                                Text(plant.date.takeLast(2),
+                                    color = rc.inkMed, style = RafiqType.caption)
                             }
                         }
                     }
@@ -167,13 +141,10 @@ fun GardenScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+                        .rafiqCard()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("دليل النمو", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                        Text("دليل النمو", fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.bodyS)
                         Spacer(Modifier.height(8.dp))
                         listOf(
                             "🌱 بذرة — ابدأ يومك",
@@ -181,7 +152,7 @@ fun GardenScreen(
                             "🌳 شجرة — أذكار + قرآن + صلاة",
                             "🌺 زهرة — يوم مكتمل!"
                         ).forEach { line ->
-                            Text(line, fontSize = 12.sp, color = rc.inkMed, modifier = Modifier.padding(vertical = 2.dp))
+                            Text(line, color = rc.inkMed, modifier = Modifier.padding(vertical = 2.dp), style = RafiqType.caption)
                         }
                     }
                 }

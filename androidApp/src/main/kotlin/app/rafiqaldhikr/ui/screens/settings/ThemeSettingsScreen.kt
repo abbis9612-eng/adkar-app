@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,6 +17,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun ThemeSettingsScreen(
@@ -39,22 +41,10 @@ fun ThemeSettingsScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إعدادات المظهر",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "إعدادات المظهر",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(Modifier.padding(horizontal = 16.dp)) {
@@ -63,10 +53,7 @@ fun ThemeSettingsScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     listOf("system" to "تلقائي (النظام)", "light" to "فاتح", "dark" to "داكن").forEachIndexed { index, (key, label) ->
                         Row(
@@ -76,12 +63,9 @@ fun ThemeSettingsScreen(
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                label,
-                                fontSize = 16.sp,
+                            Text(label,
                                 color = rc.ink,
-                                modifier = Modifier.weight(1f)
-                            )
+                                modifier = Modifier.weight(1f), style = RafiqType.body)
                             RadioButton(
                                 selected = theme == key,
                                 onClick = { vm.setTheme(key, dynamic) },
@@ -102,10 +86,7 @@ fun ThemeSettingsScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     Row(
                         Modifier
@@ -114,11 +95,8 @@ fun ThemeSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text(
-                                "ألوان ديناميكية",
-                                fontSize = 16.sp,
-                                color = rc.ink
-                            )
+                            Text("ألوان ديناميكية",
+                                color = rc.ink, style = RafiqType.body)
                             Text(
                                 "استخدام ألوان الخلفية (Android 12+)",
                                 fontSize = 13.sp,

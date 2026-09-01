@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,6 +29,10 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoMosque
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun WeeklyReportScreen(
@@ -58,22 +61,10 @@ fun WeeklyReportScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "التقرير الأسبوعي",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "التقرير الأسبوعي",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -85,10 +76,9 @@ fun WeeklyReportScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RafiqShape.card)
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -96,14 +86,11 @@ fun WeeklyReportScreen(
                     Spacer(Modifier.height(8.dp))
                     Text("$activeDays / 7 أيام نشطة".localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
                     Spacer(Modifier.height(4.dp))
-                    Text(
-                        if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
+                    Text(if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
                         if (activeDays >= 4) "أداء جيد، استمر في المداومة" else
                         "حاول المداومة أكثر هذا الأسبوع",
-                        fontSize = 14.sp,
                         textAlign = TextAlign.Center,
-                        color = rc.inkMed
-                    )
+                        color = rc.inkMed, style = RafiqType.bodyS)
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -120,23 +107,20 @@ fun WeeklyReportScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.eveningRing) }, "$eveningDays / 7", "أذكار مساء", rc)
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.accentOrange) }, "${state.streak.current}", "سلسلة حالية", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.lightDusk) }, "$eveningDays / 7", "أذكار مساء", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.lightDusk) }, "${state.streak.current}", "سلسلة حالية", rc)
                 }
 
                 Spacer(Modifier.height(32.dp))
 
                 // Day-by-day
-                Text("التفاصيل اليومية", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text("التفاصيل اليومية", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                         .padding(16.dp)
                 ) {
                     week.reversed().forEachIndexed { index, day ->
@@ -147,17 +131,17 @@ fun WeeklyReportScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(day.date, fontSize = 14.sp, color = rc.inkMed)
+                            Text(day.date, color = rc.inkMed, style = RafiqType.bodyS)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
-                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.eveningRing)
+                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.lightDusk)
                                 if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                                     RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
-                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
                                 }
                                 if (day.prayersLogged > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                                     IcoMosque(14.dp, rc.emerald)
-                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, color = rc.ink)
+                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
                                 }
                             }
                         }
@@ -176,10 +160,7 @@ fun WeeklyReportScreen(
 private fun ReportStatCard(modifier: Modifier, icon: @Composable () -> Unit, value: String, label: String, rc: RafiqPalette) {
     Column(
         modifier = modifier
-            .shadow(2.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+            .rafiqCard()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -187,6 +168,6 @@ private fun ReportStatCard(modifier: Modifier, icon: @Composable () -> Unit, val
         Spacer(Modifier.height(8.dp))
         Text(value.localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
         Spacer(Modifier.height(4.dp))
-        Text(label, fontSize = 12.sp, color = rc.inkMed)
+        Text(label, color = rc.inkMed, style = RafiqType.caption)
     }
 }

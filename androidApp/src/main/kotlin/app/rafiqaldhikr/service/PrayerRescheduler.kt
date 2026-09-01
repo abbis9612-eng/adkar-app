@@ -4,6 +4,7 @@ import android.content.Context
 import app.rafiq.db.RafiqDatabase
 import app.rafiq.domain.model.PrayerTimeCalculator
 import app.rafiq.domain.model.PrayerTimesResult
+import app.rafiqaldhikr.util.coordsOrNull
 
 /**
  * يعيد جدولة إشعارات الأذان من التفضيلات المخزنة:
@@ -24,8 +25,15 @@ class PrayerRescheduler(
             return
         }
 
-        val lat = prefs.last_known_lat.takeIf { it != 0.0 } ?: 35.5558
-        val lng = prefs.last_known_lng.takeIf { it != 0.0 } ?: 45.4436
+        // أخطر موضع في التطبيق: أذانٌ مجدول على إحداثية ليست إحداثية المستخدم
+        // يوقظه على وقت خاطئ ويثق به. بلا موقع لا جدولة — والصمت هنا صدق.
+        val here = coordsOrNull(prefs.last_known_lat, prefs.last_known_lng)
+        if (here == null) {
+            alarmManager.cancelAll()
+            return
+        }
+        val lat = here.lat
+        val lng = here.lng
 
         val today = calculator.calculate(
             lat           = lat,

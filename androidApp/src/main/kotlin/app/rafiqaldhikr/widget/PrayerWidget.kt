@@ -24,6 +24,7 @@ import androidx.glance.text.TextStyle
 import app.rafiq.db.RafiqDatabase
 import app.rafiq.domain.model.PrayerTimeCalculator
 import app.rafiq.domain.model.PrayerTimesResult
+import app.rafiqaldhikr.util.coordsOrNull
 import org.koin.core.context.GlobalContext
 
 class PrayerWidget : GlanceAppWidget() {
@@ -32,10 +33,19 @@ class PrayerWidget : GlanceAppWidget() {
         val db     = GlobalContext.get().get<RafiqDatabase>()
         val prefs  = db.userPrefsQueries.get().executeAsOne()
         val calc   = PrayerTimeCalculator()
-        val lat = if (prefs.last_known_lat != 0.0) prefs.last_known_lat else 35.5558
-        val lng = if (prefs.last_known_lng != 0.0) prefs.last_known_lng else 45.4436
         val method = prefs.prayer_method
-        
+
+        // بلا موقع محفوظ يعرض الودجت طلباً صريحاً، لا وقتَ مدينةٍ أخرى.
+        val here = coordsOrNull(prefs.last_known_lat, prefs.last_known_lng)
+        if (here == null) {
+            provideContent {
+                PrayerWidgetContent(prayerName = "حدّد موقعك", prayerTime = "—")
+            }
+            return
+        }
+        val lat = here.lat
+        val lng = here.lng
+
         val times  = runCatching {
             calc.calculate(lat, lng, method,
                 elevation = prefs.elevation,

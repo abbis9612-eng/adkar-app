@@ -1,25 +1,21 @@
 package app.rafiqaldhikr.ui.screens.quran
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +29,11 @@ import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -40,142 +41,15 @@ import kotlin.math.*
    GEOMETRIC DECORATION (reused from HomeScreen pattern)
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun GeomDecoration(
-    sizeDp: Dp = 160.dp,
-    color: Color = LocalRafiqColors.current.gold.copy(alpha = 0.10f),
-    spinDuration: Int = 90_000,
-    modifier: Modifier = Modifier,
-) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
-    Canvas(modifier = modifier.size(sizeDp)) {
-        val sz = this.size.width
-        val cx = sz / 2f; val cy = sz / 2f
-        rotate(rotation, pivot = Offset(cx, cy)) {
-            val hex = Path().apply {
-                for (i in 0 until 6) {
-                    val a = (i * 60 - 90) * PI.toFloat() / 180f
-                    val r = sz * 0.43f
-                    val px = cx + r * cos(a); val py = cy + r * sin(a)
-                    if (i == 0) moveTo(px, py) else lineTo(px, py)
-                }; close()
-            }
-            drawPath(hex, color, style = Stroke(1.2f))
-            drawCircle(color, sz * 0.44f, Offset(cx, cy), style = Stroke(0.7f))
-            for (i in 0 until 6) {
-                val a = (i * 60 - 90) * PI.toFloat() / 180f
-                drawLine(color,
-                    Offset(cx + sz * 0.27f * cos(a), cy + sz * 0.27f * sin(a)),
-                    Offset(cx + sz * 0.43f * cos(a), cy + sz * 0.43f * sin(a)),
-                    1.1f)
-            }
-        }
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier
-            .size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
-
 /* ══════════════════════════════════════════════════════════════
    DAILY RECITATION CARD (Hero)
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun DailyRecitationCard() {
-    val rc = LocalRafiqColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 14.dp)
-            .shadow(20.dp, RoundedCornerShape(24.dp),
-                ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.22f),
-                spotColor = LocalRafiqColors.current.emerald.copy(alpha = 0.12f))
-            .clip(RoundedCornerShape(24.dp))
-    ) {
-        // Background gradient
-        Box(
-            Modifier.matchParentSize().background(
-                Brush.linearGradient(
-                    listOf(rc.heroStart, rc.heroMid, rc.heroEnd),
-                    start = Offset(0f, 0f),
-                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-                )
-            )
-        )
-
-        // Rotating geometric decoration
-        GeomDecoration(
-            sizeDp = 220.dp,
-            color = LocalRafiqColors.current.goldLight.copy(alpha = 0.14f),
-            spinDuration = 80_000,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = (-55).dp, y = (-55).dp)
-                .graphicsLayer { alpha = 0.3f },
-        )
-        GeomDecoration(
-            sizeDp = 150.dp,
-            color = Color.White.copy(alpha = 0.05f),
-            spinDuration = 100_000,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 30.dp, y = 40.dp)
-                .graphicsLayer { alpha = 0.15f },
-        )
-
-        Column(Modifier.padding(horizontal = 22.dp, vertical = 20.dp)) {
-            Text("تلاوة اليوم", fontSize = 11.sp, color = Color.White.copy(alpha = 0.5f))
-            Spacer(Modifier.height(8.dp))
-            Text("سورة الكهف", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White, lineHeight = 34.sp)
-            Spacer(Modifier.height(4.dp))
-            Text("صفحة ٢٩٣ · ١١٠ آيات", fontSize = 12.sp, color = Color.White.copy(alpha = 0.55f))
-            Spacer(Modifier.height(16.dp))
-
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipBack, 16.dp, Color.White) }
-                Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(48.dp).clip(CircleShape).background(rc.goldLight).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.Play, 22.dp, Color.White) }
-                Spacer(Modifier.width(16.dp))
-                Box(Modifier.size(36.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable { }, contentAlignment = Alignment.Center) { RafiqIcon(RIcon.SkipForward, 16.dp, Color.White) }
-            }
-
-            Spacer(Modifier.height(14.dp))
-            Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(Color.White.copy(alpha = 0.14f))) {
-                Box(Modifier.fillMaxWidth(0.35f).fillMaxHeight().clip(RoundedCornerShape(2.dp)).background(Brush.horizontalGradient(listOf(rc.gold, rc.goldLight))))
-            }
-            Spacer(Modifier.height(6.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("١٢:٣٤", fontSize = 10.sp, color = Color.White.copy(alpha = 0.45f))
-                Text("٣٥:١٢", fontSize = 10.sp, color = Color.White.copy(alpha = 0.45f))
-            }
-        }
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    SEARCH BAR
@@ -194,13 +68,13 @@ private fun QuranSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 14.dp),
         placeholder = {
-            Text("ابحث عن سورة...", color = LocalRafiqColors.current.inkLight, fontSize = 14.sp)
+            Text(stringResource(R.string.quran_search_hint), color = LocalRafiqColors.current.inkMed, style = RafiqType.bodyS)
         },
         leadingIcon = {
             RafiqIcon(RIcon.Search, 17.dp, rc.inkMed)
         },
         singleLine = true,
-        shape = RoundedCornerShape(16.dp),
+        shape = RafiqShape.card,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = LocalRafiqColors.current.gold.copy(alpha = 0.5f),
             unfocusedBorderColor = LocalRafiqColors.current.gold.copy(alpha = 0.12f),
@@ -217,54 +91,70 @@ private fun QuranSearchBar(
    SURAH ROW CARD
 ══════════════════════════════════════════════════════════════ */
 
+/**
+ * صفُّ سورة — سطرٌ بخطّ لا بطاقة.
+ *
+ * البطاقة تقول «هذه مجموعة». وحول ١١٤ سورة لا معنى للجملة: المصحف
+ * كلُّه مجموعةٌ واحدة، فتصير البطاقة إطاراً حول كل شيء — أي حول لا
+ * شيء. وفوق ذلك كانت ١١٤ حافّةً وظلّاً تُرسم في قائمةٍ تُمرَّر.
+ *
+ * والقاعدة في التطبيق بعد اليوم: قائمةٌ طويلة متجانسة ← خطوط،
+ * ومجموعةٌ قصيرة مختلفة ← بطاقة. (الإعدادات مثال الثانية.)
+ */
 @Composable
-private fun SurahCard(
+private fun SurahRow(
     number: Int,
     nameAr: String,
     nameEn: String,
     ayahCount: Int,
+    pageStart: Int,
     revelation: String,
+    last: Boolean,
     onClick: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
-    ) {
+    Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(
-            Modifier.padding(14.dp).fillMaxWidth(),
+            Modifier.padding(vertical = 12.dp).fillMaxWidth().heightIn(min = 48.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // رقمٌ في حلقةٍ رفيعة: كان مربّعاً مملوءاً داخل بطاقة — طبقتان
+            // فوق بعضهما. وبلا بطاقةٍ يكفي الحدّ.
             Box(
-                Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(rc.emeraldPastel),
+                Modifier.size(44.dp).clip(RafiqShape.item)
+                    .border(1.dp, rc.cardBorder, RafiqShape.item),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("$number".localizedDigits(LocalArabicNumerals.current), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text("$number".localizedDigits(LocalArabicNumerals.current), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(nameAr, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.ink)
                 Spacer(Modifier.height(2.dp))
-                Text("$ayahCount آية · صفحة ${(number * 5 + 1)}".localizedDigits(LocalArabicNumerals.current), fontSize = 12.sp, color = LocalRafiqColors.current.inkMed)
+                /*  رقمُ الصفحة من `page_start` لا من صيغةٍ مخترعة.
+                    كانت `number * 5 + 1` فتُعرض الكهفُ «صفحة ٩١» وموضعُها
+                    ٢٩٣. والبيانةُ الصحيحة كانت حاضرةً في السجلّ نفسِه،
+                    مطابقةً لتخطيط المصحف في ١١٤ سورةً من ١١٤. */
+                Text(
+                    "$ayahCount آية · صفحة $pageStart".localizedDigits(LocalArabicNumerals.current),
+                    color = LocalRafiqColors.current.inkMed,
+                    style = RafiqType.caption,
+                )
             }
             Box(
-                Modifier.clip(RoundedCornerShape(8.dp))
+                Modifier.clip(RafiqShape.item)
                     .background(if (revelation == "meccan") rc.meccanBg else rc.madaniBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(
-                    if (revelation == "meccan") "مكية" else "مدنية",
-                    fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                    color = if (revelation == "meccan") rc.meccanText else rc.madaniText,
-                )
+                Text(if (revelation == "meccan") stringResource(R.string.revelation_makki) else stringResource(R.string.revelation_madani),
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (revelation == "meccan") rc.meccanText else rc.madaniText, style = RafiqType.micro)
             }
             Spacer(Modifier.width(8.dp))
             RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
+        }
+        if (!last) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
         }
     }
 }
@@ -290,20 +180,17 @@ fun QuranListScreen(
                 .statusBarsPadding()
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }) {
-                        RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
-                    }
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }) {
-                        RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
-                    }
+            RafiqTopBar(title = stringResource(R.string.quran_title)) {
+                // بابُ المصحف صفحةً صفحة — والقائمةُ تبقى للبحث والانتقال بالسورة
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Mushaf.tab) }, label = "المصحف") {
+                    RafiqIcon(RIcon.Book, 17.dp, rc.emerald)
                 }
-                Text("القرآن الكريم", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranBookmarks.route) }, label = stringResource(R.string.quran_bookmarks)) {
+                    RafiqIcon(RIcon.Bookmark, 17.dp, rc.emerald)
+                }
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.QuranSearch.route) }, label = stringResource(R.string.quran_search_title)) {
+                    RafiqIcon(RIcon.Search, 17.dp, rc.emerald)
+                }
             }
 
             when {
@@ -314,7 +201,10 @@ fun QuranListScreen(
                 ) {
                     // ═══ DAILY RECITATION CARD ═══
                     item {
-                        DailyRecitationCard()
+                        // حُذفت بطاقة «تلاوة اليوم»: كانت مشغّلاً وهمياً
+                        // بالكامل — «سورة الكهف» ثابتة دائماً، وشريط تقدّم
+                        // مثبَّت على ٣٥٪، وأزرار تشغيل بـ clickable { } فارغة
+                        // لا تفعل شيئاً. المستخدم يضغط فلا يحدث شيء.
                         Spacer(Modifier.height(18.dp))
                     }
 
@@ -336,25 +226,27 @@ fun QuranListScreen(
                         ) {
                             Box(
                                 Modifier.width(4.dp).height(18.dp)
-                                    .clip(RoundedCornerShape(2.dp))
+                                    .clip(RafiqShape.chip)
                                     .background(rc.gold)
                             )
-                            Text("السور", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                            Text(stringResource(R.string.quran_surahs), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                         }
                         Spacer(Modifier.height(10.dp))
                     }
 
                     // ═══ SURAH LIST ═══
-                    items(state.filtered) { surah ->
-                        Box(Modifier.padding(horizontal = 14.dp, vertical = 4.dp)) {
-                            SurahCard(
+                    itemsIndexed(state.filtered) { i, surah ->
+                        Box(Modifier.padding(horizontal = 18.dp)) {
+                            SurahRow(
+                                last = i == state.filtered.lastIndex,
                                 number = surah.number,
                                 nameAr = surah.nameAr,
                                 nameEn = surah.nameEn,
                                 ayahCount = surah.ayahCount,
+                                pageStart = surah.pageStart,
                                 revelation = surah.revelation,
                                 onClick = {
-                                    navController.navigate(RafiqRoute.QuranReading.withSurah(surah.number))
+                                    navController.navigate(RafiqRoute.Mushaf.atPage(surah.pageStart))
                                 }
                             )
                         }

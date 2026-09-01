@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.export
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
@@ -28,6 +29,10 @@ import app.rafiqaldhikr.ui.components.IcoTrash
 import app.rafiqaldhikr.ui.components.IcoUpload
 import app.rafiqaldhikr.ui.components.IcoWarning
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun ExportDataScreen(
@@ -35,6 +40,10 @@ fun ExportDataScreen(
     viewModel: ExportDataViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    // تُحلّ هنا لا داخل onClick: stringResource دالّة @Composable
+    // ولا تُستدعى من لامدا نقرٍ عادية.
+    val shareSubject = stringResource(R.string.export_share_title)
+    val shareChooser = stringResource(R.string.export_action)
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val rc = LocalRafiqColors.current
@@ -50,22 +59,10 @@ fun ExportDataScreen(
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إدارة البيانات",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.export_title),
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -74,17 +71,14 @@ fun ExportDataScreen(
                     .padding(20.dp)
             ) {
                 Text(
-                    "بياناتك تحت سيطرتك 🔐",
+                    stringResource(R.string.export_headline),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.ink
                 )
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "جميع بياناتك مخزنة محلياً على جهازك. يمكنك تصديرها أو حذفها في أي وقت.",
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text(stringResource(R.string.export_body),
+                    color = rc.inkMed, style = RafiqType.bodyS)
 
                 Spacer(Modifier.height(24.dp))
 
@@ -92,20 +86,17 @@ fun ExportDataScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoUpload(22.dp, rc.emerald)
                         Spacer(Modifier.width(12.dp))
-                        Text("تصدير البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+                        Text(stringResource(R.string.export_action), fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "تصدير جميع بيانات التقدم والعلامات والتفضيلات كملف JSON",
+                        stringResource(R.string.export_desc),
                         fontSize = 13.sp,
                         color = rc.inkMed
                     )
@@ -115,16 +106,16 @@ fun ExportDataScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.emerald.copy(alpha = 0.1f))
                             .clickable {
                                 viewModel.exportJson { json ->
                                     val intent = Intent(Intent.ACTION_SEND).apply {
                                         type = "application/json"
-                                        putExtra(Intent.EXTRA_SUBJECT, "بيانات رفيق الذكر")
+                                        putExtra(Intent.EXTRA_SUBJECT, shareSubject)
                                         putExtra(Intent.EXTRA_TEXT, json)
                                     }
-                                    context.startActivity(Intent.createChooser(intent, "تصدير البيانات"))
+                                    context.startActivity(Intent.createChooser(intent, shareChooser))
                                 }
                             },
                         contentAlignment = Alignment.Center
@@ -132,7 +123,7 @@ fun ExportDataScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IcoDownload(22.dp, rc.emerald)
                             Spacer(Modifier.width(8.dp))
-                            Text("تصدير البيانات", color = rc.emerald, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.export_action), color = rc.emerald, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -143,20 +134,19 @@ fun ExportDataScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.card)
-                        .border(1.dp, rc.error.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                        .border(1.dp, rc.error.copy(alpha = 0.3f), RafiqShape.card)
                         .padding(20.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IcoTrash(22.dp, rc.error)
                         Spacer(Modifier.width(12.dp))
-                        Text("حذف جميع البيانات", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+                        Text(stringResource(R.string.delete_all), fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "⚠️ هذا الإجراء لا يمكن التراجع عنه! سيتم حذف جميع بيانات التقدم والتفضيلات.",
+                        stringResource(R.string.delete_warning),
                         fontSize = 13.sp,
                         color = rc.error.copy(alpha = 0.8f)
                     )
@@ -166,7 +156,7 @@ fun ExportDataScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RafiqShape.item)
                             .background(rc.error)
                             .clickable { showDeleteDialog = true },
                         contentAlignment = Alignment.Center
@@ -174,7 +164,7 @@ fun ExportDataScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IcoWarning(22.dp, Color.White)
                             Spacer(Modifier.width(8.dp))
-                            Text("حذف كل شيء", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.delete_all_short), color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -185,8 +175,8 @@ fun ExportDataScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("تأكيد الحذف", color = rc.ink, fontWeight = FontWeight.Bold) },
-            text  = { Text("هل أنت متأكد من حذف جميع بياناتك؟ لا يمكن استعادتها بعد الحذف.", color = rc.inkMed) },
+            title = { Text(stringResource(R.string.delete_confirm_title), color = rc.ink, fontWeight = FontWeight.Bold) },
+            text  = { Text(stringResource(R.string.delete_confirm_body), color = rc.inkMed) },
             containerColor = rc.card,
             confirmButton = {
                 TextButton(
@@ -200,10 +190,10 @@ fun ExportDataScreen(
                         }
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = rc.error)
-                ) { Text("حذف") }
+                ) { Text(stringResource(R.string.action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("إلغاء", color = rc.emerald) }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.action_cancel), color = rc.emerald) }
             }
         )
     }

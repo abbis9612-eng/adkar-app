@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -25,6 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.components.IcoCompass
@@ -42,6 +45,12 @@ import app.rafiqaldhikr.ui.components.IcoSun
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
@@ -49,10 +58,12 @@ import kotlin.math.*
    DUA CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
 
-internal enum class DuaAccent { GOLD, INDIGO, PURPLE, GREEN, BROWN, ORANGE }
+/** تمييز القسم من سلّم الضوء — لا لون مخترَعاً لكل قسم. */
+internal enum class DuaAccent { GOLD, NIGHT, GREEN, DUSK }
 
 internal data class DuaCategoryDef(
-    val name: String,
+    // معرّف مورد لا نصّ — القائمة تُبنى في مستوى الملف بلا سياق
+    @StringRes val name: Int,
     val key: String,
     val iconType: Int, // 0=sun, 1=moon, 2=star, 3=leaf, 4=compass, 5=diamond
     val accent: DuaAccent,
@@ -60,38 +71,39 @@ internal data class DuaCategoryDef(
 
 // كل الأقسام المعروفة — تُعرض فقط التي لها أدعية فعلية في قاعدة البيانات
 internal val KNOWN_DUA_CATEGORIES = listOf(
-    DuaCategoryDef("أدعية الصباح",     "morning",    0, DuaAccent.GOLD),
-    DuaCategoryDef("أدعية المساء",     "evening",    1, DuaAccent.INDIGO),
-    DuaCategoryDef("أدعية النوم",      "sleep",      2, DuaAccent.PURPLE),
-    DuaCategoryDef("أدعية من القرآن",  "quran",      2, DuaAccent.GREEN),
-    DuaCategoryDef("أدعية الطعام",     "food",       3, DuaAccent.GREEN),
-    DuaCategoryDef("أدعية السفر",      "travel",     4, DuaAccent.BROWN),
-    DuaCategoryDef("أدعية الهمّ والقلق", "anxiety",   3, DuaAccent.INDIGO),
-    DuaCategoryDef("أدعية المرض",      "sickness",   3, DuaAccent.PURPLE),
-    DuaCategoryDef("أدعية جامعة",      "general",    2, DuaAccent.BROWN),
-    DuaCategoryDef("دعاء الاستخارة",   "istikharah", 5, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_morning,     "morning",    0, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_evening,     "evening",    1, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_sleep,      "sleep",      2, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_quran,  "quran",      2, DuaAccent.GREEN),
+    DuaCategoryDef(R.string.dua_cat_food,     "food",       3, DuaAccent.GREEN),
+    DuaCategoryDef(R.string.dua_cat_travel,      "travel",     4, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_anxiety, "anxiety",   3, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_sickness,      "sickness",   3, DuaAccent.NIGHT),
+    DuaCategoryDef(R.string.dua_cat_general,      "general",    2, DuaAccent.GOLD),
+    DuaCategoryDef(R.string.dua_cat_istikharah,   "istikharah", 5, DuaAccent.GOLD),
 )
 
+@Composable
 internal fun duaCategoryLabel(key: String): String =
-    KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }?.name ?: key
+    KNOWN_DUA_CATEGORIES.firstOrNull { it.key == key }
+        ?.let { stringResource(it.name) } ?: key
 
-internal fun duaCountLabel(count: Long, arabic: Boolean = true): String = when {
-    count == 1L        -> "دعاء واحد"
-    count == 2L        -> "دعاءان"
-    count in 3..10     -> "${count.localized(arabic)} أدعية"
-    else               -> "${count.localized(arabic)} دعاء"
-}
+/**
+ * العربية فيها مفرد ومثنّى وصيغتا جمع، وكان هذا مكتوباً بشروط يدوية.
+ * pluralStringResource يعرف قواعد كل لغة، فتصحّ الإنجليزية مجاناً.
+ */
+@Composable
+internal fun duaCountLabel(count: Long, arabic: Boolean = true): String =
+    pluralStringResource(R.plurals.dua_count, count.toInt(), count.localized(arabic))
 
 @Composable
 private fun DuaAccent.colors(): Pair<Color, Color> {
     val rc = LocalRafiqColors.current
     return when (this) {
-        DuaAccent.GOLD   -> rc.accentGoldBg   to rc.accentGold
-        DuaAccent.INDIGO -> rc.accentIndigoBg to rc.accentIndigo
-        DuaAccent.PURPLE -> rc.accentPurpleBg to rc.accentPurple
-        DuaAccent.GREEN  -> rc.emeraldPastel  to rc.emerald
-        DuaAccent.BROWN  -> rc.accentBrownBg  to rc.accentBrown
-        DuaAccent.ORANGE -> rc.accentOrangeBg to rc.accentOrange
+        DuaAccent.GOLD  -> rc.tintGold      to rc.gold
+        DuaAccent.NIGHT -> rc.tintNight     to rc.lightNight
+        DuaAccent.GREEN -> rc.emeraldPastel to rc.emerald
+        DuaAccent.DUSK  -> rc.tintDusk      to rc.lightDusk
     }
 }
 
@@ -138,24 +150,6 @@ private fun IconSettings(size: Dp = 17.dp, color: Color = LocalRafiqColors.curre
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun PillBtn(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    Box(
-        modifier.size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
-
 /* ══════════════════════════════════════════════════════════════
    CATEGORY GRID CARD
 ══════════════════════════════════════════════════════════════ */
@@ -170,9 +164,9 @@ private fun DuaCategoryGridCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(bgColor)
-            .border(1.5.dp, iconColor.copy(alpha = 0.14f), RoundedCornerShape(20.dp))
+            .border(1.5.dp, iconColor.copy(alpha = 0.14f), RafiqShape.card)
             .clickable(onClick = onClick)
             .padding(18.dp)
     ) {
@@ -180,16 +174,12 @@ private fun DuaCategoryGridCard(
             app.rafiqaldhikr.ui.components.CategoryBadge(
                 app.rafiqaldhikr.ui.components.duaCatDrawable(def.key), 58.dp)
             Spacer(Modifier.height(12.dp))
-            Text(
-                def.name,
-                fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                color = LocalRafiqColors.current.ink,
-            )
+            Text(stringResource(def.name),
+                fontWeight = FontWeight.Bold,
+                color = LocalRafiqColors.current.ink, style = RafiqType.body)
             Spacer(Modifier.height(4.dp))
-            Text(
-                duaCountLabel(count, LocalArabicNumerals.current),
-                fontSize = 12.sp, color = LocalRafiqColors.current.inkMed,
-            )
+            Text(duaCountLabel(count, LocalArabicNumerals.current),
+                color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
         }
     }
 }
@@ -204,17 +194,14 @@ private fun FavoriteDuaCard(text: String, source: String, onToggle: () -> Unit) 
     Box(
         Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
+            .rafiqCard()
             .padding(16.dp)
     ) {
         Column {
-            Text(text, fontSize = 16.sp, lineHeight = 28.sp, color = LocalRafiqColors.current.ink)
+            Text(text, lineHeight = 28.sp, color = LocalRafiqColors.current.ink, style = RafiqType.body)
             Spacer(Modifier.height(10.dp))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(source, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed, modifier = Modifier.weight(1f))
+                Text(source, color = LocalRafiqColors.current.inkMed, modifier = Modifier.weight(1f), style = RafiqType.micro)
                 Box(
                     Modifier.size(28.dp).clip(CircleShape).background(rc.emeraldPastel).clickable(onClick = onToggle),
                     contentAlignment = Alignment.Center,
@@ -256,19 +243,15 @@ fun DuaCategoriesScreen(
         ) {
             // ═══ TOP BAR ═══
             item {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PillBtn(onClick = { navController.navigate(RafiqRoute.EmotionalDua.route) }) {
-                        RafiqIcon(RIcon.Heart, 18.dp, LocalRafiqColors.current.emerald)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("الأدعية", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
-                        Text("أدعية مأثورة من القرآن والسنة", fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
-                    }
-                }
+                // كان هنا زرّ «أدعية حسب الحال» يفتح شاشةً تعرض ستّ صيغ
+                // دعاء مكتوبة في الكود بلا مصدر ولا درجة — بينما كل دعاء
+                // آخر يمرّ من قاعدة البيانات ويُعرض مصدره، وعنوان هذه
+                // الشاشة نفسها يقول «مأثورة من القرآن والسنة».
+                // AGENTS.md: لا محتوى ديني بلا مصدر موثَّق.
+                RafiqTopBar(
+                    title    = stringResource(R.string.dua_title),
+                    subtitle = stringResource(R.string.dua_subtitle),
+                )
             }
 
             // ═══ FAVORITES SECTION ═══
@@ -281,10 +264,10 @@ fun DuaCategoriesScreen(
                     ) {
                         Box(
                             Modifier.width(4.dp).height(18.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(rc.goldLight)
+                                .clip(RafiqShape.chip)
+                                .background(rc.gold)
                         )
-                        Text("المفضلة", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                        Text("المفضلة", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                     }
                     Spacer(Modifier.height(8.dp))
                 }
@@ -321,10 +304,10 @@ fun DuaCategoriesScreen(
                 ) {
                     Box(
                         Modifier.width(4.dp).height(18.dp)
-                            .clip(RoundedCornerShape(2.dp))
+                            .clip(RafiqShape.chip)
                             .background(rc.gold)
                     )
-                    Text("التصنيفات", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+                    Text("التصنيفات", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                 }
                 Spacer(Modifier.height(10.dp))
             }
@@ -371,9 +354,7 @@ fun DuaCategoriesScreen(
                         Box(
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
+                                .rafiqCard()
                                 .clickable { navController.navigate(RafiqRoute.DuaList.withCategory(category)) }
                                 .padding(16.dp)
                         ) {
@@ -383,7 +364,7 @@ fun DuaCategoriesScreen(
                             ) {
                                 Box(
                                     Modifier.size(40.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+                                        .clip(RafiqShape.item)
                                         .background(rc.emeraldPastel),
                                     contentAlignment = Alignment.Center,
                                 ) {
@@ -396,12 +377,10 @@ fun DuaCategoriesScreen(
                                     )
                                 }
                                 Spacer(Modifier.width(14.dp))
-                                Text(
-                                    duaCategoryLabel(category),
-                                    fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                                Text(duaCategoryLabel(category),
+                                    fontWeight = FontWeight.SemiBold,
                                     color = LocalRafiqColors.current.ink,
-                                    modifier = Modifier.weight(1f),
-                                )
+                                    modifier = Modifier.weight(1f), style = RafiqType.body)
                                 Canvas(Modifier.size(14.dp)) {
                                     val w = size.width; val h = size.height
                                     drawPath(Path().apply {

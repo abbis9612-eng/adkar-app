@@ -1,84 +1,55 @@
 package app.rafiqaldhikr.ui.screens.adhkar
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.ErrorState
 import app.rafiqaldhikr.ui.components.LoadingState
+import app.rafiqaldhikr.ui.components.RIcon
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
-import app.rafiqaldhikr.ui.theme.LocalRafiqColors
-import app.rafiqaldhikr.ui.theme.NumbersStyle
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.theme.*
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.*
-import app.rafiqaldhikr.ui.components.RafiqBackButton
 
-/* Colors provided by LocalRafiqColors */
+/* ═══════════════════════════════════════════════════════════════════
+   قراءة الذكر — الشاشة التي تُقضى فيها الدقائق فعلاً
 
-/* ══════════════════════════════════════════════════════════════
-   CANVAS ICONS
-══════════════════════════════════════════════════════════════ */
+   كانت بطاقةً داخل صفحة: شريط تقدّم علوي، ثم بطاقة بيضاء فيها النصّ،
+   ثم دائرة زمرّدية للعدّ، ثم زخرفة هندسية تدور خلف كل شيء.
 
-/* ══════════════════════════════════════════════════════════════
-   GEOMETRIC DECORATION
-══════════════════════════════════════════════════════════════ */
+   لكن هذه الشاشة تُفتح وأنت تمشي، أو تنتظر، أو مستلقٍ قبل النوم.
+   فما تحتاجه: نصٌّ كبير مقروء، وهدفُ لمسٍ لا تُخطئه.
 
-@Composable
-private fun GeomDecoration(
-    sizeDp: Dp = 160.dp,
-    color: Color = LocalRafiqColors.current.gold.copy(alpha = 0.10f),
-    spinDuration: Int = 90_000,
-    modifier: Modifier = Modifier,
-) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
-    Canvas(modifier = modifier.size(sizeDp)) {
-        val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
-        rotate(rotation, pivot = Offset(cx, cy)) {
-            val hex = Path().apply {
-                for (i in 0 until 6) {
-                    val a = (i * 60 - 90) * PI.toFloat() / 180f; val r = sz * 0.43f
-                    if (i == 0) moveTo(cx + r * cos(a), cy + r * sin(a))
-                    else lineTo(cx + r * cos(a), cy + r * sin(a))
-                }; close()
-            }
-            drawPath(hex, color, style = Stroke(1.2f))
-            drawCircle(color, sz * 0.44f, Offset(cx, cy), style = Stroke(0.7f))
-        }
-    }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   MAIN SCREEN
-══════════════════════════════════════════════════════════════ */
+     • النصّ في وسط الورقة بلا بطاقة — الورقة نفسها هي السطح.
+     • العدّ بضغطة في أيّ مكان من الشاشة، لا هدفاً صغيراً تصيبه.
+     • النقاط أعلى الصفحة تقول كم ذكراً بقي — أدقّ من شريط مجرّد.
+     • حلقة العدّ تُظهر الرقم لا تحبسه في دائرة ملوّنة.
+═══════════════════════════════════════════════════════════════════ */
 
 @Composable
 fun DhikrReadingScreen(
@@ -90,262 +61,110 @@ fun DhikrReadingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
-    val inf = rememberInfiniteTransition(label = "dhikrPulse")
-    val pulseScale by inf.animateFloat(
-        1f, 1.04f,
-        infiniteRepeatable(tween(900, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulseScale"
-    )
-
     LaunchedEffect(category) { viewModel.loadCategory(category) }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(rc.bg)
-    ) {
-        // Background decoration
-        GeomDecoration(
-            sizeDp = 200.dp,
-            color = LocalRafiqColors.current.gold.copy(alpha = 0.05f),
-            spinDuration = 120_000,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(x = (-60).dp, y = 60.dp)
-        )
-
+    Box(Modifier.fillMaxSize().background(rc.bg)) {
         when {
             uiState.isLoading -> LoadingState()
+
             uiState.error != null -> ErrorState(
                 message = uiState.error!!,
-                onRetry = { viewModel.loadCategory(category) }
+                onRetry = { viewModel.loadCategory(category) },
             )
-            uiState.isAllCompleted -> {
-                LaunchedEffect(Unit) {
-                    navController.navigate(RafiqRoute.Celebration.route)
-                }
+
+            uiState.isAllCompleted -> LaunchedEffect(Unit) {
+                navController.navigate(RafiqRoute.Celebration.route)
             }
+
             uiState.adhkar.isNotEmpty() -> {
                 val dhikr = uiState.adhkar[uiState.currentIndex]
+                val done  = uiState.currentCount >= dhikr.count
 
                 Column(
                     Modifier
                         .fillMaxSize()
+                        // كل الشاشة هدف اللمس — لا زرّ صغير
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.tap()
-                            }
-                        )
-                        .statusBarsPadding()
-                ) {
-                    // ═══ HEADER ═══
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        // Title
-                        Column {
-                            Text(
-                                getCategoryTitle(category),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = LocalRafiqColors.current.emerald,
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                "${uiState.currentIndex + 1} / ${uiState.adhkar.size}"
-                                    .localizedDigits(LocalArabicNumerals.current),
-                                style = NumbersStyle,
-                                fontSize = 13.sp,
-                                color = LocalRafiqColors.current.inkMed,
-                            )
+                        ) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            viewModel.tap()
                         }
+                        .statusBarsPadding()
+                        .semantics {
+                            contentDescription =
+                                "اضغط في أيّ مكان للعدّ. ${uiState.currentCount} من ${dhikr.count}"
+                        },
+                ) {
+                    TopRow(
+                        title = getCategoryTitle(category),
+                        onBack = { navController.popBackStack() },
+                    )
 
-                        RafiqBackButton(onClick = { navController.popBackStack() })
-                    }
+                    Beads(
+                        total   = uiState.adhkar.size,
+                        current = uiState.currentIndex,
+                    )
 
-                    // ═══ PROGRESS BAR ═══
-                    val progress = uiState.currentIndex.toFloat() / uiState.adhkar.size.coerceAtLeast(1)
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(rc.emeraldPastel)
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(progress)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(
-                                    Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldLight))
-                                )
-                        )
-                    }
-
-                    // ═══ MAIN CONTENT ═══
                     Column(
                         Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 18.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.Center,
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 22.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
-                        Spacer(Modifier.height(24.dp))
-
-                        // Dhikr text card
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .shadow(4.dp, RoundedCornerShape(24.dp))
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(rc.card)
-                                .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
-                                .padding(28.dp)
-                        ) {
-                            Column(
-                                Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                // Gold ornament top
-                                Canvas(Modifier.size(width = 60.dp, height = 3.dp)) {
-                                    drawRoundRect(
-                                        Brush.horizontalGradient(
-                                            listOf(Color.Transparent, rc.gold.copy(alpha = 0.4f), Color.Transparent)
-                                        ),
-                                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f),
-                                    )
-                                }
-
-                                Spacer(Modifier.height(20.dp))
-
-                                Text(
-                                    dhikr.textAr,
-                                    fontSize = 23.sp,
-                                    fontFamily = app.rafiqaldhikr.ui.theme.NaskhFamily,
-                                    fontWeight = FontWeight.Medium,
-                                    color = LocalRafiqColors.current.ink,
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = 46.sp,
-                                )
-
-                                if (dhikr.virtue.isNotBlank()) {
-                                    Spacer(Modifier.height(18.dp))
-
-                                    // Divider
-                                    Canvas(Modifier.size(width = 80.dp, height = 1.dp)) {
-                                        drawLine(
-                                            rc.gold.copy(alpha = 0.2f),
-                                            Offset(0f, 0f),
-                                            Offset(size.width, 0f),
-                                            1f,
-                                        )
-                                    }
-
-                                    Spacer(Modifier.height(14.dp))
-
-                                    Text(
-                                        dhikr.virtue,
-                                        fontSize = 14.sp,
-                                        color = LocalRafiqColors.current.emerald,
-                                        textAlign = TextAlign.Center,
-                                        lineHeight = 22.sp,
-                                    )
-                                }
-
-                                Spacer(Modifier.height(14.dp))
-
-                                Text(
-                                    "المصدر: ${dhikr.source}",
-                                    fontSize = 12.sp,
-                                    color = LocalRafiqColors.current.inkLight,
-                                    textAlign = TextAlign.Center,
-                                )
-
-                                Spacer(Modifier.height(16.dp))
-
-                                // Gold ornament bottom
-                                Canvas(Modifier.size(width = 60.dp, height = 3.dp)) {
-                                    drawRoundRect(
-                                        Brush.horizontalGradient(
-                                            listOf(Color.Transparent, rc.gold.copy(alpha = 0.4f), Color.Transparent)
-                                        ),
-                                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f),
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(Modifier.height(36.dp))
-
-                        // ═══ TAP COUNTER CIRCLE ═══
-                        Box(
-                            Modifier
-                                .size(160.dp)
-                                .scale(pulseScale)
-                                .shadow(20.dp, CircleShape,
-                                    ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.20f))
-                                .clip(CircleShape)
-                                .background(
-                                    Brush.radialGradient(
-                                        listOf(rc.emeraldMed, rc.emerald),
-                                        radius = 300f,
-                                    )
-                                )
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                ) {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.tap()
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            // Gold ring
-                            Canvas(Modifier.size(150.dp)) {
-                                drawCircle(
-                                    rc.goldLight.copy(alpha = 0.20f),
-                                    size.width / 2f - 4f,
-                                    Offset(size.width / 2f, size.height / 2f),
-                                    style = Stroke(2f),
-                                )
-                            }
-
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    uiState.currentCount.toString()
-                                        .localizedDigits(LocalArabicNumerals.current),
-                                    style = NumbersStyle,
-                                    fontSize = 44.sp,
-                                    color = Color.White,
-                                )
-                                Text(
-                                    "/ ${dhikr.count}".localizedDigits(LocalArabicNumerals.current),
-                                    style = NumbersStyle,
-                                    fontSize = 16.sp,
-                                    color = Color.White.copy(alpha = 0.6f),
-                                )
-                            }
-                        }
-
-                        Spacer(Modifier.height(16.dp))
-
                         Text(
-                            "اضغط للتسبيح",
-                            fontSize = 13.sp,
-                            color = LocalRafiqColors.current.inkLight,
+                            dhikr.textAr,
+                            style = RafiqType.dhikr,
+                            color = rc.ink,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
-                        Spacer(Modifier.height(32.dp))
+                        Spacer(Modifier.height(14.dp))
+
+                        Text(
+                            listOfNotNull(
+                                dhikr.source.takeIf { it.isNotBlank() },
+                                dhikr.sourceGrade.takeIf { it.isNotBlank() },
+                            ).joinToString(" · "),
+                            style = RafiqType.caption,
+                            color = rc.inkMed,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+
+                        if (dhikr.virtue.isNotBlank()) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                dhikr.virtue,
+                                style = RafiqType.bodyS,
+                                color = rc.inkMed,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+
+                        Spacer(Modifier.height(34.dp))
+
+                        CountRing(uiState.currentCount, dhikr.count)
+
+                        Spacer(Modifier.height(14.dp))
+
+                        Text(
+                            when {
+                                !done -> stringResource(R.string.dhikr_tap_anywhere)
+                                uiState.currentIndex < uiState.adhkar.lastIndex -> stringResource(R.string.dhikr_done_next)
+                                else -> stringResource(R.string.dhikr_section_done)
+                            },
+                            style = RafiqType.caption,
+                            color = if (done) rc.gold else rc.inkMed,
+                        )
+
+                        Spacer(Modifier.height(28.dp))
                     }
                 }
             }
@@ -353,14 +172,125 @@ fun DhikrReadingScreen(
     }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════════════════════════ */
+/* ── الرأس: عنوان وزرّ رجوع، لا غير ───────────────────────────── */
 
-private fun getCategoryTitle(category: String): String = when (category) {
-    "morning" -> "أذكار الصباح"
-    "evening" -> "أذكار المساء"
-    "sleep"   -> "أذكار النوم"
-    "prayer"  -> "أذكار الصلاة"
-    else      -> "أذكار"
+@Composable
+private fun TopRow(title: String, onBack: () -> Unit) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(title, style = RafiqType.titleM, color = rc.emerald)
+        RafiqIconButton(onClick = onBack, label = stringResource(R.string.action_back)) {
+            RafiqIcon(RIcon.ChevronRight, 18.dp, rc.emerald)
+        }
+    }
 }
+
+/* ── حبّات المسبحة: ذكرٌ لكل حبّة ─────────────────────────────── */
+
+@Composable
+private fun Beads(total: Int, current: Int) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+            .semantics { contentDescription = "الذكر ${current + 1} من $total" },
+        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // القوائم الطويلة لا تُرسم حبّةً حبّة — تُلخَّص
+        if (total <= 24) {
+            repeat(total) { i ->
+                Bead(state = if (i < current) 2 else if (i == current) 1 else 0)
+            }
+        } else {
+            Text(
+                "${current + 1} / $total".localizedDigits(LocalArabicNumerals.current),
+                style = NumbersStyle, fontSize = RafiqType.caption.fontSize, color = rc.inkMed,
+            )
+        }
+    }
+}
+
+@Composable
+private fun Bead(state: Int) {
+    val rc = LocalRafiqColors.current
+    Canvas(
+        Modifier
+            .height(8.dp)
+            .width(if (state == 1) 18.dp else 6.dp)
+    ) {
+        val c = when (state) {
+            2    -> rc.gold
+            1    -> rc.emerald
+            else -> rc.divider
+        }
+        drawRoundRect(
+            color = c,
+            topLeft = Offset(0f, size.height / 2f - 3.dp.toPx()),
+            size = Size(size.width, 6.dp.toPx()),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+        )
+    }
+}
+
+/* ── حلقة العدّ: الرقم ظاهر، والحلقة تحيطه ─────────────────────── */
+
+@Composable
+private fun CountRing(count: Int, target: Int) {
+    val rc = LocalRafiqColors.current
+    val pct by animateFloatAsState(
+        targetValue = (count.toFloat() / target.coerceAtLeast(1)).coerceIn(0f, 1f),
+        animationSpec = progressSpec(320),
+        label = "countRing",
+    )
+    Box(Modifier.size(132.dp), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val stroke = 4.dp.toPx()
+            val r = (size.minDimension - stroke) / 2f
+            val tl = Offset(size.width / 2f - r, size.height / 2f - r)
+            val sz = Size(r * 2, r * 2)
+            drawArc(rc.divider, 0f, 360f, false, tl, sz, style = Stroke(stroke))
+            if (pct > 0.004f) {
+                drawArc(
+                    rc.gold, -90f, 360f * pct, false, tl, sz,
+                    style = Stroke(stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+                )
+            }
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                count.toString().localizedDigits(LocalArabicNumerals.current),
+                style = RafiqType.display, color = rc.ink,
+            )
+            Text(
+                "من ${target.toString().localizedDigits(LocalArabicNumerals.current)}",
+                style = RafiqType.caption, color = rc.inkMed,
+            )
+        }
+    }
+}
+
+/* ── مساعد ────────────────────────────────────────────────────── */
+
+/**
+ * كانت هذه قائمةً ثالثة تصف الأقسام نفسها بتسميات مخالفة لِما تعرضه
+ * شاشة الأقسام («أذكار بعد الصلاة» مقابل «أذكار الصلاة»، و«متفرقة»
+ * مقابل «متنوعة»)، وفيها "wake" و"istighfar" لا يبذرهما الباذر أصلاً.
+ * الآن نفس موارد شاشة الأقسام، فلا يختلف اسم القسم بين شاشتين.
+ */
+@Composable
+private fun getCategoryTitle(category: String): String = stringResource(
+    when (category) {
+        "morning" -> R.string.cat_morning
+        "evening" -> R.string.cat_evening
+        "sleep"   -> R.string.cat_sleep
+        "prayer"  -> R.string.cat_prayer
+        "misc"    -> R.string.cat_misc
+        else      -> R.string.nav_tasbeeh
+    }
+)

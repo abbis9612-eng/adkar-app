@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.profile
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -10,7 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -32,10 +34,17 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.components.RafiqIconButton
 
 /* Colors provided by LocalRafiqColors */
 
-/* البرتقالي يأتي من RafiqPalette (accentOrange) */
+/* ألوان الأقسام من سلّم الضوء في RafiqPalette */
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION
@@ -48,12 +57,7 @@ private fun GeomDecoration(
     spinDuration: Int = 90_000,
     modifier: Modifier = Modifier,
 ) {
-    val tr = rememberInfiniteTransition(label = "geom")
-    val rotation by tr.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(spinDuration, easing = LinearEasing)),
-        label = "geomRot"
-    )
+    val rotation by stillableFloat(0f, 360f, spinDuration, LinearEasing, label = "geomRot")
     Canvas(modifier = modifier.size(sizeDp)) {
         val sz = this.size.width; val cx = sz / 2f; val cy = sz / 2f
         rotate(rotation, pivot = Offset(cx, cy)) {
@@ -74,20 +78,6 @@ private fun GeomDecoration(
    PILL BUTTON
 ══════════════════════════════════════════════════════════════ */
 
-@Composable
-private fun PillBtn(onClick: () -> Unit, content: @Composable () -> Unit) {
-    val rc = LocalRafiqColors.current
-    Box(
-        Modifier.size(40.dp)
-            .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.13f), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) { content() }
-}
-
 /* ══════════════════════════════════════════════════════════════
    PROFILE HERO CARD
 ══════════════════════════════════════════════════════════════ */
@@ -99,9 +89,7 @@ private fun ProfileHeroCard() {
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp)
-            .shadow(20.dp, RoundedCornerShape(24.dp),
-                ambientColor = LocalRafiqColors.current.emerald.copy(alpha = 0.22f))
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RafiqShape.card)
     ) {
         Box(
             Modifier.matchParentSize().background(
@@ -142,13 +130,13 @@ private fun ProfileHeroCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                "المستخدم",
-                fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                stringResource(R.string.profile_user),
+                style = RafiqType.titleL,
                 color = Color.White,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "بارك الله فيك على مثابرتك",
+                stringResource(R.string.profile_praise),
                 fontSize = 13.sp, color = Color.White.copy(alpha = 0.6f),
             )
         }
@@ -170,21 +158,18 @@ private fun StatCard(
     val rc = LocalRafiqColors.current
     Column(
         modifier
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .rafiqCard()
             .padding(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconBg),
+            Modifier.size(36.dp).clip(RafiqShape.item).background(iconBg),
             contentAlignment = Alignment.Center,
         ) { icon() }
         Spacer(Modifier.height(8.dp))
         Text(value.localizedDigits(LocalArabicNumerals.current),
             style = NumbersStyle, fontSize = 22.sp, color = LocalRafiqColors.current.emerald)
-        Text(label, fontSize = 11.sp, color = LocalRafiqColors.current.inkMed)
+        Text(label, color = LocalRafiqColors.current.inkMed, style = RafiqType.micro)
     }
 }
 
@@ -200,8 +185,8 @@ private fun SectionHeader(title: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Box(Modifier.width(4.dp).height(18.dp).clip(RoundedCornerShape(2.dp)).background(rc.gold))
-        Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark)
+        Box(Modifier.width(4.dp).height(18.dp).clip(RafiqShape.chip).background(rc.gold))
+        Text(title, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
     }
 }
 
@@ -217,18 +202,16 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, fontSize = 15.sp, color = LocalRafiqColors.current.inkDark)
+        Text(label, color = LocalRafiqColors.current.inkDark, style = RafiqType.label)
         if (isAchieved && value == "✓") {
             Box(
                 Modifier.size(22.dp).clip(CircleShape).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center,
             ) { RafiqIcon(RIcon.Check, 11.dp, rc.emerald) }
         } else {
-            Text(
-                value,
-                fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                color = if (isAchieved) rc.emerald else rc.inkLight,
-            )
+            Text(value,
+                fontWeight = FontWeight.Bold,
+                color = if (isAchieved) rc.emerald else rc.inkMed, style = RafiqType.label)
         }
     }
     if (!isLast) {
@@ -248,10 +231,7 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
     Row(
         Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .rafiqCard()
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
@@ -283,21 +263,16 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                     if (filled) {
                         RafiqIcon(RIcon.Check, 12.dp, Color.White)
                     } else {
-                        Text(
-                            "$score",
-                            fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                            color = if (score >= 2) rc.emerald else rc.inkLight,
-                        )
+                        Text("$score",
+                            fontWeight = FontWeight.Bold,
+                            color = if (score >= 2) rc.emerald else rc.inkMed, style = RafiqType.micro)
                     }
                 }
                 Spacer(Modifier.height(4.dp))
                 if (idx < days.size) {
-                    Text(
-                        days[idx],
-                        fontSize = 10.sp,
+                    Text(days[idx],
                         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isToday) rc.gold else rc.inkMed,
-                    )
+                        color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
                 }
             }
         }
@@ -319,10 +294,7 @@ private fun QuickLinkCard(
     Box(
         modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .rafiqCard()
             .clickable(onClick = onClick)
             .padding(14.dp)
     ) {
@@ -331,14 +303,12 @@ private fun QuickLinkCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(rc.emeraldPastel),
+                Modifier.size(38.dp).clip(RafiqShape.item).background(rc.emeraldPastel),
                 contentAlignment = Alignment.Center
             ) { icon() }
             Spacer(Modifier.width(12.dp))
-            Text(
-                label, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                color = LocalRafiqColors.current.ink, modifier = Modifier.weight(1f),
-            )
+            Text(label, fontWeight = FontWeight.SemiBold,
+                color = LocalRafiqColors.current.ink, modifier = Modifier.weight(1f), style = RafiqType.label)
             RafiqIcon(RIcon.ChevronLeft, 14.dp, rc.inkLight)
         }
     }
@@ -368,16 +338,21 @@ fun ProfileScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PillBtn(onClick = { navController.navigate(RafiqRoute.Settings.route) }) {
+            RafiqTopBar(title = stringResource(R.string.profile_title)) {
+                RafiqIconButton(onClick = { navController.navigate(RafiqRoute.Settings.route) }, label = stringResource(R.string.settings)) {
                     RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
                 }
-                Text("حسابي", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             }
+
+            Spacer(Modifier.height(18.dp))
+
+            // دفتر الأيام — كل يومٍ ورقة، وارتفاع الحبر ما خُطّ منها
+            DaysGrid(
+                streakCurrent = state.streak.current,
+                streakLongest = state.streak.longest,
+            )
+
+            Spacer(Modifier.height(24.dp))
 
             // ═══ PROFILE HERO ═══
             ProfileHeroCard()
@@ -392,22 +367,22 @@ fun ProfileScreen(
                 StatCard(
                     icon = { IcoMosque(20.dp, rc.emerald) },
                     value = "${state.todayProgress?.prayersLogged ?: 0}/5",
-                    label = "الصلوات",
+                    label = stringResource(R.string.stat_prayers),
                     iconBg = LocalRafiqColors.current.emeraldPastel,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
                     icon = { RafiqIcon(RIcon.Trophy, 20.dp, rc.goldLight) },
                     value = "${state.streak.longest}",
-                    label = "أطول سلسلة",
-                    iconBg = LocalRafiqColors.current.accentGoldBg,
+                    label = stringResource(R.string.stat_longest_streak),
+                    iconBg = LocalRafiqColors.current.tintGold,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.accentOrange) },
+                    icon = { RafiqIcon(RIcon.Flame, 20.dp, LocalRafiqColors.current.lightDusk) },
                     value = "${state.streak.current}",
-                    label = "سلسلة حالية",
-                    iconBg = LocalRafiqColors.current.accentOrangeBg,
+                    label = stringResource(R.string.stat_current_streak),
+                    iconBg = LocalRafiqColors.current.tintDusk,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -415,7 +390,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ TODAY'S ACHIEVEMENTS ═══
-            SectionHeader("إنجازات اليوم")
+            SectionHeader(stringResource(R.string.today_achievements))
             Spacer(Modifier.height(10.dp))
 
             val p = state.todayProgress
@@ -423,22 +398,19 @@ fun ProfileScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp)
-                    .shadow(3.dp, RoundedCornerShape(20.dp))
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(rc.card)
-                    .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                    .rafiqCard()
             ) {
-                TodayRow("أذكار الصباح", if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
-                TodayRow("أذكار المساء", if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)
-                TodayRow("صفحات القرآن", "${p?.quranPages ?: 0}", (p?.quranPages ?: 0) > 0)
-                TodayRow("التسبيح", "${p?.tasbeehCount ?: 0}", (p?.tasbeehCount ?: 0) > 0)
-                TodayRow("الصلوات", "${p?.prayersLogged ?: 0} / ٥", (p?.prayersLogged ?: 0) > 0, isLast = true)
+                TodayRow(stringResource(R.string.cat_morning), if (p?.morningDone == true) "✓" else "—", p?.morningDone == true)
+                TodayRow(stringResource(R.string.cat_evening), if (p?.eveningDone == true) "✓" else "—", p?.eveningDone == true)
+                TodayRow(stringResource(R.string.stat_quran_pages), "${p?.quranPages ?: 0}", (p?.quranPages ?: 0) > 0)
+                TodayRow(stringResource(R.string.stat_tasbeeh), "${p?.tasbeehCount ?: 0}", (p?.tasbeehCount ?: 0) > 0)
+                TodayRow(stringResource(R.string.stat_prayers), "${p?.prayersLogged ?: 0} / ٥", (p?.prayersLogged ?: 0) > 0, isLast = true)
             }
 
             Spacer(Modifier.height(20.dp))
 
             // ═══ THIS WEEK ═══
-            SectionHeader("هذا الأسبوع")
+            SectionHeader(stringResource(R.string.this_week))
             Spacer(Modifier.height(10.dp))
 
             Box(Modifier.padding(horizontal = 14.dp)) {
@@ -451,7 +423,10 @@ fun ProfileScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ QUICK LINKS ═══
-            SectionHeader("روابط سريعة")
+            // التقرير الأسبوعي والحديقة والمشاركة مؤجَّلة إلى ما بعد V1:
+            // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
+            // «أوراقي» خرجت من التأجيل بطلبٍ صريح، ولها مدخلها أدناه.
+            SectionHeader(stringResource(R.string.quick_links))
             Spacer(Modifier.height(10.dp))
 
             Column(
@@ -468,71 +443,31 @@ fun ProfileScreen(
                             drawRect(rc.emerald, Offset(w * 0.70f, w * 0.10f), Size(w * 0.20f, w * 0.80f))
                         }
                     },
-                    label = "الإحصائيات التفصيلية",
+                    label = stringResource(R.string.stat_detailed),
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
 
                 QuickLinkCard(
                     icon = {
+                        // شبكةُ «أوراقي» نفسها مصغَّرة: ستُّ خاناتٍ منها أربعٌ ممتلئة
                         Canvas(Modifier.size(18.dp)) {
                             val w = size.width
-                            drawRect(rc.emerald.copy(alpha = 0.15f), Offset(w * 0.05f, w * 0.15f), Size(w * 0.90f, w * 0.70f),
-                                style = Stroke(w * 0.07f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.65f), Offset(w * 0.45f, w * 0.35f), w * 0.07f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.45f, w * 0.35f), Offset(w * 0.60f, w * 0.55f), w * 0.07f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.55f), Offset(w * 0.80f, w * 0.30f), w * 0.07f, StrokeCap.Round)
+                            val s = w * 0.26f
+                            val g = w * 0.11f
+                            val filled = listOf(0, 1, 3, 5)
+                            for (i in 0 until 6) {
+                                val col = i % 3
+                                val row = i / 3
+                                drawRoundRect(
+                                    if (i in filled) rc.emerald else rc.emerald.copy(alpha = 0.22f),
+                                    Offset(col * (s + g), row * (s + g)),
+                                    Size(s, s),
+                                    cornerRadius = CornerRadius(w * 0.06f),
+                                )
+                            }
                         }
                     },
-                    label = "التقرير الأسبوعي",
-                ) { navController.navigate(RafiqRoute.WeeklyReport.route) }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    QuickLinkCard(
-                        icon = {
-                            Canvas(Modifier.size(18.dp)) {
-                                val w = size.width; val cx = w / 2f; val cy = w / 2f
-                                drawCircle(rc.emerald, w * 0.12f, Offset(cx, cy - w * 0.18f))
-                                drawCircle(rc.emerald, w * 0.08f, Offset(cx - w * 0.22f, cy + w * 0.08f))
-                                drawCircle(rc.emerald, w * 0.10f, Offset(cx + w * 0.20f, cy + w * 0.12f))
-                                drawLine(rc.emerald, Offset(cx, cy + w * 0.10f), Offset(cx, cy + w * 0.40f), w * 0.06f, StrokeCap.Round)
-                            }
-                        },
-                        label = "الحديقة",
-                        modifier = Modifier.weight(1f),
-                    ) { navController.navigate(RafiqRoute.Garden.route) }
-
-                    QuickLinkCard(
-                        icon = {
-                            Canvas(Modifier.size(18.dp)) {
-                                val w = size.width; val cx = w / 2f; val cy = w / 2f
-                                val star = Path().apply {
-                                    for (i in 0 until 10) {
-                                        val a = (i * 36 - 90) * PI.toFloat() / 180f
-                                        val r = if (i % 2 == 0) w * 0.42f else w * 0.22f
-                                        if (i == 0) moveTo(cx + r * cos(a), cy + r * sin(a))
-                                        else lineTo(cx + r * cos(a), cy + r * sin(a))
-                                    }; close()
-                                }
-                                drawPath(star, rc.goldLight.copy(alpha = 0.15f))
-                                drawPath(star, rc.goldLight, style = Stroke(w * 0.06f, join = StrokeJoin.Round))
-                            }
-                        },
-                        label = "الإنجازات",
-                        modifier = Modifier.weight(1f),
-                    ) { navController.navigate(RafiqRoute.Achievements.route) }
-                }
-
-                QuickLinkCard(
-                    icon = {
-                        Canvas(Modifier.size(18.dp)) {
-                            val w = size.width
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.30f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.15f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.60f, w * 0.45f), Offset(w * 0.80f, w * 0.30f), w * 0.06f, StrokeCap.Round)
-                            drawLine(rc.emerald, Offset(w * 0.20f, w * 0.70f), Offset(w * 0.80f, w * 0.70f), w * 0.06f, StrokeCap.Round)
-                        }
-                    },
-                    label = "مشاركة إنجازي",
-                ) { navController.navigate(RafiqRoute.ShareCard.route) }
+                    label = "أوراقي",
+                ) { navController.navigate(RafiqRoute.Achievements.route) }
             }
 
             Spacer(Modifier.height(28.dp))

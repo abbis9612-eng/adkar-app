@@ -33,6 +33,8 @@ import androidx.core.content.ContextCompat
 import androidx.compose.material3.Text
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import com.google.android.gms.location.LocationServices
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /**
  * شارة دائمة تظهر حين تكون مواقيت الصلاة محسوبة على موقع احتياطي (بلا إذن الموقع).
@@ -55,7 +57,7 @@ fun LocationBadge(
             (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false)
         if (granted) {
             @SuppressLint("MissingPermission")
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            fusedLocationClient.requestUsableLocation { loc ->
                 if (loc != null) onLocationFetched(loc.latitude, loc.longitude)
             }
         }
@@ -70,7 +72,7 @@ fun LocationBadge(
         ) == PackageManager.PERMISSION_GRANTED
         if (hasFine || hasCoarse) {
             @SuppressLint("MissingPermission")
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            fusedLocationClient.requestUsableLocation { loc ->
                 if (loc != null) onLocationFetched(loc.latitude, loc.longitude)
             }
         } else {
@@ -92,15 +94,15 @@ fun LocationBadge(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RafiqShape.item)
                 .background(rc.card)
-                .border(1.dp, rc.gold, RoundedCornerShape(12.dp))
+                .border(1.dp, rc.gold, RafiqShape.item)
                 .clickable { requestLocation() }
                 .padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text("📍", fontSize = 15.sp)
+            Text("📍", style = RafiqType.label)
             Spacer(Modifier.width(4.dp))
             Text(
                 "المواقيت تقريبية — اضغط لتحديد موقعك",

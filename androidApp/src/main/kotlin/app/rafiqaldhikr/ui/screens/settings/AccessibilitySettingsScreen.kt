@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,6 +17,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun AccessibilitySettingsScreen(
@@ -38,22 +40,10 @@ fun AccessibilitySettingsScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إمكانية الوصول",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "إمكانية الوصول",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(Modifier.padding(horizontal = 16.dp)) {
@@ -62,10 +52,7 @@ fun AccessibilitySettingsScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     // Item 1
                     Row(
@@ -75,7 +62,7 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تقليل الحركة", fontSize = 16.sp, color = rc.ink)
+                            Text("تقليل الحركة", color = rc.ink, style = RafiqType.body)
                             Text("تقليل الرسوم المتحركة", fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(
@@ -100,7 +87,7 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تباين عالي", fontSize = 16.sp, color = rc.ink)
+                            Text("تباين عالي", color = rc.ink, style = RafiqType.body)
                             Text("زيادة وضوح الألوان والنصوص", fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(

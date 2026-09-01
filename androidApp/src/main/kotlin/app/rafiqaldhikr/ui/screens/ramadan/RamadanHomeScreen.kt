@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +28,10 @@ import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoMisbaha
 import app.rafiqaldhikr.ui.components.IcoDua
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun RamadanHomeScreen(navController: NavHostController) {
@@ -45,22 +48,10 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "وضع رمضان",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "وضع رمضان",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -72,15 +63,14 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(24.dp))
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(rc.emerald)
+                        .clip(RafiqShape.card)
+                        .background(rc.emeraldFill)
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp).fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        RafiqIcon(RIcon.Moon, 44.dp, Color.White)
+                        RafiqIcon(RIcon.Moon, 44.dp, rc.onEmeraldFill)
                         Spacer(Modifier.height(8.dp))
                         Text(
                             "رمضان كريم",
@@ -89,23 +79,17 @@ fun RamadanHomeScreen(navController: NavHostController) {
                             color = Color.White
                         )
                         Spacer(Modifier.height(4.dp))
-                        Text(
-                            "شهر القرآن والرحمة", 
-                            fontSize = 16.sp,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
+                        Text("شهر القرآن والرحمة", 
+                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.body)
                     }
                 }
 
                 Spacer(Modifier.height(32.dp))
 
                 // Quick actions for Ramadan
-                Text(
-                    "برنامج رمضان", 
-                    fontSize = 18.sp, 
+                Text("برنامج رمضان", 
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(16.dp))
 
                 RamadanActionCard({ RafiqIcon(RIcon.Book, 28.dp, rc.emerald) }, "ورد القرآن اليومي", "اقرأ 20 صفحة لختم القرآن في رمضان", rc) {
@@ -130,28 +114,21 @@ fun RamadanHomeScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(2.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.cardPrayed)
-                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.emerald.copy(alpha = 0.2f), RafiqShape.card)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
-                            Text(
-                                "نصيحة رمضانية",
-                                fontSize = 16.sp,
+                            Text("نصيحة رمضانية",
                                 fontWeight = FontWeight.Bold,
-                                color = rc.emerald
-                            )
+                                color = rc.emerald, style = RafiqType.body)
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            "\"خيركم من تعلم القرآن وعلمه\" — حديث البخاري",
-                            fontSize = 14.sp,
+                        Text("\"خيركم من تعلم القرآن وعلمه\" — حديث البخاري",
                             color = rc.inkMed,
-                            lineHeight = 22.sp
-                        )
+                            lineHeight = 22.sp, style = RafiqType.bodyS)
                     }
                 }
                 Spacer(Modifier.height(32.dp))
@@ -166,10 +143,7 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .shadow(2.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+            .rafiqCard()
             .clickable { onClick() }
     ) {
         Row(
@@ -179,7 +153,7 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
             Box(
                 modifier = Modifier
                     .size(54.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(RafiqShape.item)
                     .background(rc.emerald.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -187,12 +161,9 @@ private fun RamadanActionCard(icon: @Composable () -> Unit, title: String, desc:
             }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    title, 
-                    fontSize = 16.sp, 
+                Text(title, 
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.body)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     desc, 

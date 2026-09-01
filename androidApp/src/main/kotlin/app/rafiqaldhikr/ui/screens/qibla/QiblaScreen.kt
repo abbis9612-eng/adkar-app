@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -29,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.androidx.compose.koinViewModel
@@ -37,8 +37,22 @@ import kotlin.math.sin
 import app.rafiqaldhikr.ui.components.IcoAlert
 import app.rafiqaldhikr.ui.components.IcoCompass
 import app.rafiqaldhikr.ui.components.IcoMosque
-import app.rafiqaldhikr.ui.components.IcoPin
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import kotlin.math.roundToInt
+import kotlin.math.PI
+import app.rafiqaldhikr.ui.utils.localized
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.RIcon
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.animation.animateColorAsState
 
 @Composable
 fun QiblaScreen(
@@ -66,22 +80,10 @@ fun QiblaScreen(
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.qibla_title),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.qibla_title),
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier            = Modifier.fillMaxSize().padding(24.dp),
@@ -90,13 +92,17 @@ fun QiblaScreen(
             ) {
                 when {
                     !state.isCompassAvailable -> NoCompassContent(rc)
-                    !state.isLocationKnown    -> NoLocationContent(rc)
+                    // NoLocationContent كانت نصّاً ميّتاً: isLocationKnown لم تكن
+                    // تصير false أبداً لأن الاحتياطيّ كان يملأ الإحداثيات دوماً.
+                    !state.isLocationKnown    -> NeedsLocation(
+                        message = "اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة."
+                    )
                     state.error != null       -> ErrorContent(state.error!!, rc)
                     else                      -> QiblaCompassContent(
-                        bearing          = state.qiblaBearing,
-                        heading          = state.deviceHeading,
-                        rotationToQibla  = animatedRotation,
-                        rc               = rc
+                        state    = state,
+                        rotation = animatedRotation,
+                        ar       = LocalArabicNumerals.current,
+                        rc       = rc,
                     )
                 }
             }
@@ -104,128 +110,261 @@ fun QiblaScreen(
     }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   ممرُّ النور
+
+   كان سهماً يشير — وسهمٌ يشير يترك صاحبَه يحزر متى استقام. فصار
+   الأمرُ مهمّةً بصرية: ممرٌّ يخرج من المركز إلى أعلى الجهاز، والكعبةُ
+   علامةٌ على الحافّة تدور مع الاتّجاه. تُدير حتى تدخل الكعبةُ في
+   الممرّ، فتخضرُّ الدائرةُ ويقول النصُّ «استقبِلْ وصلِّ».
+
+   ولا يُعلَن ذلك حتى تصدق بوّابتا الثقة — راجع [QiblaViewModel.UiState].
+══════════════════════════════════════════════════════════════ */
+
+private const val ALIGNED_DEG = 3f
+private const val NEAR_DEG = 12f
+
+/** فرقٌ زاويٌّ في المدى ‎[−180، 180]. */
+private fun signedDelta(d: Float): Float = ((d + 540f) % 360f) - 180f
+
 @Composable
 private fun QiblaCompassContent(
-    bearing:         Float,
-    heading:         Float,
-    rotationToQibla: Float,
-    rc:              RafiqPalette
+    state: QiblaViewModel.UiState,
+    rotation: Float,
+    ar: Boolean,
+    rc: RafiqPalette,
 ) {
-    val primaryColor   = rc.emerald
-    val onSurfaceColor = rc.ink
+    val delta = signedDelta(rotation)
+    val abs = kotlin.math.abs(delta)
+    val aligned = abs <= ALIGNED_DEG && state.trustworthy
+    val near = abs <= NEAR_DEG
 
-    // Kaaba icon rotated towards Qibla
-    Box(
-        modifier         = Modifier.size(280.dp)
-            .shadow(4.dp, CircleShape)
-            .clip(CircleShape)
-            .background(rc.card)
-            .border(2.dp, rc.gold.copy(alpha = 0.15f), CircleShape)
-            .padding(20.dp),
-        contentAlignment = Alignment.Center
+    val accent by animateColorAsState(
+        if (aligned) rc.emerald else rc.goldLight,
+        tween(320), label = "qiblaAccent",
+    )
+
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Compass rose background
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val cx = size.width / 2f
-            val cy = size.height / 2f
-            val r  = size.minDimension / 2f - 8.dp.toPx()
-
-            // Outer circle
-            drawCircle(
-                color  = primaryColor.copy(alpha = 0.05f),
-                radius = r,
-                center = Offset(cx, cy)
-            )
-            drawCircle(
-                color  = primaryColor.copy(alpha = 0.2f),
-                radius = r,
-                style  = Stroke(width = 2.dp.toPx()),
-                center = Offset(cx, cy)
-            )
-
-            // Cardinal direction marks (N, S, E, W)
-            for (i in 0 until 360 step 45) {
-                val angleRad = Math.toRadians(i.toDouble() - heading)
-                val innerR   = if (i % 90 == 0) r - 20.dp.toPx() else r - 12.dp.toPx()
-                val startX   = (cx + innerR * sin(angleRad)).toFloat()
-                val startY   = (cy - innerR * cos(angleRad)).toFloat()
-                val endX     = (cx + r * sin(angleRad)).toFloat()
-                val endY     = (cy - r * cos(angleRad)).toFloat()
-                drawLine(
-                    color       = onSurfaceColor.copy(alpha = 0.2f),
-                    start       = Offset(startX, startY),
-                    end         = Offset(endX, endY),
-                    strokeWidth = if (i % 90 == 0) 3.dp.toPx() else 1.dp.toPx()
+        /* الحالة */
+        Row(
+            Modifier
+                .clip(CircleShape)
+                .background(if (aligned) rc.emeraldPastel else if (near) rc.tintGold else rc.card)
+                .border(
+                    1.dp,
+                    if (aligned) rc.emerald.copy(alpha = 0.30f) else rc.divider,
+                    CircleShape,
                 )
-            }
-
-            // Qibla arrow — pointing toward Qibla bearing
-            val qiblaAngleRad = Math.toRadians((bearing - heading + 360).rem(360.0))
-            val arrowLen      = r - 24.dp.toPx()
-            val arrowEndX     = (cx + arrowLen * sin(qiblaAngleRad)).toFloat()
-            val arrowEndY     = (cy - arrowLen * cos(qiblaAngleRad)).toFloat()
-
-            // Arrow body
-            drawLine(
-                color       = primaryColor,
-                start       = Offset(cx, cy),
-                end         = Offset(arrowEndX, arrowEndY),
-                strokeWidth = 4.dp.toPx()
+                .padding(horizontal = 14.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
+            Spacer(Modifier.width(9.dp))
+            Text(
+                when {
+                    !state.trustworthy -> "لا نُعلن الاتّجاه حتى تستقرّ البوصلة"
+                    aligned -> "ثبتَ الاتّجاه — استقبِلْ وصلِّ"
+                    near    -> "اقتربت — حرّكه ببطء"
+                    else    -> "أدِرِ الهاتفَ حتى تدخل الكعبةُ في الممرّ"
+                },
+                style = RafiqType.bodyS,
+                color = if (aligned) rc.emerald else rc.inkMed,
+                maxLines = 1,
             )
-
-            // Arrow head
-            val headLen   = 16.dp.toPx()
-            val headAngle = 35.0
-            val headL = Math.toRadians(Math.toDegrees(qiblaAngleRad) + 180 + headAngle)
-            val headR = Math.toRadians(Math.toDegrees(qiblaAngleRad) + 180 - headAngle)
-            val arrowPath = Path().apply {
-                moveTo(arrowEndX, arrowEndY)
-                lineTo(
-                    (arrowEndX + headLen * sin(headL)).toFloat(),
-                    (arrowEndY - headLen * cos(headL)).toFloat()
-                )
-                lineTo(
-                    (arrowEndX + headLen * sin(headR)).toFloat(),
-                    (arrowEndY - headLen * cos(headR)).toFloat()
-                )
-                close()
-            }
-            drawPath(arrowPath, color = primaryColor, style = Fill)
         }
 
-        // Center Kaaba icon
-        Surface(
-            shape  = CircleShape,
-            color  = rc.emerald.copy(alpha = 0.1f),
-            modifier = Modifier.size(60.dp)
-        ) {
-            Box(Modifier.padding(14.dp)) { IcoMosque(24.dp, rc.emerald) }
+        Spacer(Modifier.height(12.dp))
+        QiblaDial(delta = delta, heading = state.deviceHeading, aligned = aligned, accent = accent, rc = rc)
+
+        Spacer(Modifier.height(6.dp))
+        Text("فرقُ الاتّجاه الآن", style = RafiqType.bodyS, color = rc.gold)
+        if (aligned) {
+            Text("استقبِلْ وصلِّ", style = RafiqType.hero, color = rc.emerald)
+        } else {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text("${kotlin.math.abs(delta).roundToInt().localized(ar)}°",
+                    style = RafiqType.hero, color = rc.emerald)
+                Spacer(Modifier.width(7.dp))
+                Text(
+                    if (delta > 0) "يميناً" else "يساراً",
+                    style = RafiqType.titleM, color = rc.emerald,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        TrustGates(state, rc)
+
+        Spacer(Modifier.height(9.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Fact("${state.qiblaBearing.roundToInt().localized(ar)}°", "زاويةُ القبلة", Modifier.weight(1f), rc)
+            Fact(state.distanceKm.localized(ar), "كم إلى مكّة", Modifier.weight(1f), rc)
         }
     }
+}
 
-    Spacer(Modifier.height(48.dp))
+@Composable
+private fun QiblaDial(
+    delta: Float,
+    heading: Float,
+    aligned: Boolean,
+    accent: Color,
+    rc: RafiqPalette,
+) {
+    Canvas(Modifier.size(288.dp)) {
+        val w = size.width
+        val c = Offset(w / 2f, w / 2f)
+        val R = w / 2f - 10.dp.toPx()
 
-    Text(
-        text  = stringResource(R.string.qibla_direction),
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        color = rc.ink
-    )
-    Spacer(Modifier.height(12.dp))
+        fun polar(angleDeg: Float, r: Float) = Offset(
+            c.x + r * sin(angleDeg * PI / 180.0).toFloat(),
+            c.y - r * cos(angleDeg * PI / 180.0).toFloat(),
+        )
 
-    Text(
-        text  = "الزاوية: ${bearing.toInt()}°",
-        fontSize = 18.sp,
-        color = rc.inkMed
-    )
-    Spacer(Modifier.height(12.dp))
+        drawCircle(if (aligned) rc.emeraldPastel else rc.card, R, c)
+        drawCircle(
+            if (aligned) rc.emerald else rc.cardBorder, R, c,
+            style = Stroke(if (aligned) 3.dp.toPx() else 1.5.dp.toPx()),
+        )
 
-    Text(
-        text      = stringResource(R.string.calibrate_compass),
-        fontSize = 14.sp,
-        textAlign = TextAlign.Center,
-        color = rc.inkLight
-    )
+        // علاماتُ الدرجات كلَّ 7.5° — والأطولُ عند الأرباع
+        var wd = 0f
+        while (wd < 360f) {
+            val a = signedDelta(wd - heading)
+            val major = wd % 45f == 0f
+            drawLine(
+                if (major) rc.inkMed else rc.divider,
+                polar(a, R - (if (major) 18 else 13).dp.toPx()),
+                polar(a, R - 5.dp.toPx()),
+                (if (major) 2 else 1).dp.toPx(),
+                StrokeCap.Round,
+            )
+            wd += 7.5f
+        }
+
+        /*  الممرّ: يخرج من المركز إلى أعلى الجهاز ويتّسع صعوداً، ويتلاشى
+            نزولاً. وهو الهدفُ الذي تُدخل الكعبةَ فيه. */
+        val top = c.y - R + 18.dp.toPx()
+        val beam = Path().apply {
+            moveTo(c.x - 5.dp.toPx(), c.y)
+            lineTo(c.x - 14.dp.toPx(), top + 18.dp.toPx())
+            quadraticBezierTo(c.x, top, c.x + 14.dp.toPx(), top + 18.dp.toPx())
+            lineTo(c.x + 5.dp.toPx(), c.y)
+            close()
+        }
+        drawPath(
+            beam,
+            Brush.verticalGradient(
+                0f to accent.copy(alpha = 0.55f),
+                0.55f to accent.copy(alpha = 0.18f),
+                1f to Color.Transparent,
+                startY = top, endY = c.y,
+            ),
+        )
+        // رأسُ الممرّ عند حافّة الجهاز
+        drawPath(
+            Path().apply {
+                moveTo(c.x - 13.dp.toPx(), c.y - R - 2.dp.toPx())
+                lineTo(c.x + 13.dp.toPx(), c.y - R - 2.dp.toPx())
+                lineTo(c.x + 7.dp.toPx(), c.y - R + 10.dp.toPx())
+                lineTo(c.x - 7.dp.toPx(), c.y - R + 10.dp.toPx())
+                close()
+            },
+            accent,
+        )
+
+        // الكعبةُ على الحافّة، تدور مع الاتّجاه
+        val k = polar(delta, R - 24.dp.toPx())
+        drawCircle(accent.copy(alpha = 0.13f), 25.dp.toPx(), k)
+        val s = 16.dp.toPx()
+        drawRoundRect(
+            if (aligned) rc.emerald else rc.ink,
+            topLeft = Offset(k.x - s, k.y - s),
+            size = Size(s * 2, s * 2),
+            cornerRadius = CornerRadius(6.dp.toPx()),
+        )
+        drawRect(rc.goldLight, Offset(k.x - s, k.y - s + s * 0.5f), Size(s * 2, s * 0.42f))
+        drawRoundRect(
+            Color(0xFFE0C37A),
+            topLeft = Offset(k.x - s * 0.32f, k.y + s * 0.30f),
+            size = Size(s * 0.64f, s * 0.70f),
+            cornerRadius = CornerRadius(1.5.dp.toPx()),
+        )
+
+        drawCircle(if (aligned) rc.emerald else rc.inkDark, 14.dp.toPx(), c)
+        drawCircle(rc.goldLight, 4.dp.toPx(), c)
+    }
+}
+
+@Composable
+private fun TrustGates(state: QiblaViewModel.UiState, rc: RafiqPalette) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RafiqShape.card)
+            .background(rc.card)
+            .border(1.dp, rc.divider, RafiqShape.card)
+            .padding(13.dp),
+    ) {
+        Row {
+            RafiqIcon(RIcon.Check, 19.dp, rc.emerald)
+            Spacer(Modifier.width(9.dp))
+            Column {
+                Text("لا نُعلن الاتّجاه قبل أن تصدق الاثنتان",
+                    style = RafiqType.label, color = rc.ink)
+                Text("وبوصلةُ الهاتف تخطئ قربَ المعدن والكهرباء.",
+                    style = RafiqType.bodyS, color = rc.inkMed)
+            }
+        }
+        Spacer(Modifier.height(11.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Gate("البوصلةُ مضبوطة", state.compassTrusted, Modifier.weight(1f), rc)
+            Gate("القراءةُ ثابتة", state.readingSteady, Modifier.weight(1f), rc)
+        }
+    }
+}
+
+@Composable
+private fun Gate(label: String, ok: Boolean, modifier: Modifier, rc: RafiqPalette) {
+    Row(
+        modifier
+            .heightIn(min = 44.dp)
+            .clip(RoundedCornerShape(11.dp))
+            .background(if (ok) rc.emeraldPastel else rc.chipBg)
+            .border(1.dp, if (ok) rc.emerald.copy(alpha = 0.16f) else rc.divider, RoundedCornerShape(11.dp))
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (ok) {
+            RafiqIcon(RIcon.Check, 14.dp, rc.emerald)
+            Spacer(Modifier.width(5.dp))
+        }
+        Text(
+            if (ok) label else "$label…",
+            style = RafiqType.caption,
+            color = if (ok) rc.emerald else rc.inkMed,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun Fact(value: String, label: String, modifier: Modifier, rc: RafiqPalette) {
+    Column(
+        modifier
+            .clip(RafiqShape.card)
+            .background(rc.card)
+            .border(1.dp, rc.divider, RafiqShape.card)
+            .padding(horizontal = 13.dp, vertical = 11.dp),
+    ) {
+        Text(value, style = RafiqType.titleL, color = rc.emerald)
+        Text(label, style = RafiqType.bodyS, color = rc.inkMed)
+    }
 }
 
 @Composable
@@ -234,21 +373,12 @@ private fun NoCompassContent(rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
     Text("البوصلة غير متوفرة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
-    Text("جهازك لا يدعم مستشعر البوصلة", fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.inkMed)
-}
-
-@Composable
-private fun NoLocationContent(rc: RafiqPalette) {
-    IcoPin(80.dp, rc.gold, off = true)
-    Spacer(Modifier.height(16.dp))
-    Text("الموقع غير محدد", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
-    Spacer(Modifier.height(8.dp))
-    Text("يرجى السماح بالوصول للموقع من إعدادات الصلاة", fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.inkMed)
+    Text("جهازك لا يدعم مستشعر البوصلة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
 }
 
 @Composable
 private fun ErrorContent(message: String, rc: RafiqPalette) {
     IcoAlert(64.dp, rc.error)
     Spacer(Modifier.height(16.dp))
-    Text(message, fontSize = 16.sp, textAlign = TextAlign.Center, color = rc.ink)
+    Text(message, textAlign = TextAlign.Center, color = rc.ink, style = RafiqType.body)
 }

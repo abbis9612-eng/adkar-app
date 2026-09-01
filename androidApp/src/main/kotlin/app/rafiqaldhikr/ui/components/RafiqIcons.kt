@@ -186,7 +186,7 @@ fun IcoHealth(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
 }
 
 @Composable
-fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.eveningRing) {
+fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.lightDusk) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height; val sw = w * 0.07f
         // قرص الشمس نصفه فوق الأفق — ممتلئ بتدرّج
@@ -453,7 +453,7 @@ fun IcoUpload(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
 /* ══════════ إنجاز ══════════ */
 
 @Composable
-fun IcoFlame(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.accentOrange) {
+fun IcoFlame(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.lightDusk) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val h = size.height; val sw = w * 0.07f
         val p = Path().apply {

@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.adhkar
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -12,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.theme.stillableFloat
+import app.rafiqaldhikr.ui.theme.RafiqType
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -37,25 +40,12 @@ import kotlin.math.*
 @Composable
 fun CelebrationScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
-    val inf = rememberInfiniteTransition(label = "celebrate")
 
-    val pulseScale by inf.animateFloat(
-        0.92f, 1.08f,
-        infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "pulse"
-    )
+    val pulseScale by stillableFloat(0.92f, 1.08f, 1200, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulse")
 
-    val shimmer by inf.animateFloat(
-        0f, 1f,
-        infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "shimmer"
-    )
+    val shimmer by stillableFloat(0f, 1f, 3000, FastOutSlowInEasing, RepeatMode.Reverse, label = "shimmer")
 
-    val rotation by inf.animateFloat(
-        0f, 360f,
-        infiniteRepeatable(tween(60_000, easing = LinearEasing)),
-        label = "rot"
-    )
+    val rotation by stillableFloat(0f, 360f, 60_000, LinearEasing, label = "rot")
 
     Box(
         Modifier
@@ -165,23 +155,17 @@ fun CelebrationScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(12.dp))
 
-            Text(
-                "لقد أتممت الأذكار بنجاح\nجعلها الله في ميزان حسناتك",
-                fontSize = 16.sp,
+            Text("لقد أتممت الأذكار بنجاح\nجعلها الله في ميزان حسناتك",
                 color = LocalRafiqColors.current.inkMed,
                 textAlign = TextAlign.Center,
-                lineHeight = 26.sp,
-            )
+                lineHeight = 26.sp, style = RafiqType.body)
 
             Spacer(Modifier.height(8.dp))
 
-            Text(
-                "﴿ فَاذْكُرُونِي أَذْكُرْكُمْ ﴾",
-                fontSize = 18.sp,
+            Text("﴿ فَاذْكُرُونِي أَذْكُرْكُمْ ﴾",
                 fontWeight = FontWeight.SemiBold,
                 color = LocalRafiqColors.current.gold,
-                textAlign = TextAlign.Center,
-            )
+                textAlign = TextAlign.Center, style = RafiqType.titleM)
 
             Spacer(Modifier.height(36.dp))
 
@@ -190,8 +174,7 @@ fun CelebrationScreen(navController: NavHostController) {
                 Modifier
                     .fillMaxWidth()
                     .height(54.dp)
-                    .shadow(6.dp, RoundedCornerShape(18.dp))
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(RafiqShape.card)
                     .background(
                         Brush.horizontalGradient(listOf(rc.emerald, rc.emeraldMed))
                     )

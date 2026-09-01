@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +31,11 @@ import java.util.Locale
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.mushaf.SurahNames
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun QuranBookmarksScreen(navController: NavHostController) {
@@ -50,26 +54,14 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "علامات القرآن",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "علامات القرآن",
+                onBack = {navController.popBackStack()},
+            )
 
             if (bookmarks.isEmpty()) {
                 EmptyState(
-                    message  = "لا توجد علامات مرجعية بعد\nأضف علامات أثناء القراءة",
+                    message  = "لم تضع علامةً بعد\nانقُر آيةً في المصحف ثمّ «ضَعْ علامة»",
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -82,7 +74,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                         BookmarkCard(
                             bookmark  = bookmark,
                             onClick   = {
-                                navController.navigate(RafiqRoute.QuranReading.withSurah(bookmark.surah))
+                                navController.navigate(RafiqRoute.Mushaf.atVerse(bookmark.page, "${bookmark.surah}:${bookmark.ayah}"))
                             },
                             rc = rc
                         )
@@ -102,10 +94,7 @@ private fun BookmarkCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .rafiqCard()
             .clickable { onClick() }
             .padding(16.dp)
     ) {
@@ -116,27 +105,20 @@ private fun BookmarkCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "سورة ${bookmark.surah} — آية ${bookmark.ayah}",
-                    fontSize = 18.sp,
+                    "${SurahNames.of(LocalContext.current, bookmark.surah)} · الآية ${bookmark.ayah}"
+                        .localizedDigits(LocalArabicNumerals.current),
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    "صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
+                    color = rc.inkMed, style = RafiqType.bodyS)
                 if (bookmark.createdAt > 0) {
                     Spacer(Modifier.height(8.dp))
                     val dateStr = SimpleDateFormat("yyyy/MM/dd", Locale.US)
                         .format(Date(bookmark.createdAt))
                         .localizedDigits(LocalArabicNumerals.current)
-                    Text(
-                        dateStr,
-                        fontSize = 12.sp,
-                        color = rc.inkLight
-                    )
+                    Text(dateStr,
+                        color = rc.inkMed, style = RafiqType.caption)
                 }
             }
         }

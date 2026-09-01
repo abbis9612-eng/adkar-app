@@ -2,8 +2,6 @@ package app.rafiq.di
 
 import app.rafiq.data.db.DatabaseSeeder
 import app.rafiq.data.db.createDatabase
-import app.rafiq.data.remote.RafiqApi
-import app.rafiq.data.remote.createHttpClient
 import app.rafiq.data.repository.*
 import app.rafiq.domain.repository.*
 import app.rafiq.domain.usecase.*
@@ -14,9 +12,12 @@ val sharedModule = module {
     single { createDatabase(get()) }
     single { DatabaseSeeder(get(), get()) }
 
-    // ═══ Network ═══
-    single { createHttpClient() }
-    single { RafiqApi(get()) }
+    // ═══ لا شبكة ═══
+    // حُذفت RafiqApi و HttpClient: مستهلكهما الوحيد كان KhatiraRepositoryImpl،
+    // وهو يكتب نصّاً دينياً قادماً من خادم فوق النص المحلي الموثَّق بلا أي
+    // تحقّق. والنطاق api.rafiqaldhikr.app غير مسجَّل أصلاً — أي أن من يسجّله
+    // يستطيع ضخّ نصوص في كل نسخة مثبَّتة وتُعرض على أنها موثَّقة.
+    // التطبيق الآن لا يفتح اتصالاً واحداً، فوعد «لا خوادم» صار بنيةً لا وعداً.
 
     // ═══ Repositories ═══
     single<AdhkarRepository>   { AdhkarRepositoryImpl(get()) }
@@ -26,12 +27,13 @@ val sharedModule = module {
     single<ProgressRepository> { ProgressRepositoryImpl(get()) }
     single<StreakRepository>    { StreakRepositoryImpl(get()) }
     single<PrefsRepository>    { PrefsRepositoryImpl(get()) }
-    single<KhatiraRepository>  { KhatiraRepositoryImpl(get(), get()) }
     single<TasbeehRepository>  { TasbeehRepositoryImpl(get()) }
     single<CustomDhikrRepository> { app.rafiq.data.repository.CustomDhikrRepositoryImpl(get()) }
     single<UserDataRepository> { UserDataRepositoryImpl(get()) }
     single<AchievementRepository> { AchievementRepositoryImpl(get()) }
     single<DayCompanionRepository> { DayCompanionRepositoryImpl(get()) }
+    single<CityRepository>     { CityRepositoryImpl(get()) }
+    single<WisdomRepository>   { WisdomRepositoryImpl(get()) }
 
     // ═══ Prayer Times (حساب محلي offline — commonMain) ═══
     single { app.rafiq.domain.model.PrayerTimeCalculator() }
@@ -40,7 +42,6 @@ val sharedModule = module {
     factory { GetAdhkarByCategoryUseCase(get()) }
     factory { GetDailyProgressUseCase(get()) }
     factory { UpdateStreakUseCase(get()) }
-    factory { GetKhatiraUseCase(get()) }
     factory { SearchQuranUseCase(get()) }
     factory { CalculateQiblaUseCase() }
     factory { app.rafiq.domain.usecase.GetPrayerTimesUseCase(get()) }

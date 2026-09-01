@@ -13,21 +13,18 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import app.rafiqaldhikr.ui.components.OfflineBanner
 import app.rafiqaldhikr.ui.navigation.RafiqBottomBar
 import app.rafiqaldhikr.ui.navigation.RafiqNavGraph
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqTheme
-import app.rafiqaldhikr.util.ConnectivityObserver
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModel()
-    private val connectivity: ConnectivityObserver by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -48,7 +45,8 @@ class MainActivity : AppCompatActivity() {
                 .collectAsStateWithLifecycle()
             val arabicNumerals by settingsViewModel.arabicNumerals
                 .collectAsStateWithLifecycle()
-            val isOnline by connectivity.isOnline.collectAsStateWithLifecycle()
+            val reducedMotionPref by settingsViewModel.reducedMotion
+                .collectAsStateWithLifecycle()
 
             // Don't render until we know onboarding state
             if (onboardingCompleted == null) return@setContent
@@ -61,8 +59,15 @@ class MainActivity : AppCompatActivity() {
 
             RafiqTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
               androidx.compose.runtime.CompositionLocalProvider(
-                  app.rafiqaldhikr.ui.utils.LocalArabicNumerals provides arabicNumerals
+                  app.rafiqaldhikr.ui.utils.LocalArabicNumerals provides arabicNumerals,
+                  // إعداد «تقليل الحركة» كان موجوداً ولا يقرؤه أيّ أنيميشن.
+                  // الآن يُقرأ من إعداد المستخدم ومن إعداد النظام معاً.
+                  app.rafiqaldhikr.ui.theme.LocalReducedMotion provides
+                      app.rafiqaldhikr.ui.theme.rememberReducedMotion(reducedMotionPref),
               ) {
+               // طبقة الميقات: تحسب مواقيت اليوم مرّة واحدة، فتصبغ الورق
+               // بضوء الوقت وتغذّي شريط الميقات في كل شاشة.
+               app.rafiqaldhikr.ui.components.ProvideMeeqat {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -71,8 +76,7 @@ class MainActivity : AppCompatActivity() {
                 val showBottomBar = currentRoute !in listOf(
                     RafiqRoute.Onboarding.route,
                     RafiqRoute.Celebration.route,
-                    RafiqRoute.QuranReading.route,
-                    RafiqRoute.DhikrReading.route
+                    RafiqRoute.DhikrReading.route,
                 )
 
                 Scaffold(
@@ -81,9 +85,9 @@ class MainActivity : AppCompatActivity() {
                     contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         androidx.compose.foundation.layout.Column {
-                            // شريط "لا يوجد اتصال" — يظهر فقط عند انقطاع الشبكة،
-                            // ويختفي تلقائياً (AnimatedVisibility) عند عودة الاتصال
-                            OfflineBanner(isOnline = isOnline)
+                            // حُذف شريط "لا يوجد اتصال": التطبيق لم يعد يفتح
+                            // اتصالاً واحداً، فتحذيرُ انقطاعِ شبكةٍ لا يحتاجها
+                            // يقول للمستخدم إن شيئاً معطَّل وليس كذلك.
                             if (showBottomBar) {
                                 RafiqBottomBar(navController)
                             }
@@ -96,6 +100,7 @@ class MainActivity : AppCompatActivity() {
                         modifier            = Modifier.padding(innerPadding)
                     )
                 }
+               }
               }
             }
         }

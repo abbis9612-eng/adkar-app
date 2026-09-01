@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.quran
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.foundation.background
@@ -15,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,14 @@ import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import org.koin.compose.koinInject
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.mushaf.SurahNames
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 
 @Composable
 fun QuranSearchScreen(navController: NavHostController) {
@@ -53,32 +62,20 @@ fun QuranSearchScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "بحث في القرآن",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.quran_search_screen),
+                onBack = {navController.popBackStack()},
+            )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
                     value         = query,
                     onValueChange = { query = it },
                     modifier      = Modifier.fillMaxWidth(),
-                    placeholder   = { Text("اكتب كلمة أو آية...", color = rc.inkLight) },
+                    placeholder   = { Text(stringResource(R.string.quran_search_field), color = rc.inkMed) },
                     singleLine    = true,
                     leadingIcon   = { IcoSearch(22.dp, rc.emerald) },
-                    shape         = RoundedCornerShape(16.dp),
+                    shape         = RafiqShape.card,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = rc.emerald,
                         unfocusedBorderColor = rc.gold.copy(alpha = 0.2f),
@@ -91,22 +88,19 @@ fun QuranSearchScreen(navController: NavHostController) {
                 when {
                     query.length < 2 -> {
                         EmptyState(
-                            message = "اكتب كلمتين على الأقل للبحث",
+                            message = stringResource(R.string.quran_search_min),
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     results.isEmpty() -> {
                         EmptyState(
-                            message = "لا توجد نتائج لـ \"$query\"",
+                            message = "لم أجد «$query» في المصحف\nجرّب كلمةً من الآية بلا تشكيل",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                     else -> {
-                        Text(
-                            "${results.size} نتيجة",
-                            fontSize = 14.sp,
-                            color = rc.inkMed
-                        )
+                        Text("${results.size} آية".localizedDigits(LocalArabicNumerals.current),
+                            color = rc.inkMed, style = RafiqType.bodyS)
                         Spacer(Modifier.height(8.dp))
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -116,7 +110,7 @@ fun QuranSearchScreen(navController: NavHostController) {
                                 SearchResultCard(
                                     ayah    = ayah,
                                     onClick = {
-                                        navController.navigate(RafiqRoute.QuranReading.withSurah(ayah.surah))
+                                        navController.navigate(RafiqRoute.Mushaf.atVerse(ayah.page, "${ayah.surah}:${ayah.ayahNumber}"))
                                     },
                                     rc = rc
                                 )
@@ -138,10 +132,7 @@ private fun SearchResultCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+            .rafiqCard()
             .clickable { onClick() }
             .padding(16.dp)
     ) {
@@ -150,16 +141,12 @@ private fun SearchResultCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "سورة ${ayah.surah} — آية ${ayah.ayahNumber}",
-                fontSize = 14.sp,
+                "${SurahNames.of(LocalContext.current, ayah.surah)} · الآية ${ayah.ayahNumber}"
+                    .localizedDigits(LocalArabicNumerals.current),
                 fontWeight = FontWeight.Bold,
-                color = rc.emerald
-            )
-            Text(
-                "ص ${ayah.page}",
-                fontSize = 12.sp,
-                color = rc.inkLight
-            )
+                color = rc.emerald, style = RafiqType.bodyS)
+            Text("ص ${ayah.page}",
+                color = rc.inkMed, style = RafiqType.caption)
         }
         Spacer(Modifier.height(8.dp))
         Text(

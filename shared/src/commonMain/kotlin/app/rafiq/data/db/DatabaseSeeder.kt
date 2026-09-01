@@ -40,9 +40,6 @@ class DatabaseSeeder(
 
         seedDuasIfIncomplete()
 
-        val khatiraCount = db.khatiraQueries.count().executeAsOne()
-        if (khatiraCount == 0L) { seedKhatira() }
-
         if (db.tafsirQueries.count().executeAsOne() < EXPECTED_TAFSIR) {
             // insertFull يستخدم REPLACE — لا حاجة لحذف مسبق
             seedTafsir()
@@ -165,21 +162,4 @@ class DatabaseSeeder(
         }
     }
 
-    private suspend fun seedKhatira() {
-        val rawJson = jsonReader.readAsset("khatira_366.json")
-        val list: List<KhatiraJson> = json.decodeFromString(rawJson)
-        db.transaction {
-            list.forEach { k ->
-                db.khatiraQueries.insertFull(
-                    day_of_year     = k.dayOfYear.toLong(),
-                    verse_or_hadith = k.verseOrHadith,
-                    source          = k.source,
-                    reflection      = k.reflection,
-                    season          = k.season,
-                    reviewed        = if (k.reviewed) 1L else 0L,
-                    reviewer        = k.reviewer
-                )
-            }
-        }
-    }
 }

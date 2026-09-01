@@ -97,7 +97,7 @@ fun IcoSun(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.gold) {
 }
 
 @Composable
-fun IcoMoon(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purple) {
+fun IcoMoon(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.lightNight) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val cx = w * 0.44f; val cy = w * 0.50f
         val moon = Path().apply { addOval(Rect(Offset(cx, cy), w * 0.34f)) }
@@ -111,7 +111,7 @@ fun IcoMoon(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purple) {
 }
 
 @Composable
-fun IcoStar(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.purpleSleep) {
+fun IcoStar(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.lightNight) {
     Canvas(Modifier.size(s)) {
         val w = size.width; val cx = w / 2f; val cy = w / 2f
         val st = Stroke(w * 0.06f, cap = StrokeCap.Round, join = StrokeJoin.Round)
@@ -206,14 +206,14 @@ fun IcoBook(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.emerald) {
 fun StationIcon(stationId: String, s: Dp = 28.dp, tint: Color? = null) {
     val rc = LocalRafiqColors.current
     when (stationId) {
-        "wake"         -> IcoSunrise(s, tint ?: rc.morningRing)
+        "wake"         -> IcoSunrise(s, tint ?: rc.gold)
         "fajr_morning" -> IcoSun(s, tint ?: rc.gold)
-        "duha"         -> IcoSunrise(s, tint ?: rc.goldLight)
+        "duha"         -> IcoSunrise(s, tint ?: rc.gold)
         "dhuhr"        -> IcoMosque(s, tint ?: rc.emerald)
-        "asr_evening"  -> IcoStar(s, tint ?: rc.eveningRing)
-        "maghrib"      -> IcoMosque(s, tint ?: rc.accentOrange)
-        "isha"         -> IcoMosque(s, tint ?: rc.purpleSleep)
-        "sleep"        -> IcoMoon(s, tint ?: rc.sleepRing)
+        "asr_evening"  -> IcoStar(s, tint ?: rc.lightDusk)
+        "maghrib"      -> IcoMosque(s, tint ?: rc.lightDusk)
+        "isha"         -> IcoMosque(s, tint ?: rc.lightNight)
+        "sleep"        -> IcoMoon(s, tint ?: rc.lightNight)
         "friday_kahf"  -> IcoBook(s, tint ?: rc.emerald)
         else           -> IcoDua(s, tint ?: rc.emeraldMed)
     }

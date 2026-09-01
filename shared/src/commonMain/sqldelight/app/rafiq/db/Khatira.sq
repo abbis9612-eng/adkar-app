@@ -1,3 +1,8 @@
+-- الجدول باقٍ بلا تغيير في المخطَّط عمداً: حذفه ترحيلٌ يحتاج خطة وموافقة.
+-- المحذوف هنا استعلام updateFromRemote وحده — وهو الذي كان يكتب نصّاً
+-- دينياً قادماً من خادم فوق النص المحلي الموثَّق بلا أي تحقّق.
+-- لم يبقَ في الكود ما يقرأ هذا الجدول أو يكتب فيه.
+
 CREATE TABLE Khatira (
     id              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     day_of_year     INTEGER NOT NULL,
@@ -20,15 +25,6 @@ SELECT COUNT(*) FROM Khatira;
 insertFull:
 INSERT INTO Khatira(day_of_year, verse_or_hadith, source, reflection, season, reviewed, reviewer)
 VALUES (?, ?, ?, ?, ?, ?, ?);
-
-updateFromRemote:
-UPDATE Khatira
-SET verse_or_hadith = :text,
-    source          = :source,
-    reflection      = :reflection,
-    is_remote       = 1,
-    remote_version  = :version
-WHERE day_of_year = :day;
 
 deleteAll:
 DELETE FROM Khatira;

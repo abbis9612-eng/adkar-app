@@ -1,5 +1,7 @@
 ﻿package app.rafiqaldhikr.ui.screens.language
 
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import android.app.LocaleManager
 import android.os.Build
 import android.os.LocaleList
@@ -19,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.components.IcoCheck
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 data class LanguageOption(
     val code: String,
@@ -42,15 +46,11 @@ fun LanguageScreen(navController: NavHostController) {
     val context = LocalContext.current
     var selectedLang by remember { mutableStateOf("ar") }
 
+    // لغتان فقط: ما تُرجم فعلاً. الستّ الأخرى (fr · tr · ur · id · ms · bn)
+    // كانت معروضة بلا ملف موارد واحد — يختارها المستخدم فلا يتغيّر شيء.
     val languages = listOf(
-        LanguageOption("ar", "العربية", "العربية", "🇸🇦"),
-        LanguageOption("en", "English", "الإنجليزية", "🇺🇸"),
-        LanguageOption("fr", "Français", "الفرنسية", "🇫🇷"),
-        LanguageOption("tr", "Türkçe", "التركية", "🇹🇷"),
-        LanguageOption("ur", "اردو", "الأردو", "🇵🇰"),
-        LanguageOption("id", "Bahasa Indonesia", "الإندونيسية", "🇮🇩"),
-        LanguageOption("ms", "Bahasa Melayu", "الماليزية", "🇲🇾"),
-        LanguageOption("bn", "বাংলা", "البنغالية", "🇧🇩"),
+        LanguageOption("ar", "العربية", stringResource(R.string.lang_arabic),  "🇸🇦"),
+        LanguageOption("en", "English",  stringResource(R.string.lang_english), "🇺🇸"),
     )
 
     val rc = LocalRafiqColors.current
@@ -66,22 +66,10 @@ fun LanguageScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "اللغة — Language",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = stringResource(R.string.lang_screen_title),
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -90,15 +78,12 @@ fun LanguageScreen(navController: NavHostController) {
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp)
             ) {
-                Text(
-                    "اختر لغة التطبيق",
-                    fontSize = 18.sp,
+                Text(stringResource(R.string.lang_choose),
                     fontWeight = FontWeight.SemiBold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "سيتم تغيير لغة الواجهة فقط. النصوص القرآنية والأذكار تبقى بالعربية.",
+                    stringResource(R.string.lang_note),
                     fontSize = 13.sp,
                     color = rc.inkMed
                 )
@@ -107,10 +92,7 @@ fun LanguageScreen(navController: NavHostController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     languages.forEachIndexed { index, lang ->
                         val isSelected = selectedLang == lang.code
@@ -128,12 +110,9 @@ fun LanguageScreen(navController: NavHostController) {
                             Text(lang.emoji, fontSize = 24.sp)
                             Spacer(Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    lang.nameNative,
-                                    fontSize = 16.sp,
+                                Text(lang.nameNative,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = rc.ink
-                                )
+                                    color = rc.ink, style = RafiqType.body)
                                 Text(
                                     lang.nameArabic,
                                     fontSize = 13.sp,

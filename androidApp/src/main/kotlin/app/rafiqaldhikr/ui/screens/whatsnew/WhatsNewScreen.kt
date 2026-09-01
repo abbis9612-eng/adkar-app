@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,6 +20,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
 
 data class ChangelogEntry(
     val version: String,
@@ -73,22 +75,10 @@ fun WhatsNewScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "ما الجديد",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "ما الجديد",
+                onBack = {navController.popBackStack()},
+            )
 
             Column(
                 modifier = Modifier
@@ -114,10 +104,9 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RafiqShape.card)
             .background(bgColor)
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+            .border(1.dp, borderColor, RafiqShape.card)
             .padding(20.dp)
     ) {
         Row(
@@ -126,29 +115,23 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "v${entry.version}",
-                    fontSize = 18.sp,
+                Text("v${entry.version}",
                     fontWeight = FontWeight.Bold,
-                    color = rc.ink
-                )
+                    color = rc.ink, style = RafiqType.titleM)
                 if (entry.isLatest) {
                     Spacer(Modifier.width(8.dp))
                     Box(
                         Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(rc.emerald)
+                            .clip(RafiqShape.item)
+                            .background(rc.emeraldFill)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("الأحدث", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = rc.bg)
+                        Text("الأحدث", fontWeight = FontWeight.Bold, color = rc.onEmeraldFill, style = RafiqType.micro)
                     }
                 }
             }
-            Text(
-                entry.date,
-                fontSize = 12.sp,
-                color = rc.inkMed
-            )
+            Text(entry.date,
+                color = rc.inkMed, style = RafiqType.caption)
         }
         
         Spacer(Modifier.height(16.dp))
@@ -163,15 +146,12 @@ private fun ChangelogCard(entry: ChangelogEntry, rc: RafiqPalette) {
                     Modifier
                         .padding(top = 7.dp)
                         .size(6.dp)
-                        .clip(RoundedCornerShape(3.dp))
+                        .clip(RafiqShape.chip)
                         .background(rc.gold)
                 )
-                Text(
-                    change,
-                    fontSize = 14.sp,
+                Text(change,
                     color = rc.inkMed,
-                    lineHeight = 22.sp
-                )
+                    lineHeight = 22.sp, style = RafiqType.bodyS)
             }
         }
     }

@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,6 +20,9 @@ import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.RafiqBackButton
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun TermsScreen(navController: NavHostController) {
@@ -37,22 +39,10 @@ fun TermsScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "شروط الاستخدام",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "شروط الاستخدام",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -64,10 +54,7 @@ fun TermsScreen(navController: NavHostController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                         .padding(20.dp)
                 ) {
                     SectionTitle("القبول", rc)
@@ -123,11 +110,11 @@ fun TermsScreen(navController: NavHostController) {
 @Composable
 private fun SectionTitle(text: String, rc: RafiqPalette) {
     Spacer(Modifier.height(16.dp))
-    Text(text, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+    Text(text, fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.titleM)
     Spacer(Modifier.height(6.dp))
 }
 
 @Composable
 private fun SectionBody(text: String, rc: RafiqPalette) {
-    Text(text, fontSize = 14.sp, color = rc.inkMed, lineHeight = 22.sp)
+    Text(text, color = rc.inkMed, lineHeight = 22.sp, style = RafiqType.bodyS)
 }

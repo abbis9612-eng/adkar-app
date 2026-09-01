@@ -28,7 +28,7 @@ fun LocationPermissionEffect(
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
         if (fineGranted || coarseGranted) {
             @SuppressLint("MissingPermission")
-            fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            fusedLocationClient.requestUsableLocation { loc ->
                 if (loc != null) {
                     onLocationFetched(loc.latitude, loc.longitude)
                 }
@@ -42,7 +42,7 @@ fun LocationPermissionEffect(
             val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (hasFine || hasCoarse) {
                 @SuppressLint("MissingPermission")
-                fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+                fusedLocationClient.requestUsableLocation { loc ->
                     if (loc != null) {
                         onLocationFetched(loc.latitude, loc.longitude)
                     }

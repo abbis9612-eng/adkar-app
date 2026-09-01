@@ -7,9 +7,27 @@ import app.rafiq.domain.model.ErrorType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * حساب مواقيت الصلاة.
+ *
+ * كان هنا احتياطيّ صامت إلى إحداثيات مكة (21.3891/39.8579)، وفي طبقة
+ * الأندرويد احتياطيّ ثانٍ مختلف إلى السليمانية. النتيجة أن مستخدماً في
+ * القاهرة كان يرى أوقاتاً ليست أوقاته، ويظنّها أوقاته، فيصلّي عليها.
+ *
+ * لا احتياطيّ بعد اليوم: بلا إحداثيات = خطأ صريح من نوع LOCATION،
+ * وعلى الواجهة أن تطلب الموقع بدل أن تعرض رقماً مطمئناً كاذباً.
+ */
 class GetPrayerTimesUseCase(
     private val calculator: PrayerTimeCalculator
 ) {
+    /** إحداثيات صفرية = «لا موقع» في هذا التطبيق (خط الطول والعرض معاً). */
+    private fun missingLocation(lat: Double, lng: Double) = lat == 0.0 && lng == 0.0
+
+    private fun <T> noLocation(): RafiqResult<T> = RafiqResult.Error(
+        message = "لم يُحدَّد موقعك بعد، ولا يمكن حساب المواقيت بدونه.",
+        type    = ErrorType.LOCATION,
+    )
+
     suspend operator fun invoke(
         lat:       Double,
         lng:       Double,
@@ -22,10 +40,9 @@ class GetPrayerTimesUseCase(
         maghribOffset: Int = 0,
         ishaOffset: Int = 0
     ): RafiqResult<PrayerTimesResult> = withContext(Dispatchers.Default) {
+        if (missingLocation(lat, lng)) return@withContext noLocation()
         try {
-            val rLat = if (lat == 0.0 && lng == 0.0) 21.3891 else lat
-            val rLng = if (lat == 0.0 && lng == 0.0) 39.8579 else lng
-            val result = calculator.calculate(rLat, rLng, method, elevation, madhab, fajrOffset, dhuhrOffset, asrOffset, maghribOffset, ishaOffset)
+            val result = calculator.calculate(lat, lng, method, elevation, madhab, fajrOffset, dhuhrOffset, asrOffset, maghribOffset, ishaOffset)
             RafiqResult.Success(result)
         } catch (e: Exception) {
             RafiqResult.Error(
@@ -47,10 +64,9 @@ class GetPrayerTimesUseCase(
         maghribOffset: Int = 0,
         ishaOffset: Int = 0
     ): RafiqResult<PrayerTimesResult> = withContext(Dispatchers.Default) {
+        if (missingLocation(lat, lng)) return@withContext noLocation()
         try {
-            val rLat = if (lat == 0.0 && lng == 0.0) 21.3891 else lat
-            val rLng = if (lat == 0.0 && lng == 0.0) 39.8579 else lng
-            val result = calculator.calculateForTomorrow(rLat, rLng, method, elevation, madhab, fajrOffset, dhuhrOffset, asrOffset, maghribOffset, ishaOffset)
+            val result = calculator.calculateForTomorrow(lat, lng, method, elevation, madhab, fajrOffset, dhuhrOffset, asrOffset, maghribOffset, ishaOffset)
             RafiqResult.Success(result)
         } catch (e: Exception) {
             RafiqResult.Error(

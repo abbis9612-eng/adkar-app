@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +21,10 @@ import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.IcoMisbaha
+import app.rafiqaldhikr.ui.theme.RafiqType
+import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.RafiqTopBar
+import app.rafiqaldhikr.ui.components.rafiqCard
 
 @Composable
 fun WidgetSettingsScreen(navController: NavHostController) {
@@ -42,22 +45,10 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                 .statusBarsPadding()
         ) {
             // ═══ HEADER ═══
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "إعدادات الـ Widgets",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = rc.emerald
-                )
-
-                RafiqBackButton(onClick = { navController.popBackStack() })
-            }
+            RafiqTopBar(
+                title  = "إعدادات الـ Widgets",
+                onBack = {navController.popBackStack()},
+            )
 
             // Content
             Column(
@@ -72,21 +63,15 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                     color = rc.ink
                 )
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "اضغط مطولاً على الشاشة الرئيسية > الأدوات المصغرة > رفيق الذكر لإضافة widget",
-                    fontSize = 14.sp,
-                    color = rc.inkMed
-                )
+                Text("اضغط مطولاً على الشاشة الرئيسية > الأدوات المصغرة > رفيق الذكر لإضافة widget",
+                    color = rc.inkMed, style = RafiqType.bodyS)
 
                 Spacer(Modifier.height(24.dp))
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(3.dp, RoundedCornerShape(20.dp))
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(rc.card)
-                        .border(1.dp, rc.gold.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
+                        .rafiqCard()
                 ) {
                     WidgetOption(
                         icon    = { IcoMosque(24.dp, rc.emerald) },
@@ -123,15 +108,15 @@ fun WidgetSettingsScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RafiqShape.card)
                         .background(rc.emerald.copy(alpha = 0.05f))
-                        .border(1.dp, rc.emerald.copy(alpha = 0.15f), RoundedCornerShape(16.dp))
+                        .border(1.dp, rc.emerald.copy(alpha = 0.15f), RafiqShape.card)
                         .padding(16.dp)
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             RafiqIcon(RIcon.Bulb, 18.dp, rc.gold)
-                            Text("ملاحظة", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                            Text("ملاحظة", fontWeight = FontWeight.Bold, color = rc.emerald, style = RafiqType.body)
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -162,7 +147,7 @@ private fun WidgetOption(
         icon()
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = rc.ink)
+            Text(title, fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
             Text(desc, fontSize = 13.sp, color = rc.inkMed)
         }
         Switch(
