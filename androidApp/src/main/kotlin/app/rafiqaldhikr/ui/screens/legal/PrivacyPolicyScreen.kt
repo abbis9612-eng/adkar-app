@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
@@ -39,7 +41,7 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "سياسة الخصوصية",
+                title  = stringResource(R.string.settings_privacy),
                 onBack = {navController.popBackStack()},
             )
 
@@ -56,75 +58,33 @@ fun PrivacyPolicyScreen(navController: NavHostController) {
                         .rafiqCard()
                         .padding(20.dp)
                 ) {
-                    SectionTitle("مقدمة", rc)
-                    SectionBody("نحن في تطبيق رفيق الذكر نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("البيانات التي نجمعها", rc)
-                    SectionBody("""
-                        • بيانات الاستخدام: تقدم الأذكار، عدد التسبيح، صفحات القرآن المقروءة
-                        • الموقع الجغرافي: لحساب مواقيت الصلاة واتجاه القبلة (بإذنك فقط).
-                          يُستعمل على الجهاز فقط ولا يُرسل لأحد. وإن لم تمنحه، لا نعرض
-                          مواقيت مُقدَّرة — نطلب الموقع بدل عرض أوقات ليست لك.
-                        • التفضيلات: إعدادات المظهر والخط والإشعارات
-                        
-                        جميع هذه البيانات تُخزَّن محلياً على جهازك فقط.
-                    """.trimIndent(), rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("البيانات التي لا نجمعها", rc)
-                    SectionBody("""
-                        • لا نجمع معلومات شخصية كالاسم أو البريد الإلكتروني
-                        • لا نتتبع نشاطك عبر تطبيقات أخرى
-                        • لا نبيع أو نشارك بياناتك مع أطراف ثالثة
-                    """.trimIndent(), rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    // الجملة السابقة هنا كانت تدّعي تشفير قاعدة البيانات بـ
-                    // EncryptedSharedPreferences، وتَعِد بـ«ميزة مزامنة». الاثنان
-                    // غير موجودَين: القاعدة AndroidSqliteDriver عادية، ودالّة
-                    // التشفير كانت كوداً ميتاً غير مسجَّل، ولا مزامنة في التطبيق.
-                    // كل سطر أدناه يقابله سطر كود يمكن إثباته.
-                    SectionTitle("التخزين والأمان", rc)
-                    SectionBody("""
-                        • تُخزَّن بياناتك كلّها على جهازك وحده، في قاعدة بيانات SQLite محلية
-                          وملفّ تفضيلات محلي. لا تغادر جهازك.
-                        • لا خوادم لنا تستقبل بياناتك، ولا حسابات، ولا مزامنة.
-                        • التطبيق لا يطلب إذن الإنترنت أصلاً، ولا يفتح أي اتصال
-                          بالشبكة. هذا ليس وعداً بل بنية: يمكنك التحقّق من أن
-                          «الإنترنت» ليس ضمن أذوناته في إعدادات جهازك.
-                        • هذه الملفات غير مشفَّرة، وهي محميّة بعزل التطبيقات في أندرويد:
-                          لا يصل إليها تطبيق آخر على جهاز غير مروَّت (non-rooted).
-                        • النسخ الاحتياطي السحابي مُعطَّل لهذا التطبيق، فلا تُرفع بياناتك
-                          إلى Google Drive.
-                        • حذف التطبيق يمحو كل بياناتك نهائياً.
-                        • المصحف والأذكار والأدعية والتفسير كلّها داخل التطبيق،
-                          فيعمل كاملاً بلا اتصال وفي وضع الطيران.
-                    """.trimIndent(), rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("حقوقك", rc)
-                    SectionBody("يمكنك في أي وقت حذف جميع بياناتك من خلال إعدادات التطبيق > تصدير/حذف البيانات.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("التحديثات", rc)
-                    SectionBody("قد نقوم بتحديث هذه السياسة من وقت لآخر. سنُعلمك بأي تغييرات جوهرية عبر إشعار داخل التطبيق.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("التواصل", rc)
-                    SectionBody("لأي استفسار حول الخصوصية: privacy@rafiqaldhikr.app", rc)
+                    /*  كلُّ جملةٍ هنا يقابلها سطرُ كودٍ يمكن إثباته.
+                     *
+                     *  وكانت فقرةُ «التخزين والأمان» تقول: «التطبيق لا يطلب
+                     *  إذن الإنترنت أصلاً، ولا يفتح أي اتصال بالشبكة. هذا
+                     *  ليس وعداً بل بنية». وقد صار خطأً حين أُضيف إذنُ
+                     *  الإنترنت لتنزيل خطوط المصحف — فبقيت السياسةُ تنفي
+                     *  ما يُظهره متجرُ Play في قائمة الأذونات. وسياسةٌ
+                     *  تنفي إذناً معلَناً أسوأُ من سياسةٍ لا تذكره.
+                     */
+                    val sections = listOf(
+                        R.string.pp_intro_t to R.string.pp_intro_b,
+                        R.string.pp_collect_t to R.string.pp_collect_b,
+                        R.string.pp_not_collect_t to R.string.pp_not_collect_b,
+                        R.string.pp_storage_t to R.string.pp_storage_b,
+                        R.string.pp_network_t to R.string.pp_network_b,
+                        R.string.pp_rights_t to R.string.pp_rights_b,
+                        R.string.pp_updates_t to R.string.pp_updates_b,
+                        R.string.pp_contact_t to R.string.pp_contact_b,
+                    )
+                    sections.forEachIndexed { i, (title, bodyRes) ->
+                        if (i > 0) {
+                            Spacer(Modifier.height(16.dp))
+                            HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
+                        }
+                        SectionTitle(stringResource(title), rc)
+                        SectionBody(stringResource(bodyRes), rc)
+                    }
                 }
                 
                 Spacer(Modifier.height(32.dp))

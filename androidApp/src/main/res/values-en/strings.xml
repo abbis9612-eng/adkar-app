@@ -409,4 +409,92 @@
         <item quantity="one">You completed %1$d lap</item>
         <item quantity="other">You completed %1$d laps</item>
     </plurals>
+
+    <!-- ═══ Privacy policy — every sentence backed by a line of code ═══ -->
+    <string name="pp_intro_t">Introduction</string>
+    <string name="pp_intro_b">We respect your privacy. This policy describes what the app actually does, not what we intend to do.</string>
+
+    <string name="pp_collect_t">What is kept on your device</string>
+    <string name="pp_collect_b">• Your progress: completed adhkar, tasbeeh counts, Quran pages, prayer log.\n• Your location: to compute prayer times and the qibla, with your permission only. It stays on the device and is never sent. If you do not grant it, we show no estimated times — we ask for your location rather than showing times that are not yours.\n• Your preferences: theme, font, numerals, notifications.</string>
+
+    <string name="pp_not_collect_t">What we do not collect</string>
+    <string name="pp_not_collect_b">• No name, email, or account.\n• No tracking across other apps.\n• No selling or sharing with third parties.\n• No analytics and no crash reporting.</string>
+
+    <string name="pp_storage_t">Storage</string>
+    <string name="pp_storage_b">• All your data lives on your device: a local SQLite database and a preferences file. We run no servers that receive it.\n• These files are not encrypted; they are protected by Android app sandboxing — no other app can reach them on a non-rooted device.\n• Cloud backup is disabled for this app, so nothing is uploaded to Google Drive.\n• Uninstalling the app erases all of it.</string>
+
+    <string name="pp_network_t">Network access</string>
+    <string name="pp_network_b">The app holds the internet permission for exactly one purpose: downloading the Mushaf page fonts, when you explicitly ask for them.\n\nNo connection is opened before you agree, and nothing about you is sent in that request — no device identifier, no location, no usage. Everything else ships inside the app: the Quran, the tafsir, the adhkar, the duas, the prayer times and the qibla. It works fully in airplane mode.</string>
+
+    <string name="pp_rights_t">Your rights</string>
+    <string name="pp_rights_b">You can export or erase all of your data at any time from: Settings → Export data.</string>
+
+    <string name="pp_updates_t">Updates</string>
+    <string name="pp_updates_b">This policy may be updated. Any material change will be announced inside the app.</string>
+
+    <string name="pp_contact_t">Contact</string>
+    <string name="pp_contact_b">For any privacy question: privacy@rafiqaldhikr.app</string>
+
+    <!-- ═══ Terms of use ═══ -->
+    <string name="tos_accept_t">Acceptance</string>
+    <string name="tos_accept_b">By using the app you agree to these terms. If you do not agree with any of them, please do not use it.</string>
+    <string name="tos_allowed_t">Permitted use</string>
+    <string name="tos_allowed_b">• Using the app for worship and drawing near to Allah.\n• Sharing its content with others.\n• Personal, non-commercial use.</string>
+    <string name="tos_religious_t">Religious content</string>
+    <string name="tos_religious_b">Every dhikr and dua in the app carries its source and grading, shown alongside it. Even so, the app is not a source of fatwa: ask people of knowledge about what is unclear to you.</string>
+    <string name="tos_times_t">Prayer times</string>
+    <string name="tos_times_b">Times are computed astronomically from your location and your chosen calculation method, and are approximate by nature. Verify with your local mosque.</string>
+    <string name="tos_ip_t">Intellectual property</string>
+    <string name="tos_ip_b">Rights to the app belong to the Rafiq Al-Dhikr team. The Quranic text and the hadith belong to the ummah, to no one person.</string>
+    <string name="tos_disclaimer_t">Disclaimer</string>
+    <string name="tos_disclaimer_b">The app is provided as is, without warranty, and we bear no liability for harm arising from its use.</string>
+    <string name="tos_changes_t">Changes</string>
+    <string name="tos_changes_b">These terms may change; any material change will be announced inside the app.</string>
+
+    <!-- ═══ Contact ═══ -->
+    <string name="contact_welcome">We would love to hear from you 💬</string>
+    <string name="contact_email">Email</string>
+    <string name="contact_bug">Report a bug</string>
+    <string name="contact_bug_desc">Tell us about any technical fault</string>
+    <string name="contact_idea">Suggest a feature</string>
+    <string name="contact_idea_desc">Share your ideas for the app</string>
+    <string name="contact_your_message">Your message</string>
+    <string name="contact_subj_note">Rafiq Al-Dhikr — feedback</string>
+    <string name="contact_subj_bug">Rafiq Al-Dhikr — bug report</string>
+    <string name="contact_subj_idea">Rafiq Al-Dhikr — suggestion</string>
+    <string name="contact_subj_user">Rafiq Al-Dhikr — message from a user</string>
+    <string name="action_send">Send</string>
+
+    <!-- ═══ My Pages ═══ -->
+    <string name="awraq_not_opened">Not opened yet</string>
+    <string name="awraq_subtitle">What you completed — to see it, not to be judged by it</string>
+    <string name="awraq_last_seven">Last seven days</string>
+    <string name="awraq_completed_f">Completed</string>
+    <string name="awraq_untouched_f">Untouched</string>
+    <string name="awraq_today">Today</string>
+    <string name="awraq_this_month">This month</string>
+    <string name="awraq_completed_m">Completed</string>
+    <string name="awraq_partial">Partly</string>
+    <string name="awraq_untouched_m">Untouched</string>
+    <string name="awraq_besides">Besides the wird</string>
+    <string name="awraq_tasbeeh_unit">tasbeeh</string>
+    <string name="awraq_page_unit">Quran pages</string>
+    <plurals name="awrad">
+        <item quantity="zero">No wird yet</item>
+        <item quantity="one">%1$d wird</item>
+        <item quantity="other">%1$d awrad</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+
+    <!-- ═══ Theme, About, Celebration ═══ -->
+    <string name="theme_system_full">Automatic (system)</string>
+    <string name="theme_dynamic">Dynamic colours</string>
+    <string name="theme_dynamic_desc">Use wallpaper colours (Android 12+)</string>
+    <string name="about_made_with">Made with ❤️ for Allah</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="celebration_title">May Allah bless you!</string>
+    <string name="awraq_no_wird">No wird yet</string>
 </resources>

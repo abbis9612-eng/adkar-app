@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -146,7 +148,7 @@ fun CelebrationScreen(navController: NavHostController) {
 
             // ═══ TEXT ═══
             Text(
-                "بارك الله فيك!",
+                stringResource(R.string.celebration_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = LocalRafiqColors.current.emerald,
@@ -182,7 +184,7 @@ fun CelebrationScreen(navController: NavHostController) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "العودة",
+                    stringResource(R.string.action_back),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = LocalRafiqColors.current.card,

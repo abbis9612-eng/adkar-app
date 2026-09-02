@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +41,7 @@ fun AboutScreen(navController: NavHostController) {
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "حول التطبيق",
+                title  = stringResource(R.string.about),
                 onBack = {navController.popBackStack()},
             )
 
@@ -52,7 +54,7 @@ fun AboutScreen(navController: NavHostController) {
             ) {
                 RafiqIcon(RIcon.Moon, 64.dp, rc.emerald)
                 Spacer(Modifier.height(16.dp))
-                Text("رفيق الذكر", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+                Text(stringResource(R.string.app_name), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = rc.ink)
                 Text("الإصدار " + app.rafiqaldhikr.BuildConfig.VERSION_NAME,
                     color = rc.inkMed, style = RafiqType.bodyS)
                 Spacer(Modifier.height(24.dp))
@@ -61,7 +63,7 @@ fun AboutScreen(navController: NavHostController) {
                     textAlign = TextAlign.Center,
                     color = rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(32.dp))
-                Text("صُنع بـ ❤️ لله", color = rc.emerald, style = RafiqType.bodyS)
+                Text(stringResource(R.string.about_made_with), color = rc.emerald, style = RafiqType.bodyS)
             }
         }
     }

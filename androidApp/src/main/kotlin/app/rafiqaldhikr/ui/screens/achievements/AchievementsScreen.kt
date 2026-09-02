@@ -11,6 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -57,22 +60,21 @@ private fun emptyTone(rc: RafiqPalette)   = lerp(rc.bg, rc.ink, 0.12f)
 private fun partialTone(rc: RafiqPalette) = lerp(rc.bg, rc.emeraldFill, 0.85f)
 private fun fullTone(rc: RafiqPalette)    = lerp(rc.emeraldFill, rc.ink, 0.10f)
 
-/** «٢٦ ورداً» — والعربية تعدّ المفرد والمثنّى والقلّة بصيغٍ مختلفة. */
-private fun wirdCount(n: Int, ar: Boolean): String = when {
-    n == 0 -> "لا وِردَ بعد"
-    n == 1 -> "وِردٌ واحد"
-    n == 2 -> "وِردان"
-    n <= 10 -> "${n.localized(ar)} أوراد"
-    else -> "${n.localized(ar)} وِرداً"
-}
+/*  التصريفُ يُترك لأندرويد.
+ *
+ *  كانت الصيغُ الخمسُ لكلٍّ منهما مكتوبةً بالكود بالعربية وحدَها. و
+ *  `plurals` تعرف صفرَ العربية ومثنّاها وجمعَي قلّتها وكثرتها، وتعرف
+ *  الإنجليزية — وتُعطي كلَّ لغةٍ ما تحتاجه بلا شرطٍ يدويّ.
+ */
+@Composable
+private fun wirdCount(n: Int): String =
+    if (n == 0) stringResource(R.string.awraq_no_wird)
+    else pluralStringResource(R.plurals.awrad, n, n)
 
-private fun dayCount(n: Int, ar: Boolean): String = when {
-    n == 0 -> "لم تفتحها بعد"
-    n == 1 -> "يومٌ واحد"
-    n == 2 -> "يومان"
-    n <= 10 -> "${n.localized(ar)} أيّام"
-    else -> "${n.localized(ar)} يوماً"
-}
+@Composable
+private fun dayCount(n: Int): String =
+    if (n == 0) stringResource(R.string.awraq_not_opened)
+    else pluralStringResource(R.plurals.days, n, n)
 
 @Composable
 fun AchievementsScreen(
@@ -90,8 +92,8 @@ fun AchievementsScreen(
             .statusBarsPadding(),
     ) {
         RafiqTopBar(
-            title    = "أوراقي",
-            subtitle = "ما أتممتَه — لتراه، لا ليحاسبك",
+            title    = stringResource(R.string.nav_profile),
+            subtitle = stringResource(R.string.awraq_subtitle),
             onBack   = { navController.popBackStack() },
         )
 
@@ -104,15 +106,15 @@ fun AchievementsScreen(
                 .padding(horizontal = 16.dp),
         ) {
             /* ═══ ١ · أيُّ وردٍ يثبت؟ ═══ */
-            SectionHead("آخر سبعة أيّام", wirdCount(s.weekTotal, ar))
+            SectionHead(stringResource(R.string.awraq_last_seven), wirdCount(s.weekTotal))
             WeekGrid(s.weekDays, s.rows, rc)
             Spacer(Modifier.height(12.dp))
             Legend(
                 listOf(
-                    fullTone(rc) to "أتممتَها",
-                    emptyTone(rc) to "لم تفتحها",
+                    fullTone(rc) to stringResource(R.string.awraq_completed_f),
+                    emptyTone(rc) to stringResource(R.string.awraq_untouched_f),
                 ),
-                ring = "اليوم",
+                ring = stringResource(R.string.awraq_today),
             )
 
             /* ═══ ما تقوله الشبكة بالكلمات ═══ */
@@ -133,22 +135,22 @@ fun AchievementsScreen(
             }
 
             /* ═══ ٢ · كيف كان شهري؟ ═══ */
-            SectionHead("هذا الشهر", dayCount(s.monthOpened, ar))
+            SectionHead(stringResource(R.string.awraq_this_month), dayCount(s.monthOpened))
             MonthGrid(s.monthLevels, rc)
             Spacer(Modifier.height(12.dp))
             Legend(
                 listOf(
-                    fullTone(rc) to "أتممتَه",
-                    partialTone(rc) to "بعضَه",
-                    emptyTone(rc) to "لم تفتحه",
+                    fullTone(rc) to stringResource(R.string.awraq_completed_m),
+                    partialTone(rc) to stringResource(R.string.awraq_partial),
+                    emptyTone(rc) to stringResource(R.string.awraq_untouched_m),
                 ),
             )
 
             /* ═══ ٣ · وكم أتممت؟ ═══ */
-            SectionHead("وما عدا الأوراد", "")
+            SectionHead(stringResource(R.string.awraq_besides), "")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Total(s.tasbeeh.localized(ar), "تسبيحة", Modifier.weight(1f))
-                Total(s.quranPages.localized(ar), "صفحة من المصحف", Modifier.weight(1f))
+                Total(s.tasbeeh.localized(ar), stringResource(R.string.awraq_tasbeeh_unit), Modifier.weight(1f))
+                Total(s.quranPages.localized(ar), stringResource(R.string.awraq_page_unit), Modifier.weight(1f))
             }
 
             /* ═══ الختام — الدليلُ على غياب السلاسل ═══ */

@@ -422,4 +422,98 @@
         <item quantity="many">أتممتَ %1$d دورة</item>
         <item quantity="other">أتممتَ %1$d دورة</item>
     </plurals>
+
+    <!-- ═══ سياسة الخصوصية — كل جملة يقابلها سطر كود ═══ -->
+    <string name="pp_intro_t">مقدمة</string>
+    <string name="pp_intro_b">نحترم خصوصيتك. وهذه السياسة تصف ما يفعله التطبيق فعلاً، لا ما ننوي فعله.</string>
+
+    <string name="pp_collect_t">ما يُحفظ على جهازك</string>
+    <string name="pp_collect_b">• تقدّمك: الأذكار المتمّة، وعدد التسبيح، وصفحات القرآن، وسجلّ الصلاة.\n• موقعك: لحساب المواقيت والقبلة، بإذنك وحدك. يبقى على الجهاز ولا يُرسل. وإن لم تأذن، لا نعرض مواقيتَ مقدَّرة — نطلب الموقع بدل عرض أوقاتٍ ليست لك.\n• تفضيلاتك: المظهر والخط والأرقام والإشعارات.</string>
+
+    <string name="pp_not_collect_t">ما لا نجمعه</string>
+    <string name="pp_not_collect_b">• لا اسم ولا بريد ولا حساب.\n• لا تتبّع عبر تطبيقات أخرى.\n• لا بيع ولا مشاركة مع طرفٍ ثالث.\n• لا أدوات تحليلات ولا تقارير أعطال.</string>
+
+    <string name="pp_storage_t">التخزين</string>
+    <string name="pp_storage_b">• بياناتك كلّها على جهازك: قاعدة SQLite محلّية وملفّ تفضيلات. لا خوادمَ لنا تستقبلها.\n• هذه الملفات غير مشفَّرة، وتحميها عزلةُ التطبيقات في أندرويد: لا يصل إليها تطبيقٌ آخر على جهازٍ غير مروَّت.\n• النسخُ الاحتياطي السحابي معطَّل لهذا التطبيق، فلا تُرفع إلى Google Drive.\n• حذفُ التطبيق يمحوها كلَّها.</string>
+
+    <string name="pp_network_t">الاتّصال بالشبكة</string>
+    <string name="pp_network_b">للتطبيق إذنُ الإنترنت لغرضٍ واحدٍ لا غير: تنزيلُ خطوط الصفحة المصحفية حين تطلبها أنت صراحةً.\n\nولا يُفتح اتّصالٌ قبل موافقتك، ولا يُرسَل شيءٌ عنك في ذلك الطلب — لا معرّف جهاز ولا موقع ولا استعمال. وكلُّ ما عدا هذه الخطوط داخل التطبيق: المصحفُ والتفسيرُ والأذكارُ والأدعيةُ والمواقيتُ والقبلة. فهو يعمل كاملاً في وضع الطيران.</string>
+
+    <string name="pp_rights_t">حقوقك</string>
+    <string name="pp_rights_b">تستطيع في أي وقت تصديرَ بياناتك أو محوَها كلَّها من: الإعدادات ← تصدير البيانات.</string>
+
+    <string name="pp_updates_t">التحديثات</string>
+    <string name="pp_updates_b">قد تُحدَّث هذه السياسة. وأيُّ تغييرٍ جوهريّ يُعلَن داخل التطبيق.</string>
+
+    <string name="pp_contact_t">التواصل</string>
+    <string name="pp_contact_b">لأي سؤالٍ عن الخصوصية: privacy@rafiqaldhikr.app</string>
+
+    <!-- ═══ شروط الاستخدام ═══ -->
+    <string name="tos_accept_t">القبول</string>
+    <string name="tos_accept_b">باستخدامك التطبيق فإنك توافق على هذه الشروط. وإن لم توافق على شيءٍ منها فلا تستعمله.</string>
+    <string name="tos_allowed_t">الاستخدام المسموح</string>
+    <string name="tos_allowed_b">• استعمالُ التطبيق للعبادة والتقرّب إلى الله.\n• مشاركةُ محتواه مع غيرك.\n• الاستعمالُ الشخصيّ غيرُ التجاري.</string>
+    <string name="tos_religious_t">المحتوى الديني</string>
+    <string name="tos_religious_b">كلُّ ذكرٍ ودعاءٍ في التطبيق يحمل مصدرَه ودرجتَه، ويُعرضان معه. ومع ذلك فالتطبيق ليس مرجعاً في الفتوى: ما أشكل عليك فاسأل عنه أهلَ العلم.</string>
+    <string name="tos_times_t">مواقيت الصلاة</string>
+    <string name="tos_times_b">المواقيتُ محسوبةٌ فلكياً من موقعك وطريقة الحساب التي تختارها، وهي تقريبيةٌ بطبيعتها. وتحقّقْ من مسجدك المحلّي.</string>
+    <string name="tos_ip_t">الملكية الفكرية</string>
+    <string name="tos_ip_b">حقوقُ التطبيق لفريق رفيق الذكر. والنصوصُ القرآنية والأحاديثُ ملكٌ للأمّة لا لأحد.</string>
+    <string name="tos_disclaimer_t">إخلاء المسؤولية</string>
+    <string name="tos_disclaimer_b">التطبيقُ مُقدَّمٌ كما هو بلا ضمانات، ولا نتحمّل تبعةَ ضررٍ ناتجٍ عن استعماله.</string>
+    <string name="tos_changes_t">التعديلات</string>
+    <string name="tos_changes_b">قد تُعدَّل هذه الشروط، وأيُّ تغييرٍ جوهريّ يُعلَن داخل التطبيق.</string>
+
+    <!-- ═══ التواصل ═══ -->
+    <string name="contact_welcome">نسعد بتواصلك! 💬</string>
+    <string name="contact_email">البريد الإلكتروني</string>
+    <string name="contact_bug">الإبلاغ عن خطأ</string>
+    <string name="contact_bug_desc">أخبرنا عن أي خطأ تقني</string>
+    <string name="contact_idea">اقتراح ميزة</string>
+    <string name="contact_idea_desc">شاركنا أفكارك لتطوير التطبيق</string>
+    <string name="contact_your_message">رسالتك</string>
+    <string name="contact_subj_note">رفيق الذكر — ملاحظة</string>
+    <string name="contact_subj_bug">رفيق الذكر — بلاغ خطأ</string>
+    <string name="contact_subj_idea">رفيق الذكر — اقتراح</string>
+    <string name="contact_subj_user">رفيق الذكر — رسالة من المستخدم</string>
+    <string name="action_send">إرسال</string>
+
+    <!-- ═══ أوراقي ═══ -->
+    <string name="awraq_not_opened">لم تفتحها بعد</string>
+    <string name="awraq_subtitle">ما أتممتَه — لتراه، لا ليحاسبك</string>
+    <string name="awraq_last_seven">آخر سبعة أيّام</string>
+    <string name="awraq_completed_f">أتممتَها</string>
+    <string name="awraq_untouched_f">لم تفتحها</string>
+    <string name="awraq_today">اليوم</string>
+    <string name="awraq_this_month">هذا الشهر</string>
+    <string name="awraq_completed_m">أتممتَه</string>
+    <string name="awraq_partial">بعضَه</string>
+    <string name="awraq_untouched_m">لم تفتحه</string>
+    <string name="awraq_besides">وما عدا الأوراد</string>
+    <string name="awraq_tasbeeh_unit">تسبيحة</string>
+    <string name="awraq_page_unit">صفحة من المصحف</string>
+    <plurals name="awrad">
+        <item quantity="zero">لا وِردَ بعد</item>
+        <item quantity="one">وِردٌ واحد</item>
+        <item quantity="two">وِردان</item>
+        <item quantity="few">%1$d أوراد</item>
+        <item quantity="many">%1$d وِرداً</item>
+        <item quantity="other">%1$d وِرداً</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">يومٌ واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%1$d أيّام</item>
+        <item quantity="many">%1$d يوماً</item>
+        <item quantity="other">%1$d يوماً</item>
+    </plurals>
+
+    <!-- ═══ المظهر وحول والاحتفاء ═══ -->
+    <string name="theme_system_full">تلقائي (النظام)</string>
+    <string name="theme_dynamic">ألوان ديناميكية</string>
+    <string name="theme_dynamic_desc">استخدام ألوان الخلفية (Android 12+)</string>
+    <string name="about_made_with">صُنع بـ ❤️ لله</string>
+    <string name="about_version">الإصدار %1$s</string>
+    <string name="celebration_title">بارك الله فيك!</string>
+    <string name="awraq_no_wird">لا وِردَ بعد</string>
 </resources>

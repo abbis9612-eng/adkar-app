@@ -16,6 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
@@ -40,7 +42,7 @@ fun TermsScreen(navController: NavHostController) {
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "شروط الاستخدام",
+                title  = stringResource(R.string.settings_terms),
                 onBack = {navController.popBackStack()},
             )
 
@@ -57,48 +59,23 @@ fun TermsScreen(navController: NavHostController) {
                         .rafiqCard()
                         .padding(20.dp)
                 ) {
-                    SectionTitle("القبول", rc)
-                    SectionBody("باستخدامك لتطبيق رفيق الذكر فإنك توافق على هذه الشروط. إذا لم توافق على أي جزء منها، يُرجى عدم استخدام التطبيق.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("الاستخدام المسموح", rc)
-                    SectionBody("""
-                        • استخدام التطبيق للعبادة والتقرب إلى الله
-                        • مشاركة محتوى التطبيق مع الآخرين
-                        • الاستخدام الشخصي غير التجاري
-                    """.trimIndent(), rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("المحتوى الديني", rc)
-                    SectionBody("نحرص على دقة المحتوى الديني من قرآن كريم وأحاديث وأذكار. جميع الأحاديث مُخرَّجة من مصادر موثوقة. مع ذلك، ننصح بالتأكد من أي حكم شرعي مع عالم متخصص.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("مواقيت الصلاة", rc)
-                    SectionBody("مواقيت الصلاة المحسوبة في التطبيق تقريبية ومبنية على حسابات فلكية. ننصح دائماً بالتأكد من مسجدك المحلي.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("الملكية الفكرية", rc)
-                    SectionBody("جميع الحقوق محفوظة لفريق رفيق الذكر. النصوص القرآنية والأحاديث ملك للأمة الإسلامية.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("إخلاء المسؤولية", rc)
-                    SectionBody("التطبيق مُقدَّم كما هو دون ضمانات. لا نتحمل مسؤولية أي أضرار ناتجة عن استخدام التطبيق.", rc)
-
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
-
-                    SectionTitle("التعديلات", rc)
-                    SectionBody("نحتفظ بحق تعديل هذه الشروط. ستُعلَم بأي تغييرات جوهرية عبر التطبيق.", rc)
+                    val sections = listOf(
+                        R.string.tos_accept_t to R.string.tos_accept_b,
+                        R.string.tos_allowed_t to R.string.tos_allowed_b,
+                        R.string.tos_religious_t to R.string.tos_religious_b,
+                        R.string.tos_times_t to R.string.tos_times_b,
+                        R.string.tos_ip_t to R.string.tos_ip_b,
+                        R.string.tos_disclaimer_t to R.string.tos_disclaimer_b,
+                        R.string.tos_changes_t to R.string.tos_changes_b,
+                    )
+                    sections.forEachIndexed { i, (title, bodyRes) ->
+                        if (i > 0) {
+                            Spacer(Modifier.height(16.dp))
+                            HorizontalDivider(color = rc.gold.copy(alpha = 0.1f))
+                        }
+                        SectionTitle(stringResource(title), rc)
+                        SectionBody(stringResource(bodyRes), rc)
+                    }
                 }
 
                 Spacer(Modifier.height(32.dp))
