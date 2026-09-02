@@ -655,4 +655,63 @@
     <string name="preset_night_gold">Night and gold</string>
     <string name="preset_night_silver">Night and silver</string>
     <string name="quran_list_no_match">No surah by that name.</string>
+
+    <!-- التنفّس مع الذكر -->
+    <string name="breath_title">Breathe with Dhikr</string>
+    <string name="breath_ready">Ready</string>
+    <string name="breath_inhale">Inhale — %1$s</string>
+    <string name="breath_hold">Hold</string>
+    <string name="breath_exhale">Exhale — al-hamdu lillah</string>
+    <string name="breath_rest">Rest</string>
+    <string name="breath_start">Start</string>
+    <string name="breath_stop">Stop</string>
+    <string name="breath_pick">Choose the dhikr</string>
+
+    <!-- Spiritual Garden -->
+    <string name="garden_title">Spiritual Garden</string>
+    <string name="garden_today_hint">Today’s plant grows with your five deeds</string>
+    <string name="garden_week">This week’s garden</string>
+    <string name="garden_legend">Growth guide</string>
+    <string name="garden_stage_seed">Seed</string>
+    <string name="garden_stage_sprout">Seedling</string>
+    <string name="garden_stage_growing">Growing</string>
+    <string name="garden_stage_tree">Tree</string>
+    <string name="garden_stage_flower">Blossom — a complete day</string>
+    <string name="garden_legend_0">Seed — nothing recorded yet</string>
+    <string name="garden_legend_1">Seedling — you have begun</string>
+    <string name="garden_legend_2">Growing — about half the day</string>
+    <string name="garden_legend_3">Tree — most of the day</string>
+    <string name="garden_legend_4">Blossom — all five deeds and all five prayers</string>
+
+    <!-- Weekly report -->
+    <string name="report_title">Weekly Report</string>
+    <string name="report_active_days">%1$d / 7 active days</string>
+    <string name="report_praise_high">Excellent — may God bless you</string>
+    <string name="report_praise_mid">Good work, keep it steady</string>
+    <string name="report_praise_low">Try to keep it up more this week</string>
+    <string name="report_quran_pages">Quran pages</string>
+    <string name="report_tasbeeh">Tasbeeh</string>
+    <string name="report_prayers">Prayers</string>
+    <string name="report_streak">Current streak</string>
+    <string name="report_daily">Day by day</string>
+
+    <!-- Share card -->
+    <string name="share_title">Share a card</string>
+    <string name="share_action">Share the card</string>
+    <string name="share_failed">No app can receive the image</string>
+    <string name="share_card_streak">My streak</string>
+    <string name="share_card_quran">My reading</string>
+    <string name="share_card_tasbeeh">My tasbeeh</string>
+    <string name="share_sub_streak">All praise to God</string>
+    <string name="share_sub_quran">A good deed for every letter of God’s Book</string>
+    <string name="share_sub_tasbeeh">And glorify your Lord with praise</string>
+
+    <plurals name="pages">
+        <item quantity="one">%1$d page</item>
+        <item quantity="other">%1$d pages</item>
+    </plurals>
+    <plurals name="tasbeehat">
+        <item quantity="one">%1$d tasbeeh</item>
+        <item quantity="other">%1$d tasbeehat</item>
+    </plurals>
 </resources>

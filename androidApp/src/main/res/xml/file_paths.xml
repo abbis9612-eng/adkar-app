@@ -9,4 +9,6 @@
 -->
 <paths>
     <cache-path name="exports" path="exports/" />
+    <!-- بطاقةُ المشاركة PNG — نفسُ المزوّد، ولا إذنَ تخزينٍ ولا مزوّدَ ثانٍ. -->
+    <cache-path name="shares"  path="shares/"  />
 </paths>

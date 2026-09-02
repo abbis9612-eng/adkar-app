@@ -28,14 +28,18 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "androidApp/src/main/kotlin"
 
-#  الشاشاتُ المؤجَّلة بوسم @HiddenInV1 — لا تُعرض، فلا تُحسب.
-HIDDEN = {
-    "EmotionalDuaScreen", "BreathingScreen", "GardenScreen", "ShareCardScreen",
-    "RamadanHomeScreen", "WeeklyReportScreen", "WidgetSettingsScreen",
-}
+#  لم يبقَ في المستودع شاشةٌ مخفيّة: ثلاثٌ حُذفت وأربعٌ رُفع عنها
+#  الإخفاءُ وصار لها مدخلٌ ونصوصُها في strings.xml. فالمجموعةُ فارغة،
+#  وتبقى لتُملأ إن أُجّلت شاشةٌ يوماً بقرارٍ مكتوب.
+HIDDEN: set[str] = set()
+
+#  استثناءٌ واحدٌ مكتوبُ السبب: `Baqiyat.kt` ليس نصَّ واجهةٍ يُترجَم، بل
+#  ألفاظُ ذكرٍ تُقال بلفظها — من سبّح بالإنجليزية لم يُسبّح. فلا محلَّ
+#  لها في strings.xml، والحارسُ لا يشتكي منها.
+EXEMPT = {"Baqiyat"}
 
 #  السقفُ الحاليّ. يُخفَّض ولا يُرفَع.
-CEILING = 81
+CEILING = 80
 
 ARABIC = re.compile(r'"([^"\\\n]*[؀-ۿ][^"\\\n]*)"')
 
@@ -47,7 +51,7 @@ def strip_comments(s: str) -> str:
 
 counts = collections.Counter()
 for path in SRC.rglob("*.kt"):
-    if path.stem in HIDDEN:
+    if path.stem in HIDDEN or path.stem in EXEMPT:
         continue
     body = strip_comments(path.read_text(encoding="utf-8"))
     n = len(ARABIC.findall(body))

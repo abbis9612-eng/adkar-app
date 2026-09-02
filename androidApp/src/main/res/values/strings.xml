@@ -674,4 +674,69 @@
     <string name="preset_night_gold">ليلٌ وذهب</string>
     <string name="preset_night_silver">ليلٌ وفضّة</string>
     <string name="quran_list_no_match">لا سورةَ بهذا الاسم.</string>
+
+    <!-- التنفّس مع الذكر -->
+    <string name="breath_title">التنفّس مع الذكر</string>
+    <string name="breath_ready">استعِدّ</string>
+    <string name="breath_inhale">شهيق — %1$s</string>
+    <string name="breath_hold">إمساك</string>
+    <string name="breath_exhale">زفير — الحمد لله</string>
+    <string name="breath_rest">راحة</string>
+    <string name="breath_start">ابدأ</string>
+    <string name="breath_stop">إيقاف</string>
+    <string name="breath_pick">اختر الذكر</string>
+
+    <!-- الحديقة الروحية -->
+    <string name="garden_title">الحديقة الروحية</string>
+    <string name="garden_today_hint">نبتةُ اليوم تنمو بأعمالك الخمسة</string>
+    <string name="garden_week">حديقة الأسبوع</string>
+    <string name="garden_legend">دليل النمو</string>
+    <string name="garden_stage_seed">بذرة</string>
+    <string name="garden_stage_sprout">نبتة صغيرة</string>
+    <string name="garden_stage_growing">نبتة نامية</string>
+    <string name="garden_stage_tree">شجرة</string>
+    <string name="garden_stage_flower">زهرة — يومٌ تامّ</string>
+    <string name="garden_legend_0">بذرة — لم يُسجَّل عملٌ بعد</string>
+    <string name="garden_legend_1">نبتة صغيرة — بدأتَ اليوم</string>
+    <string name="garden_legend_2">نبتة نامية — نحوُ نصفِ اليوم</string>
+    <string name="garden_legend_3">شجرة — أكثرُ اليوم</string>
+    <string name="garden_legend_4">زهرة — الأعمالُ الخمسة والصلواتُ الخمس</string>
+
+    <!-- التقرير الأسبوعي -->
+    <string name="report_title">التقرير الأسبوعي</string>
+    <string name="report_active_days">%1$d / 7 أيّام نشطة</string>
+    <string name="report_praise_high">أداءٌ ممتاز، بارك الله فيك</string>
+    <string name="report_praise_mid">أداءٌ جيّد، استمرّ في المداومة</string>
+    <string name="report_praise_low">حاوِل المداومةَ أكثرَ هذا الأسبوع</string>
+    <string name="report_quran_pages">صفحات قرآن</string>
+    <string name="report_tasbeeh">تسبيح</string>
+    <string name="report_prayers">صلوات</string>
+    <string name="report_streak">سلسلةٌ حالية</string>
+    <string name="report_daily">التفاصيل اليومية</string>
+
+    <!-- بطاقة المشاركة -->
+    <string name="share_title">مشاركة بطاقة</string>
+    <string name="share_action">مشاركة البطاقة</string>
+    <string name="share_failed">لا يوجد تطبيقٌ يستقبل الصورة</string>
+    <string name="share_card_streak">سلسلتي</string>
+    <string name="share_card_quran">قراءتي</string>
+    <string name="share_card_tasbeeh">تسبيحي</string>
+    <string name="share_sub_streak">الحمد لله على التوفيق</string>
+    <string name="share_sub_quran">من قرأ حرفاً من كتاب الله فله به حسنة</string>
+    <string name="share_sub_tasbeeh">وسبِّح بحمد ربّك</string>
+
+    <plurals name="pages">
+        <item quantity="one">صفحةٌ واحدة</item>
+        <item quantity="two">صفحتان</item>
+        <item quantity="few">%1$d صفحات</item>
+        <item quantity="many">%1$d صفحةً</item>
+        <item quantity="other">%1$d صفحة</item>
+    </plurals>
+    <plurals name="tasbeehat">
+        <item quantity="one">تسبيحةٌ واحدة</item>
+        <item quantity="two">تسبيحتان</item>
+        <item quantity="few">%1$d تسبيحات</item>
+        <item quantity="many">%1$d تسبيحةً</item>
+        <item quantity="other">%1$d تسبيحة</item>
+    </plurals>
 </resources>

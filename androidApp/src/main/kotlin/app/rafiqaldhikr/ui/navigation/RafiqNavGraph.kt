@@ -17,7 +17,6 @@ import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingScreen
 import app.rafiqaldhikr.ui.screens.breathing.BreathingScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaCategoriesScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaListScreen
-import app.rafiqaldhikr.ui.screens.dua.EmotionalDuaScreen
 import app.rafiqaldhikr.ui.screens.export.ExportDataScreen
 import app.rafiqaldhikr.ui.screens.garden.GardenScreen
 import app.rafiqaldhikr.ui.screens.help.HelpScreen
@@ -34,7 +33,6 @@ import app.rafiqaldhikr.ui.screens.qibla.QiblaScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranBookmarksScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranListScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranSearchScreen
-import app.rafiqaldhikr.ui.screens.ramadan.RamadanHomeScreen
 import app.rafiqaldhikr.ui.screens.report.WeeklyReportScreen
 import app.rafiqaldhikr.ui.screens.settings.AccessibilitySettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.FontSettingsScreen
@@ -44,7 +42,6 @@ import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
-import app.rafiqaldhikr.ui.screens.widget.WidgetSettingsScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
 
@@ -120,7 +117,6 @@ fun RafiqNavGraph(
                 navController = navController
             )
         }
-        composable(RafiqRoute.EmotionalDua.route) { EmotionalDuaScreen(navController) }
 
         // ═══ Profile ═══
         composable(RafiqRoute.Profile.route)    { ProfileScreen(navController) }
@@ -165,8 +161,6 @@ fun RafiqNavGraph(
         // Social
         composable(RafiqRoute.ShareCard.route) { ShareCardScreen(navController) }
 
-        // Ramadan
-        composable(RafiqRoute.RamadanHome.route) { RamadanHomeScreen(navController) }
 
         // Reports
         composable(RafiqRoute.WeeklyReport.route) { WeeklyReportScreen(navController) }
@@ -178,7 +172,6 @@ fun RafiqNavGraph(
 
         // Data & Widgets
         composable(RafiqRoute.ExportData.route)      { ExportDataScreen(navController) }
-        composable(RafiqRoute.WidgetSettings.route)  { WidgetSettingsScreen(navController) }
 
         // ═══════════════════════════════════════════
         //  M3 — Advanced

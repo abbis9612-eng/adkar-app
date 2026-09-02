@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiq.domain.model.dayFill
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
@@ -248,10 +249,12 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
     ) {
         val week = weekProgress.takeLast(7)
         week.forEachIndexed { idx, day ->
-            val score = ((if (day.morningDone) 1 else 0) +
-                    (if (day.eveningDone) 1 else 0) +
-                    day.prayersLogged.toInt().coerceAtMost(5))
-            val filled = score >= 5
+            /*  كانت هذه ثالثةَ صيغةٍ لسؤالٍ واحد: صباحٌ + مساءٌ + عددُ
+             *  الصلوات، و«مكتمل» عند ٥ — فمن صلّى الخمسَ ولم يذكر شيئاً
+             *  يُقال له يومُك تامّ. والحسابُ الآن في `dayFill` وحدَه. */
+            val fill   = dayFill(day)
+            val score  = (fill * 5f).toInt()
+            val filled = fill >= 1f
             val isToday = idx == week.lastIndex
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -432,10 +435,13 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ═══ QUICK LINKS ═══
-            // التقرير الأسبوعي والحديقة والمشاركة مؤجَّلة إلى ما بعد V1:
-            // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
-            // «أوراقي» خرجت من التأجيل بطلبٍ صريح، ولها مدخلها أدناه.
+            /*  ═══ روابطُ سريعة ═══
+             *
+             *  كانت التقريرُ والحديقةُ والمشاركةُ والتنفّسُ موسومةً
+             *  `@HiddenInV1` بلا مدخل: أربعُ شاشاتٍ في الشجرة يُترجمها
+             *  المترجمُ ويحملها المستخدمُ في الـAPK ولا سبيلَ إليها.
+             *  أُصلحت عيوبُها (الحساب، الأسبوع، الحركة، الصورة) فرُفع
+             *  الإخفاءُ وصار لكلٍّ بابُها هنا. */
             SectionHeader(stringResource(R.string.quick_links))
             Spacer(Modifier.height(10.dp))
 
@@ -476,8 +482,28 @@ fun ProfileScreen(
                             }
                         }
                     },
-                    label = "أوراقي",
+                    label = stringResource(R.string.profile_title),
                 ) { navController.navigate(RafiqRoute.Achievements.route) }
+
+                QuickLinkCard(
+                    icon = { RafiqIcon(RIcon.Moon, 18.dp, rc.emerald) },
+                    label = stringResource(R.string.report_title),
+                ) { navController.navigate(RafiqRoute.WeeklyReport.route) }
+
+                QuickLinkCard(
+                    icon = { Text("🌿", fontSize = 15.sp) },
+                    label = stringResource(R.string.garden_title),
+                ) { navController.navigate(RafiqRoute.Garden.route) }
+
+                QuickLinkCard(
+                    icon = { RafiqIcon(RIcon.Heart, 18.dp, rc.emerald) },
+                    label = stringResource(R.string.breath_title),
+                ) { navController.navigate(RafiqRoute.Breathing.route) }
+
+                QuickLinkCard(
+                    icon = { app.rafiqaldhikr.ui.components.IcoShare(18.dp, rc.emerald) },
+                    label = stringResource(R.string.share_title),
+                ) { navController.navigate(RafiqRoute.ShareCard.route) }
             }
 
             Spacer(Modifier.height(28.dp))

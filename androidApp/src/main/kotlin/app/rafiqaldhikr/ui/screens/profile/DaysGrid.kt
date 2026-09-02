@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.DailyProgressInfo
+import app.rafiq.domain.model.dayFill
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.NumbersStyle
@@ -71,22 +72,12 @@ class DaysGridViewModel(
             progressRepo.getRange(first.toString(), today.toString()).collect { rows ->
                 val byDate = rows.associateBy { it.date }
                 _fills.value = (0 until DaysShown).map { i ->
-                    fillOf(byDate[first.plus(i, DateTimeUnit.DAY).toString()])
+                    dayFill(byDate[first.plus(i, DateTimeUnit.DAY).toString()])
                 }
             }
         }
     }
 
-    private fun fillOf(p: DailyProgressInfo?): Float {
-        if (p == null) return 0f
-        var score = 0f
-        if (p.morningDone) score += 1f
-        if (p.eveningDone) score += 1f
-        if (p.quranPages   > 0) score += 1f
-        if (p.tasbeehCount > 0) score += 1f
-        score += (p.prayersLogged.coerceIn(0, 5).toFloat() / 5f)
-        return (score / 5f).coerceIn(0f, 1f)
-    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */

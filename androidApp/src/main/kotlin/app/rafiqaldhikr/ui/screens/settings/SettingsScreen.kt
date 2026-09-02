@@ -82,7 +82,10 @@ private val GROUP_1 = listOf(
 
 private val GROUP_2 = listOf(
     // شاشة "المميز" حُذفت في ط٠ — كانت أزرارها placeholder والمتاجر ترفض ذلك.
-    // "إعدادات الودجت" مؤجَّلة إلى ما بعد V1 (@HiddenInV1).
+    //  و"إعدادات الودجت" حُذفت: مفاتيحُها الثلاثة `remember` لا تُحفظ في
+    //  أيّ مكان، واثنان منها لودجتَين لم تُكتبا قطّ (لا صنفَ ولا مستقبِلَ
+    //  ولا XML — الودجتُ الوحيد PrayerWidget)، والثالثُ «تفعيل» لشيءٍ لا
+    //  يملك التطبيقُ تفعيلَه: الودجتَ يُضيفه المستخدمُ من الشاشة الرئيسية.
     SettingItem(RIcon.Upload,   R.string.settings_export,         { it.success },    route = "export_data"),
 )
 
