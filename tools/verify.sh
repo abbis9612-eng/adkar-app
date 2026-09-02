@@ -20,6 +20,7 @@ step "المصادر الدينية"     python3 tools/check_religious_sources.p
 step "نصّ ديني في الكود"   python3 tools/check_devotional_in_code.py
 step "إحداثيات المدن"      python3 tools/check_cities.py
 step "بيانات القرآن"       python3 tools/check_quran_data.py
+step "مخطّط القاعدة"       python3 tools/check_schema.py
 step "الاستيرادات"        python3 tools/check_imports.py
 step "الترجمة"            ./gradlew :androidApp:compileDebugKotlin -q
 step "الاختبارات"          ./gradlew :shared:testDebugUnitTest :androidApp:testDebugUnitTest -q

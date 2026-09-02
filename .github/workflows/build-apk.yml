@@ -72,6 +72,11 @@ jobs:
       - name: Check Quran data
         run: python3 tools/check_quran_data.py
 
+      # عمودٌ جديد في .sq يعمل على تثبيتٍ نظيف ويُسقط كلَّ ترقية —
+      # ولا يظهر في CI لأنّ كل تشغيلٍ هنا تثبيتٌ نظيف
+      - name: Check schema vs migrations
+        run: python3 tools/check_schema.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

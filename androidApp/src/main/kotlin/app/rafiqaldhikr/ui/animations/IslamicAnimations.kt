@@ -69,91 +69,19 @@ fun Modifier.breathingAnimation(
 // ═══════════════════════════════════════
 // 3. GLOW PULSE — Animated shadow/glow
 // ═══════════════════════════════════════
-@Composable
-fun rememberGlowAlpha(
-    minAlpha: Float = 0.15f,
-    maxAlpha: Float = 0.45f,
-    durationMs: Int = 3000
-): Float {
-    val alpha by stillableFloat(
-        initialValue = minAlpha,
-        targetValue  = maxAlpha,
-        durationMs   = durationMs,
-        easing       = FastOutSlowInEasing,
-        repeatMode   = RepeatMode.Reverse,
-        label        = "glowPulse",
-    )
-    return alpha
-}
 
 // ═══════════════════════════════════════
 // 4. STAGGERED ENTRANCE — Fade + Slide with delays
 // ═══════════════════════════════════════
-@Composable
-fun rememberStaggeredVisibility(
-    index: Int,
-    delayPerItem: Int = 100,
-    durationMs: Int = 600
-): Pair<Float, Float> {
-    var alpha by remember { mutableFloatStateOf(0f) }
-    var translationY by remember { mutableFloatStateOf(30f) }
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = alpha,
-        animationSpec = tween(
-            durationMillis = durationMs,
-            delayMillis = index * delayPerItem,
-            easing = FastOutSlowInEasing
-        ),
-        label = "staggerAlpha"
-    )
-    val animatedTransY by animateFloatAsState(
-        targetValue = translationY,
-        animationSpec = tween(
-            durationMillis = durationMs,
-            delayMillis = index * delayPerItem,
-            easing = FastOutSlowInEasing
-        ),
-        label = "staggerTransY"
-    )
-
-    LaunchedEffect(Unit) {
-        alpha = 1f
-        translationY = 0f
-    }
-
-    return Pair(animatedAlpha, animatedTransY)
-}
 
 // ═══════════════════════════════════════
 // 5. RIPPLE TOUCH ANIMATION — Scale bounce on press
 // ═══════════════════════════════════════
-@Composable
-fun rememberPressScale(): Pair<MutableState<Boolean>, Float> {
-    val isPressed = remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed.value) 0.96f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "pressScale"
-    )
-    return Pair(isPressed, scale)
-}
 
 // ═══════════════════════════════════════
 // 6. FLOATING PARTICLES — Computed in draw phase only (NO recomposition!)
 // ═══════════════════════════════════════
 
-/**
- * Animates a single time value; particle positions are computed
- * inside drawBehind → zero recomposition, zero allocation per frame.
- */
-@Composable
-fun rememberParticleTime(): State<Float> {
-    return stillableFloat(0f, 1000f, 30000, LinearEasing, label = "particleTime")
-}
 
 /**
  * Draws gold particles directly in the draw phase.

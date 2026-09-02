@@ -162,7 +162,6 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.runtime)
     implementation(libs.lifecycle.savedstate)
-    implementation(libs.datastore.preferences)
     implementation(libs.appcompat)
 
     // ═══ Koin ═══
@@ -182,9 +181,13 @@ dependencies {
     // ═══ Location ═══
     implementation(libs.play.services.location)
 
-    // ═══ In-App ═══
-    implementation(libs.app.update.ktx)
-    implementation(libs.review.ktx)
+    /*  حُذفت هنا ثلاثُ تبعيّاتٍ لا يستعملها سطرٌ واحد:
+     *  · datastore-preferences — كلا ملفَّي التفضيلات يستعملان
+     *    SharedPreferences خاماً.
+     *  · app-update-ktx و review-ktx — لا AppUpdateManager ولا
+     *    ReviewManager في المستودع كلِّه. وهما من Play Core: تجرّان
+     *    مكوّناتٍ في الـmanifest النهائيّ وتزيدان حجمَ الحزمة بلا مقابل.
+     */
 
     // ═══ Firebase ═══
     // TODO: Uncomment when google-services.json is added

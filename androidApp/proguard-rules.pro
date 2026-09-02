@@ -1,5 +1,12 @@
 # ═══ SQLDelight ═══
+# النوعُ المولَّد يُبنى بالانعكاس في مسار المحرِّك، فيبقى محفوظاً.
 -keep class app.rafiq.db.** { *; }
+
+# ═══ Glance / AppWidget ═══
+# مدخلا الودجت يُنشَآن بالاسم من النظام لا من كودنا.
+-keep class app.rafiqaldhikr.widget.PrayerWidget { *; }
+-keep class app.rafiqaldhikr.widget.PrayerWidgetReceiver { *; }
+-keep class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver { *; }
 
 # ═══ Kotlinx Serialization ═══
 -keepattributes *Annotation*, InnerClasses
@@ -19,14 +26,14 @@
 }
 
 # ═══ Ktor ═══
--keep class io.ktor.** { *; }
--dontwarn io.ktor.**
+# حُذفت: Ktor أُزيلت من المشروع (انظر di/SharedModule.kt) — والقاعدةُ
+# باقيةٌ تحرس مكتبةً غير موجودة.
 
 # ═══ Koin ═══
 -keep class org.koin.** { *; }
 
 # ═══ RevenueCat ═══
--keep class com.revenuecat.** { *; }
+# حُذفت: ليست تبعيّةً في المشروع.
 
 # ═══ Firebase Crashlytics ═══
 -keepattributes SourceFile,LineNumberTable
