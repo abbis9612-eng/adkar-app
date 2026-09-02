@@ -6,9 +6,9 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
+import android.hardware.display.DisplayManager
+import android.view.Display
 import android.view.Surface
-import android.view.WindowManager
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -24,6 +24,8 @@ class CompassManager(private val context: Context) {
 
     private val sensorManager  = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+    private val displayManager =
+        context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
 
     val isAvailable: Boolean get() = rotationSensor != null
 
@@ -68,7 +70,18 @@ class CompassManager(private val context: Context) {
             private val rotMatrix   = FloatArray(9)
             private val remapped    = FloatArray(9)
             private val orientation = FloatArray(3)
-            override fun onSensorChanged(event: SensorEvent) {
+            /*  لا نازلَ يخرج من هنا.
+             *
+             *  ردُّ نداء المستشعر يُنفَّذ من حلقة النظام، ونازلٌ غيرُ
+             *  ملتقَطٍ فيه يقتل العمليةَ بلا شاشةِ خطأٍ ولا رجعة — وهو
+             *  ما وقع فعلاً بـ`context.display`. والإبرةُ تجمد عند آخر
+             *  قراءةٍ صحيحة إن أخفقت واحدة، وذلك خيرٌ من تطبيقٍ يموت. */
+            override fun onSensorChanged(event: SensorEvent) = runCatching {
+                readingOf(event)?.let { trySend(it) }
+                Unit
+            }.getOrDefault(Unit)
+
+            private fun readingOf(event: SensorEvent): Reading? {
                 SensorManager.getRotationMatrixFromVector(rotMatrix, event.values)
 
                 /*  إعادةُ ربط المحاور بدوران الشاشة.
@@ -99,7 +112,7 @@ class CompassManager(private val context: Context) {
                 SensorManager.getOrientation(m, orientation)
                 val magnetic = Math.toDegrees(orientation[0].toDouble()).toFloat()
                 val trueNorth = magnetic + declination
-                trySend(Reading((trueNorth % 360f + 360f) % 360f, acc))
+                return Reading((trueNorth % 360f + 360f) % 360f, acc)
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
                 acc = accuracy
@@ -109,12 +122,30 @@ class CompassManager(private val context: Context) {
         awaitClose { sensorManager.unregisterListener(listener) }
     }
 
-    @Suppress("DEPRECATION")
-    private fun displayRotation(): Int =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            context.display?.rotation ?: Surface.ROTATION_0
-        } else {
-            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
-                .defaultDisplay.rotation
-        }
+    /**
+     * دورانُ الشاشة — من [DisplayManager] لا من السياق.
+     *
+     * **الخطأ الذي كان يقتل التطبيق:** `context.display`.
+     *
+     * تلك الخاصّيةُ لا تعمل إلّا على «سياقٍ بصريّ» — نشاطٍ أو سياقِ نافذة.
+     * و`CompassManager` يُبنى في Koin بـ`androidContext()`، أي **سياق
+     * التطبيق**، وهو ليس منها. فترمي على أندرويد ١١ فأعلى:
+     *
+     *     UnsupportedOperationException: Tried to obtain display from a
+     *     Context not associated with one.
+     *
+     * والرميُ يقع داخل `onSensorChanged` — أي عند أوّل قراءةٍ للبوصلة بعد
+     * فتح شاشة القبلة، في أقلَّ من جزءٍ من الثانية. ونازلٌ غيرُ ملتقَطٍ في
+     * ردّ نداء المستشعر **يقتل العملية فوراً**.
+     *
+     * ثمّ يستعيد أندرويدُ آخرَ شاشةٍ عند الفتح التالي — فيعود إلى القبلة،
+     * فيسقط قبل أن يظهر. **حلقةٌ لا تنكسر بإعادة الفتح**، وهو ما بدا
+     * للمستخدم «التطبيق لم يعد يُفتح أبداً».
+     *
+     * و[DisplayManager] يعطي الشاشةَ الافتراضية من أيّ سياقٍ كان، منذ
+     * واجهة ١٧ — فلا فرعَ إصدارٍ ولا خاصّيةً مهجورة ولا شرطَ سياق.
+     */
+    private fun displayRotation(): Int = runCatching {
+        displayManager?.getDisplay(Display.DEFAULT_DISPLAY)?.rotation
+    }.getOrNull() ?: Surface.ROTATION_0
 }

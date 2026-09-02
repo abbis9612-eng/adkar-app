@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -124,7 +125,18 @@ class QiblaViewModel(
              *  يعيش بعمر مدخل التنقّل، فيبقى مستشعرُ الدوران يُطلق قراءاتٍ
              *  والتطبيقُ في الخلفية. وهي نفسُ الحيلة المستعملة في مؤقّت
              *  `DayCompanionViewModel`: لا مشترِكَ فلا عمل.  */
-            compassManager.getReadingFlow(lat, lng).collect { reading ->
+            /*  الخطأُ يُعرَض ولا يُسقط التطبيق.
+             *
+             *  كان `.collect` عارياً: أيُّ نازلٍ في المستشعر أو في تدفّقه
+             *  يخرج غيرَ ملتقَطٍ من `viewModelScope.launch` فيقتل العملية.
+             *  ولا شيءَ يُعيد فتحَ التطبيق بعدها، لأنّ أندرويد يستعيد
+             *  الشاشةَ نفسَها فيسقط ثانيةً.
+             *
+             *  وشاشةُ القبلة تعرف كيف تقول «لا بوصلة في جهازك» — وهي
+             *  الرسالةُ الصحيحة حين تخفق البوصلةُ لأيّ سبب. */
+            compassManager.getReadingFlow(lat, lng)
+                .catch { _uiState.update { s -> s.copy(isCompassAvailable = false) } }
+                .collect { reading ->
                 if (_uiState.subscriptionCount.value == 0) {
                     _uiState.subscriptionCount.first { it > 0 }
                 }
@@ -140,7 +152,7 @@ class QiblaViewModel(
                         readingSteady   = steady,
                     )
                 }
-            }
+                }
         }
     }
 }

@@ -16,6 +16,7 @@ step() {
 
 step "المسارات اليتيمة"   python3 tools/check_orphan_routes.py
 step "وثائقُ الشاشات"     python3 tools/check_docs_screens.py
+step "السياق البصريّ"    python3 tools/check_visual_context.py
 step "ملفات النصوص"       python3 tools/check_strings.py
 step "المصادر الدينية"     python3 tools/check_religious_sources.py
 step "نصّ ديني في الكود"   python3 tools/check_devotional_in_code.py
