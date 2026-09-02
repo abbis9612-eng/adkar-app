@@ -9,10 +9,12 @@ class ExportDataViewModel(
     private val userDataRepo: UserDataRepository
 ) : ViewModel() {
 
-    fun exportJson(onReady: (String) -> Unit) {
+    fun exportJson(onReady: (String) -> Unit, onError: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching { userDataRepo.exportAsJson() }
                 .onSuccess(onReady)
+                // كان `onSuccess` وحدَه: يفشل التصديرُ فلا يعلم أحد.
+                .onFailure { onError() }
         }
     }
 

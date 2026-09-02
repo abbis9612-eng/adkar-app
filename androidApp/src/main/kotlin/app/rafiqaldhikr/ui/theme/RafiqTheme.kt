@@ -70,6 +70,8 @@ private val DarkScheme = darkColorScheme(
 fun RafiqTheme(
     darkTheme:    Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
+    /** إعدادُ «تباين عالٍ» — كان يُحفظ ولا يقرؤه أحد. */
+    highContrast: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -89,6 +91,7 @@ fun RafiqTheme(
     val prefs = rememberColorPrefs()
     val rafiqPalette = (if (darkTheme) DarkRafiqPalette else LightRafiqPalette)
         .tuned(prefs.paper(), prefs.accent())
+        .let { if (highContrast) it.highContrast() else it }
 
     /*  الاتجاه يتبع لغة التطبيق — لا لغة الجهاز.
      *

@@ -226,7 +226,19 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
 @Composable
 private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressInfo>, todayIdx: Int) {
     val rc = LocalRafiqColors.current
-    val days = listOf("س", "ح", "ن", "ث", "ر", "خ", "ج")
+
+    /*  حرفُ اليوم يُشتقّ من تاريخِ الصفّ لا من موضعه في القائمة.
+     *
+     *  كانت `days[idx]` — أي الحرفُ الأوّلُ لأوّل صفٍّ مهما كان يومُه.
+     *  و`ProgressRepository.getRange` يُرجع الأيّامَ التي لها صفٌّ في
+     *  القاعدة وحدَها، فأسبوعٌ فيه ثلاثةُ أيّامٍ مسجَّلة كان يُسمّيها
+     *  «السبت والأحد والاثنين» أيّاً كانت. والحسابُ الصحيح موجودٌ أصلاً
+     *  في `AwraqViewModel.weekdayIndex` — يُعاد استعماله لا يُكتب ثانية.  */
+    fun letterOf(dateIso: String): String = runCatching {
+        app.rafiqaldhikr.util.WEEKDAY_LETTER[
+            app.rafiqaldhikr.util.weekdayIndex(kotlinx.datetime.LocalDate.parse(dateIso))
+        ]
+    }.getOrDefault("")
 
     Row(
         Modifier
@@ -235,12 +247,13 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        weekProgress.takeLast(7).forEachIndexed { idx, day ->
+        val week = weekProgress.takeLast(7)
+        week.forEachIndexed { idx, day ->
             val score = ((if (day.morningDone) 1 else 0) +
                     (if (day.eveningDone) 1 else 0) +
                     day.prayersLogged.toInt().coerceAtMost(5))
             val filled = score >= 5
-            val isToday = idx == weekProgress.size - 1
+            val isToday = idx == week.lastIndex
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
@@ -269,11 +282,9 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                if (idx < days.size) {
-                    Text(days[idx],
-                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
-                }
+                Text(letterOf(day.date),
+                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
             }
         }
     }

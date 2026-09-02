@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.util.sendMail
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.IcoBulb
@@ -73,11 +74,7 @@ fun ContactScreen(navController: NavHostController) {
                     desc = "support@rafiqaldhikr.app",
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:support@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — ملاحظة")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("support@rafiqaldhikr.app", "رفيق الذكر — ملاحظة")
                     }
                 )
 
@@ -87,11 +84,7 @@ fun ContactScreen(navController: NavHostController) {
                     desc = "أخبرنا عن أي خطأ تقني",
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:bugs@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — بلاغ خطأ")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("bugs@rafiqaldhikr.app", "رفيق الذكر — بلاغ خطأ")
                     }
                 )
 
@@ -101,11 +94,7 @@ fun ContactScreen(navController: NavHostController) {
                     desc = "شاركنا أفكارك لتطوير التطبيق",
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:ideas@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — اقتراح")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("ideas@rafiqaldhikr.app", "رفيق الذكر — اقتراح")
                     }
                 )
 
@@ -131,12 +120,7 @@ fun ContactScreen(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:support@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — رسالة من المستخدم")
-                            putExtra(Intent.EXTRA_TEXT, message)
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("support@rafiqaldhikr.app", "رفيق الذكر — رسالة من المستخدم", message)
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     enabled = message.isNotBlank(),

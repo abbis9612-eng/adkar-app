@@ -40,6 +40,7 @@ import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.utils.formatClock
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -256,7 +257,7 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
                             ),
                     color = ink,
                 )
-                Text(clockOf(st.startMillis).localizedDigits(LocalArabicNumerals.current),
+                Text(clockOf(st.startMillis, LocalArabicNumerals.current),
                     style = RafiqType.caption, color = soft)
             }
             Text(st.description, style = RafiqType.bodyS, color = soft,
@@ -363,5 +364,5 @@ private fun Footer(done: Int, total: Int, arabic: Boolean) {
     }
 }
 
-private fun clockOf(millis: Long): String =
-    SimpleDateFormat("h:mm", Locale.US).format(Date(millis))
+/*  كانت بلا علامة صباحٍ ولا مساء — انظر [formatClock]. */
+private fun clockOf(millis: Long, arabic: Boolean): String = formatClock(millis, arabic)

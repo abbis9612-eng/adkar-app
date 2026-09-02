@@ -174,3 +174,31 @@ val AccentSwatches = listOf(
     0xFFE0A83C, 0xFFE7C57C, 0xFFD98C4A, 0xFFD98C97, 0xFFB8748E,
     0xFF9B7FD4, 0xFF6E92D8, 0xFF3E6FA8, 0xFFB8CCE1, 0xFF8A6414,
 ).map { Color(it) }
+
+/**
+ * لوحةُ التباين العالي.
+ *
+ * **الخطأ الذي كان:** مفتاح «تباين عالٍ» في شاشة الإتاحة كان `checked =
+ * false` مكتوبةً في الكود، والقيمةُ تُحفظ في القاعدة ولا يقرؤها أحدٌ في
+ * التطبيق كلِّه. أي مفتاحٌ يكذب — في شاشة الإتاحة بالذات، حيث من يحتاجه
+ * يحتاجه فعلاً لا تزيّناً.
+ *
+ * وهي لا تقلب اللوحةَ ولا تُلغي هويّتها: الورقُ والزمرّدُ والذهبُ كما هي.
+ * إنّما يُدفع الحبرُ إلى طرفه، ويُقرَّب الثانويُّ من الأساسيّ، وتُغمَّق
+ * الفواصلُ والحدود — فيعبر كلُّ زوجٍ عتبةَ AAA بدل AA.
+ */
+fun RafiqPalette.highContrast(): RafiqPalette {
+    val light = bg.luminance() > 0.45f
+    val hardInk = if (light) Color(0xFF000000) else Color(0xFFFFFFFF)
+
+    return copy(
+        ink      = hardInk,
+        inkDark  = hardInk,
+        // الثانويّ كان يقف عند 4.5؛ هنا يُرفع إلى ما يقارب الأساسيّ.
+        inkMed   = mix(hardInk, bg, 0.12f),
+        inkLight = mix(hardInk, bg, 0.28f),
+        // الحدُّ الشعرة لا يُرى لمن يحتاج التباين — يُغمَّق ويُثبَّت.
+        divider    = mix(hardInk, bg, 0.45f),
+        cardBorder = mix(hardInk, bg, 0.35f),
+    )
+}

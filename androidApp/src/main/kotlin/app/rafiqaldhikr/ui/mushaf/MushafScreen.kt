@@ -220,6 +220,13 @@ fun MushafScreen(
     var toolsOn by remember { mutableStateOf(false) }
     var hint by remember { mutableStateOf(!prefs.hintSeen) }
 
+    /*  الشريطُ السفليُّ يختفي مع الأدوات ويعود معها — فتصير الورقةُ ورقةً
+     *  كما يقول تصميمُ الشاشة، ولا يُحبَس القارئُ فيها: ضغطةٌ واحدةٌ على
+     *  المتن تُرجع الأدواتِ والشريطَ معاً.  */
+    val immersive = app.rafiqaldhikr.ui.navigation.LocalImmersive.current
+    LaunchedEffect(toolsOn) { immersive.value = !toolsOn }
+    DisposableEffect(Unit) { onDispose { immersive.value = false } }
+
     Box(Modifier.fillMaxSize().background(paper)) {
         HorizontalPager(
             state = pager,

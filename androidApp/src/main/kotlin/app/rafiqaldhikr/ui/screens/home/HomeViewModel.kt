@@ -21,6 +21,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import app.rafiqaldhikr.ui.utils.formatClock
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -311,10 +312,11 @@ class HomeViewModel(
     }
 
     // ═══ أدوات مساعدة ═══
-    private fun formatMillisToTime(millis: Long): String {
-        val sdf = SimpleDateFormat("h:mm", Locale.US)
-        return sdf.format(Date(millis))
-    }
+    /*  كانت `SimpleDateFormat("h:mm")` بلا علامة صباحٍ ولا مساء — فالفجر
+     *  ٥:٠٠ والعصر ٥:٠٠ سواء، ولا يعرف القارئ أيَّهما «الصلاة القادمة».
+     *  والصيغةُ الآن واحدةٌ في التطبيق كلِّه: `formatClock`.  */
+    private fun formatMillisToTime(millis: Long): String =
+        formatClock(millis, arabic = true)
 
     fun saveLocation(lat: Double, lng: Double) {
         viewModelScope.launch {

@@ -20,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -43,6 +46,7 @@ fun ExportDataScreen(
     // تُحلّ هنا لا داخل onClick: stringResource دالّة @Composable
     // ولا تُستدعى من لامدا نقرٍ عادية.
     val shareSubject = stringResource(R.string.export_share_title)
+    val exportFailed = stringResource(R.string.export_failed)
     val shareChooser = stringResource(R.string.export_action)
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -109,14 +113,37 @@ fun ExportDataScreen(
                             .clip(RafiqShape.item)
                             .background(rc.emerald.copy(alpha = 0.1f))
                             .clickable {
-                                viewModel.exportJson { json ->
-                                    val intent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "application/json"
-                                        putExtra(Intent.EXTRA_SUBJECT, shareSubject)
-                                        putExtra(Intent.EXTRA_TEXT, json)
-                                    }
-                                    context.startActivity(Intent.createChooser(intent, shareChooser))
-                                }
+                                /*  ملفٌّ عبر FileProvider لا نصٌّ في Intent.
+                                 *
+                                 *  كان التصديرُ كلُّه يُمرَّر في
+                                 *  `EXTRA_TEXT` — أي داخل معاملة Binder
+                                 *  سقفُها نحو ميغابايت. وبيانات سنةٍ من
+                                 *  الاستعمال تتجاوزه، فينهار التطبيق عند
+                                 *  من طال استعمالُه: أوفى المستخدمين
+                                 *  بالضبط.  */
+                                viewModel.exportJson(
+                                    onReady = { json ->
+                                        val uri = runCatching {
+                                            writeExportFile(context, json)
+                                        }.getOrNull()
+                                        if (uri == null) {
+                                            Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+                                            return@exportJson
+                                        }
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "application/json"
+                                            putExtra(Intent.EXTRA_SUBJECT, shareSubject)
+                                            putExtra(Intent.EXTRA_STREAM, uri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(Intent.createChooser(intent, shareChooser))
+                                    },
+                                    // الفشلُ كان صامتاً تماماً: `onSuccess` وحدَه
+                                    // بلا `onFailure`، فيضغط المستخدم ولا يقع شيء.
+                                    onError = {
+                                        Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+                                    },
+                                )
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -197,4 +224,22 @@ fun ExportDataScreen(
             }
         )
     }
+}
+
+/**
+ * يكتب التصدير إلى ملفٍّ في `cacheDir/exports` ويُرجع رابطَه المشترَك.
+ *
+ * والمجلَّدُ يُنظَّف قبل كل كتابة: نسخُ التصدير القديمة لا يحتاجها أحد،
+ * وهي تحمل كلَّ سجلّ المستخدم فلا تُترك في ذاكرةٍ مؤقّتة بلا داعٍ.
+ */
+private fun writeExportFile(context: android.content.Context, json: String): android.net.Uri {
+    val dir = File(context.cacheDir, "exports").apply {
+        deleteRecursively()
+        mkdirs()
+    }
+    val stamp = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+        .format(java.util.Date())
+    val file = File(dir, "rafiq-$stamp.json")
+    file.writeText(json)
+    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 }

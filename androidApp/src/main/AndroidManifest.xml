@@ -54,6 +54,34 @@
             </intent-filter>
         </activity>
 
+        <!--
+            حفظُ اللغة على أندرويد ١٢ فأقلّ.
+
+            من ١٣ فأعلى يحفظ النظامُ لغةَ التطبيق بنفسه. وما دونها يحفظها
+            AppCompat — لكن فقط إن وُجدت هذه الخدمةُ الحاملةُ للوسم. وهي
+            مفقودة، و`minSdk` هنا ٢٣ — فكان اختيارُ الإنجليزية يضيع عند كل
+            إقلاع، ويعود التطبيقُ عربياً، ولا يفهم صاحبُه لماذا.
+        -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+        <!-- مشاركةُ ملفّ التصدير بأمان — انظر res/xml/file_paths.xml -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <receiver android:name=".service.PrayerAlarmReceiver" android:exported="false" />
 
         <!--

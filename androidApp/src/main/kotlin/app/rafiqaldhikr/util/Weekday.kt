@@ -25,3 +25,28 @@ fun LocalDate.isFriday(): Boolean = isFridayFromEpochDays(toEpochDays())
 /** مفصولة عن LocalDate ليتمكّن الاختبار من فحص الحساب نفسه. */
 internal fun isFridayFromEpochDays(epochDays: Int): Boolean =
     ((epochDays % 7) + 7) % 7 == 1
+
+/* ═══════════════════════════════════════════════════════════════════
+   يومُ الأسبوع بالحساب نفسِه
+
+   نُقل إلى هنا من `AwraqViewModel` لأن شاشتين تحتاجانه: «أوراقي»
+   وصفُّ الأسبوع في الملف الشخصي. وكان الثاني يُسمّي الأيّامَ بموضعها في
+   القائمة لا بتاريخها — فأسبوعٌ ناقصُ الصفوف تُنسب أيّامُه إلى غير
+   أسمائها.
+
+   أوّلُ الحقبة (1970-01-01) خميس، فإزاحةُ أربعةٍ تجعل الأحدَ صفراً.
+   والباقي محسوبٌ يدوياً لا بـ Math.floorMod — تلك API 24.
+═══════════════════════════════════════════════════════════════════ */
+
+fun weekdayIndex(d: LocalDate): Int = weekdayIndexFromEpochDays(d.toEpochDays())
+
+/** مفصولة عن LocalDate ليتمكّن الاختبار من فحص الحساب نفسه. */
+internal fun weekdayIndexFromEpochDays(epochDays: Int): Int =
+    (((epochDays + 4) % 7) + 7) % 7
+
+/** الأحد أوّلاً — يطابق ترتيب [weekdayIndex]. */
+val WEEKDAY_LETTER = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
+
+val WEEKDAY_NAME = listOf(
+    "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت",
+)

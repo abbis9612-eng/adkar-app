@@ -295,4 +295,17 @@
     <string name="mushaf_banner_body">اضغط لتظهر الصفحةُ كما في الورقة</string>
     <string name="mushaf_font_failed">تعذّر جلبُ خطّ هذه الصفحة</string>
     <string name="mushaf_font_retry">تحقّق من اتّصالك ثمّ اضغط للمحاولة ثانية</string>
+
+    <!-- ═══ الإتاحة — مفتاحان أحدُهما كان يكذب ═══ -->
+    <string name="a11y_reduced_motion">تقليل الحركة</string>
+    <string name="a11y_reduced_motion_desc">تهدأ الرسوم المتحركة في التطبيق كلِّه</string>
+    <string name="a11y_high_contrast">تباين عالٍ</string>
+    <string name="a11y_high_contrast_desc">حبرٌ أشدّ وحدودٌ أوضح لكل نصّ</string>
+
+    <!-- ═══ الودجت ═══ -->
+    <string name="widget_needs_location">حدّد موقعك</string>
+
+    <!-- ═══ التواصل ═══ -->
+    <string name="contact_no_mail_app">لا تطبيقَ بريدٍ على هذا الجهاز. راسلنا على %1$s</string>
+    <string name="export_failed">تعذّر تجهيزُ ملفّ التصدير</string>
 </resources>

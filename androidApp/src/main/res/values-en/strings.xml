@@ -291,4 +291,17 @@
     <string name="mushaf_banner_body">Tap to show the page as printed</string>
     <string name="mushaf_font_failed">Could not fetch this page\'s font</string>
     <string name="mushaf_font_retry">Check your connection, then tap to retry</string>
+
+    <!-- ═══ Accessibility — one of these switches used to lie ═══ -->
+    <string name="a11y_reduced_motion">Reduce motion</string>
+    <string name="a11y_reduced_motion_desc">Animations settle across the whole app</string>
+    <string name="a11y_high_contrast">High contrast</string>
+    <string name="a11y_high_contrast_desc">Stronger ink and clearer borders for all text</string>
+
+    <!-- ═══ Widget ═══ -->
+    <string name="widget_needs_location">Set your location</string>
+
+    <!-- ═══ Contact ═══ -->
+    <string name="contact_no_mail_app">No mail app on this device. Write to us at %1$s</string>
+    <string name="export_failed">Could not prepare the export file</string>
 </resources>

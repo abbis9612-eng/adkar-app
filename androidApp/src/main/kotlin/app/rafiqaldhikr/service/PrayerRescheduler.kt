@@ -4,7 +4,9 @@ import android.content.Context
 import app.rafiq.db.RafiqDatabase
 import app.rafiq.domain.model.PrayerTimeCalculator
 import app.rafiq.domain.model.PrayerTimesResult
+import androidx.glance.appwidget.updateAll
 import app.rafiqaldhikr.util.coordsOrNull
+import app.rafiqaldhikr.widget.PrayerWidget
 
 /**
  * يعيد جدولة إشعارات الأذان من التفضيلات المخزنة:
@@ -16,7 +18,26 @@ class PrayerRescheduler(
     private val db:         RafiqDatabase,
     private val calculator: PrayerTimeCalculator
 ) {
+    /**
+     * يعيد الجدولة، ثمّ يُحدّث الودجت.
+     *
+     * ولم يكن شيءٌ في التطبيق كلِّه ينادي `updateAll` — فالودجت لا يتغيّر
+     * إلّا بدورة النظام كلَّ نصف ساعة (والنظام يتجاوزها في السبات). فمن
+     * حدّد موقعَه ثمّ نظر إلى شاشته الرئيسية بقي يقرأ «حدّد موقعك» نصفَ
+     * ساعة. وهذه الدالّة تُنادى من كل موضعٍ يُغيّر الحساب — الإقلاع،
+     * وفتحُ التطبيق، وتبديلُ الطريقة أو المذهب أو الإزاحات — فهي موضعُه.
+     */
     suspend fun reschedule() {
+        try {
+            rescheduleAlarms()
+        } finally {
+            runCatching {
+                PrayerWidget().updateAll(context)
+            }
+        }
+    }
+
+    private suspend fun rescheduleAlarms() {
         val alarmManager = PrayerAlarmManager(context)
         val prefs = db.userPrefsQueries.get().executeAsOneOrNull() ?: return
 

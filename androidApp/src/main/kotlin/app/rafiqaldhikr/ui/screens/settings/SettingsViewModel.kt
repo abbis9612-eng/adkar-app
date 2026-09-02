@@ -63,6 +63,11 @@ class SettingsViewModel(
         .map { it?.reducedMotion ?: false }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** كان يُحفظ في القاعدة ولا يقرؤه أحد — فالمفتاحُ في شاشة الإتاحة يكذب. */
+    val highContrast: StateFlow<Boolean> = _prefs
+        .map { it?.highContrast ?: false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     val fajrOffset: StateFlow<Int> = _prefs.map { it?.fajrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
     val dhuhrOffset: StateFlow<Int> = _prefs.map { it?.dhuhrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
     val asrOffset: StateFlow<Int> = _prefs.map { it?.asrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)

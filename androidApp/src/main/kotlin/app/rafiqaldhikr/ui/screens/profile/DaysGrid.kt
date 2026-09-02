@@ -147,12 +147,20 @@ private fun Leaves(fills: List<Float>) {
             },
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        fills.chunked(15).forEach { row ->
+        /*  اليومُ يُعرف بموضعه في القائمة لا بمطابقة مرجع.
+         *
+         *  كان الشرط `row === fills.chunked(15).last()` — و`chunked` تُنشئ
+         *  قائمةً جديدةً في كل نداء، فمقارنةُ المرجع `===` تكذب **دائماً**.
+         *  فلم تكن ورقةُ اليوم تُميَّز بحلقتها الزمرّدية قطّ، ولا في مرّة.
+         */
+        val rows = fills.chunked(15)
+        val todayIndex = fills.lastIndex
+        rows.forEachIndexed { rowIndex, row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 row.forEachIndexed { i, f ->
                     Leaf(
                         fill = f,
-                        isToday = row === fills.chunked(15).last() && i == row.lastIndex,
+                        isToday = rowIndex * 15 + i == todayIndex,
                         modifier = Modifier.weight(1f),
                     )
                 }

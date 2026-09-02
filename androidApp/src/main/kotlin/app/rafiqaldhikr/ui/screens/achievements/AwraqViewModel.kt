@@ -1,5 +1,8 @@
 package app.rafiqaldhikr.ui.screens.achievements
 
+import app.rafiqaldhikr.util.WEEKDAY_LETTER
+import app.rafiqaldhikr.util.WEEKDAY_NAME
+import app.rafiqaldhikr.util.weekdayIndex
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -143,17 +146,7 @@ class AwraqViewModel(
         )
         val STATION_IDS = STATIONS.map { it.first }.toSet()
 
-        /**
-         * يومُ الأسبوع حساباً لا بـ`LocalDate.dayOfWeek`: ذاك على أندرويد
-         * اسمٌ مستعار لـ`java.time.DayOfWeek`، وهو API 26 والحدُّ الأدنى هنا 23.
-         * أوّلُ حقبةٍ (1970-01-01) خميس، فإزاحةُ أربعةٍ تجعل الأحدَ صفراً.
-         */
-        fun weekdayIndex(d: LocalDate): Int =
-            (((d.toEpochDays() + 4) % 7) + 7) % 7
-
-        val WEEKDAY_LETTER = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
-        val WEEKDAY_NAME = listOf(
-            "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت",
-        )
+        // weekdayIndex و WEEKDAY_LETTER و WEEKDAY_NAME نُقلت إلى
+        // util/Weekday.kt: شاشتان تحتاجانها، ونسخُ الحسابِ يفترقان.
     }
 }

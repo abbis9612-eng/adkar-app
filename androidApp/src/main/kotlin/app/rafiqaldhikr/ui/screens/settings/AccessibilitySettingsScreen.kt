@@ -13,6 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
@@ -26,7 +29,8 @@ fun AccessibilitySettingsScreen(
     navController: NavHostController,
     vm: SettingsViewModel = koinViewModel()
 ) {
-    val reducedMotion by vm.reducedMotion.collectAsState()
+    val reducedMotion by vm.reducedMotion.collectAsStateWithLifecycle()
+    val highContrast by vm.highContrast.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
 
     Box(
@@ -41,7 +45,7 @@ fun AccessibilitySettingsScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "إمكانية الوصول",
+                title  = stringResource(R.string.accessibility),
                 onBack = {navController.popBackStack()},
             )
 
@@ -62,12 +66,12 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تقليل الحركة", color = rc.ink, style = RafiqType.body)
-                            Text("تقليل الرسوم المتحركة", fontSize = 13.sp, color = rc.inkMed)
+                            Text(stringResource(R.string.a11y_reduced_motion), color = rc.ink, style = RafiqType.body)
+                            Text(stringResource(R.string.a11y_reduced_motion_desc), fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(
                             checked = reducedMotion,
-                            onCheckedChange = { vm.setAccessibility(it, false) },
+                            onCheckedChange = { vm.setAccessibility(it, highContrast) },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = rc.card,
                                 checkedTrackColor = rc.emerald,
@@ -87,11 +91,13 @@ fun AccessibilitySettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("تباين عالي", color = rc.ink, style = RafiqType.body)
-                            Text("زيادة وضوح الألوان والنصوص", fontSize = 13.sp, color = rc.inkMed)
+                            Text(stringResource(R.string.a11y_high_contrast), color = rc.ink, style = RafiqType.body)
+                            Text(stringResource(R.string.a11y_high_contrast_desc), fontSize = 13.sp, color = rc.inkMed)
                         }
                         Switch(
-                            checked = false,
+                            // كان `checked = false` مكتوبةً في الكود: المفتاح
+                            // يُحفظ ولا يُقرأ، فيعود مطفأً في كل فتحة.
+                            checked = highContrast,
                             onCheckedChange = { vm.setAccessibility(reducedMotion, it) },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = rc.card,

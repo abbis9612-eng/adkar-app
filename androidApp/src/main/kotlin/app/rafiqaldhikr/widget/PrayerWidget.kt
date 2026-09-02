@@ -24,14 +24,30 @@ import androidx.glance.text.TextStyle
 import app.rafiq.db.RafiqDatabase
 import app.rafiq.domain.model.PrayerTimeCalculator
 import app.rafiq.domain.model.PrayerTimesResult
+import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.utils.localizedDigits
 import app.rafiqaldhikr.util.coordsOrNull
 import org.koin.core.context.GlobalContext
 
 class PrayerWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        /*  `executeAsOne()` كان يرمي حين لا يوجد صفٌّ بعد.
+         *
+         *  والصفُّ يُنشَأ في `DatabaseSeeder` على كوروتين خلفيّ عند إقلاع
+         *  التطبيق — فمن أضاف الودجتَ قبل أن يفتح التطبيقَ أصلاً، أو في
+         *  أوّل ثوانٍ بعد التثبيت، رأى «تعذّر تحميل الأداة» بدل الودجت.  */
         val db     = GlobalContext.get().get<RafiqDatabase>()
-        val prefs  = db.userPrefsQueries.get().executeAsOne()
+        val prefs  = db.userPrefsQueries.get().executeAsOneOrNull()
+        if (prefs == null) {
+            provideContent {
+                PrayerWidgetContent(
+                    prayerName = context.getString(R.string.widget_needs_location),
+                    prayerTime = "—",
+                )
+            }
+            return
+        }
         val calc   = PrayerTimeCalculator()
         val method = prefs.prayer_method
 
@@ -39,7 +55,10 @@ class PrayerWidget : GlanceAppWidget() {
         val here = coordsOrNull(prefs.last_known_lat, prefs.last_known_lng)
         if (here == null) {
             provideContent {
-                PrayerWidgetContent(prayerName = "حدّد موقعك", prayerTime = "—")
+                PrayerWidgetContent(
+                    prayerName = context.getString(R.string.widget_needs_location),
+                    prayerTime = "—",
+                )
             }
             return
         }
@@ -58,7 +77,7 @@ class PrayerWidget : GlanceAppWidget() {
             )
         }.getOrNull()
         
-        var next = findNextPrayerWithinDay(times, System.currentTimeMillis())
+        var next = findNextPrayerWithinDay(context, times, System.currentTimeMillis(), prefs.numerals)
         
         // If all today's prayers have passed, show tomorrow's Fajr
         if (next == null && times != null) {
@@ -74,8 +93,8 @@ class PrayerWidget : GlanceAppWidget() {
                  )
              }.getOrNull()
              if (tomorrowTimes != null) {
-                 val fmt = java.text.SimpleDateFormat("hh:mm a", java.util.Locale("ar"))
-                 next = "الفجر" to fmt.format(java.util.Date(tomorrowTimes.fajr))
+                 next = context.getString(R.string.fajr) to
+                     formatWidgetTime(context, tomorrowTimes.fajr, prefs.numerals)
              }
         }
 
@@ -87,15 +106,32 @@ class PrayerWidget : GlanceAppWidget() {
         }
     }
 
-    private fun findNextPrayerWithinDay(times: PrayerTimesResult?, now: Long): Pair<String, String>? {
+    /*  أسماءُ الصلوات من الموارد لا مكتوبةً في الكود، والوقتُ بلغة أرقامٍ
+     *  يختارها المستخدم. وكان `Locale("ar")` مثبَّتاً — فيخالف الودجتُ
+     *  التطبيقَ نفسَه في شكل الأرقام، ويتجاهل إعدادَ لغة الأرقام كلَّه. */
+    private fun findNextPrayerWithinDay(
+        context: Context,
+        times: PrayerTimesResult?,
+        now: Long,
+        numerals: String,
+    ): Pair<String, String>? {
         if (times == null) return null
-        val fmt     = java.text.SimpleDateFormat("hh:mm a", java.util.Locale("ar"))
         val ordered = listOf(
-            "الفجر" to times.fajr, "الظهر" to times.dhuhr,
-            "العصر" to times.asr,  "المغرب" to times.maghrib, "العشاء" to times.isha
+            context.getString(R.string.fajr)    to times.fajr,
+            context.getString(R.string.dhuhr)   to times.dhuhr,
+            context.getString(R.string.asr)     to times.asr,
+            context.getString(R.string.maghrib) to times.maghrib,
+            context.getString(R.string.isha)    to times.isha,
         )
         val next = ordered.firstOrNull { it.second > now }
-        return next?.let { it.first to fmt.format(java.util.Date(it.second)) }
+        return next?.let { it.first to formatWidgetTime(context, it.second, numerals) }
+    }
+
+    /** نفسُ صيغة شاشة المواقيت: Locale.US ثمّ تحويلُ الأرقام حسب الإعداد. */
+    private fun formatWidgetTime(context: Context, millis: Long, numerals: String): String {
+        val raw = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.US)
+            .format(java.util.Date(millis))
+        return raw.localizedDigits(numerals == "arabic")
     }
 }
 
