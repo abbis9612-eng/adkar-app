@@ -334,4 +334,79 @@
     <string name="whatsnew_profile">My Pages and statistics</string>
     <string name="whatsnew_theme">Dark and light themes</string>
     <string name="state_loading">Loading</string>
+
+    <!-- ═══ Notification text — used to be hardcoded Arabic ═══ -->
+    <string name="notif_prayer_title">It is time for %1$s</string>
+    <string name="notif_prayer_body">The time for %1$s prayer has come</string>
+    <string name="notif_channel_adhkar">Adhkar reminders</string>
+    <string name="notif_adhkar_morning_title">Morning adhkar 🌅</string>
+    <string name="notif_adhkar_morning_body">Begin your day remembering Allah</string>
+    <string name="notif_adhkar_evening_title">Evening adhkar 🌇</string>
+    <string name="notif_adhkar_evening_body">Your daily fortress before sunset</string>
+    <string name="notif_adhkar_sleep_title">Sleep adhkar 🌙</string>
+    <string name="notif_adhkar_sleep_body">Sleep upon the remembrance of Allah</string>
+
+    <!-- ═══ Countdown ═══ -->
+    <plurals name="hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="and_separator">" and "</string>
+
+    <!-- ═══ Home ═══ -->
+    <string name="greet_salam">Peace be upon you</string>
+    <string name="greet_morning">A blessed morning</string>
+    <string name="greet_day">A good day</string>
+    <string name="greet_blessed">A blessed hour</string>
+    <string name="greet_evening">Good evening</string>
+    <string name="greet_calm_evening">A calm evening</string>
+    <string name="greet_night">A quiet night</string>
+    <string name="hub_times_unset">Your prayer times are not set yet</string>
+    <string name="hub_companion">Your companion today</string>
+    <string name="hub_set_city">Choose your city</string>
+    <string name="hub_set_location">Set location</string>
+    <string name="hub_day_adhkar">Today\'s adhkar</string>
+    <string name="hub_day_sub">From waking to sleeping — open your page</string>
+    <string name="hub_open_waraqa">Open your day\'s page</string>
+    <string name="action_open">Open</string>
+    <string name="action_detail">Details</string>
+    <string name="action_start">Start</string>
+
+    <!-- ═══ Qibla ═══ -->
+    <string name="qibla_needs_location">The qibla is computed from your location; an arrow pointing from another city points away from the Kaaba.</string>
+    <string name="qibla_wait_steady">We do not announce a direction until the compass settles</string>
+    <string name="qibla_aligned">Direction confirmed — face it and pray</string>
+    <string name="qibla_near">Close — move slowly</string>
+    <string name="qibla_turn_hint">Turn the phone until the Kaaba enters the corridor</string>
+    <string name="qibla_delta_label">Current offset</string>
+    <string name="qibla_face_and_pray">Face it and pray</string>
+    <string name="qibla_rightward">right</string>
+    <string name="qibla_leftward">left</string>
+    <string name="qibla_bearing">Qibla bearing</string>
+    <string name="qibla_distance">Distance to Mecca</string>
+    <string name="qibla_gates">No direction is announced until both are true</string>
+    <string name="qibla_metal_warning">A phone compass errs near metal and electricity.</string>
+    <string name="qibla_gate_calibrated">Compass calibrated</string>
+    <string name="qibla_gate_steady">Reading steady</string>
+    <string name="qibla_no_sensor">Compass unavailable</string>
+    <string name="qibla_no_sensor_body">Your device has no compass sensor</string>
+
+    <!-- ═══ Tasbeeh ═══ -->
+    <string name="tasbeeh_milestones">Milestones</string>
+    <string name="tasbeeh_reset">Reset counter</string>
+    <string name="tasbeeh_pick">Choose dhikr</string>
+    <string name="tasbeeh_done">Well done — the dhikr is complete</string>
+    <string name="tasbeeh_target">Target count</string>
+    <string name="tasbeeh_choose">Choose a dhikr</string>
+    <string name="tasbeeh_your_count">Your count</string>
+    <string name="tasbeeh_mark_at">Wird marker at %1$s</string>
+    <string name="action_close">Close</string>
+    <plurals name="laps">
+        <item quantity="one">You completed %1$d lap</item>
+        <item quantity="other">You completed %1$d laps</item>
+    </plurals>
 </resources>

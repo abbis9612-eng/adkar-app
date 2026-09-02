@@ -11,6 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -56,7 +59,7 @@ import kotlin.math.PI
    DHIKR DATA
 ══════════════════════════════════════════════════════════════ */
 
-private enum class DhikrType { SUBHAN_ALLAH, ALHAMDULILLAH, ALLAHU_AKBAR }
+private enum class DhikrType { SUBHAN_ALLAH, ALHAMDULILLAH, ALLAHU_AKBAR, TAHLIL, HAWQALA, ISTIGHFAR }
 
 private data class DhikrOption(
     val text: String,
@@ -64,10 +67,20 @@ private data class DhikrOption(
     val type: DhikrType
 )
 
+/*  الستّةُ التي يعرضها منتقي الذكر — لا ثلاثةٌ منها.
+ *
+ *  كان المنتقي يعرض ستّاً وهذه القائمةُ ثلاثاً، و`find { it.text == … }`
+ *  يسقط إلى `DHIKR_OPTIONS[0]` عند الثلاث الأخرى. فمن اختار «لا إله إلا
+ *  الله» رأى النصَّ الكبيرَ يقول «سُبْحَانَ اللَّهِ» بينما يعدّ ذكراً
+ *  آخر — واللونُ لونَ التسبيح كذلك.
+ */
 private val DHIKR_OPTIONS = listOf(
-    DhikrOption("سبحان الله",  "سُبْحَانَ اللَّهِ",       DhikrType.SUBHAN_ALLAH),
-    DhikrOption("الحمد لله",   "الْحَمْدُ لِلَّهِ",       DhikrType.ALHAMDULILLAH),
-    DhikrOption("الله أكبر",   "اللَّهُ أَكْبَرُ",        DhikrType.ALLAHU_AKBAR),
+    DhikrOption("سبحان الله",                "سُبْحَانَ اللَّهِ",                       DhikrType.SUBHAN_ALLAH),
+    DhikrOption("الحمد لله",                 "الْحَمْدُ لِلَّهِ",                        DhikrType.ALHAMDULILLAH),
+    DhikrOption("الله أكبر",                  "اللَّهُ أَكْبَرُ",                         DhikrType.ALLAHU_AKBAR),
+    DhikrOption("لا إله إلا الله",             "لَا إِلَهَ إِلَّا اللَّهُ",                   DhikrType.TAHLIL),
+    DhikrOption("لا حول ولا قوة إلا بالله",   "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",      DhikrType.HAWQALA),
+    DhikrOption("أستغفر الله",                "أَسْتَغْفِرُ اللَّهَ",                      DhikrType.ISTIGHFAR),
 )
 
 @Composable
@@ -77,6 +90,9 @@ private fun DhikrOption.resolveColors(): Pair<Color, Color> {
         DhikrType.SUBHAN_ALLAH -> rc.emerald to rc.emeraldPastel
         DhikrType.ALHAMDULILLAH -> rc.gold to rc.meccanBg
         DhikrType.ALLAHU_AKBAR -> rc.lightNight to rc.lightNight.copy(alpha = 0.1f)
+        DhikrType.TAHLIL       -> rc.emerald to rc.emeraldPastel
+        DhikrType.HAWQALA      -> rc.gold to rc.meccanBg
+        DhikrType.ISTIGHFAR    -> rc.lightDusk to rc.lightDusk.copy(alpha = 0.12f)
     }
 }
 
@@ -142,7 +158,7 @@ private fun MilestoneCard(count: Int, target: Int, accentColor: Color) {
                     .clip(RafiqShape.chip)
                     .background(rc.gold)
             )
-            Text("محطات الإنجاز", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.body)
+            Text(stringResource(R.string.tasbeeh_milestones), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.body)
         }
 
         Spacer(Modifier.height(14.dp))
@@ -254,9 +270,9 @@ fun TasbeehScreen(
                         viewModel.saveSession()
                         viewModel.reset()
                     },
-                    label = "تصفير العدّاد",
+                    label = stringResource(R.string.tasbeeh_reset),
                 ) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
-                RafiqIconButton(onClick = { showDhikrPicker = true }, label = "اختيار الذكر") { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
+                RafiqIconButton(onClick = { showDhikrPicker = true }, label = stringResource(R.string.tasbeeh_pick)) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
             }
 
             // ═══ DHIKR SELECTOR — Horizontal ═══
@@ -383,7 +399,7 @@ fun TasbeehScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         RafiqIcon(RIcon.Check, 16.dp, primaryColor)
-                        Text("أحسنت! اكتمل الذكر",
+                        Text(stringResource(R.string.tasbeeh_done),
                             fontWeight = FontWeight.Bold,
                             color = primaryColor, style = RafiqType.bodyS)
                     }
@@ -397,7 +413,7 @@ fun TasbeehScreen(
                 Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("العدد المستهدف", color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
+                Text(stringResource(R.string.tasbeeh_target), color = LocalRafiqColors.current.inkMed, style = RafiqType.caption)
                 Spacer(Modifier.height(10.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -440,20 +456,14 @@ fun TasbeehScreen(
 
     // ═══ DHIKR PICKER DIALOG ═══
     if (showDhikrPicker) {
-        val allOptions = listOf(
-            "سبحان الله",
-            "الحمد لله",
-            "الله أكبر",
-            "لا إله إلا الله",
-            "لا حول ولا قوة إلا بالله",
-            "أستغفر الله",
-        )
+        // مصدرٌ واحد: كان المنتقي يسرد ستّاً بيده والقائمةُ ثلاثاً.
+        val allOptions = DHIKR_OPTIONS.map { it.text }
         AlertDialog(
             onDismissRequest = { showDhikrPicker = false },
             containerColor = LocalRafiqColors.current.card,
             shape = RafiqShape.card,
             title = {
-                Text("اختر الذكر", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
+                Text(stringResource(R.string.tasbeeh_choose), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald)
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -496,7 +506,7 @@ fun TasbeehScreen(
                         .clickable { showDhikrPicker = false }
                         .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
-                    Text("إغلاق", fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
+                    Text(stringResource(R.string.action_close), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.emerald, style = RafiqType.bodyS)
                 }
             },
         )
@@ -555,7 +565,7 @@ private fun MisbahaRing(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text("عددُك", style = RafiqType.caption, color = rc.gold)
+            Text(stringResource(R.string.tasbeeh_your_count), style = RafiqType.caption, color = rc.gold)
             // الصفرُ العربيُّ «٠» نقطةٌ صغيرة، فيبدو وحده عطباً لا رقماً
             Text(
                 if (count == 0) "ابدأ" else count.localized(ar),
@@ -565,9 +575,11 @@ private fun MisbahaRing(
             )
             Spacer(Modifier.height(5.dp))
             Text(
-                if (laps > 0) "أتممتَ ${laps.localized(ar)} " +
-                    (if (laps == 1) "دورة" else "دورات")
-                else "علامةُ الوِرد عند ${target.localized(ar)}",
+                /*  التصريفُ كان `if (laps == 1) "دورة" else "دورات"` —
+                 *  فيقول «٢ دورات» و«١١ دورات»، وكلاهما خطأٌ في العربية،
+                 *  ولا شيء منه يعمل في الإنجليزية. و`plurals` تعرفهما. */
+                if (laps > 0) pluralStringResource(R.plurals.laps, laps, laps)
+                else stringResource(R.string.tasbeeh_mark_at, target.localized(ar)),
                 style = RafiqType.caption,
                 color = rc.inkMed,
             )

@@ -69,8 +69,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("حان وقت $localizedName")
-            .setContentText("حان الآن وقت صلاة $localizedName")
+            .setContentTitle(context.getString(R.string.notif_prayer_title, localizedName))
+            .setContentText(context.getString(R.string.notif_prayer_body, localizedName))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
@@ -101,15 +101,34 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val channelId = "adhkar_channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId, "تذكير الأذكار", NotificationManager.IMPORTANCE_DEFAULT
+                channelId,
+                context.getString(R.string.notif_channel_adhkar),
+                NotificationManager.IMPORTANCE_DEFAULT
             )
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
         val (title, body, target) = when (type) {
-            "adhkar_morning" -> Triple("أذكار الصباح 🌅", "«فَاذْكُرُونِي أَذْكُرْكُمْ» — ابدأ يومك بذكر الله", "morning")
-            "adhkar_evening" -> Triple("أذكار المساء 🌇", "لا تفوّت حصنك اليومي قبل الغروب", "evening")
-            else             -> Triple("أذكار النوم 🌙", "آية الكرسي والمعوذات — نم على ذكر الله", "sleep")
+            /*  نصُّ الإشعار من الموارد لا من الكود.
+             *
+             *  كانت العناوينُ والمتونُ الثلاثة مكتوبةً عربيةً هنا، فيصل
+             *  الإشعارُ عربياً إلى من اختار الإنجليزية — وهو أوّلُ ما يراه
+             *  من التطبيق في يومه، وقد لا يفتحَه أصلاً.  */
+            "adhkar_morning" -> Triple(
+                context.getString(R.string.notif_adhkar_morning_title),
+                context.getString(R.string.notif_adhkar_morning_body),
+                "morning",
+            )
+            "adhkar_evening" -> Triple(
+                context.getString(R.string.notif_adhkar_evening_title),
+                context.getString(R.string.notif_adhkar_evening_body),
+                "evening",
+            )
+            else -> Triple(
+                context.getString(R.string.notif_adhkar_sleep_title),
+                context.getString(R.string.notif_adhkar_sleep_body),
+                "sleep",
+            )
         }
 
         val tapPending = PendingIntent.getActivity(

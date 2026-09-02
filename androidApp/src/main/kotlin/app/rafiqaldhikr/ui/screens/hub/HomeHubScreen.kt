@@ -22,6 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -185,7 +188,7 @@ fun HomeHubScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        if (sun.altitude > 8) "نهارٌ طيّب" else if (sun.altitude > -1) "وقتٌ مبارك" else "مساءُ الخير",
+                        if (sun.altitude > 8) stringResource(R.string.greet_day) else if (sun.altitude > -1) stringResource(R.string.greet_blessed) else stringResource(R.string.greet_evening),
                         style = RafiqType.hero,
                         color = skyInk,
                     )
@@ -281,7 +284,7 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
             ) { Text("ر", style = RafiqType.hero, color = ink) }
             Spacer(Modifier.width(10.dp))
             Column {
-                Text("رفيق الذِّكر", style = RafiqType.titleM, color = ink)
+                Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = ink)
                 Text(hijri, style = RafiqType.bodyS, color = ink.copy(alpha = 0.78f), maxLines = 1)
             }
         }
@@ -308,8 +311,8 @@ private fun WindowPill(
     val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
     val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
     val label = when {
-        needsLoc -> "مواقيتُك لم تُضبط بعد"
-        station == null -> "ورقةُ يومك"
+        needsLoc -> stringResource(R.string.hub_times_unset)
+        station == null -> stringResource(R.string.waraqa_title)
         else -> {
             val left = humanRemaining(station.endMillis - System.currentTimeMillis())
             "نافذةُ ${station.short}" + (left?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
@@ -351,11 +354,11 @@ private fun HubTopBar(onSettings: () -> Unit) {
             }
             Spacer(Modifier.width(11.dp))
             Column {
-                Text("رفيق الذِّكر", style = RafiqType.titleL, color = rc.emerald)
-                Text("رفيقُك في يومك", style = RafiqType.bodyS, color = rc.inkMed)
+                Text(stringResource(R.string.app_name), style = RafiqType.titleL, color = rc.emerald)
+                Text(stringResource(R.string.hub_companion), style = RafiqType.bodyS, color = rc.inkMed)
             }
         }
-        RafiqIconButton(onClick = onSettings, label = "الإعدادات") {
+        RafiqIconButton(onClick = onSettings, label = stringResource(R.string.settings)) {
             RafiqIcon(RIcon.Settings, size = 21.dp, tint = rc.inkMed)
         }
     }
@@ -372,7 +375,7 @@ private fun Greeting(hijri: String, ar: Boolean) {
         verticalAlignment = Alignment.Bottom,
     ) {
         Column {
-            Text("السلام عليكم", style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(R.string.greet_salam), style = RafiqType.bodyS, color = rc.inkMed)
             Spacer(Modifier.height(3.dp))
             Text(greetingText(), style = RafiqType.titleXL, color = rc.ink)
         }
@@ -390,13 +393,14 @@ private fun Greeting(hijri: String, ar: Boolean) {
  * مجاملةٌ لا معلومة، ولو ربطتُها بالمواقيت لصارت تقول «صباحٌ مبارك» بعد
  * الفجر في ليل الشتاء الطويل.
  */
+@Composable
 private fun greetingText(): String {
     val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
     return when (h) {
-        in 4..10  -> "صباحٌ مبارك"
-        in 11..15 -> "نهارٌ طيّب"
-        in 16..19 -> "مساءٌ مطمئن"
-        else      -> "ليلةٌ هادئة"
+        in 4..10  -> stringResource(R.string.greet_morning)
+        in 11..15 -> stringResource(R.string.greet_day)
+        in 16..19 -> stringResource(R.string.greet_calm_evening)
+        else      -> stringResource(R.string.greet_night)
     }
 }
 
@@ -464,11 +468,16 @@ private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
    يكلّف ارتفاعاً وهو أوّلُ ما تقع عليه العين.
 ══════════════════════════════════════════════════════════════ */
 
-/** «بقي ١٢ دقيقة» من فارقٍ بالمللي ثانية — بتصريف العدد العربي. */
+/** «بقي ١٢ دقيقة» من فارقٍ بالمللي ثانية. */
+@Composable
 private fun humanRemaining(millis: Long): String? {
     if (millis <= 0) return null
     val total = millis / 60_000L
-    return humanCountdown("%02d:%02d:00".format(total / 60, total % 60))
+    // Locale.ROOT: بلا تحديدٍ يُنتج `format` أرقاماً عربيةً على جهازٍ
+    // محلّيتُه ar، فلا يعود `toIntOrNull` يقرؤها.
+    return humanCountdown(
+        String.format(java.util.Locale.ROOT, "%02d:%02d:00", total / 60, total % 60)
+    )
 }
 
 @Composable
@@ -498,23 +507,23 @@ private fun MeeqatCard(
         // تعرض «أذكار يومك» عامّةً بلا نافذةٍ ولا خيطٍ ولا إسناد، ولا
         // تقول لماذا هي كذلك. الآن تقول السبب وتحمل علاجه.
         needsLoc -> {
-            title = "حدِّد مدينتك"
+            title = stringResource(R.string.hub_set_city)
             desc = "محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. " +
                 "حدِّدها مرّةً واحدة ويُحسب الباقي."
-            source = null; cta = "حدِّد الموقع"; action = onDayPage
+            source = null; cta = stringResource(R.string.hub_set_location); action = onDayPage
         }
         station == null -> {
-            title = "أذكار يومك"
-            desc = "من الاستيقاظ إلى النوم — افتح ورقتك"
-            source = null; cta = "افتح"; action = onDayPage
+            title = stringResource(R.string.hub_day_adhkar)
+            desc = stringResource(R.string.hub_day_sub)
+            source = null; cta = stringResource(R.string.action_open); action = onDayPage
         }
         station.route == null -> {
             title = station.title; desc = station.description.localizedDigits(ar)
-            source = station.source; cta = "التفصيل"; action = onDayPage
+            source = station.source; cta = stringResource(R.string.action_detail); action = onDayPage
         }
         else -> {
             title = station.title; desc = station.description.localizedDigits(ar)
-            source = station.source; cta = "ابدأ"; action = onStart
+            source = station.source; cta = stringResource(R.string.action_start); action = onStart
         }
     }
 
@@ -610,27 +619,35 @@ private val CtaShape = RoundedCornerShape(
  * وتصريفُ العدد عربيّ: ساعة · ساعتان · ٣ ساعات — لا «١ ساعة».
  * تُرجع null حين لا عدّاد بعد، فيُحذف السطر كلّه.
  */
+@Composable
 private fun humanCountdown(raw: String): String? {
+    val (h, m) = countdownParts(raw) ?: return null
+    /*  التصريفُ يُترك لأندرويد لا يُكتب بالكود.
+     *
+     *  كانت الصيغُ الستُّ مكتوبةً هنا عربيةً (ساعة · ساعتين · ٣ ساعات …)
+     *  — صحيحةً في العربية، ولا شيءَ منها يعمل في الإنجليزية. ونظامُ
+     *  `plurals` في أندرويد يعرف مثنّى العربية وصيغتَي جمعها ويعرف
+     *  الإنجليزية، فيكفيه ملفُّ موارد.
+     */
+    val hs = if (h > 0) pluralStringResource(R.plurals.hours, h, h) else null
+    val ms = if (m > 0) pluralStringResource(R.plurals.minutes, m, m) else null
+    val sep = stringResource(R.string.and_separator)
+    return listOfNotNull(hs, ms).joinToString(sep)
+}
+
+/**
+ * ساعاتُ العدّاد ودقائقُه، أو null حين لا عدّاد بعد.
+ *
+ * مفصولةٌ عن الصياغة ليختبرها اختبارُ وحدةٍ بلا أندرويد — وكان الاختبار
+ * قبلها ينسخ منطقَ الدالّة نسخاً بدل أن يناديها، فلا يحرس شيئاً.
+ */
+internal fun countdownParts(raw: String): Pair<Int, Int>? {
     val p = raw.split(":")
     if (p.size != 3) return null
     val h = p[0].toIntOrNull() ?: return null
     val m = p[1].toIntOrNull() ?: return null
     if (h == 0 && m == 0) return null
-    val hs = when (h) {
-        0    -> null
-        1    -> "ساعة"
-        2    -> "ساعتين"
-        in 3..10 -> "$h ساعات"
-        else -> "$h ساعة"
-    }
-    val ms = when (m) {
-        0    -> null
-        1    -> "دقيقة"
-        2    -> "دقيقتين"
-        in 3..10 -> "$m دقائق"
-        else -> "$m دقيقة"
-    }
-    return listOfNotNull(hs, ms).joinToString(" و")
+    return h to m
 }
 
 /* ── الطبقة ٣: صفُّ اليوم ───────────────────────────────────────
@@ -729,7 +746,7 @@ private fun DayRow(
             // والشيفرون يطوي القائمة في مكانها. كانا مدموجين في ضغطةٍ
             // واحدة تفعل الطيّ وحده — فلم يبقَ للورقة بابٌ من الرئيسية.
             Text(
-                "افتح ورقة يومك",
+                stringResource(R.string.hub_open_waraqa),
                 style = RafiqType.bodyS,
                 color = rc.emerald,
                 modifier = Modifier
@@ -855,9 +872,9 @@ private fun DoorsRow(
         Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
-        DoorChip("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
-        DoorChip("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
+        DoorChip(stringResource(R.string.tasbeeh_title), Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
+        DoorChip(stringResource(R.string.qibla_title),  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
+        DoorChip(stringResource(R.string.prayer_times_title), Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
     }
 }
 

@@ -1,41 +1,39 @@
 package app.rafiqaldhikr
 
+import app.rafiqaldhikr.ui.screens.hub.countdownParts
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * صيغةُ العدّاد البشرية في الرئيسية.
+ * قراءةُ العدّاد في الرئيسية.
+ *
+ * كان هذا الاختبار **ينسخ** منطقَ الدالّة نسخاً في دالّةٍ خاصّةٍ به بدل
+ * أن يناديها — فلو تغيّرت الدالّةُ في الشاشة لبقي الاختبارُ أخضرَ يحرس
+ * نسخةً ميّتة. الآن ينادي [countdownParts] نفسَها.
+ *
+ * والصياغةُ (ساعة · ساعتان · ٣ ساعات) لم تعد هنا: صارت `plurals` في
+ * الموارد، وأندرويد يعرف مثنّى العربية وصيغتَي جمعها ويعرف الإنجليزية —
+ * وهو ما لم يكن الكودُ المكتوب يدوياً يعرفه.
  *
  * الأسماء لاتينية عمداً: أسماءُ دوالِّ الاختبار العربية تنتج ملفات .class
- * بأسماء عربية، وتفشل على أنظمةٍ محليّتها POSIX. الشرح في KDoc.
+ * بأسماء عربية، وتفشل على أنظمةٍ محليّتها POSIX.
  */
 class HomeHubFormatTest {
 
-    private fun human(raw: String): String? {
-        val p = raw.split(":")
-        if (p.size != 3) return null
-        val h = p[0].toIntOrNull() ?: return null
-        val m = p[1].toIntOrNull() ?: return null
-        if (h == 0 && m == 0) return null
-        val hs = when (h) { 0 -> null; 1 -> "ساعة"; 2 -> "ساعتين"
-                            in 3..10 -> "$h ساعات"; else -> "$h ساعة" }
-        val ms = when (m) { 0 -> null; 1 -> "دقيقة"; 2 -> "دقيقتين"
-                            in 3..10 -> "$m دقائق"; else -> "$m دقيقة" }
-        return listOfNotNull(hs, ms).joinToString(" و")
-    }
+    /** «٠٠:٥٦:٤٤» → ٠ ساعة و٥٦ دقيقة. الثواني تُهمَل. */
+    @Test fun minutesOnly() = assertEquals(0 to 56, countdownParts("00:56:44"))
 
-    /** «٠٠:٥٦:٤٤» كانت تُعرض كما هي — رقمُ مؤقّتٍ لا جملةُ رفيق. */
-    @Test fun minutesOnly() = assertEquals("56 دقيقة", human("00:56:44"))
-
-    /** التصريف العربي: ساعة · ساعتان · ٣ ساعات — لا «١ ساعة». */
-    @Test fun oneHourFourMinutes() = assertEquals("ساعة و4 دقائق", human("01:04:00"))
-    @Test fun twoHours()          = assertEquals("ساعتين", human("02:00:12"))
-    @Test fun threeHours()        = assertEquals("3 ساعات و30 دقيقة", human("03:30:00"))
-    @Test fun elevenHours()       = assertEquals("11 ساعة", human("11:00:00"))
+    @Test fun oneHourFourMinutes() = assertEquals(1 to 4, countdownParts("01:04:00"))
+    @Test fun twoHours()           = assertEquals(2 to 0, countdownParts("02:00:12"))
+    @Test fun threeHoursThirty()   = assertEquals(3 to 30, countdownParts("03:30:00"))
+    @Test fun elevenHours()        = assertEquals(11 to 0, countdownParts("11:00:00"))
 
     /** بلا موقعٍ لا عدّاد — والسطر يُحذف بدل عرض «بعد —». */
-    @Test fun noCountdownYet()  = assertNull(human("—"))
-    @Test fun zeroIsNull()      = assertNull(human("00:00:00"))
-    @Test fun emptyIsNull()     = assertNull(human(""))
+    @Test fun noCountdownYet() = assertNull(countdownParts("—"))
+    @Test fun zeroIsNull()     = assertNull(countdownParts("00:00:00"))
+    @Test fun emptyIsNull()    = assertNull(countdownParts(""))
+
+    /** نصٌّ لا يُقرأ رقماً لا يُسقط الشاشة. */
+    @Test fun garbageIsNull() = assertNull(countdownParts("aa:bb:cc"))
 }

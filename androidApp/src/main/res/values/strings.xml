@@ -338,4 +338,88 @@
     <string name="whatsnew_profile">أوراقي والإحصاءات</string>
     <string name="whatsnew_theme">المظهر الداكن والفاتح</string>
     <string name="state_loading">جارٍ التحميل</string>
+
+    <!-- ═══ نصُّ الإشعارات — كان مكتوباً عربياً في الكود ═══ -->
+    <string name="notif_prayer_title">حان وقت %1$s</string>
+    <string name="notif_prayer_body">حان الآن وقت صلاة %1$s</string>
+    <string name="notif_channel_adhkar">تذكير الأذكار</string>
+    <string name="notif_adhkar_morning_title">أذكار الصباح 🌅</string>
+    <string name="notif_adhkar_morning_body">ابدأ يومك بذكر الله</string>
+    <string name="notif_adhkar_evening_title">أذكار المساء 🌇</string>
+    <string name="notif_adhkar_evening_body">حصنُك اليومي قبل الغروب</string>
+    <string name="notif_adhkar_sleep_title">أذكار النوم 🌙</string>
+    <string name="notif_adhkar_sleep_body">نَمْ على ذكر الله</string>
+
+    <!-- ═══ العدّاد — كان التصريفُ مكتوباً في الكود بالعربية وحدها ═══ -->
+    <plurals name="hours">
+        <item quantity="one">ساعة</item>
+        <item quantity="two">ساعتين</item>
+        <item quantity="few">%1$d ساعات</item>
+        <item quantity="many">%1$d ساعة</item>
+        <item quantity="other">%1$d ساعة</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">دقيقة</item>
+        <item quantity="two">دقيقتين</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقة</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
+    <string name="and_separator">" و"</string>
+
+    <!-- ═══ الرئيسية ═══ -->
+    <string name="greet_salam">السلام عليكم</string>
+    <string name="greet_morning">صباحٌ مبارك</string>
+    <string name="greet_day">نهارٌ طيّب</string>
+    <string name="greet_blessed">وقتٌ مبارك</string>
+    <string name="greet_evening">مساءُ الخير</string>
+    <string name="greet_calm_evening">مساءٌ مطمئن</string>
+    <string name="greet_night">ليلةٌ هادئة</string>
+    <string name="hub_times_unset">مواقيتُك لم تُضبط بعد</string>
+    <string name="hub_companion">رفيقُك في يومك</string>
+    <string name="hub_set_city">حدِّد مدينتك</string>
+    <string name="hub_set_location">حدِّد الموقع</string>
+    <string name="hub_day_adhkar">أذكار يومك</string>
+    <string name="hub_day_sub">من الاستيقاظ إلى النوم — افتح ورقتك</string>
+    <string name="hub_open_waraqa">افتح ورقة يومك</string>
+    <string name="action_open">افتح</string>
+    <string name="action_detail">التفصيل</string>
+    <string name="action_start">ابدأ</string>
+
+    <!-- ═══ القبلة ═══ -->
+    <string name="qibla_needs_location">اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة.</string>
+    <string name="qibla_wait_steady">لا نُعلن الاتّجاه حتى تستقرّ البوصلة</string>
+    <string name="qibla_aligned">ثبتَ الاتّجاه — استقبِلْ وصلِّ</string>
+    <string name="qibla_near">اقتربت — حرّكه ببطء</string>
+    <string name="qibla_turn_hint">أدِرِ الهاتفَ حتى تدخل الكعبةُ في الممرّ</string>
+    <string name="qibla_delta_label">فرقُ الاتّجاه الآن</string>
+    <string name="qibla_face_and_pray">استقبِلْ وصلِّ</string>
+    <string name="qibla_rightward">يميناً</string>
+    <string name="qibla_leftward">يساراً</string>
+    <string name="qibla_bearing">زاويةُ القبلة</string>
+    <string name="qibla_distance">كم إلى مكّة</string>
+    <string name="qibla_gates">لا نُعلن الاتّجاه قبل أن تصدق الاثنتان</string>
+    <string name="qibla_metal_warning">وبوصلةُ الهاتف تخطئ قربَ المعدن والكهرباء.</string>
+    <string name="qibla_gate_calibrated">البوصلةُ مضبوطة</string>
+    <string name="qibla_gate_steady">القراءةُ ثابتة</string>
+    <string name="qibla_no_sensor">البوصلة غير متوفرة</string>
+    <string name="qibla_no_sensor_body">جهازك لا يدعم مستشعر البوصلة</string>
+
+    <!-- ═══ المسبحة ═══ -->
+    <string name="tasbeeh_milestones">محطات الإنجاز</string>
+    <string name="tasbeeh_reset">تصفير العدّاد</string>
+    <string name="tasbeeh_pick">اختيار الذكر</string>
+    <string name="tasbeeh_done">أحسنت! اكتمل الذكر</string>
+    <string name="tasbeeh_target">العدد المستهدف</string>
+    <string name="tasbeeh_choose">اختر الذكر</string>
+    <string name="tasbeeh_your_count">عددُك</string>
+    <string name="tasbeeh_mark_at">علامةُ الوِرد عند %1$s</string>
+    <string name="action_close">إغلاق</string>
+    <plurals name="laps">
+        <item quantity="one">أتممتَ دورة</item>
+        <item quantity="two">أتممتَ دورتين</item>
+        <item quantity="few">أتممتَ %1$d دورات</item>
+        <item quantity="many">أتممتَ %1$d دورة</item>
+        <item quantity="other">أتممتَ %1$d دورة</item>
+    </plurals>
 </resources>
