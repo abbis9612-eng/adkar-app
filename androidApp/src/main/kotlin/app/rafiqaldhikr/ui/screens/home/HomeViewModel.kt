@@ -292,13 +292,13 @@ class HomeViewModel(
                 val day   = cal.get(android.icu.util.IslamicCalendar.DAY_OF_MONTH)
                 val month = cal.get(android.icu.util.IslamicCalendar.MONTH)
                 val year  = cal.get(android.icu.util.IslamicCalendar.YEAR)
-                "$day ${monthNames[month]} $year هـ"
+                context.getString(R.string.hijri_date, day.toString(), monthNames[month], year.toString())
             } else {
                 // أجهزة API 23: تقدير حسابي تقريبي
                 approximateHijri(offset, monthNames)
             }
         } catch (_: Exception) {
-            "— هـ"
+            context.getString(R.string.hijri_unknown)
         }
     }
 
@@ -311,7 +311,7 @@ class HomeViewModel(
         val hijriMonth = ((daysDiff / 29.53) % 12).toInt()
         val hijriDay = ((daysDiff % 29.53) + 1).toInt().coerceIn(1, 30)
         val hijriYear = 1446 + (daysDiff / 354.36).toInt()
-        return "$hijriDay ${monthNames[hijriMonth]} $hijriYear هـ"
+        return context.getString(R.string.hijri_date, hijriDay.toString(), monthNames[hijriMonth], hijriYear.toString())
     }
 
     // ═══ أدوات مساعدة ═══

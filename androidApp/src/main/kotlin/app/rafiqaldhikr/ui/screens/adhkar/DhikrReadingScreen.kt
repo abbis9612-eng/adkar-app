@@ -93,6 +93,8 @@ fun DhikrReadingScreen(
                 val dhikr = uiState.adhkar.getOrNull(uiState.currentIndex)
                     ?: uiState.adhkar.first()
                 val done  = uiState.currentCount >= dhikr.count
+                // يُقرأ خارج `semantics{}` — تلك لامبدا غير مركَّبة.
+                val tapHint = stringResource(R.string.dhikr_a11y, uiState.currentCount, dhikr.count)
 
                 Column(
                     Modifier
@@ -107,8 +109,7 @@ fun DhikrReadingScreen(
                         }
                         .statusBarsPadding()
                         .semantics {
-                            contentDescription =
-                                "اضغط في أيّ مكان للعدّ. ${uiState.currentCount} من ${dhikr.count}"
+                            contentDescription = tapHint
                         },
                 ) {
                     TopRow(
@@ -212,12 +213,14 @@ private fun TopRow(title: String, onBack: () -> Unit) {
 
 @Composable
 private fun Beads(total: Int, current: Int) {
+    // يُقرأ خارج `semantics{}` — تلك لامبدا غير مركَّبة.
+    val label = stringResource(R.string.dhikr_of_total, current + 1, total)
     val rc = LocalRafiqColors.current
     Row(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp)
-            .semantics { contentDescription = "الذكر ${current + 1} من $total" },
+            .semantics { contentDescription = label },
         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -287,7 +290,7 @@ private fun CountRing(count: Int, target: Int) {
                 style = RafiqType.display, color = rc.ink,
             )
             Text(
-                "من ${target.toString().localizedDigits(LocalArabicNumerals.current)}",
+                stringResource(R.string.dhikr_of, target.toString().localizedDigits(LocalArabicNumerals.current)),
                 style = RafiqType.caption, color = rc.inkMed,
             )
         }

@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -108,7 +111,7 @@ fun DaysGrid(
                 color = rc.gold,
             )
             Text(
-                "يوماً متّصلاً — أطول سلسلة ${streakLongest.toString().localizedDigits(ar)}",
+                stringResource(R.string.days_streak, streakLongest.toString().localizedDigits(ar)),
                 style = RafiqType.bodyS, color = rc.inkMed,
                 modifier = Modifier.padding(bottom = 5.dp),
             )
@@ -117,7 +120,7 @@ fun DaysGrid(
         Spacer(Modifier.height(10.dp))
 
         Text(
-            "آخر ${DaysShown.toString().localizedDigits(ar)} يوماً — كل مربّعٍ يومٌ، وارتفاع الحبر ما خُطّ منه",
+            stringResource(R.string.days_caption, DaysShown.toString().localizedDigits(ar)),
             style = RafiqType.caption, color = rc.inkMed,
         )
 
@@ -139,11 +142,12 @@ fun DaysGrid(
 @Composable
 private fun Leaves(fills: List<Float>) {
     val done = fills.count { it >= 0.999f }
+    val ctx = LocalContext.current
     Column(
         Modifier
             .fillMaxWidth()
             .semantics {
-                contentDescription = "دفتر آخر ${fills.size} يوماً — $done منها مكتملة"
+                contentDescription = ctx.getString(R.string.days_a11y, fills.size, done)
             },
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
@@ -211,6 +215,6 @@ private fun Legend() {
             }
         }
         Spacer(Modifier.width(2.dp))
-        Text("من ورقةٍ بيضاء إلى ورقةٍ مكتملة", style = RafiqType.caption, color = rc.inkMed)
+        Text(stringResource(R.string.days_legend), style = RafiqType.caption, color = rc.inkMed)
     }
 }

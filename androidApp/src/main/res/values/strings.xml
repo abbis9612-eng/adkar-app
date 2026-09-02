@@ -629,4 +629,48 @@
     <string name="city_pick_note">تُحسب المواقيت من إحداثيات المدينة المختارة.</string>
     <string name="city_search_hint">ابحث بالعربية أو بالإنجليزية…</string>
     <string name="city_not_found">لا مدينة بهذا الاسم في القائمة. جرّب اسم أقرب مدينة كبيرة إليك، أو فعّل الموقع ليُحدَّد بدقّة.</string>
+
+    <!-- ═══ الألوان وأوراقي ═══ -->
+    <string name="colors_title">الألوان</string>
+    <string name="colors_sub">لونان تختارهما، والباقي يُحسب ليبقى مقروءاً</string>
+    <string name="colors_presets">تركيبات جاهزة</string>
+    <string name="colors_paper">الورق</string>
+    <string name="colors_accent">اللهجة</string>
+    <string name="colors_measure">القياس</string>
+    <string name="colors_reset">إرجاع الألوان الأصلية</string>
+    <string name="colors_card">بطاقة</string>
+    <string name="colors_m_ink_paper">النصّ على الورق</string>
+    <string name="colors_m_second_card">الثانوي على البطاقة</string>
+    <string name="colors_m_accent_text">لون اللهجة نصّاً</string>
+    <string name="colors_m_button_text">نصّ الزرّ</string>
+    <string name="colors_m_icons">الأيقونات</string>
+    <string name="colors_m_card_tone">نبرة البطاقة</string>
+    <string name="awraq_steadiest_station">أثبتُ محطّاتك: %1$s</string>
+    <string name="awraq_faintest_station">وأخفُّها حضوراً: %1$s — فلعلّه موضعُ ما تريد أن تزيد.</string>
+    <string name="awraq_more_done">ما فاتك من أوراد هذا الأسبوع أقلُّ ممّا أتممت.</string>
+    <string name="awraq_steadiest_day">وأثبتُ أيّامك: %1$s</string>
+    <string name="awraq_steadiest_day_note">أكثرُ ما تُتمّ أورادك في هذا اليوم من الأسبوع.</string>
+
+    <!-- ═══ آخر ما بقي ═══ -->
+    <string name="days_streak">يوماً متّصلاً — أطول سلسلة %1$s</string>
+    <string name="days_caption">آخر %1$s يوماً — كل مربّعٍ يومٌ، وارتفاع الحبر ما خُطّ منه</string>
+    <string name="days_a11y">دفتر آخر %1$d يوماً — %2$d منها مكتملة</string>
+    <string name="days_legend">من ورقةٍ بيضاء إلى ورقةٍ مكتملة</string>
+    <string name="hub_location_why">محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. حدِّدها مرّةً واحدة ويُحسب الباقي.</string>
+    <string name="adhkar_count_by_tap">عُدَّ تسبيحك بضغطة</string>
+    <string name="adhkar_ayah_source">— سورة الرعد ٢٨</string>
+    <string name="dhikr_a11y">اضغط في أيّ مكان للعدّ. %1$d من %2$d</string>
+    <string name="dhikr_of_total">الذكر %1$d من %2$d</string>
+    <string name="dhikr_of">من %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s هـ</string>
+    <string name="hijri_unknown">— هـ</string>
+    <string name="preset_paper_emerald">ورقٌ وزمرّد</string>
+    <string name="preset_paper_amber">ورقٌ وعنبر</string>
+    <string name="preset_paper_mint">ورقٌ ونعناع</string>
+    <string name="preset_sand_olive">رملٌ وزيتون</string>
+    <string name="preset_pine_rose">صنوبر ووردة</string>
+    <string name="preset_white_ink">أبيضُ وحبر</string>
+    <string name="preset_night_emerald">ليلٌ وزمرّد</string>
+    <string name="preset_night_gold">ليلٌ وذهب</string>
+    <string name="preset_night_silver">ليلٌ وفضّة</string>
 </resources>

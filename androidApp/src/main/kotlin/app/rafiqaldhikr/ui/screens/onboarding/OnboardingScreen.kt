@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.util.weekdayLetters
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.draw.clip
@@ -418,13 +419,12 @@ private fun SanadCard(rc: RafiqPalette) {
 // خمسةُ صفوفٍ لا ثمانية: البطاقةُ هنا لمحةٌ في مساحةٍ مرنة، وثمانيةٌ
 // تُقصّ على الشاشات القصيرة. والشبكةُ كاملةً في «أوراقي».
 private val PREVIEW_ROWS = listOf(
-    "الفجر"   to listOf(1, 1, 1, 1, 1, 1, 0),
-    "الضحى"   to listOf(1, 0, 1, 0, 1, 1, 0),
-    "الظهر"   to listOf(1, 1, 1, 1, 0, 1, 0),
-    "المغرب"  to listOf(1, 1, 1, 1, 1, 0, 0),
-    "النوم"   to listOf(0, 1, 1, 0, 1, 1, 0),
+    R.string.fajr             to listOf(1, 1, 1, 1, 1, 1, 0),
+    R.string.meeqat_duha      to listOf(1, 0, 1, 0, 1, 1, 0),
+    R.string.dhuhr            to listOf(1, 1, 1, 1, 0, 1, 0),
+    R.string.maghrib          to listOf(1, 1, 1, 1, 1, 0, 0),
+    R.string.st_sleep_s       to listOf(0, 1, 1, 0, 1, 1, 0),
 )
-private val PREVIEW_DAYS = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
 
 @Composable
 private fun WeekPreview(rc: RafiqPalette) {
@@ -450,7 +450,7 @@ private fun WeekPreview(rc: RafiqPalette) {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(GAP)) {
                 Spacer(Modifier.width(LABEL_W))
-                PREVIEW_DAYS.forEach {
+                weekdayLetters().forEach {
                     Text(
                         it,
                         style     = RafiqType.caption,
@@ -466,7 +466,7 @@ private fun WeekPreview(rc: RafiqPalette) {
                     verticalAlignment     = Alignment.CenterVertically,
                 ) {
                     Text(
-                        label,
+                        stringResource(label),
                         style    = RafiqType.caption,
                         color    = rc.inkMed,
                         maxLines = 1,

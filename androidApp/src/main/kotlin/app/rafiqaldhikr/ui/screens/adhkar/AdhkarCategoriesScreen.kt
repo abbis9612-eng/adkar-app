@@ -130,7 +130,7 @@ private fun MisbahaEntry(nav: NavHostController) {
         MisbahaIcon(28.dp, rc.gold)
         Column(Modifier.weight(1f)) {
             Text(stringResource(R.string.misbaha), style = RafiqType.titleM, color = rc.ink)
-            Text("عُدَّ تسبيحك بضغطة", style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(R.string.adhkar_count_by_tap), style = RafiqType.bodyS, color = rc.inkMed)
         }
         RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
     }
@@ -266,7 +266,7 @@ fun AdhkarCategoriesScreen(
                         lineHeight = 34.sp,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Text("— سورة الرعد ٢٨",
+                    Text(stringResource(R.string.adhkar_ayah_source),
                         color = Color.White.copy(alpha = 0.5f), style = RafiqType.caption)
                 }
             }

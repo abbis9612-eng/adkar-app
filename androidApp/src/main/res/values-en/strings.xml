@@ -610,4 +610,48 @@
     <string name="city_pick_note">Times are computed from the chosen city\'s coordinates.</string>
     <string name="city_search_hint">Search in Arabic or English…</string>
     <string name="city_not_found">No city by that name in the list. Try the nearest large city, or enable location for an exact fix.</string>
+
+    <!-- ═══ Colours and My Pages ═══ -->
+    <string name="colors_title">Colours</string>
+    <string name="colors_sub">You choose two; the rest is computed to stay readable</string>
+    <string name="colors_presets">Ready-made pairs</string>
+    <string name="colors_paper">Paper</string>
+    <string name="colors_accent">Accent</string>
+    <string name="colors_measure">Measured</string>
+    <string name="colors_reset">Restore the original colours</string>
+    <string name="colors_card">Card</string>
+    <string name="colors_m_ink_paper">Ink on paper</string>
+    <string name="colors_m_second_card">Secondary on card</string>
+    <string name="colors_m_accent_text">Accent as text</string>
+    <string name="colors_m_button_text">Button text</string>
+    <string name="colors_m_icons">Icons</string>
+    <string name="colors_m_card_tone">Card tone</string>
+    <string name="awraq_steadiest_station">Your steadiest station: %1$s</string>
+    <string name="awraq_faintest_station">And the faintest: %1$s — perhaps that is where to add.</string>
+    <string name="awraq_more_done">You missed less of this week\'s wird than you completed.</string>
+    <string name="awraq_steadiest_day">And your steadiest day: %1$s</string>
+    <string name="awraq_steadiest_day_note">You complete your wird most on this day of the week.</string>
+
+    <!-- ═══ The last of it ═══ -->
+    <string name="days_streak">days in a row — longest streak %1$s</string>
+    <string name="days_caption">Last %1$s days — each square a day, the ink rising with what was written</string>
+    <string name="days_a11y">Ledger of the last %1$d days — %2$d of them complete</string>
+    <string name="days_legend">From a blank page to a full one</string>
+    <string name="hub_location_why">Your day\'s stations are timed by the prayers — from waking to sleeping. Set it once and the rest is computed.</string>
+    <string name="adhkar_count_by_tap">Count your tasbeeh with a tap</string>
+    <string name="adhkar_ayah_source">— Surat al-Ra’d 28</string>
+    <string name="dhikr_a11y">Tap anywhere to count. %1$d of %2$d</string>
+    <string name="dhikr_of_total">Dhikr %1$d of %2$d</string>
+    <string name="dhikr_of">of %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s AH</string>
+    <string name="hijri_unknown">— AH</string>
+    <string name="preset_paper_emerald">Paper and emerald</string>
+    <string name="preset_paper_amber">Paper and amber</string>
+    <string name="preset_paper_mint">Paper and mint</string>
+    <string name="preset_sand_olive">Sand and olive</string>
+    <string name="preset_pine_rose">Pine and rose</string>
+    <string name="preset_white_ink">White and ink</string>
+    <string name="preset_night_emerald">Night and emerald</string>
+    <string name="preset_night_gold">Night and gold</string>
+    <string name="preset_night_silver">Night and silver</string>
 </resources>

@@ -234,10 +234,9 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
      *  القاعدة وحدَها، فأسبوعٌ فيه ثلاثةُ أيّامٍ مسجَّلة كان يُسمّيها
      *  «السبت والأحد والاثنين» أيّاً كانت. والحسابُ الصحيح موجودٌ أصلاً
      *  في `AwraqViewModel.weekdayIndex` — يُعاد استعماله لا يُكتب ثانية.  */
+    val letters = app.rafiqaldhikr.util.weekdayLetters()
     fun letterOf(dateIso: String): String = runCatching {
-        app.rafiqaldhikr.util.WEEKDAY_LETTER[
-            app.rafiqaldhikr.util.weekdayIndex(kotlinx.datetime.LocalDate.parse(dateIso))
-        ]
+        letters[app.rafiqaldhikr.util.weekdayIndex(kotlinx.datetime.LocalDate.parse(dateIso))]
     }.getOrDefault("")
 
     Row(

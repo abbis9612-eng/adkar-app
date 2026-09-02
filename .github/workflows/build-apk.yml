@@ -77,6 +77,10 @@ jobs:
       - name: Check schema vs migrations
         run: python3 tools/check_schema.py
 
+      # ٦٤٧ نصّاً عربياً كان مضمَّناً في Kotlin — والسقف يمنع العودة
+      - name: Check hardcoded UI strings
+        run: python3 tools/check_hardcoded_ui.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.util
 
+import androidx.compose.runtime.Composable
+import app.rafiqaldhikr.R
 import kotlinx.datetime.LocalDate
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -44,9 +46,13 @@ fun weekdayIndex(d: LocalDate): Int = weekdayIndexFromEpochDays(d.toEpochDays())
 internal fun weekdayIndexFromEpochDays(epochDays: Int): Int =
     (((epochDays + 4) % 7) + 7) % 7
 
-/** الأحد أوّلاً — يطابق ترتيب [weekdayIndex]. */
-val WEEKDAY_LETTER = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
+/*  الأحرفُ والأسماءُ في `arrays.xml`: العربيةُ حرفٌ واحد («ح» للأحد)
+ *  والإنجليزيةُ حرفان («Su») — ولا يُشتقّ أحدُهما من الآخر.
+ *  الأحد أوّلاً في الترتيبين، مطابقاً لـ[weekdayIndex]. */
+@Composable
+fun weekdayLetters(): List<String> =
+    androidx.compose.ui.res.stringArrayResource(R.array.weekday_letters).toList()
 
-val WEEKDAY_NAME = listOf(
-    "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت",
-)
+@Composable
+fun weekdayNames(): List<String> =
+    androidx.compose.ui.res.stringArrayResource(R.array.weekday_names).toList()

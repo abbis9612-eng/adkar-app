@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.luminance
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import app.rafiqaldhikr.R
 
 /* ═══════════════════════════════════════════════════════════════════
    اشتقاق لوحةٍ كاملة من لونين يختارهما المستخدم
@@ -147,18 +148,19 @@ fun RafiqPalette.tuned(paper: Color?, accent: Color?): RafiqPalette {
 }
 
 /** التركيبات الجاهزة — كلُّها مقيسة، والاشتقاق يضمن الباقي. */
-data class ColorPreset(val name: String, val paper: Color, val accent: Color)
+data class ColorPreset(
+    @androidx.annotation.StringRes val name: Int, val paper: Color, val accent: Color)
 
 val ColorPresets = listOf(
-    ColorPreset("ورقٌ وزمرّد",   Color(0xFFFFFDF5), Color(0xFF0B5934)),   // الافتراضي المشحون
-    ColorPreset("ورقٌ وعنبر",    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي السابق
-    ColorPreset("ورقٌ ونعناع",   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
-    ColorPreset("رملٌ وزيتون",   Color(0xFFF2EFE4), Color(0xFF8CA83E)),
-    ColorPreset("صنوبر ووردة",   Color(0xFFF5F2EF), Color(0xFFD98C97)),
-    ColorPreset("أبيضُ وحبر",    Color(0xFFFBFAF7), Color(0xFF3E8F72)),
-    ColorPreset("ليلٌ وزمرّد",   Color(0xFF101511), Color(0xFF4ECF95)),
-    ColorPreset("ليلٌ وذهب",     Color(0xFF0A0B10), Color(0xFFE7C57C)),
-    ColorPreset("ليلٌ وفضّة",    Color(0xFF0B0E1A), Color(0xFFB8CCE1)),
+    ColorPreset(R.string.preset_paper_emerald,   Color(0xFFFFFDF5), Color(0xFF0B5934)),   // الافتراضي المشحون
+    ColorPreset(R.string.preset_paper_amber,    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي السابق
+    ColorPreset(R.string.preset_paper_mint,   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
+    ColorPreset(R.string.preset_sand_olive,   Color(0xFFF2EFE4), Color(0xFF8CA83E)),
+    ColorPreset(R.string.preset_pine_rose,   Color(0xFFF5F2EF), Color(0xFFD98C97)),
+    ColorPreset(R.string.preset_white_ink,    Color(0xFFFBFAF7), Color(0xFF3E8F72)),
+    ColorPreset(R.string.preset_night_emerald,   Color(0xFF101511), Color(0xFF4ECF95)),
+    ColorPreset(R.string.preset_night_gold,     Color(0xFF0A0B10), Color(0xFFE7C57C)),
+    ColorPreset(R.string.preset_night_silver,    Color(0xFF0B0E1A), Color(0xFFB8CCE1)),
 )
 
 /** ألوان الورق المتاحة للاختيار الحرّ. */

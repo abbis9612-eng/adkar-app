@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.util.weekdayNames
+import app.rafiqaldhikr.util.weekdayLetters
 import app.rafiqaldhikr.R
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -107,7 +109,7 @@ fun AchievementsScreen(
         ) {
             /* ═══ ١ · أيُّ وردٍ يثبت؟ ═══ */
             SectionHead(stringResource(R.string.awraq_last_seven), wirdCount(s.weekTotal))
-            WeekGrid(s.weekDays, s.rows, rc)
+            WeekGrid(s.weekDayIndices.map { weekdayLetters()[it] }, s.rows, rc)
             Spacer(Modifier.height(12.dp))
             Legend(
                 listOf(
@@ -121,16 +123,16 @@ fun AchievementsScreen(
             s.steadiest?.let {
                 Spacer(Modifier.height(16.dp))
                 Insight(
-                    "أثبتُ محطّاتك: $it",
-                    s.faintest?.let { f -> "وأخفُّها حضوراً: $f — فلعلّه موضعُ ما تريد أن تزيد." }
-                        ?: "ما فاتك من أوراد هذا الأسبوع أقلُّ ممّا أتممت.",
+                    stringResource(R.string.awraq_steadiest_station, stringResource(it)),
+                    s.faintest?.let { f -> stringResource(R.string.awraq_faintest_station, stringResource(f)) }
+                        ?: stringResource(R.string.awraq_more_done),
                 )
             }
-            s.steadiestDay?.let {
+            s.steadiestDayIndex?.let { weekdayNames()[it] }?.let {
                 Spacer(Modifier.height(8.dp))
                 Insight(
-                    "وأثبتُ أيّامك: $it",
-                    "أكثرُ ما تُتمّ أورادك في هذا اليوم من الأسبوع.",
+                    stringResource(R.string.awraq_steadiest_day, it),
+                    stringResource(R.string.awraq_steadiest_day_note),
                 )
             }
 
@@ -203,7 +205,7 @@ private fun WeekGrid(days: List<String>, rows: List<AwraqViewModel.StationRow>, 
                 verticalAlignment     = Alignment.CenterVertically,
             ) {
                 Text(
-                    row.short,
+                    stringResource(row.short),
                     style    = RafiqType.caption,
                     color    = rc.inkMed,
                     maxLines = 1,
