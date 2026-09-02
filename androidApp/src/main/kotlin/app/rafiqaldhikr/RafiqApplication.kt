@@ -19,6 +19,13 @@ class RafiqApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        /*  أوّلُ شيء — قبل أيّ عملٍ قد يسقط.
+         *
+         *  «يفتح ويُغلق فوراً» ليست معلومةً يُشخَّص بها شيء: لا سجلَّ يصل
+         *  من جهاز صاحبِه، فيبقى السببُ تخميناً. وهذا يكتب أثرَ الانهيار
+         *  في ملفٍّ يعرضه الفتحُ التالي. */
+        app.rafiqaldhikr.util.CrashLog.install(this)
+
         // ═══ لغة التطبيق الافتراضية: العربية (المحتوى عربي أولاً) ═══
         if (androidx.appcompat.app.AppCompatDelegate.getApplicationLocales().isEmpty) {
             androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
@@ -47,11 +54,24 @@ class RafiqApplication : Application() {
 
         // ═══ تعبئة قاعدة البيانات (القرآن والأذكار والأدعية والتفسير) ═══
         // الشاشات تراقب Flows فتمتلئ تلقائياً فور اكتمال التعبئة
+        /*  `Throwable` لا `Exception`.
+         *
+         *  التعبئةُ تُحلّل ملفَّي JSON مجموعُهما خمسةُ ميغابايت إلى ١٢٤٧٢
+         *  صفّاً. وما يقع هنا على جهازٍ ضيّق الذاكرة `OutOfMemoryError`،
+         *  وما يقع على أندرويد قديمٍ `NoSuchMethodError` — وكلاهما
+         *  **`Error` لا `Exception`**، فلا يلتقطهما `catch (e: Exception)`.
+         *  ونازلٌ غيرُ ملتقَطٍ في كوروتين يقتل العملية.
+         *
+         *  وقتلُها هنا يعني أنّ التطبيق يُفتح ويُغلق فوراً، في كل مرّة،
+         *  ما دامت التعبئةُ ناقصة — وهي تُعاد عند كل إقلاع. أي حلقةُ
+         *  انهيارٍ لا تنكسر بإعادة الفتح.
+         *
+         *  والتطبيقُ يعمل بمحتوًى ناقصٍ خيرٌ من تطبيقٍ لا يُفتح. */
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             try {
                 GlobalContext.get().get<app.rafiq.data.db.DatabaseSeeder>().seedIfNeeded()
-            } catch (e: Exception) {
-                android.util.Log.e("RafiqSeeder", "فشل تعبئة قاعدة البيانات", e)
+            } catch (t: Throwable) {
+                android.util.Log.e("RafiqSeeder", "فشل تعبئة قاعدة البيانات", t)
             }
         }
 
@@ -59,8 +79,8 @@ class RafiqApplication : Application() {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             try {
                 GlobalContext.get().get<PrayerRescheduler>().reschedule()
-            } catch (_: Exception) {
-                // offline — ستُعاد المحاولة من شاشة المواقيت أو عند الإقلاع
+            } catch (_: Throwable) {
+                // كسابقه: جدولةُ تنبيهٍ لا تستحقّ إسقاطَ التطبيق.
             }
         }
 

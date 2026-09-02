@@ -121,7 +121,18 @@ class MushafDownloader(private val context: Context) {
         try {
             val code = conn.responseCode
             if (code !in 200..299) throw IllegalStateException("HTTP $code")
-            val declared = conn.contentLengthLong
+            /*  `contentLengthLong` من واجهة ٢٤، وأدنى ما يدعمه التطبيق ٢٣.
+             *
+             *  ونداءُ دالّةٍ غير موجودةٍ يرمي `NoSuchMethodError` — وهو
+             *  **`Error` لا `Exception`**، فلا تلتقطه أيُّ `catch` في
+             *  مسار التنزيل، ويُسقط التطبيقَ على كل جهاز أندرويد ٦.
+             *
+             *  و`contentLength` القديمةُ `Int`: تكفي لخطٍّ حجمُه مليونا
+             *  بايت، وتعيد ‎-1 عند تجاوز ٢ جيجابايت — وكلاهما يُعامَل
+             *  كـ«غير معلوم» في الشرط أدناه. */
+            val declared: Long =
+                if (android.os.Build.VERSION.SDK_INT >= 24) conn.contentLengthLong
+                else conn.contentLength.toLong()
             conn.inputStream.use { input ->
                 tmp.outputStream().use { output -> input.copyTo(output, 64 * 1024) }
             }

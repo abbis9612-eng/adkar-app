@@ -44,6 +44,20 @@ class MainActivity : AppCompatActivity() {
             settingsViewModel.onboardingCompleted.value == null
         }
 
+        /*  تقريرُ الانهيار يسبق كلَّ شيء.
+         *
+         *  ويُقرأ **قبل** أوّل لمسةٍ لـ`settingsViewModel`: ذاك يُحلّ من
+         *  Koin، فلو كان العطبُ في التهيئة نفسِها لانهارت شاشةُ التقرير
+         *  قبل أن تُظهر سببَ الانهيار — وهو الشيءُ الوحيد المطلوب منها.
+         *
+         *  فما دام ثمّة تقريرٌ لم يُقرأ، لا يُشغَّل التطبيق أصلاً: يُعرض
+         *  النصُّ، ولصاحبه أن يرسله أو يتجاوزه. */
+        val crash = app.rafiqaldhikr.util.CrashLog.read(this)
+        if (crash != null) {
+            setContent { app.rafiqaldhikr.ui.screens.crash.CrashReportScreen(crash) }
+            return
+        }
+
         setContent {
             val onboardingCompleted by settingsViewModel.onboardingCompleted
                 .collectAsStateWithLifecycle()
