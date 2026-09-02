@@ -617,4 +617,16 @@
     <string name="waraqa_start_station">ابدأ %1$s</string>
     <string name="hub_station_window">نافذةُ %1$s</string>
     <string name="hub_remaining"> · بقي %1$s</string>
+
+    <!-- ═══ الميقات والمدن والشهور ═══ -->
+    <string name="meeqat_duha">الضحى</string>
+    <string name="meeqat_night">الليل</string>
+    <string name="greet_time_morning">صباح الخير</string>
+    <string name="greet_time_day">طاب يومك</string>
+    <string name="greet_time_evening">مساء النور</string>
+    <string name="greet_time_night">طابت ليلتك</string>
+    <string name="city_pick_title">اختر مدينتك</string>
+    <string name="city_pick_note">تُحسب المواقيت من إحداثيات المدينة المختارة.</string>
+    <string name="city_search_hint">ابحث بالعربية أو بالإنجليزية…</string>
+    <string name="city_not_found">لا مدينة بهذا الاسم في القائمة. جرّب اسم أقرب مدينة كبيرة إليك، أو فعّل الموقع ليُحدَّد بدقّة.</string>
 </resources>

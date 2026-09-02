@@ -9,6 +9,8 @@ import app.rafiqaldhikr.ui.screens.qibla.QiblaViewModel
 import app.rafiqaldhikr.ui.screens.quran.QuranListViewModel
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehViewModel
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
@@ -26,7 +28,16 @@ val viewModelModule = module {
     viewModelOf(::LocationRequestViewModel)
     viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
-    viewModelOf(::HomeViewModel)
+    /*  صريحٌ لا `viewModelOf`.
+     *
+     *  `startKoin { androidContext(app) }` يُسجّل `Context` فعلاً، فـ
+     *  `viewModelOf(::HomeViewModel)` كان سيعمل. لكنّ الاعتمادَ على
+     *  السياق يبقى حينئذٍ مخفيّاً في بانٍ من خمسة وسائط، ويُقرأ هنا
+     *  كأيّ مستودعٍ آخر. وهو الاعتمادُ الوحيد في التطبيق على أندرويد
+     *  داخل ViewModel، فإظهارُه أولى.  */
+    viewModel {
+        HomeViewModel(androidContext(), get(), get(), get(), get())
+    }
     viewModelOf(::HomeHubViewModel)
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)

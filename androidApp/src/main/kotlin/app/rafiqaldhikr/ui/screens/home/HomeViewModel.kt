@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.home
 
+import app.rafiqaldhikr.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.DailyProgressInfo
@@ -29,6 +30,12 @@ import java.util.Locale
 import app.rafiqaldhikr.util.coordsOrNull
 
 class HomeViewModel(
+    /*  السياقُ لقراءة الموارد وحدَها.
+     *
+     *  كانت أسماءُ الصلوات والشهورِ الهجرية والتحيّاتُ مكتوبةً عربيةً في
+     *  هذا الـViewModel — فتصل الشاشةَ نصّاً جاهزاً لا يمرّ بمترجم.
+     *  و`applicationContext` لا يُسرَّب: عمرُه عمرُ التطبيق. */
+    private val context: android.content.Context,
     private val progressRepo: ProgressRepository,
     private val prefsRepo:    PrefsRepository,
     private val streakRepo:   StreakRepository,
@@ -137,7 +144,7 @@ class HomeViewModel(
                     } catch (_: Exception) { null }
                     if (tomorrowResult != null) {
                         nextPrayer = PrayerUi(
-                            ar = "الفجر",
+                            ar = context.getString(R.string.fajr),
                             en = "Fajr",
                             time = formatMillisToTime(tomorrowResult.fajr),
                             timeMillis = tomorrowResult.fajr,
@@ -160,7 +167,7 @@ class HomeViewModel(
                     todayProgress   = progress,
                     prayerMethod    = prefs.prayerMethod,
                     prayers         = prayers,
-                    nextPrayerName  = nextPrayer?.ar ?: "الفجر",
+                    nextPrayerName  = nextPrayer?.ar ?: context.getString(R.string.fajr),
                     nextPrayerTime  = nextPrayer?.time ?: "—",
                     nextPrayerMillis = nextMillis,
                     prevPrayerMillis = prevMillis,
@@ -216,12 +223,12 @@ class HomeViewModel(
 
         val now = System.currentTimeMillis()
         val prayers = listOf(
-            Triple("الفجر", "Fajr", result.fajr),
-            Triple("الشروق", "Sunrise", result.sunrise),
-            Triple("الظهر", "Dhuhr", result.dhuhr),
-            Triple("العصر", "Asr", result.asr),
-            Triple("المغرب", "Maghrib", result.maghrib),
-            Triple("العشاء", "Isha", result.isha)
+            Triple(context.getString(R.string.fajr), "Fajr", result.fajr),
+            Triple(context.getString(R.string.sunrise), "Sunrise", result.sunrise),
+            Triple(context.getString(R.string.dhuhr), "Dhuhr", result.dhuhr),
+            Triple(context.getString(R.string.asr), "Asr", result.asr),
+            Triple(context.getString(R.string.maghrib), "Maghrib", result.maghrib),
+            Triple(context.getString(R.string.isha), "Isha", result.isha)
         )
 
         // أول صلاة لم يمر وقتها = الصلاة النشطة
@@ -241,12 +248,12 @@ class HomeViewModel(
     }
 
     private fun defaultPrayers(): List<PrayerUi> = listOf(
-        PrayerUi("الفجر", "Fajr", "—"),
-        PrayerUi("الشروق", "Sunrise", "—"),
-        PrayerUi("الظهر", "Dhuhr", "—"),
-        PrayerUi("العصر", "Asr", "—"),
-        PrayerUi("المغرب", "Maghrib", "—"),
-        PrayerUi("العشاء", "Isha", "—")
+        PrayerUi(context.getString(R.string.fajr), "Fajr", "—"),
+        PrayerUi(context.getString(R.string.sunrise), "Sunrise", "—"),
+        PrayerUi(context.getString(R.string.dhuhr), "Dhuhr", "—"),
+        PrayerUi(context.getString(R.string.asr), "Asr", "—"),
+        PrayerUi(context.getString(R.string.maghrib), "Maghrib", "—"),
+        PrayerUi(context.getString(R.string.isha), "Isha", "—")
     )
 
     // ═══ حساب تقدم الورد اليومي ═══
@@ -266,20 +273,16 @@ class HomeViewModel(
         val hour = Clock.System.now()
             .toLocalDateTime(TimeZone.currentSystemDefault()).hour
         return when (hour) {
-            in 5..11  -> "صباح الخير"
-            in 12..16 -> "طاب يومك"
-            in 17..20 -> "مساء النور"
-            else      -> "طابت ليلتك"
+            in 5..11  -> context.getString(R.string.greet_time_morning)
+            in 12..16 -> context.getString(R.string.greet_time_day)
+            in 17..20 -> context.getString(R.string.greet_time_evening)
+            else      -> context.getString(R.string.greet_time_night)
         }
     }
 
     // ═══ التاريخ الهجري (أم القرى عبر ICU — دقيق) ═══
     private fun calculateHijriDate(offset: Long): String {
-        val monthNames = listOf(
-            "محرّم", "صفر", "ربيع الأول", "ربيع الآخر",
-            "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
-            "رمضان", "شوّال", "ذو القعدة", "ذو الحجة"
-        )
+        val monthNames = context.resources.getStringArray(R.array.hijri_months).toList()
         return try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 val cal = android.icu.util.IslamicCalendar().apply {

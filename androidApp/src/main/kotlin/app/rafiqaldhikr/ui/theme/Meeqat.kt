@@ -5,6 +5,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import app.rafiq.domain.model.PrayerTimesResult
+import app.rafiqaldhikr.R
 
 /* ═══════════════════════════════════════════════════════════════════
    طبقة الميقات — عنصر التوقيع
@@ -24,19 +25,21 @@ import app.rafiq.domain.model.PrayerTimesResult
         من الفجر إلى العشاء وعليه علامة بموضع اللحظة الحالية.
 ═══════════════════════════════════════════════════════════════════ */
 
-enum class MeeqatPhase(val label: String) {
-    FAJR   ("الفجر"),
-    DUHA   ("الضحى"),
-    DHUHR  ("الظهر"),
-    ASR    ("العصر"),
-    MAGHRIB("المغرب"),
-    ISHA   ("العشاء"),
-    LAYL   ("الليل"),
+/*  الاسمُ مرجعُ مورد لا نصّ — كان عربياً مكتوباً فلا يُترجَم شريطُ
+ *  الميقات في أيّ شاشة. */
+enum class MeeqatPhase(@androidx.annotation.StringRes val label: Int) {
+    FAJR   (R.string.fajr),
+    DUHA   (R.string.meeqat_duha),
+    DHUHR  (R.string.dhuhr),
+    ASR    (R.string.asr),
+    MAGHRIB(R.string.maghrib),
+    ISHA   (R.string.isha),
+    LAYL   (R.string.meeqat_night),
 }
 
 /** علامة صلاة على شريط اليوم. [at] موضعها 0..1 من الفجر إلى العشاء. */
 @Immutable
-data class MeeqatMark(val label: String, val at: Float)
+data class MeeqatMark(@androidx.annotation.StringRes val label: Int, val at: Float)
 
 @Immutable
 data class Meeqat(
@@ -106,11 +109,11 @@ fun meeqatOf(times: PrayerTimesResult, nowMs: Long, palette: RafiqPalette): Meeq
         tint        = tint,
         dayProgress = at(nowMs),
         marks = listOf(
-            MeeqatMark("الفجر",  at(times.fajr)),
-            MeeqatMark("الظهر",  at(times.dhuhr)),
-            MeeqatMark("العصر",  at(times.asr)),
-            MeeqatMark("المغرب", at(times.maghrib)),
-            MeeqatMark("العشاء", at(times.isha)),
+            MeeqatMark(R.string.fajr,  at(times.fajr)),
+            MeeqatMark(R.string.dhuhr,  at(times.dhuhr)),
+            MeeqatMark(R.string.asr,  at(times.asr)),
+            MeeqatMark(R.string.maghrib, at(times.maghrib)),
+            MeeqatMark(R.string.isha, at(times.isha)),
         ),
         resolved = true,
     )

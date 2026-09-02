@@ -94,10 +94,7 @@ fun moonPhase(epochMillis: Long): MoonPhase {
     )
 }
 
-/** اسمُ الطور — ثمانيةٌ كما هي في كلام العرب. */
-fun moonName(p: MoonPhase): String = when ((p.phase * 8 + 0.5).toInt() % 8) {
-    0 -> "محاق"; 1 -> "هلالٌ أوّل"; 2 -> "تربيعٌ أوّل"; 3 -> "أحدبُ متزايد"
-    4 -> "بدر";  5 -> "أحدبُ متناقص"; 6 -> "تربيعٌ أخير"; else -> "هلالٌ أخير"
-}
+// حُذفت `moonName`: أسماءُ الأطوار الثمانية مكتوبةٌ بالعربية ولا يناديها
+// أحد. والقمرُ يُرسم في `SkyCanvas` بطوره لا باسمه.
 
 private fun Double.mod(m: Double): Double = ((this % m) + m) % m

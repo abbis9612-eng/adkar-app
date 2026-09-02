@@ -34,4 +34,18 @@
         <item>29</item>
         <item>30</item>
     </string-array>
+    <string-array name="hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabi’ al-Awwal</item>
+        <item>Rabi’ al-Thani</item>
+        <item>Jumada al-Ula</item>
+        <item>Jumada al-Akhirah</item>
+        <item>Rajab</item>
+        <item>Sha’ban</item>
+        <item>Ramadan</item>
+        <item>Shawwal</item>
+        <item>Dhu al-Qi’dah</item>
+        <item>Dhu al-Hijjah</item>
+    </string-array>
 </resources>

@@ -598,4 +598,16 @@
     <string name="waraqa_start_station">Start %1$s</string>
     <string name="hub_station_window">%1$s window</string>
     <string name="hub_remaining"> · %1$s left</string>
+
+    <!-- ═══ Meeqat, cities, months ═══ -->
+    <string name="meeqat_duha">Duha</string>
+    <string name="meeqat_night">Night</string>
+    <string name="greet_time_morning">Good morning</string>
+    <string name="greet_time_day">Have a good day</string>
+    <string name="greet_time_evening">Good evening</string>
+    <string name="greet_time_night">Good night</string>
+    <string name="city_pick_title">Choose your city</string>
+    <string name="city_pick_note">Times are computed from the chosen city\'s coordinates.</string>
+    <string name="city_search_hint">Search in Arabic or English…</string>
+    <string name="city_not_found">No city by that name in the list. Try the nearest large city, or enable location for an exact fix.</string>
 </resources>

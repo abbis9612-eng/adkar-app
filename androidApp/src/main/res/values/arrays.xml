@@ -42,4 +42,18 @@
         <item>التاسع والعشرون</item>
         <item>الثلاثون</item>
     </string-array>
+    <string-array name="hijri_months">
+        <item>محرّم</item>
+        <item>صفر</item>
+        <item>ربيع الأول</item>
+        <item>ربيع الآخر</item>
+        <item>جمادى الأولى</item>
+        <item>جمادى الآخرة</item>
+        <item>رجب</item>
+        <item>شعبان</item>
+        <item>رمضان</item>
+        <item>شوّال</item>
+        <item>ذو القعدة</item>
+        <item>ذو الحجة</item>
+    </string-array>
 </resources>
