@@ -251,6 +251,9 @@ fun MushafScreen(
      *
      *  فالمصحفُ غامرٌ **دائماً**، وأدواتُه تطفو فوق الورقة ولا تأخذ من
      *  ارتفاعها شيئاً. والخروجُ منه بسهم الرجوع في الشريط العلويّ. */
+    //  وأشرطةُ النظام تُخفى كذلك — الصفحةُ تُرى كاملةً كما تُطبع.
+    app.rafiqaldhikr.ui.navigation.FullBleedReading()
+
     val immersive = app.rafiqaldhikr.ui.navigation.LocalImmersive.current
     LaunchedEffect(Unit) { immersive.value = true }
     DisposableEffect(Unit) { onDispose { immersive.value = false } }
@@ -277,7 +280,11 @@ fun MushafScreen(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
+                    /*  حشوةُ القُصاصة لا حشوةُ شريط الحالة: الأشرطةُ مخفيّةٌ
+                     *  في هذه الشاشة فحشوتُها صفر، والباقي هو النَّقْر
+                     *  (notch) وحدَه — فلا يختفي حرفٌ تحته ولا تُهدر
+                     *  نقطةٌ من ارتفاع الورقة. */
+                    .displayCutoutPadding()
                     /*  ولا `navigationBarsPadding` هنا: الشريطُ السفليُّ
                         يحملها في `RafiqBottomBar`، والهيكلُ يطرح ارتفاعَه
                         من المحتوى — فإعادتُها تقتطع من ارتفاع الورقة
@@ -801,7 +808,7 @@ private fun ToolBar(
          *
          *  ولونُه لونُ الورقة نفسِها، فيتبع الليلَ والنهار ولا يأتي
          *  ببياضِ نظامٍ غريبٍ فوق ورقةٍ داكنة. */
-        Box(Modifier.statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Box(Modifier.displayCutoutPadding().padding(horizontal = 12.dp, vertical = 10.dp)) {
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -1322,8 +1329,8 @@ private fun PageRail(
     ) {
         Column(
             Modifier
-                .navigationBarsPadding()
-                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .displayCutoutPadding()
+                .padding(horizontal = 12.dp, vertical = 14.dp)
                 .fillMaxWidth()
                 .shadow(8.dp, RoundedCornerShape(24.dp), clip = false)
                 .clip(RoundedCornerShape(24.dp))
