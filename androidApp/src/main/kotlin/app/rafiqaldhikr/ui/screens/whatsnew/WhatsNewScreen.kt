@@ -65,6 +65,16 @@ fun WhatsNewScreen(navController: NavHostController) {
                 stringResource(R.string.whatsnew_alarms),
                 stringResource(R.string.whatsnew_qibla),
                 stringResource(R.string.whatsnew_a11y),
+                /*  الجولة الثانية — في نفس المُدخل لا في مُدخلٍ ثانٍ.
+                 *
+                 *  كلاهما يشحن مع `BuildConfig.VERSION_NAME` نفسِه، ومُدخلان
+                 *  برقمِ إصدارٍ واحدٍ يجعلان الشاشةَ تكذب بطريقةٍ أخرى.
+                 *  فإذا رُفع الرقمُ يوماً فُصلا حينئذٍ. */
+                stringResource(R.string.whatsnew_doors),
+                stringResource(R.string.whatsnew_continue),
+                stringResource(R.string.whatsnew_import),
+                stringResource(R.string.whatsnew_notify_kinds),
+                stringResource(R.string.whatsnew_adhkar_grown),
             ),
             isLatest = true,
         ),

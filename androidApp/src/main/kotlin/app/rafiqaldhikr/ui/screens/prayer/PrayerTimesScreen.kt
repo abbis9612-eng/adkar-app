@@ -234,6 +234,20 @@ private fun PrayerTimesContent(
                 Text(stringResource(R.string.times_approximate),
                     color = rc.inkMed,
                     modifier = Modifier.padding(horizontal = 4.dp), style = RafiqType.caption)
+
+                /*  الجملةُ الوحيدةُ النافعة من «إعدادات الودجت» المحذوفة.
+                 *
+                 *  تلك الشاشةُ حُذفت لأنّ مفاتيحَها الثلاثة `remember` لا
+                 *  تُحفظ، واثنين منها لودجتَين لم تُكتبا قطّ. لكنّ
+                 *  `PrayerWidget` **موجودٌ ويعمل**، وبحذفها لم يبقَ في
+                 *  التطبيق كلِّه ما يقول للمستخدم إنّ له ودجتَ مواقيت.
+                 *
+                 *  والتطبيقُ لا يملك إضافتَه بنفسه — الودجتَ يضيفه صاحبُ
+                 *  الجهاز من الشاشة الرئيسية. فكلُّ ما يصحّ هنا: أن نَدُلّ. */
+                Spacer(Modifier.height(10.dp))
+                Text(stringResource(R.string.times_widget_hint),
+                    color = rc.inkLight,
+                    modifier = Modifier.padding(horizontal = 4.dp), style = RafiqType.caption)
             }
         }
     }

@@ -733,4 +733,14 @@
 Morning and evening adhkar come from the Morning-And-Evening-Adhkar-DB dataset (MIT), with their takhrij and grading as given.
 
 Prayer times are computed on-device with the adhan library (MIT).</string>
+
+    <!-- ما الجديد — الجولة الثانية -->
+    <string name="whatsnew_doors">Four new doors in Profile: Breathe with Dhikr · Garden · Weekly Report · Share Card</string>
+    <string name="whatsnew_continue">“Continue reading” on the home screen — returns you to your Mushaf page and its surah</string>
+    <string name="whatsnew_import">Import your data from a file you exported — merged, never overwritten</string>
+    <string name="whatsnew_notify_kinds">Separate switches: silence the adhan but keep the dhikr reminders, or the reverse</string>
+    <string name="whatsnew_adhkar_grown">25 morning and 23 evening adhkar, each with its source, grading and virtue</string>
+
+    <!-- أداةُ المواقيت المصغّرة -->
+    <string name="times_widget_hint">There is a prayer-times widget: long-press your home screen → Widgets → Rafiq Al-Dhikr</string>
 </resources>
