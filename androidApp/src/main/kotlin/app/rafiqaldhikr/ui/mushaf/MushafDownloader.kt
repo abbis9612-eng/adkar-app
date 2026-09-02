@@ -11,9 +11,36 @@ import java.net.URL
 /* ══════════════════════════════════════════════════════════════
    تنزيلُ خطوط المصحف — مرّةً واحدةً بإذنٍ صريح
 
-   ثمانيةٌ وأربعون ملفّاً، نحو تسعين ميغابايت. لا تُشحن في
-   الحزمة لأنّ التطبيق ٢٥٫٣ فيصير سبعين وما فوق، ولأنّ ترخيصَها لم
-   يُحسم بعد.
+   ثمانيةٌ وأربعون ملفّاً، نحو تسعين ميغابايت. لا تُشحن في الحزمة لأنّ
+   التطبيق ٢٥٫٣ ميغابايت فيصير مئةً وخمسةَ عشر.
+
+   **وترخيصُ الخطّ نفسِه محسوم**، خلافاً لِما كان مكتوباً هنا. نصُّ رخصة
+   مجمَّع الملك فهد صريح:
+
+     "Permission is hereby granted, Free of Cost, … the rights to Use,
+      Copy, Distribute … The Font Software cannot be Sold, Modified,
+      Altered, Translated, Reverse Engineered, Decompiled…"
+      — © King Fahd Glorious Quran Printing Complex, Al-Madinah
+
+   فالاستعمالُ والنسخُ والتوزيعُ ممنوحةٌ مجاناً، والممنوعُ البيعُ
+   والتعديل — ولا نفعل واحداً منهما: نُنزّل الملفَّ كما هو ونعرضه.
+
+   **والمشكلةُ الباقيةُ ليست الترخيصَ بل المصدر.** وهي شيئان:
+
+   ١) `LICENSE.md` في المستودع الذي نجلب منه يقول عن ملفّات الخطّ
+      نصّاً: "Redistribution, modification, or commercial use of the
+      font files without explicit permission … is not permitted" —
+      تحفّظٌ أشدُّ ممّا تقتضيه رخصةُ المجمَّع. فنحن نجلب منه ولا ننسخه.
+
+   ٢) الملفّاتُ نفسُها لا تحمل رخصةً في جدول `name`: حقلُ الرخصة (13)
+      فارغٌ، وفيها "King Fahad Complex, All rights reserved" وحدَها،
+      وسلسلةُ الإصدار تقول `FontCreator 11.0.0.2388` — أي أنّها
+      مبنيّةٌ بمحرّر خطوطٍ لا صادرةٌ عن المجمَّع كما هي. فلا نستطيع أن
+      نزعم أنّ هذه البايتات بعينها هي ما رخّصه المجمَّع.
+
+   ولذلك: يُجلب ولا يُنسخ، والمصدرُ في ثابتٍ **واحد** أدناه يُبدَّل بسطر
+   إن نقل صاحبُه المستودعَ أو حذفه، و`tools/check_mushaf_fonts.py` يقول
+   متى يسقط قبل أن يكتشفه المستخدم بصفحةٍ بيضاء.
 
    ويُنزَّل إلى `filesDir/mushaf` لا إلى الذاكرة الخارجية: ملفٌّ خاصٌّ
    بالتطبيق يُحذف بحذفه، ولا يحتاج إذنَ تخزين.
@@ -24,13 +51,22 @@ import java.net.URL
 
 class MushafDownloader(private val context: Context) {
 
-    /*  المصدر — يُغيَّر من مكانٍ واحد إن تبدّل المستودع.
+    companion object {
+        /**
+         * مصدرُ خطوط المصحف — **الموضعُ الوحيد** الذي يُبدَّل إن نُقل.
+         *
+         * و`tools/check_mushaf_fonts.py` يقرأ هذا السطرَ بعينه، فلا
+         * يفترق الحارسُ عن الكود حين يُغيَّر.
+         */
+        const val FONT_BASE =
+            "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/fonts/"
+    }
 
-        وخطوطُ المتن وحدَها تحمل لاحقةَ `_W` في أسمائها؛ أمّا خطُّ لوحِ
+    /*  خطوطُ المتن وحدَها تحمل لاحقةَ `_W` في أسمائها؛ أمّا خطُّ لوحِ
         السور فاسمُ ملفِّه `QCF4_QBSML.ttf` مجرّداً. */
     private fun urlFor(name: String): String {
         val file = if (name.startsWith("QCF4_Hafs")) "${name}_W.ttf" else "$name.ttf"
-        return "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/fonts/$file"
+        return "$FONT_BASE$file"
     }
 
     data class Progress(val done: Int, val total: Int, val bytes: Long)

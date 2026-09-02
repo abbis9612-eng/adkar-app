@@ -1,6 +1,8 @@
 ﻿package app.rafiqaldhikr.ui.screens.about
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -48,6 +50,7 @@ fun AboutScreen(navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -64,6 +67,26 @@ fun AboutScreen(navController: NavHostController) {
                     color = rc.inkMed, style = RafiqType.body)
                 Spacer(Modifier.height(32.dp))
                 Text(stringResource(R.string.about_made_with), color = rc.emerald, style = RafiqType.bodyS)
+
+                Spacer(Modifier.height(36.dp))
+
+                /*  العزوُ الذي لم يكن.
+                 *
+                 *  خطوطُ المصحف مِلكُ مجمَّع الملك فهد، ورخصتُه تمنح
+                 *  الاستعمالَ والنسخَ والتوزيعَ مجاناً **بشرط أن ترافقَ
+                 *  الرخصةُ الخطَّ**: "any person obtaining a copy of this
+                 *  Font accompanying this license". والتطبيقُ كان
+                 *  يُنزّل تسعين ميغابايت من خطوطهم ولا يذكرهم في موضعٍ
+                 *  واحدٍ يراه المستخدم.
+                 *
+                 *  والنصُّ الكاملُ في `tools/licenses/`. */
+                Text(
+                    stringResource(R.string.about_credits),
+                    style = RafiqType.caption,
+                    color = rc.inkLight,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp,
+                )
             }
         }
     }

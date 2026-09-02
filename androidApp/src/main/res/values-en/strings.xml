@@ -726,4 +726,11 @@
     <string name="import_not_json">The file could not be read</string>
     <string name="import_not_rafiq">This is not a Rafiq Al-Dhikr export file</string>
     <string name="import_future">This file is from a newer version — update the app and try again</string>
+
+    <!-- العزو -->
+    <string name="about_credits">The Mushaf fonts are from the King Fahd Glorious Quran Printing Complex, Al-Madinah — used, copied and distributed free of cost under its licence; never sold, never modified.
+
+Morning and evening adhkar come from the Morning-And-Evening-Adhkar-DB dataset (MIT), with their takhrij and grading as given.
+
+Prayer times are computed on-device with the adhan library (MIT).</string>
 </resources>

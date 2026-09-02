@@ -1,0 +1,62 @@
+King Fahd Glorious Quran Printing Complex (KFGQPC) — Font Licence
+=================================================================
+
+This licence accompanies the Mushaf page fonts (QCF4_Hafs_01..47_W and
+QCF4_QBSML) that Rafiq Al-Dhikr downloads on request. It is reproduced
+here because the licence itself requires it: the grant is made "to any
+person obtaining a copy of this Font accompanying this license".
+
+    The Font is owned by King Fahd Glorious Quran Printing Complex
+    (KFGQPC), Al-Madinah Munawarrah, Kingdom of Saudi Arabia.
+
+    Permission is hereby granted, Free of Cost, to any person obtaining
+    a copy of this Font accompanying this license, the rights to Use,
+    Copy, Distribute, subject to the following conditions.
+
+    The Font Software cannot be Sold, Modified, Altered, Translated,
+    Reverse Engineered, Decompiled, Disassembled, Reproduced or
+    Attempted to discover the Source Code of this Font in no means.
+
+    This Agreement does not grant you any intellectual property rights
+    in the Font.
+
+    The Font Software is provided "AS IS", and KFGQPC makes no
+    warranties as to its use or performance, fitness for a particular
+    purpose.
+
+
+What this app does, and does not do
+-----------------------------------
+
+Does:      downloads the font files unchanged, on the user's explicit
+           request, and renders the Mushaf page with them.
+Does not:  sell them, modify them, bundle them in the APK, or
+           redistribute them from servers of our own.
+
+
+An open question we do not paper over
+-------------------------------------
+
+The licence above settles the font. It does not, by itself, settle the
+provenance of the particular binaries we fetch. Two facts, recorded so
+that whoever reads this next does not have to rediscover them:
+
+1. The repository we fetch from states, in its own LICENSE.md, that
+   "Redistribution, modification, or commercial use of the font files
+   without explicit permission from the original rights holders is not
+   permitted" — a stricter term than KFGQPC's own. We therefore fetch
+   from it and do not mirror it.
+
+2. The files carry no licence string in their `name` table (field 13 is
+   empty); they carry only "King Fahad Complex, All rights reserved",
+   and their version string reads "FontCreator 11.0.0.2388" — i.e. they
+   were produced with a font editor rather than issued by the Complex in
+   this exact form.
+
+Neither fact stops the app from working or from crediting the Complex.
+Both are reasons to obtain the files from KFGQPC directly (or with their
+written permission) before mirroring them anywhere.
+
+Sources consulted: the KFGQPC licence text as published with the
+Complex's fonts; https://dm.qurancomplex.gov.sa/copyright-2/ ; and the
+`name` tables of the downloaded files themselves.
