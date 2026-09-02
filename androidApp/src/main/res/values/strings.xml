@@ -516,4 +516,43 @@
     <string name="about_version">الإصدار %1$s</string>
     <string name="celebration_title">بارك الله فيك!</string>
     <string name="awraq_no_wird">لا وِردَ بعد</string>
+
+    <!-- ═══ المصحف ═══ -->
+    <string name="mushaf_surah_label">سُورَةُ %1$s</string>
+    <string name="mushaf_juz_label">الجُزْءُ %1$s</string>
+    <string name="mushaf_hint">المسِ الورقةَ لتظهر الأدوات · واضغط كلمةً مطوّلاً لتفتح آيتَها</string>
+    <string name="action_got_it">فهمت</string>
+    <string name="mushaf_mode">طريقةُ العرض</string>
+    <string name="mushaf_font_size">مقاسُ الخطّ</string>
+    <string name="mushaf_size_note">الورقةُ المصحفيةُ تضبط مقاسَها بنفسها لتستويَ الأسطر — والمقياسُ لِعرضِ النصّ.</string>
+    <string name="mushaf_not_downloaded">%1$s — لم تُنزَّل بعد</string>
+    <string name="mushaf_dl_progress">يُنزَّل %1$s من %2$s · %3$s م.ب</string>
+    <string name="mushaf_dl_ready">جاهزة · %1$s م.ب على جهازك</string>
+    <string name="mushaf_dl_resume">أكمِلِ التنزيل — %1$s من %2$s</string>
+    <string name="mushaf_dl_title">نزِّلْ خطوطَ المصحف</string>
+    <string name="mushaf_dl_note">نحو ٩٠ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.</string>
+    <string name="mushaf_offer_body">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة.</string>
+    <string name="mushaf_offer_now">اعرِضْها الآن</string>
+    <string name="mushaf_offer_now_note">يُجلَب خطُّ ما تقرؤه وحدَه — نحو مليونَي بايت، ثوانٍ. ويمتلئ الباقي كلّما قلبتَ ورقة.</string>
+    <string name="mushaf_offer_all">نزِّلِ المصحفَ كلَّه — ٩٠ م.ب</string>
+    <string name="mushaf_offer_all_note">لقراءةٍ كاملةٍ دون إنترنت</string>
+    <string name="mushaf_offer_later">لاحقاً — واقرأ بالصفحة المضبوطة</string>
+
+    <!-- أنماطُ العرض -->
+    <string name="mushaf_mode_classic">قائمةُ الآيات</string>
+    <string name="mushaf_mode_classic_note">آيةٌ في سطرٍ مع رقمها — أسهلُ للبحث والتفسير</string>
+    <string name="mushaf_mode_fitted">صفحةٌ مضبوطة</string>
+    <string name="mushaf_mode_fitted_note">بترقيم المصحف المدنيّ — يعمل دون إنترنت بلا تنزيل</string>
+    <string name="mushaf_mode_page">الصفحةُ المصحفية</string>
+    <string name="mushaf_mode_page_note">مطابقةٌ لمصحف المدينة سطراً بسطر — تحتاج تنزيلاً</string>
+    <string name="mushaf_mode_night">المصحفيةُ ليلاً</string>
+    <string name="mushaf_mode_night_note">الصفحةُ نفسُها بحبرٍ فاتحٍ على ورقٍ داكن</string>
+
+    <!-- ورقةُ الآية -->
+    <string name="ayah_label">%1$s · الآية %2$s</string>
+    <string name="ayah_bookmarked">مُعَلَّمة</string>
+    <string name="ayah_bookmark">ضَعْ علامة</string>
+    <string name="ayah_share_title">مشاركةُ الآية</string>
+    <string name="tafsir_label">التفسير الميسّر:</string>
+    <string name="mushaf_offer_body_long">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة. وتحتاج خطوطاً تُنزَّل مرّةً واحدة.</string>
 </resources>

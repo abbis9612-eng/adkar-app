@@ -607,18 +607,17 @@ private fun SurahOpening(
    والفرديّةُ يسارَ الفتحة فخارجُها عن يسارها.
 ──────────────────────────────────────────────────────────────── */
 
-private val JUZ_NAMES = listOf(
-    "", "الأوّل", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع",
-    "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر",
-    "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر",
-    "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون",
-    "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون",
-    "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون",
-)
+/*  أسماءُ الأجزاء الثلاثين نُقلت إلى `arrays.xml`.
+ *
+ *  العربيةُ تقول «الجُزْءُ الحادي والعشرون» بترتيبٍ منطوق، والإنجليزيةُ
+ *  تقول «Juz 21» برقم. والقائمةُ المكتوبةُ بالكود لا تعرف إلّا واحدةً
+ *  منهما.
+ */
 
 @Composable
 private fun PageMargin(surah: String, juz: Int, odd: Boolean, ink: Color) {
     val faint = ink.copy(alpha = 0.52f)
+    val juzNames = androidx.compose.ui.res.stringArrayResource(R.array.juz_names)
     Row(
         Modifier
             .fillMaxWidth()
@@ -632,14 +631,15 @@ private fun PageMargin(surah: String, juz: Int, odd: Boolean, ink: Color) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            if (surah.isBlank()) "" else "سُورَةُ $surah",
+            if (surah.isBlank()) "" else stringResource(R.string.mushaf_surah_label, surah),
             fontFamily = NaskhFamily,
             fontSize = 13.sp,
             color = faint,
             maxLines = 1,
         )
         Text(
-            JUZ_NAMES.getOrNull(juz)?.takeIf { it.isNotEmpty() }?.let { "الجُزْءُ $it" }.orEmpty(),
+            juzNames.getOrNull(juz)?.takeIf { it.isNotEmpty() }
+                ?.let { stringResource(R.string.mushaf_juz_label, it) }.orEmpty(),
             fontFamily = NaskhFamily,
             fontSize = 13.sp,
             color = ink.copy(alpha = 0.40f),
@@ -713,12 +713,12 @@ private fun HintBar(ink: Color, onDismiss: () -> Unit, modifier: Modifier = Modi
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "المسِ الورقةَ لتظهر الأدوات · واضغط كلمةً مطوّلاً لتفتح آيتَها",
+            stringResource(R.string.mushaf_hint),
             style = RafiqType.caption,
             color = ink.copy(alpha = 0.82f),
             modifier = Modifier.weight(1f),
         )
-        Text("فهمت", style = RafiqType.label, color = rc.emerald)
+        Text(stringResource(R.string.action_got_it), style = RafiqType.label, color = rc.emerald)
     }
 }
 
@@ -840,7 +840,7 @@ private fun SettingsSheet(
                     .width(34.dp).height(4.dp)
                     .clip(RoundedCornerShape(4.dp)).background(rc.divider),
             )
-            Text("طريقةُ العرض", style = RafiqType.titleM, color = rc.ink)
+            Text(stringResource(R.string.mushaf_mode), style = RafiqType.titleM, color = rc.ink)
             Spacer(Modifier.height(9.dp))
 
             MushafMode.entries.forEach { m ->
@@ -861,10 +861,11 @@ private fun SettingsSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(m.label, style = RafiqType.label,
+                        Text(stringResource(m.label), style = RafiqType.label,
                             color = if (m == mode) rc.emerald else rc.ink)
                         Text(
-                            if (locked) "${m.note} — لم تُنزَّل بعد" else m.note,
+                            if (locked) stringResource(R.string.mushaf_not_downloaded, stringResource(m.note))
+                            else stringResource(m.note),
                             style = RafiqType.caption, color = rc.inkMed,
                         )
                     }
@@ -873,11 +874,11 @@ private fun SettingsSheet(
             }
 
             Spacer(Modifier.height(10.dp))
-            Text("مقاسُ الخطّ", style = RafiqType.titleM, color = rc.ink)
+            Text(stringResource(R.string.mushaf_font_size), style = RafiqType.titleM, color = rc.ink)
             if (!sizeApplies) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "الورقةُ المصحفيةُ تضبط مقاسَها بنفسها لتستويَ الأسطر — والمقياسُ لِعرضِ النصّ.",
+                    stringResource(R.string.mushaf_size_note),
                     style = RafiqType.caption, color = rc.inkMed,
                 )
             }
@@ -909,11 +910,10 @@ private fun SettingsSheet(
                     .border(1.dp, rc.divider, RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
                     .padding(14.dp),
             ) {
-                Text("الصفحةُ المصحفية", style = RafiqType.titleM, color = rc.emerald)
+                Text(stringResource(R.string.mushaf_mode_page), style = RafiqType.titleM, color = rc.emerald)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها " +
-                        "والسطرُ يقطع حيث يقطع في الورقة. وتحتاج خطوطاً تُنزَّل مرّةً واحدة.",
+                    stringResource(R.string.mushaf_offer_body_long),
                     style = RafiqType.bodyS, color = rc.inkMed,
                 )
                 Spacer(Modifier.height(10.dp))
@@ -937,11 +937,11 @@ private fun SettingsSheet(
                             RafiqIcon(RIcon.Check, 16.dp, rc.emerald)
                             Spacer(Modifier.width(7.dp))
                             Text(
-                                "جاهزة · ${sizeMb.toInt().localized(ar)} م.ب على جهازك",
+                                stringResource(R.string.mushaf_dl_ready, sizeMb.toInt().localized(ar)),
                                 style = RafiqType.bodyS, color = rc.emerald,
                             )
                             Spacer(Modifier.weight(1f))
-                            Text("حذف", style = RafiqType.bodyS, color = rc.error,
+                            Text(stringResource(R.string.action_delete), style = RafiqType.bodyS, color = rc.error,
                                 modifier = Modifier.clickable(onClick = onClear))
                         }
                     }
@@ -956,14 +956,14 @@ private fun SettingsSheet(
                         ) {
                             Text(
                                 if (downloaded > 0)
-                                    "أكمِلِ التنزيل — ${downloaded.localized(ar)} من ${totalFonts.localized(ar)}"
-                                else "نزِّلْ خطوطَ المصحف",
+                                    stringResource(R.string.mushaf_dl_resume, downloaded.localized(ar), totalFonts.localized(ar))
+                                else stringResource(R.string.mushaf_dl_title),
                                 style = RafiqType.titleM, color = rc.onEmerald,
                             )
                         }
                         Spacer(Modifier.height(7.dp))
                         Text(
-                            "نحو ٩٠ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.",
+                            stringResource(R.string.mushaf_dl_note),
                             style = RafiqType.caption, color = rc.inkMed,
                         )
                     }
@@ -1001,11 +1001,10 @@ private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) 
                 .clickable(enabled = false) {}
                 .padding(20.dp),
         ) {
-            Text("الصفحةُ المصحفية", style = RafiqType.hero, color = rc.emerald)
+            Text(stringResource(R.string.mushaf_mode_page), style = RafiqType.hero, color = rc.emerald)
             Spacer(Modifier.height(8.dp))
             Text(
-                "خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها " +
-                    "والسطرُ يقطع حيث يقطع في الورقة.",
+                stringResource(R.string.mushaf_offer_body),
                 style = RafiqType.body, color = rc.inkMed,
             )
             Spacer(Modifier.height(16.dp))
@@ -1016,11 +1015,10 @@ private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) 
                     .background(rc.emerald)
                     .clickable(onClick = onNow),
                 contentAlignment = Alignment.Center,
-            ) { Text("اعرِضْها الآن", style = RafiqType.titleM, color = rc.onEmerald) }
+            ) { Text(stringResource(R.string.mushaf_offer_now), style = RafiqType.titleM, color = rc.onEmerald) }
             Spacer(Modifier.height(6.dp))
             Text(
-                "يُجلَب خطُّ ما تقرؤه وحدَه — نحو مليونَي بايت، ثوانٍ. " +
-                    "ويمتلئ الباقي كلّما قلبتَ ورقة.",
+                stringResource(R.string.mushaf_offer_now_note),
                 style = RafiqType.caption, color = rc.inkMed,
             )
             Spacer(Modifier.height(14.dp))
@@ -1032,17 +1030,17 @@ private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) 
                     .clickable(onClick = onAll),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("نزِّلِ المصحفَ كلَّه — ٩٠ م.ب", style = RafiqType.label, color = rc.emerald)
+                Text(stringResource(R.string.mushaf_offer_all), style = RafiqType.label, color = rc.emerald)
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                "لقراءةٍ كاملةٍ دون إنترنت",
+                stringResource(R.string.mushaf_offer_all_note),
                 style = RafiqType.caption, color = rc.inkMed,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                "لاحقاً — واقرأ بالصفحة المضبوطة",
+                stringResource(R.string.mushaf_offer_later),
                 style = RafiqType.bodyS, color = rc.inkMed,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().clickable(onClick = onNo).padding(vertical = 6.dp),
@@ -1092,8 +1090,12 @@ private fun DownloadStrip(p: MushafDownloader.Progress, modifier: Modifier = Mod
     val ar = LocalArabicNumerals.current
     Column(modifier.fillMaxWidth()) {
         Text(
-            "يُنزَّل المصحف · ${p.done.localized(ar)} من ${p.total.localized(ar)} " +
-                "· ${(p.bytes / 1_048_576).toInt().localized(ar)} م.ب",
+            stringResource(
+                R.string.mushaf_dl_progress,
+                p.done.localized(ar),
+                p.total.localized(ar),
+                (p.bytes / 1_048_576).toInt().localized(ar),
+            ),
             style = RafiqType.caption, color = rc.inkMed,
         )
         Spacer(Modifier.height(5.dp))

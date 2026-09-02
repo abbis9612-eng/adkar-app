@@ -1,6 +1,7 @@
 package app.rafiqaldhikr.ui.mushaf
 
 import android.content.Context
+import app.rafiqaldhikr.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -15,18 +16,26 @@ import androidx.compose.ui.platform.LocalContext
    المشروع تمنع تغييرَ البنية بلا خطّة هجرةٍ معروضة.
 ══════════════════════════════════════════════════════════════ */
 
-enum class MushafMode(val label: String, val note: String) {
+/*  الاسمُ والوصفُ مرجعا مورد، لا نصّان مكتوبان.
+ *
+ *  كانا `String` فيهما العربيةُ وحدَها — فورقةُ إعدادات المصحف تبقى
+ *  عربيةً كاملةً مهما اختار المستخدم.
+ */
+enum class MushafMode(
+    @androidx.annotation.StringRes val label: Int,
+    @androidx.annotation.StringRes val note: Int,
+) {
     /** ما كان في التطبيق: تصفّحٌ بالسورة وآيةٌ في بطاقة. */
-    CLASSIC("قائمةُ الآيات", "آيةٌ في سطرٍ مع رقمها — أسهلُ للبحث والتفسير"),
+    CLASSIC(R.string.mushaf_mode_classic, R.string.mushaf_mode_classic_note),
 
     /** صفحةٌ بترقيم المصحف، نصٌّ متّصلٌ مضبوطُ الطرفين. */
-    PAGE("صفحةٌ مضبوطة", "بترقيم المصحف المدنيّ — يعمل دون إنترنت بلا تنزيل"),
+    PAGE(R.string.mushaf_mode_fitted, R.string.mushaf_mode_fitted_note),
 
     /** الصفحةُ المصحفية بخطّ QCF4 — خمسةَ عشرَ سطراً كما في الورقة. */
-    MUSHAF("الصفحةُ المصحفية", "مطابقةٌ لمصحف المدينة سطراً بسطر — تحتاج تنزيلاً"),
+    MUSHAF(R.string.mushaf_mode_page, R.string.mushaf_mode_page_note),
 
     /** المصحفيةُ بخلفيةٍ داكنة للقراءة الليلية. */
-    MUSHAF_NIGHT("المصحفيةُ ليلاً", "الصفحةُ نفسُها بحبرٍ فاتحٍ على ورقٍ داكن"),
+    MUSHAF_NIGHT(R.string.mushaf_mode_night, R.string.mushaf_mode_night_note),
     ;
 
     val needsFonts: Boolean get() = this == MUSHAF || this == MUSHAF_NIGHT

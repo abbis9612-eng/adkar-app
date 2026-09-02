@@ -35,6 +35,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -95,6 +97,9 @@ fun AyahSheet(
         loading = false
     }
 
+    // يُقرأ في التأليف: `stringResource` لا تُنادى داخل onClick.
+    val shareTitle = stringResource(R.string.ayah_share_title)
+
     val paper = if (night) Color(0xFF1A1712) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
     val hair = ink.copy(alpha = 0.16f)
@@ -141,7 +146,7 @@ fun AyahSheet(
                 Spacer(Modifier.height(13.dp))
 
                 Text(
-                    "${SurahNames.of(ctx, surah)} · الآية $ayah",
+                    stringResource(R.string.ayah_label, SurahNames.of(ctx, surah), ayah.toString()),
                     fontFamily = NaskhFamily,
                     fontSize = 13.sp,
                     color = ink.copy(alpha = 0.55f),
@@ -176,7 +181,7 @@ fun AyahSheet(
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SheetAction(
-                        label = if (marked) "مُعَلَّمة" else "ضَعْ علامة",
+                        label = if (marked) stringResource(R.string.ayah_bookmarked) else stringResource(R.string.ayah_bookmark),
                         icon = if (marked) RIcon.Check else RIcon.Bookmark,
                         filled = marked,
                         ink = ink,
@@ -185,15 +190,15 @@ fun AyahSheet(
                     ) {
                         scope.launch { marked = vm.toggleMark(surah, ayah, page) }
                     }
-                    SheetAction("نسخ", RIcon.Copy, false, ink, hair, Modifier.weight(1f)) {
+                    SheetAction(stringResource(R.string.action_copy), RIcon.Copy, false, ink, hair, Modifier.weight(1f)) {
                         clip.setText(AnnotatedString(shareBody(text, tf, surah, ayah, ctx)))
                     }
-                    SheetAction("مشاركة", RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
+                    SheetAction(stringResource(R.string.action_share), RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
                         val i = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, shareBody(text, tf, surah, ayah, ctx))
                         }
-                        ctx.startActivity(Intent.createChooser(i, "مشاركةُ الآية"))
+                        ctx.startActivity(Intent.createChooser(i, shareTitle))
                     }
                 }
             }
@@ -203,10 +208,12 @@ fun AyahSheet(
 
 /*  النصُّ الديني يُنقل كما هو حرفاً بحرف — ولا يُختصر ولا يُعاد صوغُه. */
 private fun shareBody(ayah: String, tafsir: String?, s: Int, a: Int, ctx: android.content.Context): String {
-    val head = "${SurahNames.of(ctx, s)} · الآية $a"
+    val head = ctx.getString(R.string.ayah_label, SurahNames.of(ctx, s), a.toString())
     return buildString {
         append(ayah).append("\n").append(head)
-        if (!tafsir.isNullOrBlank()) append("\n\nالتفسير الميسّر:\n").append(tafsir)
+        if (!tafsir.isNullOrBlank()) {
+            append("\n\n").append(ctx.getString(R.string.tafsir_label)).append("\n").append(tafsir)
+        }
     }
 }
 

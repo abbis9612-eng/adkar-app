@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    أسماءُ الأجزاء الثلاثين.
+
+    كانت قائمةً مكتوبةً في `MushafScreen.kt` بالعربية وحدَها. والعربيةُ
+    تقول «الجُزْءُ الحادي والعشرون» بترتيبٍ منطوق، والإنجليزيةُ تقول
+    «Juz 21» برقم — فلا تُشتقّ إحداهما من الأخرى.
+
+    الفهرسُ صفرٌ فارغٌ عمداً: أرقامُ الأجزاء تبدأ من واحد.
+-->
+<resources>
+    <string-array name="juz_names">
+        <item></item>
+        <item>الأوّل</item>
+        <item>الثاني</item>
+        <item>الثالث</item>
+        <item>الرابع</item>
+        <item>الخامس</item>
+        <item>السادس</item>
+        <item>السابع</item>
+        <item>الثامن</item>
+        <item>التاسع</item>
+        <item>العاشر</item>
+        <item>الحادي عشر</item>
+        <item>الثاني عشر</item>
+        <item>الثالث عشر</item>
+        <item>الرابع عشر</item>
+        <item>الخامس عشر</item>
+        <item>السادس عشر</item>
+        <item>السابع عشر</item>
+        <item>الثامن عشر</item>
+        <item>التاسع عشر</item>
+        <item>العشرون</item>
+        <item>الحادي والعشرون</item>
+        <item>الثاني والعشرون</item>
+        <item>الثالث والعشرون</item>
+        <item>الرابع والعشرون</item>
+        <item>الخامس والعشرون</item>
+        <item>السادس والعشرون</item>
+        <item>السابع والعشرون</item>
+        <item>الثامن والعشرون</item>
+        <item>التاسع والعشرون</item>
+        <item>الثلاثون</item>
+    </string-array>
+</resources>

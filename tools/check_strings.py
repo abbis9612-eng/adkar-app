@@ -21,7 +21,24 @@ def strings(path):
     return {m.group(1): m.group(2)
             for m in re.finditer(r'<string name="([^"]+)"[^>]*>(.*?)</string>', t, re.S)}
 
+
+def keys_in_order(path):
+    """كلُّ المفاتيح بترتيبها — لكشف التكرار الذي يبتلعه القاموس."""
+    return re.findall(r'<(?:string|plurals|string-array) name="([^"]+)"',
+                      path.read_text())
+
 problems = []
+
+#  مفتاحٌ مكرَّر يُفشل `mergeDebugResources` برسالةٍ لا تذكر السطر، وبعد
+#  دقيقتين من عمل aapt2. ورأيتُه يقع: `action_delete` أُضيف مرّتين في
+#  دفعتين متتاليتين من الترجمة. والقاموسُ في `strings()` يبتلع التكرار
+#  فلا يظهر في فحص التوازي — فيُعدّ هنا بالترتيب.
+for f in sorted(RES.rglob("*.xml")):
+    if f.name not in ("strings.xml", "arrays.xml"):
+        continue
+    ks = keys_in_order(f)
+    for k in sorted({x for x in ks if ks.count(x) > 1}):
+        problems.append(f"{f.relative_to(ROOT)} → المفتاح {k!r} مكرَّر {ks.count(k)} مرّات")
 
 for f in sorted(RES.rglob("strings.xml")):
     for key, value in strings(f).items():
