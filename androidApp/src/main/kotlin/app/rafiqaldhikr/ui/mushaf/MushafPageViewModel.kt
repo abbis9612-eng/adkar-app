@@ -3,7 +3,10 @@ package app.rafiqaldhikr.ui.mushaf
 import androidx.lifecycle.ViewModel
 import app.rafiq.domain.model.AyahInfo
 import app.rafiq.domain.repository.QuranRepository
+import androidx.lifecycle.viewModelScope
+import app.rafiq.domain.model.LastReadPosition
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
 /** آياتُ صفحةٍ بترقيم المصحف — للنمط المضبوط الذي يعمل بلا تنزيل. */
@@ -35,6 +38,23 @@ class MushafPageViewModel(private val repo: QuranRepository) : ViewModel() {
      * وهذا أوّلُ طريقٍ في التطبيق لإنشاء علامة: كانت شاشةُ العلامات
      * تعرض ولا شيءَ يكتب فيها، فتبقى فارغةً مهما فعل المستخدم.
      */
+    /**
+     * يحفظ موضعَ القراءة — «تابِع القراءة».
+     *
+     * جدولُ `QuranLastRead` وطرقُه (`getLastRead`/`saveLastRead`) كانت
+     * موجودةً في القاعدة والمستودع منذ البداية و**بلا مستدعٍ واحد**:
+     * لا شيءَ يكتب فيها ولا شيءَ يقرؤها، فالجدولُ فارغٌ أبداً.
+     *
+     * و`MushafPrefs.lastPage` في التفضيلات يفتح المصحفَ على آخر صفحةٍ
+     * لكنّه لا يخرج من الشاشة: لا تراه الرئيسيةُ ولا يدخل في التصدير.
+     * وهذا يفعل الاثنين.
+     */
+    fun rememberPosition(surah: Int, ayah: Int, page: Int) {
+        viewModelScope.launch { repo.saveLastRead(surah, ayah, page, 0f) }
+    }
+
+    fun lastRead(): Flow<LastReadPosition?> = repo.getLastRead()
+
     suspend fun toggleMark(surah: Int, ayah: Int, page: Int): Boolean =
         if (repo.isBookmarked(surah, ayah)) {
             repo.removeBookmarkByPosition(surah, ayah)

@@ -21,7 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import app.rafiq.domain.repository.ImportResult
 import java.io.File
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
@@ -43,6 +46,40 @@ fun ExportDataScreen(
     viewModel: ExportDataViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+
+    /*  رسائلُ النتيجة تُقرأ في التأليف لا داخل اللامبدا: `stringResource`
+     *  دالّةٌ مركَّبة، ونداؤها في `onResult` لا يُترجم. */
+    val importOk       = stringResource(R.string.import_ok)
+    val importNotJson  = stringResource(R.string.import_not_json)
+    val importNotRafiq = stringResource(R.string.import_not_rafiq)
+    val importFuture   = stringResource(R.string.import_future)
+
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val text = runCatching {
+            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+        }.getOrNull()
+        if (text == null) {
+            Toast.makeText(context, importNotJson, Toast.LENGTH_LONG).show()
+            return@rememberLauncherForActivityResult
+        }
+        viewModel.importJson(text) { result ->
+            val msg = when (result) {
+                is ImportResult.Success ->
+                    // النتيجةُ تُقال بأرقامها: «تمّ» وحدَها لا تُطمئن من
+                    // استورد ملفاً ولا يدري أوصل كلُّه أم بعضُه.
+                    String.format(importOk, result.days, result.bookmarks, result.sessions)
+                is ImportResult.Invalid -> when (result.reason) {
+                    ImportResult.Reason.NOT_JSON       -> importNotJson
+                    ImportResult.Reason.NOT_RAFIQ      -> importNotRafiq
+                    ImportResult.Reason.FUTURE_VERSION -> importFuture
+                }
+            }
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+        }
+    }
     // تُحلّ هنا لا داخل onClick: stringResource دالّة @Composable
     // ولا تُستدعى من لامدا نقرٍ عادية.
     val shareSubject = stringResource(R.string.export_share_title)
@@ -151,6 +188,47 @@ fun ExportDataScreen(
                             IcoDownload(22.dp, rc.emerald)
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.export_action), color = rc.emerald, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                /*  الاستيراد — النصفُ الذي كان ناقصاً.
+                 *
+                 *  التصديرُ وحدَه ليس نسخاً احتياطياً: يُخرج المستخدم
+                 *  ملفَّه، ثمّ يبدّل جهازَه أو يمسح بيانات التطبيق، فلا
+                 *  سبيلَ لإعادة ما صدَّر. والملفُّ يُختار من أيّ مكانٍ
+                 *  عبر `ACTION_OPEN_DOCUMENT` — لا إذنَ تخزينٍ ولا مسارٌ
+                 *  ثابتٌ نفترضه. */
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .rafiqCard()
+                        .padding(20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IcoDownload(22.dp, rc.emerald)
+                        Spacer(Modifier.width(12.dp))
+                        Text(stringResource(R.string.import_action), fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.import_desc), fontSize = 13.sp, color = rc.inkMed)
+                    Spacer(Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .clip(RafiqShape.item)
+                            .background(rc.emerald.copy(alpha = 0.1f))
+                            .clickable { picker.launch(arrayOf("application/json", "text/plain", "*/*")) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IcoUpload(22.dp, rc.emerald)
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.import_action), color = rc.emerald, fontWeight = FontWeight.Bold)
                         }
                     }
                 }

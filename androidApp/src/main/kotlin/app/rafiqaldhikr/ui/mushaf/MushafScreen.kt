@@ -126,6 +126,16 @@ fun MushafScreen(
     val pager = rememberPagerState(initialPage = startPage - 1, pageCount = { 604 })
     LaunchedEffect(pager.currentPage) { prefs.lastPage = pager.currentPage + 1 }
 
+    /*  والموضعُ يُحفظ في القاعدة أيضاً لا في التفضيلات وحدَها: تلك لا
+     *  تخرج من هذه الشاشة، وهذه تراها الرئيسيةُ وتدخل في التصدير. */
+    val positionVm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
+    LaunchedEffect(pager.currentPage, layout) {
+        val l = layout ?: return@LaunchedEffect
+        val no = pager.currentPage + 1
+        val surah = l.page(no)?.firstSurah ?: return@LaunchedEffect
+        if (surah > 0) positionVm.rememberPosition(surah, 1, no)
+    }
+
     /*  رأسُ الصفحة يقول أين أنت: السورةُ والجزءُ والحزب. وكانت الشاشةُ
      *  تعرض رقمَ الصفحة وحده — ورقمٌ بلا سورةٍ لا يقول شيئاً لمن يقرأ. */
     /*  خطُّ الصفحة الحاضرة يُجلَب وحدَه — مليونا بايتٍ في ثوانٍ بدل

@@ -44,6 +44,7 @@ import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 
@@ -55,6 +56,16 @@ fun StatisticsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val rc = LocalRafiqColors.current
+
+    /*  `isLoading` كانت تُحسب في `ProfileViewModel` منذ أوّل يوم و**لا
+     *  يقرؤها أحدٌ من الشاشات الأربع** التي تشاركه. فيفتح المستخدمُ
+     *  الشاشةَ فيرى أصفاراً — سلسلةٌ صفر، أيّامٌ صفر — ثمّ تُصحَّح بعد
+     *  إطارٍ أو إطارين. والصفرُ الكاذبُ في شاشةِ مواظبةٍ ليس بطيئاً
+     *  فحسب: هو يقول لصاحب الأربعين يوماً إنّه بدأ اليوم. */
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize().background(rc.bg)) { LoadingState() }
+        return
+    }
 
     Box(
         Modifier

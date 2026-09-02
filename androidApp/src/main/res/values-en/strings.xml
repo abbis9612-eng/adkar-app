@@ -714,4 +714,16 @@
         <item quantity="one">%1$d tasbeeh</item>
         <item quantity="other">%1$d tasbeehat</item>
     </plurals>
+
+    <!-- Continue reading -->
+    <string name="continue_reading">Continue reading</string>
+    <string name="continue_reading_at">%1$s · page %2$s</string>
+
+    <!-- Import -->
+    <string name="import_action">Import</string>
+    <string name="import_desc">Restore your data from a file you exported earlier. Nothing is erased — it is merged.</string>
+    <string name="import_ok">Imported: %1$d days · %2$d bookmarks · %3$d tasbeeh sessions</string>
+    <string name="import_not_json">The file could not be read</string>
+    <string name="import_not_rafiq">This is not a Rafiq Al-Dhikr export file</string>
+    <string name="import_future">This file is from a newer version — update the app and try again</string>
 </resources>

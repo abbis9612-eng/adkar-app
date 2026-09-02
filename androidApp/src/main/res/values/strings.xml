@@ -739,4 +739,16 @@
         <item quantity="many">%1$d تسبيحةً</item>
         <item quantity="other">%1$d تسبيحة</item>
     </plurals>
+
+    <!-- تابِع القراءة -->
+    <string name="continue_reading">تابِع القراءة</string>
+    <string name="continue_reading_at">%1$s · صفحة %2$s</string>
+
+    <!-- الاستيراد -->
+    <string name="import_action">استيراد</string>
+    <string name="import_desc">أعِد بياناتِك من ملفٍّ صدَّرته من قبل. لا يُمحى ما عندك — يُدمج معه.</string>
+    <string name="import_ok">استُورد: %1$d يوماً · %2$d علامة · %3$d جلسة تسبيح</string>
+    <string name="import_not_json">تعذّرت قراءةُ الملفّ</string>
+    <string name="import_not_rafiq">هذا ليس ملفَّ تصديرٍ من رفيق الذكر</string>
+    <string name="import_future">الملفُّ من نسخةٍ أحدث — حدِّث التطبيق ثمّ أعِد المحاولة</string>
 </resources>

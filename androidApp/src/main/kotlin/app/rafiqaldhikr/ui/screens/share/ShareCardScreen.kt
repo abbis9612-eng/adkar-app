@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.IcoShare
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.screens.profile.ProfileViewModel
 import app.rafiqaldhikr.ui.theme.BorderIdle
@@ -68,6 +69,16 @@ fun ShareCardScreen(
     val rc      = LocalRafiqColors.current
     val ar      = LocalArabicNumerals.current
     val scope   = rememberCoroutineScope()
+
+    /*  `isLoading` كانت تُحسب في `ProfileViewModel` منذ أوّل يوم و**لا
+     *  يقرؤها أحدٌ من الشاشات الأربع** التي تشاركه. فيفتح المستخدمُ
+     *  الشاشةَ فيرى أصفاراً — سلسلةٌ صفر، أيّامٌ صفر — ثمّ تُصحَّح بعد
+     *  إطارٍ أو إطارين. والصفرُ الكاذبُ في شاشةِ مواظبةٍ ليس بطيئاً
+     *  فحسب: هو يقول لصاحب الأربعين يوماً إنّه بدأ اليوم. */
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize().background(rc.bg)) { LoadingState() }
+        return
+    }
 
     var selected by remember { mutableIntStateOf(0) }
 

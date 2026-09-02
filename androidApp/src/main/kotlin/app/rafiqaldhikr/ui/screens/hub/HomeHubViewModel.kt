@@ -2,7 +2,9 @@ package app.rafiqaldhikr.ui.screens.hub
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.rafiq.domain.model.LastReadPosition
 import app.rafiq.domain.model.Wisdom
+import app.rafiq.domain.repository.QuranRepository
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiq.domain.repository.TasbeehRepository
 import app.rafiq.domain.repository.WisdomRepository
@@ -28,6 +30,7 @@ class HomeHubViewModel(
     private val progressRepo: ProgressRepository,
     private val tasbeehRepo:  TasbeehRepository,
     private val wisdomRepo:   WisdomRepository,
+    private val quranRepo:    QuranRepository,
 ) : ViewModel() {
 
     data class UiState(
@@ -38,6 +41,8 @@ class HomeHubViewModel(
         val prayers:     Int     = 0,
         /** كلمةُ اليوم — تتصدّر الشاشة، وتحتها مصدرها. تدور يوماً بيوم. */
         val wisdom:      Wisdom?  = null,
+        /** آخرُ موضعٍ في المصحف — لبطاقة «تابِع القراءة». */
+        val lastRead:    LastReadPosition? = null,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -52,6 +57,16 @@ class HomeHubViewModel(
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date.toEpochDays()
             val w = wisdomRepo.forDay(day.toLong())
             _uiState.value = _uiState.value.copy(wisdom = w)
+        }
+        /*  «تابِع القراءة».
+         *
+         *  `QuranLastRead` كان جدولاً كاملاً بطرقه في المستودع و**بلا
+         *  مستدعٍ واحد** — لا كاتبَ ولا قارئ. صار المصحفُ يكتب فيه عند
+         *  كل قلبِ صفحة، وهذه تقرؤه. */
+        viewModelScope.launch {
+            quranRepo.getLastRead().collect { pos ->
+                _uiState.value = _uiState.value.copy(lastRead = pos)
+            }
         }
         viewModelScope.launch {
             val d = today

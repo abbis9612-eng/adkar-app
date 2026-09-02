@@ -38,6 +38,7 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
@@ -339,6 +340,16 @@ fun ProfileScreen(
     val rc = LocalRafiqColors.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
+    /*  `isLoading` كانت تُحسب في `ProfileViewModel` منذ أوّل يوم و**لا
+     *  يقرؤها أحدٌ من الشاشات الأربع** التي تشاركه. فيفتح المستخدمُ
+     *  الشاشةَ فيرى أصفاراً — سلسلةٌ صفر، أيّامٌ صفر — ثمّ تُصحَّح بعد
+     *  إطارٍ أو إطارين. والصفرُ الكاذبُ في شاشةِ مواظبةٍ ليس بطيئاً
+     *  فحسب: هو يقول لصاحب الأربعين يوماً إنّه بدأ اليوم. */
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize().background(rc.bg)) { LoadingState() }
+        return
+    }
 
     Box(
         Modifier.fillMaxSize().background(rc.bg)

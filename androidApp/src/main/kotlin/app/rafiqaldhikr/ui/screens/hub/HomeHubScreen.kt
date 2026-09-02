@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
@@ -241,6 +242,12 @@ fun HomeHubScreen(
                     onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
                 )
 
+                hub.lastRead?.let { pos ->
+                    ContinueReading(pos.surah, pos.page, ar) {
+                        navController.navigate(RafiqRoute.Mushaf.atPage(pos.page))
+                    }
+                }
+
                 hub.wisdom?.let { WordOfDay(it) }
 
                 DoorsRow(
@@ -402,6 +409,50 @@ private fun greetingText(): String {
         in 11..15 -> stringResource(R.string.greet_day)
         in 16..19 -> stringResource(R.string.greet_calm_evening)
         else      -> stringResource(R.string.greet_night)
+    }
+}
+
+/* ── تابِع القراءة ──────────────────────────────────────────────
+
+   `QuranLastRead` جدولٌ في القاعدة وطرقُه في المستودع منذ البداية، وله
+   صفرُ مستدعين: لا كاتبَ ولا قارئ. فمن قرأ صفحةَ ٥٧٧ ثمّ خرج، لم يكن
+   له إلّا أن يبحث عنها ثانيةً في ست مئةٍ وأربع.
+
+   والبطاقةُ لا تظهر إلّا لمن فتح المصحفَ فعلاً — لا موضعَ محفوظٌ فلا
+   بطاقة، ولا تشغل مكاناً في شاشة من لم يقرأ بعد.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
+    val rc  = LocalRafiqColors.current
+    val ctx = LocalContext.current
+    val name = remember(surah) { app.rafiqaldhikr.ui.mushaf.SurahNames.of(ctx, surah) }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 14.dp)
+            .clip(RafiqShape.card)
+            .background(rc.card)
+            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
+            .clickable(onClick = onOpen)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RafiqIcon(RIcon.Book, 20.dp, rc.emerald)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.continue_reading), style = RafiqType.bodyS, color = rc.inkMed)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.continue_reading_at, name, page.toString())
+                    .localizedDigits(ar),
+                style = RafiqType.body,
+                color = rc.ink,
+            )
+        }
+        // السهمُ يتبع اتّجاهَ الكتابة — `autoMirrored` في المورد نفسِه.
+        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
     }
 }
 
