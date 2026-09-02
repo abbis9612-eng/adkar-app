@@ -51,6 +51,13 @@ uniform float uNight;      // ٠ نهارٌ تامّ · ١ ليلٌ تامّ
 uniform vec2  uTilt;       // ميلُ الجهاز — يُزيح المشهد فيُقرأ عمقاً
 uniform float uReduced;    // ١ إذا طُلب خفضُ الحركة
 
+/* ── طقسُ مكانك — كلُّها شدّاتٌ من صفرٍ إلى واحد ───────────── */
+uniform float uCloud;      // غطاءُ الغيم المقيس
+uniform float uRain;
+uniform float uSnow;
+uniform float uFog;
+uniform float uFlash;      // ومضةُ برقٍ آنيّة
+
 const float PI = 3.14159265;
 
 /* ── ضوضاء ─────────────────────────────────────────────── */
@@ -227,7 +234,11 @@ vec3 clouds(vec3 rd, vec3 sun, vec3 sky){
     vec3 p = vec3(uv * 0.42 + vec2(drift, drift * 0.4), uTime * 0.010);
 
     float d = fbm(p);
-    float cover = smoothstep(0.50, 0.86, d) * smoothstep(0.02, 0.22, rd.y);
+    /*  عتبةُ الغيم تنزل كلّما ارتفع الغطاءُ المقيس: صفرٌ يعني سماءً
+        صافيةً لا سحابةَ فيها، وواحدٌ يعني غيماً مطبِقاً لا فُرجةَ فيه. */
+    float lo = mix(0.62, 0.20, uCloud);
+    float hi = mix(0.94, 0.44, uCloud);
+    float cover = smoothstep(lo, hi, d) * smoothstep(0.02, 0.22, rd.y);
     if (cover < 0.004) return sky;
 
     /* إضاءةٌ بتقريبِ تشتّتٍ أماميّ: الحافّةُ المواجهةُ للشمس أنصع. */
@@ -246,6 +257,38 @@ vec3 clouds(vec3 rd, vec3 sun, vec3 sky){
     return mix(sky, cc, cover * (0.72 - 0.24 * uNight));
 }
 
+/* ── المطر ──────────────────────────────────────────────
+   خيوطٌ لا نقاط: القطرةُ الساقطة تُرى خطّاً لأنّ العينَ تدمج حركتَها.
+   وثلاثُ طبقاتٍ بسرعاتٍ مختلفة تُقرأ عمقاً — القريبةُ أسرعُ وأعرض.
+
+   **ولونُها لونُ السماء لا الأبيض.** هذا هو الفرقُ بين مطرٍ في مشهدٍ
+   ومطرٍ ملصوقٍ عليه: القطرةُ عدسةٌ تنقل ما خلفها، فتحمرّ في الغروب
+   وتزرقّ في الظهيرة.                                                */
+float rainSheet(vec2 uv, float t, float scale, float slant, float speed){
+    uv.x += uv.y * slant;
+    vec2 g = uv * scale;
+    g.y += t * speed;
+    vec2 i = floor(g), f = fract(g);
+    float h = hash1(vec3(i, 3.0));
+    if (h < 0.90) return 0.0;
+    float x = abs(f.x - 0.5) * 2.0;
+    return smoothstep(0.55, 0.0, x) * smoothstep(1.0, 0.15, f.y) * (0.5 + h);
+}
+
+/* ── الثلج ──────────────────────────────────────────────
+   حبّاتٌ مستديرةٌ تتهادى: السقوطُ بطيءٌ والانحرافُ جانبيٌّ بجيبٍ
+   يختلف طورُه لكلّ حبّة — فلا تنزل الحبّاتُ في خطوطٍ متوازية.        */
+float snowLayer(vec2 uv, float t, float scale, float speed){
+    vec2 g = uv * scale;
+    g.y += t * speed;
+    vec2 i = floor(g);
+    float h = hash1(vec3(i, 7.0));
+    if (h < 0.93) return 0.0;
+    g.x += sin(t * (0.7 + h) + h * 30.0) * 0.34;
+    vec2 f = fract(g) - 0.5;
+    return smoothstep(0.26, 0.02, length(f)) * (0.45 + h * 0.55);
+}
+
 void main(){
     vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
 
@@ -260,6 +303,41 @@ void main(){
     col = mix(col + m.rgb, m.rgb, m.a);
 
     col = clouds(rd, uSun, col);
+
+    /* ── البرق: يضيء الغيمَ كلَّه لا نقطةً منه ───────────── */
+    if (uFlash > 0.001) {
+        col += vec3(0.72, 0.76, 0.92) * uFlash * (0.35 + 0.65 * smoothstep(0.0, 0.4, rd.y));
+    }
+
+    /* ── الضباب: حجابٌ يثخن نحو الأفق ─────────────────────
+       ويأخذ لونَ الضوء الحاضر: رماديٌّ ليلاً، ذهبيٌّ عند الغروب —
+       فضبابُ الفجر ليس ضبابَ الظهيرة.                              */
+    if (uFog > 0.003) {
+        vec3 veil = mix(vec3(0.16, 0.18, 0.24), vec3(0.86, 0.80, 0.72),
+                        smoothstep(-0.16, 0.22, uSun.y));
+        float thick = uFog * smoothstep(0.55, -0.05, rd.y);
+        col = mix(col, veil, clamp(thick, 0.0, 0.92));
+    }
+
+    /* ── الهطول ─────────────────────────────────────────── */
+    float fall = uReduced > 0.5 ? 0.0 : uTime;
+    if (uRain > 0.004) {
+        /* الريحُ تُميل الخيوط، والشدّةُ تزيد عددَها وعتامتها. */
+        float sl = 0.16;
+        float r = rainSheet(uv, fall, 26.0, sl, 5.2) * 0.9
+                + rainSheet(uv + 3.1, fall, 42.0, sl, 7.4) * 0.6
+                + rainSheet(uv + 7.7, fall, 66.0, sl, 9.8) * 0.4;
+        /* لونُ القطرة من السماء نفسِها، مرفوعاً قليلاً لا مبيَّضاً. */
+        vec3 drop = col * 1.45 + vec3(0.05, 0.06, 0.08);
+        col = mix(col, drop, clamp(r * uRain * 0.85, 0.0, 0.85));
+    }
+    if (uSnow > 0.004) {
+        float s = snowLayer(uv, fall, 17.0, 0.85) * 0.9
+                + snowLayer(uv + 5.3, fall, 27.0, 1.25) * 0.65
+                + snowLayer(uv + 9.1, fall, 40.0, 1.70) * 0.45;
+        vec3 flake = mix(vec3(0.93, 0.95, 1.0), col * 1.6, 0.25);
+        col = mix(col, flake, clamp(s * uSnow, 0.0, 0.92));
+    }
 
     /* الأفق: الأرضُ تحت الخطّ، وضبابٌ فوقه. */
     float horizon = smoothstep(0.020, -0.028, rd.y);

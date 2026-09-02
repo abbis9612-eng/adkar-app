@@ -59,11 +59,14 @@ internal class SkyRenderer : GLSurfaceView.Renderer {
     @Volatile var tiltX = 0f
     @Volatile var tiltY = 0f
     @Volatile var reduced = false
+    @Volatile var weather = SkyWeather()
 
     private var program = 0
     private var uRes = 0; private var uTime = 0; private var uSun = 0
     private var uMoon = 0; private var uMoonLit = 0; private var uMoonSign = 0
     private var uNight = 0; private var uTilt = 0; private var uReduced = 0
+    private var uCloud = 0; private var uRain = 0; private var uSnow = 0
+    private var uFog = 0; private var uFlash = 0
     private var aPos = 0
 
     private var w = 1f; private var h = 1f
@@ -87,6 +90,11 @@ internal class SkyRenderer : GLSurfaceView.Renderer {
         uNight    = GLES20.glGetUniformLocation(program, "uNight")
         uTilt     = GLES20.glGetUniformLocation(program, "uTilt")
         uReduced  = GLES20.glGetUniformLocation(program, "uReduced")
+        uCloud    = GLES20.glGetUniformLocation(program, "uCloud")
+        uRain     = GLES20.glGetUniformLocation(program, "uRain")
+        uSnow     = GLES20.glGetUniformLocation(program, "uSnow")
+        uFog      = GLES20.glGetUniformLocation(program, "uFog")
+        uFlash    = GLES20.glGetUniformLocation(program, "uFlash")
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -115,7 +123,8 @@ internal class SkyRenderer : GLSurfaceView.Renderer {
         val night = (((-sunAltDeg) - 2.0) / 10.0).coerceIn(0.0, 1.0).toFloat()
 
         GLES20.glUniform2f(uRes, w, h)
-        GLES20.glUniform1f(uTime, (System.nanoTime() - t0) / 1_000_000_000f)
+        val seconds = (System.nanoTime() - t0) / 1_000_000_000f
+        GLES20.glUniform1f(uTime, seconds)
         GLES20.glUniform3f(uSun, sun[0], sun[1], sun[2])
         GLES20.glUniform3f(uMoon, moon[0], moon[1], moon[2])
         GLES20.glUniform1f(uMoonLit, moonLit)
@@ -124,10 +133,39 @@ internal class SkyRenderer : GLSurfaceView.Renderer {
         GLES20.glUniform2f(uTilt, tiltX, tiltY)
         GLES20.glUniform1f(uReduced, if (reduced) 1f else 0f)
 
+        val w = weather
+        GLES20.glUniform1f(uCloud, w.cloud)
+        GLES20.glUniform1f(uRain, w.rain)
+        GLES20.glUniform1f(uSnow, w.snow)
+        GLES20.glUniform1f(uFog, w.fog)
+        GLES20.glUniform1f(uFlash, if (w.thunder && !reduced) flashAt(seconds) else 0f)
+
         GLES20.glEnableVertexAttribArray(aPos)
         GLES20.glVertexAttribPointer(aPos, 2, GLES20.GL_FLOAT, false, 0, quad)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GLES20.glDisableVertexAttribArray(aPos)
+    }
+
+    /**
+     * ومضةُ البرق — متقطّعةٌ لا دورية.
+     *
+     *  البرقُ الحقيقيّ لا ينبض بإيقاع. فالثانيةُ تُقسَّم إلى نوافذَ
+     *  بأطوالٍ مختلفة، وتُختار منها القليلةُ عشوائياً — فتقع الومضةُ
+     *  حين لا تتوقّعها، ثمّ تخبو بأسٍّ سريعٍ كما يخبو البرق.
+     *
+     *  وتُطفأ كلَّها عند خفض الحركة: ومضةٌ مفاجئةٌ في شاشةِ ذكرٍ ليست
+     *  إزعاجاً فحسب — بعضُ الناس لا يحتملها.
+     */
+    private fun flashAt(t: Float): Float {
+        val slot = kotlin.math.floor(t / 3.7f)
+        val seed = ((slot * 12.9898f).mod(1f) * 43758.5453f).mod(1f)
+        if (seed < 0.62f) return 0f
+        val local = t - slot * 3.7f - seed * 2.4f
+        if (local < 0f || local > 0.5f) return 0f
+        //  ومضتان متتاليتان — البرقُ نادراً ما يومض مرّةً واحدة.
+        val a = kotlin.math.exp(-local * 22f)
+        val b = if (local > 0.12f) kotlin.math.exp(-(local - 0.12f) * 26f) * 0.7f else 0f
+        return ((a + b) * 0.85f).coerceIn(0f, 1f)
     }
 
     /**
@@ -228,6 +266,7 @@ fun SkyGL(
     moonAz: Double,
     moon: MoonPhase,
     reducedMotion: Boolean,
+    weather: SkyWeather = SkyWeather(),
     modifier: Modifier = Modifier,
 ) {
     val ctx = LocalContext.current
@@ -241,6 +280,7 @@ fun SkyGL(
     renderer.moonLit = moon.illumination.toFloat()
     renderer.moonWaxing = moon.waxing
     renderer.reduced = reducedMotion
+    renderer.weather = weather
 
     val view = remember {
         object : GLSurfaceView(ctx) {

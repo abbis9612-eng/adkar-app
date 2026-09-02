@@ -58,6 +58,7 @@ import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
 import app.rafiqaldhikr.ui.sky.SkyGL
+import app.rafiqaldhikr.ui.sky.WeatherStore
 import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.LocalContentColor
@@ -160,6 +161,22 @@ fun HomeHubScreen(
     val moonAt = remember(now / 60_000L, home.lat, home.lng) {
         moonPosition(now, home.lat, home.lng)
     }
+
+    /*  طقسُ مكانك — طبقةٌ تُضاف، لا شرطٌ للعمل.
+     *
+     *  يُقرأ المحفوظُ فوراً بلا شبكة فتُرسم السماءُ بحالٍ صحيحةٍ من أوّل
+     *  إطار، ثمّ يُجلب الجديدُ إن وُجد اتّصال. وبلا إنترنتٍ تبقى السماءُ
+     *  تامّةً بشمسها وقمرها ونجومها — ويسقط المطرُ والضبابُ وحدَهما.
+     *
+     *  ولا تُطلب إلّا حين يُعرف المكان: طقسُ إحداثيّاتٍ صفريّةٍ طقسُ
+     *  نقطةٍ في المحيط الأطلسيّ، لا طقسُ صاحب الهاتف. */
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    var weather by remember { mutableStateOf(WeatherStore.cached(ctx)) }
+    LaunchedEffect(home.lat, home.lng) {
+        if (home.lat != 0.0 || home.lng != 0.0) {
+            weather = WeatherStore.refresh(ctx, home.lat, home.lng)
+        }
+    }
     val sky = remember(sun.altitude) { skyColors(sun.altitude.toFloat()) }
     val skyInk = remember(sky) { skyInk(sky) }
 
@@ -180,6 +197,7 @@ fun HomeHubScreen(
             moonAz        = moonAt.azimuth,
             moon          = moon,
             reducedMotion = LocalReducedMotion.current,
+            weather       = weather,
             modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
@@ -209,6 +227,20 @@ fun HomeHubScreen(
                         style = RafiqType.hero,
                         color = skyInk,
                     )
+                    /*  سطرُ الطقس تحت التحيّة مباشرةً — لا حبّةً ثانيةً
+                     *  تزاحم حبّةَ الميقات في الأسفل.
+                     *
+                     *  والسماءُ تُظهر المطرَ والضبابَ، لكنّ العينَ تحتاج
+                     *  من يسمّي لها ما ترى: «غائمٌ · ٢٨°» تُقرأ في لحظة،
+                     *  والغيمُ وحدَه يحتمل أن يكون زينة. */
+                    if (weather.known) {
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            weatherLine(weather, ar),
+                            style = RafiqType.bodyS,
+                            color = skyInk.copy(alpha = 0.72f),
+                        )
+                    }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
                     WindowPill(day.nowStation, day.needsLocation, ar, skyInk)
                     Spacer(Modifier.height(14.dp))
@@ -969,4 +1001,32 @@ private fun DoorChip(
         Spacer(Modifier.width(7.dp))
         Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
     }
+}
+
+/**
+ * سطرُ الطقس: «غائمٌ جزئياً · ٢٨°».
+ *
+ * وأسماءُ الأحوال من ترميز WMO — وهو معيارٌ عالميّ، فالرمزُ ٦١ مطرٌ
+ * خفيفٌ في كلّ خدمةِ أرصادٍ في الدنيا. وتُجمَع الرموزُ المتقاربة في
+ * اسمٍ واحد: لا فائدةَ لصاحب الهاتف من الفرق بين «رذاذٍ خفيف» و«رذاذٍ
+ * متوسّط»، وهو يريد أن يعرف هل يحمل مظلّة.
+ */
+@Composable
+private fun weatherLine(w: app.rafiqaldhikr.ui.sky.SkyWeather, ar: Boolean): String {
+    val name = stringResource(
+        when (w.code) {
+            0 -> R.string.wx_clear
+            1, 2 -> R.string.wx_partly
+            3 -> R.string.wx_overcast
+            45, 48 -> R.string.wx_fog
+            in 51..57 -> R.string.wx_drizzle
+            in 61..67, in 80..82 -> R.string.wx_rain
+            in 71..77, 85, 86 -> R.string.wx_snow
+            in 95..99 -> R.string.wx_thunder
+            else -> R.string.wx_clear
+        },
+    )
+    if (w.tempC.isNaN()) return name
+    val deg = kotlin.math.round(w.tempC).toInt().toString().localizedDigits(ar)
+    return "$name · $deg°"
 }

@@ -772,4 +772,14 @@
     <!-- شريط موضع المصحف -->
     <string name="mushaf_juz">الجزء %1$s</string>
     <string name="mushaf_page_of">صفحة %1$s من %2$s</string>
+
+    <!-- الطقس — أسماءُ أحوال WMO -->
+    <string name="wx_clear">صحو</string>
+    <string name="wx_partly">غائمٌ جزئياً</string>
+    <string name="wx_overcast">غائم</string>
+    <string name="wx_fog">ضباب</string>
+    <string name="wx_drizzle">رذاذ</string>
+    <string name="wx_rain">مطر</string>
+    <string name="wx_snow">ثلج</string>
+    <string name="wx_thunder">عاصفةٌ رعدية</string>
 </resources>

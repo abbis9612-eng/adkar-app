@@ -747,4 +747,14 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <!-- شريط موضع المصحف -->
     <string name="mushaf_juz">Juz %1$s</string>
     <string name="mushaf_page_of">Page %1$s of %2$s</string>
+
+    <!-- الطقس — أسماءُ أحوال WMO -->
+    <string name="wx_clear">Clear</string>
+    <string name="wx_partly">Partly cloudy</string>
+    <string name="wx_overcast">Overcast</string>
+    <string name="wx_fog">Fog</string>
+    <string name="wx_drizzle">Drizzle</string>
+    <string name="wx_rain">Rain</string>
+    <string name="wx_snow">Snow</string>
+    <string name="wx_thunder">Thunderstorm</string>
 </resources>
