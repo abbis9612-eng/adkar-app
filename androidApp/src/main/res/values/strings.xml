@@ -308,4 +308,34 @@
     <!-- ═══ التواصل ═══ -->
     <string name="contact_no_mail_app">لا تطبيقَ بريدٍ على هذا الجهاز. راسلنا على %1$s</string>
     <string name="export_failed">تعذّر تجهيزُ ملفّ التصدير</string>
+
+    <string name="mushaf_hizb">الحزب %1$s</string>
+    <string name="mushaf_jump_title">انتقل إلى صفحة</string>
+    <string name="mushaf_jump_hint">رقم الصفحة (١ – ٦٠٤)</string>
+    <string name="mushaf_jump_go">انتقل</string>
+    <string name="mushaf_jump_juz">أو اختر جزءاً</string>
+    <string name="bookmarks_empty">لم تضع علامةً بعد.\nاضغط آيةً مطوّلاً في المصحف ثمّ «ضَعْ علامة».</string>
+    <string name="bookmark_remove">رفع العلامة</string>
+    <string name="qibla_a11y_aligned">أنت مستقبلُ القبلة الآن.</string>
+    <string name="qibla_a11y_turn">أدِر %1$s درجةً إلى %2$s</string>
+    <string name="qibla_a11y_left">اليسار</string>
+    <string name="qibla_a11y_right">اليمين</string>
+
+    <!-- ═══ ما الجديد — كان يعلن ميزاتٍ لا وجود لها ═══ -->
+    <string name="whatsnew_current_label">الإصدار الحالي</string>
+    <string name="whatsnew_mushaf">المصحف: انتقالٌ إلى صفحةٍ أو جزء، والحزبُ في الهامش، ونقرُ الآية يفتح تفسيرَها وعلامتَها</string>
+    <string name="whatsnew_search">بحثٌ في المصحف يجد ما تكتبه بلا تشكيل</string>
+    <string name="whatsnew_quran_text">تصحيحُ نصّ القرآن: البسملةُ في موضعها من كل سورة</string>
+    <string name="whatsnew_alarms">تنبيهاتُ الأذان تصل، وتُعاد جدولتُها بعد كل تحديثٍ وسفر</string>
+    <string name="whatsnew_qibla">القبلةُ مصحَّحةٌ بانحراف مكانك المغناطيسي</string>
+    <string name="whatsnew_a11y">حجمُ الخطّ والتباين العالي يعملان في التطبيق كلِّه</string>
+    <string name="whatsnew_first_label">الإصدار الأول</string>
+    <string name="whatsnew_first_release">الإصدار الأول</string>
+    <string name="whatsnew_quran">القرآن الكريم مع البحث والعلامات</string>
+    <string name="whatsnew_tasbeeh">المسبحة</string>
+    <string name="whatsnew_adhkar">الأذكار والأدعية بمصادرها</string>
+    <string name="whatsnew_times">مواقيت الصلاة واتجاه القبلة</string>
+    <string name="whatsnew_profile">أوراقي والإحصاءات</string>
+    <string name="whatsnew_theme">المظهر الداكن والفاتح</string>
+    <string name="state_loading">جارٍ التحميل</string>
 </resources>

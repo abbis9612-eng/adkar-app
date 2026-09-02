@@ -304,4 +304,34 @@
     <!-- ═══ Contact ═══ -->
     <string name="contact_no_mail_app">No mail app on this device. Write to us at %1$s</string>
     <string name="export_failed">Could not prepare the export file</string>
+
+    <string name="mushaf_hizb">Hizb %1$s</string>
+    <string name="mushaf_jump_title">Go to page</string>
+    <string name="mushaf_jump_hint">Page number (1 – 604)</string>
+    <string name="mushaf_jump_go">Go</string>
+    <string name="mushaf_jump_juz">Or pick a juz</string>
+    <string name="bookmarks_empty">No bookmarks yet.\nLong-press a verse in the Mushaf, then “Bookmark”.</string>
+    <string name="bookmark_remove">Remove bookmark</string>
+    <string name="qibla_a11y_aligned">You are facing the qibla now.</string>
+    <string name="qibla_a11y_turn">Turn %1$s degrees to the %2$s</string>
+    <string name="qibla_a11y_left">left</string>
+    <string name="qibla_a11y_right">right</string>
+
+    <!-- ═══ What's New — used to advertise features that did not exist ═══ -->
+    <string name="whatsnew_current_label">Current release</string>
+    <string name="whatsnew_mushaf">Mushaf: jump to a page or juz, hizb in the margin, and tapping a verse opens its tafsir and bookmark</string>
+    <string name="whatsnew_search">Quran search now finds what you type, undiacritized</string>
+    <string name="whatsnew_quran_text">Quran text corrected: the basmala sits in its proper place in every surah</string>
+    <string name="whatsnew_alarms">Adhan reminders arrive, and are rescheduled after every update and journey</string>
+    <string name="whatsnew_qibla">Qibla corrected for your local magnetic declination</string>
+    <string name="whatsnew_a11y">Font size and high contrast now apply across the whole app</string>
+    <string name="whatsnew_first_label">First release</string>
+    <string name="whatsnew_first_release">First release</string>
+    <string name="whatsnew_quran">The Holy Quran with search and bookmarks</string>
+    <string name="whatsnew_tasbeeh">Tasbeeh counter</string>
+    <string name="whatsnew_adhkar">Adhkar and duas with their sources</string>
+    <string name="whatsnew_times">Prayer times and qibla direction</string>
+    <string name="whatsnew_profile">My Pages and statistics</string>
+    <string name="whatsnew_theme">Dark and light themes</string>
+    <string name="state_loading">Loading</string>
 </resources>

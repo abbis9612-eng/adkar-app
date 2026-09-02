@@ -14,6 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -144,8 +148,31 @@ private fun QiblaCompassContent(
         tween(320), label = "qiblaAccent",
     )
 
+    /*  البوصلةُ كلُّها كانت `Canvas` بلا دلالاتٍ واحدة.
+     *
+     *  أي أنّ مستعمل TalkBack لا يسمع شيئاً على شاشة القبلة إطلاقاً: لا
+     *  الاتّجاه، ولا كم بقي، ولا أنّه استقام. وهي شاشةٌ الغرضُ منها كلُّه
+     *  توجيهٌ — فمن لا يبصر أحوجُ الناس إليها.
+     *
+     *  والنصُّ حيٌّ يتغيّر مع الدوران، فيقرأ قارئُ الشاشة تقدّمَه.  */
+    val spoken = when {
+        aligned  -> stringResource(R.string.qibla_a11y_aligned)
+        else     -> stringResource(
+            R.string.qibla_a11y_turn,
+            kotlin.math.abs(delta).toInt().localized(ar),
+            stringResource(
+                if (delta > 0) R.string.qibla_a11y_left else R.string.qibla_a11y_right
+            ),
+        )
+    }
+
     Column(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = spoken
+                liveRegion = LiveRegionMode.Polite
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* الحالة */

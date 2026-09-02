@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -83,7 +85,12 @@ fun OnboardingScreen(
         HorizontalPager(
             state         = pagerState,
             modifier      = Modifier.fillMaxSize(),
-            reverseLayout = true,           // العربية تُقلَب، والصفحة الأولى يمين
+            /*  العربيةُ تُقلَب فالصفحةُ الأولى يمين — والإنجليزيةُ لا.
+             *
+             *  كانت `true` ثابتةً، فيبدأ المقلِّبُ في الإنجليزية من آخر
+             *  صفحةٍ ويمضي إلى الوراء: أوّلُ ما يراه المستخدمُ الإنجليزيّ
+             *  من التطبيق شاشةٌ معكوسة.  */
+            reverseLayout = LocalLayoutDirection.current == LayoutDirection.Rtl,
         ) { page ->
             OnboardingPage(
                 page    = page,

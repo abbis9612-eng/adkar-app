@@ -219,6 +219,7 @@ fun MushafScreen(
         خالصة، ولمسةٌ واحدةٌ في متنها تُظهر الأدواتِ وتُخفيها.  */
     var toolsOn by remember { mutableStateOf(false) }
     var hint by remember { mutableStateOf(!prefs.hintSeen) }
+    var jump by remember { mutableStateOf(false) }
 
     /*  الشريطُ السفليُّ يختفي مع الأدوات ويعود معها — فتصير الورقةُ ورقةً
      *  كما يقول تصميمُ الشاشة، ولا يُحبَس القارئُ فيها: ضغطةٌ واحدةٌ على
@@ -291,7 +292,13 @@ fun MushafScreen(
                         )
                     }
                 }
-                PageFoot(pageNo, ar, ink)
+                PageFoot(
+                    page = pageNo,
+                    hizb = data?.rub ?: 0,
+                    ar = ar,
+                    ink = ink,
+                    onJump = { jump = true },
+                )
             }
         }
 
@@ -363,6 +370,17 @@ fun MushafScreen(
                 }
             },
             onNo = { offer = false },
+        )
+    }
+
+    if (jump) {
+        JumpSheet(
+            ar = ar,
+            onGo = { p ->
+                jump = false
+                scope.launch { pager.scrollToPage(p - 1) }
+            },
+            onDismiss = { jump = false },
         )
     }
 
@@ -631,7 +649,7 @@ private fun PageMargin(surah: String, juz: Int, odd: Boolean, ink: Color) {
 }
 
 @Composable
-private fun PageFoot(page: Int, ar: Boolean, ink: Color) {
+private fun PageFoot(page: Int, hizb: Int, ar: Boolean, ink: Color, onJump: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -643,12 +661,35 @@ private fun PageFoot(page: Int, ar: Boolean, ink: Color) {
                 .background(ink.copy(alpha = 0.18f)),
         )
         Spacer(Modifier.height(7.dp))
-        Text(
-            "$page".localizedDigits(ar),
-            fontFamily = NaskhFamily,
-            fontSize = 13.sp,
-            color = ink.copy(alpha = 0.52f),
-        )
+        Row(
+            Modifier
+                .clip(CircleShape)
+                // رقمُ الصفحة صار مدخلاً: ضغطةٌ عليه تفتح الانتقال.
+                .clickable(onClick = onJump)
+                .padding(horizontal = 12.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                "$page".localizedDigits(ar),
+                fontFamily = NaskhFamily,
+                fontSize = 13.sp,
+                color = ink.copy(alpha = 0.52f),
+            )
+            /*  الحزبُ لم يكن يُعرض في التطبيق قطّ.
+             *
+             *  كان `MushafFooter` يعرضه — وهي دالّةٌ مكتوبةٌ كاملةً لا
+             *  يناديها أحد. والحزبُ في التخطيط صحيحٌ (١–٢٤٠) ومقروءٌ منذ
+             *  البداية ولا يُقرأ.  */
+            if (hizb > 0) {
+                Text(
+                    stringResource(R.string.mushaf_hizb, ((hizb - 1) / 4 + 1).localized(ar)),
+                    fontFamily = NaskhFamily,
+                    fontSize = 13.sp,
+                    color = ink.copy(alpha = 0.38f),
+                )
+            }
+        }
     }
 }
 
@@ -725,32 +766,6 @@ private fun ToolBar(
 
 /* ── الشريطان ──────────────────────────────────────────────────── */
 
-@Composable
-private fun MushafTopBar(
-    page: Int, surah: String, juz: Int, ink: Color,
-    onBack: () -> Unit, onSettings: () -> Unit, onList: () -> Unit,
-) {
-    val rc = LocalRafiqColors.current
-    val ar = LocalArabicNumerals.current
-    Row(
-        Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Chip(surah.ifEmpty { "المصحف" }, accent = true, ink = ink)
-            Spacer(Modifier.width(6.dp))
-            IconDot(RIcon.ChevronLeft, ink, onBack)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconDot(RIcon.Book, ink, onList)
-            IconDot(RIcon.Settings, ink, onSettings)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Chip(if (juz > 0) "الجزء ${juz.localized(ar)}" else "…", accent = false, ink = ink)
-        }
-    }
-}
 
 @Composable
 private fun Chip(text: String, accent: Boolean, ink: Color) {
@@ -780,24 +795,6 @@ private fun IconDot(icon: RIcon, ink: Color, onClick: () -> Unit) {
     ) { RafiqIcon(icon, 18.dp, ink.copy(alpha = 0.72f)) }
 }
 
-@Composable
-private fun MushafFooter(page: Int, hizb: Int, surah: String, ar: Boolean, ink: Color) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 7.dp).navigationBarsPadding(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(surah, style = RafiqType.caption, color = ink.copy(alpha = 0.62f), maxLines = 1)
-        Box(
-            Modifier.clip(CircleShape).background(ink.copy(alpha = 0.06f))
-                .padding(horizontal = 15.dp, vertical = 5.dp),
-        ) { Text(page.localized(ar), style = RafiqType.titleM, color = ink) }
-        Text(
-            if (hizb > 0) "الحزب ${((hizb - 1) / 4 + 1).localized(ar)}" else "",
-            style = RafiqType.caption, color = ink.copy(alpha = 0.62f), maxLines = 1,
-        )
-    }
-}
 
 /* ── ورقةُ الإعدادات ───────────────────────────────────────────── */
 
@@ -1105,5 +1102,124 @@ private fun DownloadStrip(p: MushafDownloader.Progress, modifier: Modifier = Mod
             modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
             color = rc.emerald, trackColor = rc.divider,
         )
+    }
+}
+
+/* ── الانتقالُ إلى صفحة ─────────────────────────────────────────
+
+   لم يكن في المصحف سبيلٌ إلى صفحةٍ بعينها: ٦٠٤ صفحةً، والوصولُ إلى
+   الخمسمئة من الأولى أربعُ مئةٍ وتسعٌ وتسعون سحبة. والقائمةُ تفتح على
+   أوّل السورة لا على صفحةٍ يذكرها القارئ.
+
+   ثلاثةُ مداخل: رقمُ الصفحة، والجزءُ، والحزب — وهي ما يذكره الحافظ.
+──────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun JumpSheet(
+    ar: Boolean,
+    onGo: (Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    var text by remember { mutableStateOf("") }
+
+    /** أوّلُ صفحةٍ من كل جزء في المصحف المدنيّ. */
+    val juzFirstPage = remember {
+        listOf(1, 22, 42, 62, 82, 102, 121, 142, 162, 182, 201, 222, 242, 262, 282,
+               302, 322, 342, 362, 382, 402, 422, 442, 462, 482, 502, 522, 542, 562, 582)
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.35f))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) { onDismiss() },
+    )
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
+                .background(rc.bg)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { /* يبتلع النقر فلا يُغلق */ }
+                .padding(20.dp)
+                .navigationBarsPadding(),
+        ) {
+            Text(
+                stringResource(R.string.mushaf_jump_title),
+                style = RafiqType.titleM,
+                color = rc.ink,
+            )
+            Spacer(Modifier.height(14.dp))
+
+            androidx.compose.material3.OutlinedTextField(
+                value = text,
+                onValueChange = { v -> text = v.filter { it.isDigit() }.take(3) },
+                singleLine = true,
+                placeholder = { Text(stringResource(R.string.mushaf_jump_hint), color = rc.inkMed) },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(10.dp))
+
+            val target = text.toIntOrNull()
+            val valid = target != null && target in 1..604
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (valid) rc.emerald else rc.divider)
+                    .clickable(enabled = valid) { onGo(target!!) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(R.string.mushaf_jump_go),
+                    color = if (valid) rc.onEmerald else rc.inkMed,
+                    style = RafiqType.body,
+                )
+            }
+
+            Spacer(Modifier.height(18.dp))
+            Text(
+                stringResource(R.string.mushaf_jump_juz),
+                style = RafiqType.caption,
+                color = rc.inkMed,
+            )
+            Spacer(Modifier.height(8.dp))
+            /*  ثلاثون جزءاً في شبكةٍ من ستّة أعمدة — تُدرَك بلمحة، وأسرعُ
+                من كتابة رقمٍ لمن يعرف جزأه.  */
+            juzFirstPage.chunked(6).forEach { row ->
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    row.forEach { first ->
+                        val juz = juzFirstPage.indexOf(first) + 1
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(rc.card)
+                                .clickable { onGo(first) }
+                                .padding(vertical = 9.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(juz.localized(ar), style = RafiqType.bodyS, color = rc.ink)
+                        }
+                    }
+                    repeat(6 - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
     }
 }

@@ -17,6 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.RafiqIconButton
+import app.rafiqaldhikr.ui.components.RIcon
 import androidx.navigation.NavHostController
 import app.rafiq.domain.model.QuranBookmark
 import app.rafiq.domain.repository.QuranRepository
@@ -42,6 +49,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
     val repository = koinInject<QuranRepository>()
     val bookmarks by repository.getBookmarks().collectAsStateWithLifecycle(emptyList())
     val rc = LocalRafiqColors.current
+    val scope = rememberCoroutineScope()
 
     Box(
         Modifier
@@ -55,13 +63,13 @@ fun QuranBookmarksScreen(navController: NavHostController) {
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "علامات القرآن",
+                title  = stringResource(R.string.quran_bookmarks),
                 onBack = {navController.popBackStack()},
             )
 
             if (bookmarks.isEmpty()) {
                 EmptyState(
-                    message  = "لم تضع علامةً بعد\nانقُر آيةً في المصحف ثمّ «ضَعْ علامة»",
+                    message  = stringResource(R.string.bookmarks_empty),
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -76,6 +84,13 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                             onClick   = {
                                 navController.navigate(RafiqRoute.Mushaf.atVerse(bookmark.page, "${bookmark.surah}:${bookmark.ayah}"))
                             },
+                            /*  الحذف لم يكن موجوداً: `removeBookmark` مكتوبةٌ
+                             *  في المستودع بلا مستدعٍ، والشاشةُ للقراءة فقط.
+                             *  فمن وضع علامةً بالخطأ لم يستطع رفعَها إلّا من
+                             *  المصحف نفسِه إن اهتدى إلى آيتها.  */
+                            onDelete  = {
+                                scope.launch { repository.removeBookmark(bookmark.id) }
+                            },
                             rc = rc
                         )
                     }
@@ -89,6 +104,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
 private fun BookmarkCard(
     bookmark: QuranBookmark,
     onClick:  () -> Unit,
+    onDelete: () -> Unit,
     rc: RafiqPalette
 ) {
     Column(
@@ -120,6 +136,13 @@ private fun BookmarkCard(
                     Text(dateStr,
                         color = rc.inkMed, style = RafiqType.caption)
                 }
+            }
+
+            RafiqIconButton(
+                onClick = onDelete,
+                label   = stringResource(R.string.bookmark_remove),
+            ) {
+                RafiqIcon(RIcon.Trash, 17.dp, rc.inkMed)
             }
         }
     }
