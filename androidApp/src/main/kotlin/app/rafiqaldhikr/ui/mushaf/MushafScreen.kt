@@ -3,6 +3,8 @@ package app.rafiqaldhikr.ui.mushaf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -16,8 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
 import androidx.compose.ui.text.SpanStyle
@@ -25,6 +30,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.RIcon
@@ -234,8 +240,19 @@ fun MushafScreen(
     /*  الشريطُ السفليُّ يختفي مع الأدوات ويعود معها — فتصير الورقةُ ورقةً
      *  كما يقول تصميمُ الشاشة، ولا يُحبَس القارئُ فيها: ضغطةٌ واحدةٌ على
      *  المتن تُرجع الأدواتِ والشريطَ معاً.  */
+    /*  الورقةُ لا تتغيّر مقاساً أبداً — وهذا أصلُ العطب الذي كان.
+     *
+     *  كان `immersive` يتبع `toolsOn`: تُظهر الأدواتِ فيظهر معها شريطُ
+     *  التطبيق السفليّ، فيطرح الهيكلُ ارتفاعَه (نحو ٨٠ نقطة) من المحتوى.
+     *  والصفحةُ المصحفية تحسب مقاسَ خطّها من الارتفاع المتاح لتملأ
+     *  الورقةَ بخمسةَ عشرَ سطراً — **فتُعيد الحسابَ وتصغر أمام عينَي
+     *  القارئ** كلّما لمس الشاشة. والقارئُ لمَسَ ليرى أداة، لا ليتغيّر
+     *  النصُّ الذي يقرؤه.
+     *
+     *  فالمصحفُ غامرٌ **دائماً**، وأدواتُه تطفو فوق الورقة ولا تأخذ من
+     *  ارتفاعها شيئاً. والخروجُ منه بسهم الرجوع في الشريط العلويّ. */
     val immersive = app.rafiqaldhikr.ui.navigation.LocalImmersive.current
-    LaunchedEffect(toolsOn) { immersive.value = !toolsOn }
+    LaunchedEffect(Unit) { immersive.value = true }
     DisposableEffect(Unit) { onDispose { immersive.value = false } }
 
     Box(Modifier.fillMaxSize().background(paper)) {
@@ -344,12 +361,34 @@ fun MushafScreen(
             visible = toolsOn,
             paper = paper,
             ink = ink,
+            accent = if (night) rc.goldLight else rc.gold,
             onBack = { navController.popBackStack() },
             onList = { navController.navigate(RafiqRoute.QuranList.route) },
             onSearch = { navController.navigate(RafiqRoute.QuranSearch.route) },
             onMarks = { navController.navigate(RafiqRoute.QuranBookmarks.route) },
             onSettings = { sheet = true },
             modifier = Modifier.align(Alignment.TopCenter),
+        )
+
+        /*  شريطُ الموضع — بنيةُ المصحف لا «صفحة ٣ من ٢٠».
+         *
+         *  السورةُ والجزءُ والحزبُ هي ما يعرف به القارئُ مكانَه في
+         *  المصحف، فهي ما يُعرض. والمنزلقُ علامتُه ۞ — رمزُ ربع الحزب
+         *  في المصحف المطبوع، لا نقطةً عامّة. */
+        PageRail(
+            visible = toolsOn,
+            page = pager.currentPage + 1,
+            surah = layout?.page(pager.currentPage + 1)
+                ?.let { SurahNames.of(ctx, it.firstSurah) }.orEmpty(),
+            juz = layout?.page(pager.currentPage + 1)?.juz ?: 0,
+            hizb = layout?.page(pager.currentPage + 1)?.rub ?: 0,
+            paper = paper,
+            ink = ink,
+            accent = if (night) rc.goldLight else rc.gold,
+            ar = ar,
+            onGo = { scope.launch { pager.scrollToPage(it - 1) } },
+            onJump = { jump = true },
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
 
         AyahSheet(
@@ -739,6 +778,7 @@ private fun ToolBar(
     visible: Boolean,
     paper: Color,
     ink: Color,
+    accent: Color,
     onBack: () -> Unit,
     onList: () -> Unit,
     onSearch: () -> Unit,
@@ -752,24 +792,35 @@ private fun ToolBar(
         exit = fadeOut() + slideOutVertically { -it / 3 },
         modifier = modifier,
     ) {
-        /*  خلفيّةٌ صمّاء لا متدرّجة: الشريطُ يعلو هامشَ الورقة الذي فيه
-            اسمُ السورة والجزء، فالتدرّجُ يُظهرهما تحت الأيقونات فتتداخل
-            الكتابةُ بالكتابة — وهو ما وقع. */
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .background(paper)
-                .statusBarsPadding()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconDot(RIcon.ArrowRight, ink, onBack)
-            Spacer(Modifier.weight(1f))
-            IconDot(RIcon.Book, ink, onList)
-            IconDot(RIcon.Search, ink, onSearch)
-            IconDot(RIcon.Bookmark, ink, onMarks)
-            IconDot(RIcon.Settings, ink, onSettings)
+        /*  مِسطرةٌ تطفو فوق الورقة، لا شريطٌ يقتطع منها.
+         *
+         *  كان يملأ العرضَ بخلفيّةٍ صمّاء تلتصق بحافّة الشاشة، فيبدو
+         *  جزءاً من النافذة لا ضيفاً على الصفحة. وصار لوحاً مستديراً
+         *  بحافّةٍ ذهبيةٍ خفيفة يترك الورقةَ تُرى من حوله — فيُقرأ
+         *  «شيءٌ وُضع على المصحف» ويُرفع.
+         *
+         *  ولونُه لونُ الورقة نفسِها، فيتبع الليلَ والنهار ولا يأتي
+         *  ببياضِ نظامٍ غريبٍ فوق ورقةٍ داكنة. */
+        Box(Modifier.statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    //  ظلٌّ خفيف: ورقةٌ وُضعت على الصفحة، لا بطاقةٌ تطفو في فراغ.
+                    .shadow(6.dp, RoundedCornerShape(26.dp), clip = false)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(paper)
+                    .border(1.dp, accent.copy(alpha = 0.16f), RoundedCornerShape(26.dp))
+                    .padding(horizontal = 6.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconDot(RIcon.ArrowRight, ink, onBack)
+                Spacer(Modifier.weight(1f))
+                IconDot(RIcon.Book, ink, onList)
+                IconDot(RIcon.Search, ink, onSearch)
+                IconDot(RIcon.Bookmark, ink, onMarks)
+                IconDot(RIcon.Settings, ink, onSettings)
+            }
         }
     }
 }
@@ -1232,6 +1283,191 @@ private fun JumpSheet(
                 }
             }
             Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/* ── شريطُ الموضع ───────────────────────────────────────────────────
+
+   المرجعُ الذي أراني إيّاه صاحبُ التطبيق يضع هنا شريطَ أرقامٍ ودائرتَي
+   صوتٍ وتمرير. أخذتُ منه المبدأ — أدواتٌ تطفو ولا تُزحزح الورقة —
+   وتركتُ زرَّيه: لا مشغّلَ صوتٍ في هذا التطبيق، ووعدٌ بما لا وجود له
+   أسوأُ من نقصٍ صريح.
+
+   وما يُعرض بنيةُ المصحف لا ترقيمٌ عامّ: السورةُ والجزءُ والحزب — بها
+   يعرف القارئ مكانَه. والمنزلقُ علامتُه ۞، رمزُ ربع الحزب في المصحف
+   المطبوع، لا نقطةً من مكتبة.
+──────────────────────────────────────────────────────────────────── */
+
+@Composable
+private fun PageRail(
+    visible: Boolean,
+    page: Int,
+    surah: String,
+    juz: Int,
+    hizb: Int,
+    paper: Color,
+    ink: Color,
+    accent: Color,
+    ar: Boolean,
+    onGo: (Int) -> Unit,
+    onJump: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInVertically { it / 3 },
+        exit = fadeOut() + slideOutVertically { it / 3 },
+        modifier = modifier,
+    ) {
+        Column(
+            Modifier
+                .navigationBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .fillMaxWidth()
+                .shadow(8.dp, RoundedCornerShape(24.dp), clip = false)
+                .clip(RoundedCornerShape(24.dp))
+                .background(paper)
+                .border(1.dp, accent.copy(alpha = 0.16f), RoundedCornerShape(24.dp))
+                .padding(horizontal = 18.dp, vertical = 12.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    surah,
+                    fontFamily = NaskhFamily,
+                    fontSize = 15.sp,
+                    // العربيةُ بلا حروفٍ كبيرة، فتفقد ثقلَها البصريّ —
+                    // والسطرُ الواحد يحتاج ارتفاعاً ١٫٧ لا ١٫٢.
+                    lineHeight = 26.sp,
+                    color = ink.copy(alpha = 0.92f),
+                )
+                Spacer(Modifier.weight(1f))
+                if (juz > 0) {
+                    Text(
+                        stringResource(R.string.mushaf_juz, juz.localized(ar)),
+                        fontFamily = NaskhFamily,
+                        fontSize = 13.sp,
+                        lineHeight = 23.sp,
+                        //  ٠٫٥ تعطي ٣٫٢٦:١ على ورق النهار — دون ٤٫٥
+                        //  المطلوبة لهذا المقاس. و٠٫٦٢ تعطي ٤٫٧٠:١.
+                        color = ink.copy(alpha = 0.62f),
+                    )
+                }
+                if (hizb > 0) {
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        stringResource(R.string.mushaf_hizb, ((hizb - 1) / 4 + 1).localized(ar)),
+                        fontFamily = NaskhFamily,
+                        fontSize = 13.sp,
+                        lineHeight = 23.sp,
+                        color = ink.copy(alpha = 0.62f),
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+            PageSlider(page = page, ink = ink, accent = accent, onGo = onGo)
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                Modifier.fillMaxWidth().clip(CircleShape).clickable(onClick = onJump),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.mushaf_page_of, page.localized(ar), 604.localized(ar)),
+                    fontFamily = NaskhFamily,
+                    fontSize = 13.sp,
+                    lineHeight = 23.sp,
+                    color = accent,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * منزلقُ الصفحات — ۞ يمشي على خيط.
+ *
+ * ولا `Slider` من Material: ذاك يأتي بلونه ومقاسه وحلقته، ولا يعرف أنّ
+ * هذه ورقةُ مصحف. وهنا خيطٌ رفيعٌ وعلامةُ ربعِ الحزب، ولا شيءَ غيرهما.
+ *
+ * والاتّجاه: الورقةُ تُقلب من اليمين، فالصفحةُ الأولى عند اليمين — وهو
+ * ما يفعله [LayoutDirection.Rtl] تلقائياً في `offset`، لكنّ حسابَ
+ * الكسر من إحداثيّ اللمس يحتاج القلبَ صراحةً.
+ */
+/**
+ * ‏`U+06DE ARABIC START OF RUB EL HIZB` — العلامةُ التي تُوضع في هامش
+ * المصحف كلَّ ربعِ حزب.
+ *
+ * وتُكتب بنقطتها الرمزية لا بحرفها: هي **رمزٌ** لا نصُّ واجهةٍ يُترجَم،
+ * فلا محلَّ لها في `strings.xml` ولا في عدّ النصوص العربية.
+ */
+private const val RUB_EL_HIZB = "\u06DE"
+
+@Composable
+private fun PageSlider(page: Int, ink: Color, accent: Color, onGo: (Int) -> Unit) {
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    var dragging by remember { mutableStateOf<Float?>(null) }
+
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            // ٤٨ نقطةً هدفَ لمسٍ مهما رقّ الخيط المرسوم.
+            .height(44.dp),
+    ) {
+        //  يُلتقط من نطاق BoxWithConstraints مرّةً: داخل `with(Density)`
+        //  يضيع المستقبِلُ الضمنيّ فلا يُقرأ `maxWidth`.
+        val railWidth = maxWidth
+        val widthPx = with(LocalDensity.current) { railWidth.toPx() }
+        fun pageAt(x: Float): Int {
+            val f = (x / widthPx).coerceIn(0f, 1f)
+            val fraction = if (rtl) 1f - f else f
+            return (fraction * 603f).toInt() + 1
+        }
+
+        val shown = dragging?.let { pageAt(it) } ?: page
+        val fraction = (shown - 1) / 603f
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .pointerInput(widthPx, rtl) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { dragging = it.x },
+                        onDragEnd = { dragging?.let { x -> onGo(pageAt(x)) }; dragging = null },
+                        onDragCancel = { dragging = null },
+                    ) { change, _ -> dragging = change.position.x }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            // الخيط
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.5.dp)
+                    .clip(CircleShape)
+                    .background(ink.copy(alpha = 0.14f)),
+            )
+            // الجزءُ المقطوع — من أوّل المصحف إلى موضعك
+            Box(
+                Modifier
+                    .fillMaxWidth(fraction.coerceIn(0.004f, 1f))
+                    .height(1.5.dp)
+                    .align(if (rtl) Alignment.CenterEnd else Alignment.CenterStart)
+                    .clip(CircleShape)
+                    .background(accent.copy(alpha = 0.55f)),
+            )
+            // ۞ — علامةُ ربع الحزب، وهي هنا مؤشّرُ الموضع
+            Text(
+                RUB_EL_HIZB,
+                fontFamily = NaskhFamily,
+                fontSize = 20.sp,
+                color = accent,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = (railWidth - 20.dp) * if (rtl) 1f - fraction else fraction),
+            )
         }
     }
 }

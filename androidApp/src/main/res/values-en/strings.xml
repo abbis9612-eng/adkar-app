@@ -743,4 +743,8 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
 
     <!-- أداةُ المواقيت المصغّرة -->
     <string name="times_widget_hint">There is a prayer-times widget: long-press your home screen → Widgets → Rafiq Al-Dhikr</string>
+
+    <!-- شريط موضع المصحف -->
+    <string name="mushaf_juz">Juz %1$s</string>
+    <string name="mushaf_page_of">Page %1$s of %2$s</string>
 </resources>

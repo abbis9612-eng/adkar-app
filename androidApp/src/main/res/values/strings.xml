@@ -768,4 +768,8 @@
 
     <!-- أداةُ المواقيت المصغّرة -->
     <string name="times_widget_hint">للمواقيت أداةٌ مصغّرة: اضغط مطوّلاً على شاشتك الرئيسية ← الأدوات المصغّرة ← رفيق الذكر</string>
+
+    <!-- شريط موضع المصحف -->
+    <string name="mushaf_juz">الجزء %1$s</string>
+    <string name="mushaf_page_of">صفحة %1$s من %2$s</string>
 </resources>
