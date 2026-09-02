@@ -57,7 +57,8 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
-import app.rafiqaldhikr.ui.sky.SkyCanvas
+import app.rafiqaldhikr.ui.sky.SkyGL
+import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.layout.Box
@@ -155,16 +156,31 @@ fun HomeHubScreen(
         sunPosition(now, home.lat, home.lng)
     }
     val moon = remember(now / 3_600_000L) { moonPhase(now) }
+    //  وموضعُه الحقيقيّ — كان يُرسم في مكانٍ ثابتٍ لا يطلع ولا يغيب.
+    val moonAt = remember(now / 60_000L, home.lat, home.lng) {
+        moonPosition(now, home.lat, home.lng)
+    }
     val sky = remember(sun.altitude) { skyColors(sun.altitude.toFloat()) }
     val skyInk = remember(sky) { skyInk(sky) }
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        SkyCanvas(
-            altitude = sun.altitude.toFloat(),
-            azimuth  = sun.azimuth.toFloat(),
-            moon     = moon,
-            rc       = rc,
-            modifier = Modifier.fillMaxWidth().height(SKY_H),
+        /*  السماءُ تُحسب على المعالج الرسوميّ — انظر `SkyShader`.
+         *
+         *  كانت رسماً على قماش: ٤٦ نقطةً بيضاءَ متساوية، وقرصَ قمرٍ
+         *  مسطَّحاً في موضعٍ ثابت، ووهجاً في وسط الشاشة لا عند الشمس.
+         *  والآن شعاعٌ لكل بكسل: تشتّتٌ جوّيٌّ يحمرّ الأفقَ من نفسه،
+         *  ونجومٌ بأقدارها ودربِ تبّانتها، وقمرٌ كرةٌ يقطعها الشعاعُ
+         *  فالهلالُ نتيجةُ هندسةٍ لا شكلٌ مرسوم، وغيمٌ يزحف ويُضاء.
+         *
+         *  ولا مكتبةَ ولا صورةَ ولا ميغابايت — نصُّ مُظلِّلٍ لا غير. */
+        SkyGL(
+            sunAlt        = sun.altitude,
+            sunAz         = sun.azimuth,
+            moonAlt       = moonAt.altitude,
+            moonAz        = moonAt.azimuth,
+            moon          = moon,
+            reducedMotion = LocalReducedMotion.current,
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
         Column(Modifier.fillMaxSize().statusBarsPadding()) {

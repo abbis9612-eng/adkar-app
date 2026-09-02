@@ -49,7 +49,7 @@ EXEMPT = {
 }
 
 #  السقفُ الحاليّ. يُخفَّض ولا يُرفَع.
-CEILING = 80
+CEILING = 77
 
 ARABIC = re.compile(r'"([^"\\\n]*[؀-ۿ][^"\\\n]*)"')
 
@@ -59,11 +59,50 @@ def strip_comments(s: str) -> str:
     return re.sub(r'/\*[\s\S]*?\*/', '', s)
 
 
+def strip_logs(s: str) -> str:
+    """
+    يمحو نداءاتِ `Log.*` — رسائلُها لا تصل المستخدمَ أبداً.
+
+    كان الحارسُ يعدّها نصَّ واجهةٍ فيطالب بإخراجها إلى `strings.xml`،
+    وهو عبثٌ مضاعف: تُترجَم رسالةٌ لا يقرؤها إلّا مطوِّرٌ في Logcat،
+    ويُحشى ملفُّ الترجمة بما ليس منه. وثلاثُ رسائلَ كهذه كانت داخلةً
+    في السقف من قبلُ فرفعته بلا سبب.
+
+    والمسحُ بموازنة الأقواس لا بالسطر: النداءُ قد يمتدّ أسطراً.
+    """
+    out, i, n = [], 0, len(s)
+    while i < n:
+        m = re.compile(r'\bLog\.[edwiv]\s*\(').search(s, i)
+        if not m:
+            out.append(s[i:])
+            break
+        out.append(s[i:m.start()])
+        j, depth, instr = m.end(), 1, False
+        while j < n and depth:
+            ch = s[j]
+            if instr:
+                if ch == '\\':
+                    j += 1
+                elif ch == '"':
+                    instr = False
+            elif ch == '"':
+                instr = True
+            elif ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            j += 1
+        #  تُبقى الأسطرُ كما هي فلا تختلّ أرقامُها لو احتيج إليها
+        out.append('\n' * s.count('\n', m.start(), j))
+        i = j
+    return ''.join(out)
+
+
 counts = collections.Counter()
 for path in SRC.rglob("*.kt"):
     if path.stem in HIDDEN or path.stem in EXEMPT:
         continue
-    body = strip_comments(path.read_text(encoding="utf-8"))
+    body = strip_logs(strip_comments(path.read_text(encoding="utf-8")))
     n = len(ARABIC.findall(body))
     if n:
         counts[str(path.relative_to(ROOT))] = n

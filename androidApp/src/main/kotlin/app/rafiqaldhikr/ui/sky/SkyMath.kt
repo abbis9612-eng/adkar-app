@@ -98,3 +98,67 @@ fun moonPhase(epochMillis: Long): MoonPhase {
 // أحد. والقمرُ يُرسم في `SkyCanvas` بطوره لا باسمه.
 
 private fun Double.mod(m: Double): Double = ((this % m) + m) % m
+
+/* ── موضعُ القمر ───────────────────────────────────────────────
+
+   الطورُ وحدَه لا يكفي: كان القمرُ يُرسم في مكانٍ ثابتٍ من الشاشة، فلا
+   يطلع ولا يغيب، ويبقى معلَّقاً في السماء والشمسُ في كبد السماء.
+
+   وهذا حسابٌ منخفضُ الدقّة من خوارزمية Meeus المختصرة — خطؤه دون نصف
+   درجة، وهو أدقُّ بكثيرٍ ممّا يحتاجه قرصٌ قطرُه ستُّ نقاطٍ على الشاشة.
+   ولا شبكةَ فيه ولا حزمة: الحسابُ نفسُه الذي تقوم عليه المواقيت.
+──────────────────────────────────────────────────────────────── */
+
+/** ارتفاعُ القمر وسَمْتُه بالدرجات، وزاويةُ ميلِ الهلال. */
+data class MoonPosition(
+    val altitude: Double,
+    val azimuth: Double,
+    /**
+     * زاويةُ وضع الحدّ المضيء: اتّجاهُ قرن الهلال في السماء.
+     *
+     * وهي التي تجعل هلالَ بغداد يميل غيرَ ميل هلال خطّ الاستواء —
+     * وكان الهلالُ يُرسم عمودياً دائماً في كل بلد.
+     */
+    val brightLimbAngle: Double,
+)
+
+fun moonPosition(epochMillis: Long, lat: Double, lng: Double): MoonPosition {
+    val d = epochMillis / 86_400_000.0 - 10957.5      // أيّامٌ منذ J2000.0
+
+    //  إحداثيّاتُ القمر الكسوفية — الحدودُ الكبرى وحدَها
+    val L = (218.316 + 13.176396 * d) * DEG           // الطولُ الوسطيّ
+    val M = (134.963 + 13.064993 * d) * DEG           // الشذوذُ الوسطيّ
+    val F = (93.272 + 13.229350 * d) * DEG            // مسافةُ العقدة
+
+    val lonEc = L + 6.289 * DEG * sin(M)
+    val latEc = 5.128 * DEG * sin(F)
+
+    val obl = (23.439 - 0.0000004 * d) * DEG
+    val ra = atan2(sin(lonEc) * cos(obl) - tan(latEc) * sin(obl), cos(lonEc))
+    val dec = asin(sin(latEc) * cos(obl) + cos(latEc) * sin(obl) * sin(lonEc))
+
+    val gmst = (18.697374558 + 24.06570982441908 * d).mod(24.0)
+    val lst = ((gmst + lng / 15.0).mod(24.0)) * 15.0 * DEG
+    val ha = lst - ra
+    val latR = lat * DEG
+
+    val alt = asin(sin(latR) * sin(dec) + cos(latR) * cos(dec) * cos(ha))
+    val az = atan2(-sin(ha), tan(dec) * cos(latR) - sin(latR) * cos(ha))
+
+    //  زاويةُ الحدّ المضيء تُقاس من شمال الأفق نحو الشرق، ثمّ تُحوَّل
+    //  إلى ميلٍ على الشاشة بطرح زاوية الوضع المتوازي.
+    val sun = sunPosition(epochMillis, lat, lng)
+    val sunAz = sun.azimuth * DEG
+    val sunAlt = sun.altitude * DEG
+    val dAz = sunAz - (az / DEG + 360.0).mod(360.0) * DEG
+    val limb = atan2(
+        cos(sunAlt) * sin(dAz),
+        cos(alt) * sin(sunAlt) - sin(alt) * cos(sunAlt) * cos(dAz),
+    )
+
+    return MoonPosition(
+        altitude = alt / DEG,
+        azimuth = (az / DEG + 360.0).mod(360.0),
+        brightLimbAngle = limb / DEG,
+    )
+}

@@ -1,26 +1,9 @@
 package app.rafiqaldhikr.ui.sky
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
-import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.theme.contrast
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.random.Random
 
 /* ══════════════════════════════════════════════════════════════
    سماءُ المخطوط
@@ -77,185 +60,19 @@ fun skyInk(sky: Pair<Color, Color>): Color {
 }
 
 /** نجومٌ ثابتةُ المواضع — لا عشوائيةَ تتغيّر مع كلِّ إطار. */
-private class Star(val x: Float, val y: Float, val r: Float, val a: Float)
 
-private val STARS: List<Star> = Random(7).let { rnd ->
-    List(46) { Star(rnd.nextFloat(), rnd.nextFloat() * 0.62f, 0.45f + rnd.nextFloat() * 0.75f, 0.35f + rnd.nextFloat() * 0.65f) }
-}
+/* ══════════════════════════════════════════════════════════════
+   وهنا كان الرسمُ — وقد حُذف.
 
-/** غيومٌ ثابتةُ المواضع، لونُها من ضوء الساعة. */
-/*  حُذفت الغيوم — بعد ثلاثِ محاولات.
- *
- *  الأولى: بيضاتٌ بتدرّجٍ رأسيّ، حوافُّها حادّةٌ لأنّ `filter: blur` في
- *  نموذج HTML لا مقابلَ له في `drawOval`.
- *  الثانية: تدرّجٌ شعاعيٌّ دائريٌّ في بيضةٍ مفلطحة — يُقصّ رأسياً عند
- *  ثلث مساره والشفافيةُ ما تزال 70٪.
- *  الثالثة: دائرةٌ ناعمةٌ تُسطَّح بالمقياس. نعمت الحافّةُ فعلاً — ورُسمت
- *  الخوارزميّةُ وفُحصت صورتُها — لكنّها تُقرأ لطخاتٍ رماديةً على زجاج.
- *
- *  والسببُ بنيويّ لا في الضبط: غيمةٌ من إهليلجاتٍ متراصّة تبقى لطخةً
- *  مهما نعمت، لأنّ الغيمةَ الحقيقيّة نُتوءٌ من فوقٍ وقاعٌ مسطَّحٌ من
- *  تحتٍ وتظليلٌ داخليّ. ورسمُها صدقاً يحتاج ضجيجاً محسوباً أو صورةً —
- *  والصورةُ تنقض القاعدة التي وُلدت السماءُ منها.
- *
- *  وهي كانت العنصرَ الوحيد في السماء غيرَ المحسوب: التدرّجُ من ارتفاع
- *  الشمس، وموضعُ القرص من سَمْتها، وطورُ القمر من عمره، والوهجُ على
- *  السَّمْت. والغيومُ وحدها زينةٌ مخترعة — وهي وحدها التي سقطت ثلاثاً.
- */
+   كان مئةً وثمانين سطراً على `Canvas`: ستٌّ وأربعون نقطةً بيضاءَ
+   متساويةُ الحجم موزَّعةً بانتظام، وقرصُ قمرٍ مسطَّحٌ بلونٍ واحدٍ في
+   موضعٍ ثابتٍ من الشاشة لا يطلع ولا يغيب، ووهجُ شفقٍ مركزُه وسطُ
+   الشاشة لا سَمْتُ الشمس.
 
-/**
- * @param altitude ارتفاعُ الشمس بالدرجات · @param azimuth سَمْتُها
- * @param moon طورُ القمر — يُرسم حين تغيب الشمس
- */
-@Composable
-fun SkyCanvas(
-    altitude: Float,
-    azimuth: Float,
-    moon: MoonPhase,
-    rc: RafiqPalette,
-    modifier: Modifier = Modifier,
-) {
-    val sky = remember(altitude) { skyColors(altitude) }
-    Canvas(modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
-        val up = altitude > -6f
+   والسماءُ الآن تُحسب على المعالج الرسوميّ في `SkyShader`/`SkyGL`:
+   شعاعٌ لكل بكسل، وتشتّتٌ جوّيٌّ يحمرّ الأفقَ من نفسه، ونجومٌ
+   بأقدارها، وقمرٌ كرةٌ يقطعها الشعاعُ فالهلالُ نتيجةُ هندسة.
 
-        drawRect(
-            Brush.verticalGradient(
-                0f to sky.first,
-                0.58f to lerp(sky.first, sky.second, 0.55f),
-                1f to sky.second,
-            ),
-        )
-
-        // النجوم — تظهر تدريجاً بعد ‎−٣° وتكتمل عند ‎−١٦°
-        val night = ((-altitude - 3f) / 13f).coerceIn(0f, 1f)
-        if (night > 0.01f) {
-            STARS.forEach { s ->
-                drawCircle(
-                    Color.White.copy(alpha = s.a * night),
-                    radius = s.r * (w / 360f) * 2f,
-                    center = Offset(s.x * w, s.y * h),
-                )
-            }
-        }
-
-        /*  السَّمْتُ يعطي الموضع الأفقيّ والارتفاعُ الرأسيّ. والمدى
-            55°–305° هو قوسُ النهار المرئيّ؛ خارجَه القرصُ تحت الأفق. */
-        /*  القرصُ كان يقع خلف «نهارٌ طيّب»: عند ارتفاع 47° موضعُه 36٪
-            من السماء، والنصُّ يشغل أعلى 44٪. فحُصر في النطاق الخالي بين
-            التحيّة والحبّة — 40٪–70٪ — ويبقى تدرّجُه مقروءاً. */
-        /*  إحداثياتُ الـCanvas مطلقةٌ ولا تنقلب مع RTL — وفي نموذج HTML
-            كان `inset-inline-start` ينقلب. فكانت الشمسُ تشرق يساراً
-            وتغرب يميناً: عكسَ قراءة العربية وعكسَ صفِّ اليوم تحتها،
-            ولذلك كانت تقع عصراً فوق النصّ. */
-        val t = ((azimuth - 55f) / 250f).coerceIn(0.08f, 0.92f)
-        val x = (1f - t) * w
-        val y = (0.64f - (altitude.coerceIn(-8f, 70f) / 70f) * 0.20f) * h
-
-        // الغيومُ خلف القرص: أعلاها من السماء وأسفلُها من ضوء الشمس
-        if (up) {
-            drawCircle(
-                Brush.radialGradient(
-                    listOf(Color(0xFFFFD684).copy(alpha = 0.34f), Color.Transparent),
-                    center = Offset(x, y), radius = w * 0.34f,
-                ),
-                radius = w * 0.34f, center = Offset(x, y),
-            )
-            drawCircle(
-                if (altitude < 8f) Color(0xFFFFE0A8) else Color(0xFFFFF6DE),
-                radius = w * 0.052f, center = Offset(x, y),
-            )
-        } else {
-            // القمرُ مقابلُ الشمس تقريباً، وبطورِه المحسوب
-            val mx = x
-            val my = (1.08f - (y / h)).coerceIn(0.42f, 0.62f) * h
-            drawCircle(
-                Brush.radialGradient(
-                    listOf(Color(0xFFC6D4F2).copy(alpha = 0.20f), Color.Transparent),
-                    center = Offset(mx, my), radius = w * 0.24f,
-                ),
-                radius = w * 0.24f, center = Offset(mx, my),
-            )
-            drawMoon(Offset(mx, my), w * 0.048f, moon)
-        }
-
-        /*  الوهجُ يتمركز على الشمس لا على وسط الشاشة — فعند المغرب
-            يشتعل الطرفُ الذي فيه الشمسُ ويبقى الآخرُ أزرق، وهو ما
-            تراه العينُ فعلاً. والتدرّجُ المتساوي هو ما يفضح الرسم. */
-        val warm = when {
-            altitude > 14f -> Color(0xFFFFF6D6).copy(alpha = 0.16f)
-            altitude > 2f  -> Color(0xFFFFD68C).copy(alpha = 0.42f)
-            altitude > -6f -> Color(0xFFFFA858).copy(alpha = 0.52f)
-            altitude > -12f-> Color(0xFFD26E5A).copy(alpha = 0.34f)
-            else           -> Color(0xFF7878AA).copy(alpha = 0.16f)
-        }
-        drawRect(
-            Brush.radialGradient(
-                listOf(warm, Color.Transparent),
-                center = Offset(x, h * 1.04f),
-                radius = w * 1.2f,
-            ),
-        )
-
-        /*  شريطُ ذهبٍ حيث تلتقي السماءُ الورق — goldLight من اللوحة،
-            الفاصلُ الذي تستعمله المصاحفُ بين اللازورد والذهب. كان
-            اللقاءُ حافّةً حادّةً بين لونين لا يجمعهما شيء (نبرة 1.93). */
-        /*  حدٌّ أفقيٌّ حادّ كان يشقّ السماء تحت الحبّة.
-         *
-         *  `Brush.verticalGradient` بلا `startY`/`endY` تُحلّ نهايتُه إلى
-         *  `POSITIVE_INFINITY`، فيُقاس على **حجم DrawScope** لا على
-         *  المستطيل المرسوم فيه. فكان التدرّجُ يمتدّ 0→360 بينما يُرسم في
-         *  266→360: أي أنّ الشريطَ يظهر فجأةً بشفافية 0.74 عند حافّته
-         *  العليا بدل أن يبدأ من الصفر.
-         *
-         *  ويبدأ عند 0.76: الورقةُ تغطّي من 0.88 (شريطُ الحالة 30 وكلامُ
-         *  السماء 288 من 360)، فالمرئيُّ منه آخرُ نصفِ التدرّج — دفءٌ
-         *  يتسلّل إلى الأفق لا لوحٌ يلوّن ما تحت الحبّة. رُسمت الحالتان
-         *  صورتين وقُوبلتا قبل الضبط. */
-        val edge = lerp(sky.second, rc.goldLight, 0.34f)
-        drawRect(
-            Brush.verticalGradient(
-                0f to Color.Transparent,
-                1f to edge,
-                startY = h * 0.76f,
-                endY = h,
-            ),
-            topLeft = Offset(0f, h * 0.76f),
-            size = Size(w, h * 0.24f),
-        )
-    }
-}
-
-/**
- * قرصُ القمر بطورِه: نصفُ دائرةٍ خارجيّ، ثمّ قوسُ الفاصل الضوئيّ عائداً.
- * نصفُ قطر القوس `R(1−2k)` حيث k نسبةُ الإضاءة — فيكون صفراً عند
- * التربيع (خطٌّ مستقيم) وسالباً عند الأحدب (فينتفخ إلى الخارج).
- */
-private fun DrawScope.drawMoon(center: Offset, r: Float, p: MoonPhase) {
-    val col = Color(0xFFEDF1FA)
-    val hair = max(1f, size.width / 360f)
-    val k = p.illumination.toFloat()
-    when {
-        k > 0.985f -> drawCircle(col, r, center)
-        k < 0.015f -> drawCircle(col.copy(alpha = 0.28f), r, center, style = Stroke(hair))
-        else -> {
-            val rx = r * (1f - 2f * k)
-            val disc = Path().apply { addOval(Rect(center.x - r, center.y - r, center.x + r, center.y + r)) }
-            val term = Path().apply {
-                addOval(Rect(center.x - abs(rx), center.y - r, center.x + abs(rx), center.y + r))
-            }
-            val half = Path().apply {
-                val left = if (p.waxing) center.x else center.x - r
-                addRect(Rect(left, center.y - r, left + r, center.y + r))
-            }
-            val lit = Path().apply {
-                op(disc, half, PathOperation.Intersect)
-                if (rx < 0f) op(this, term, PathOperation.Union) else op(this, term, PathOperation.Difference)
-                op(this, disc, PathOperation.Intersect)
-            }
-            drawPath(lit, col)
-        }
-    }
-}
+   وبقي من هذا الملفّ ما يُستعمل فعلاً: [skyColors] لِلَون الاحتياط
+   حين يتعذّر الرسمُ الرسوميّ، و[skyInk] لحبر الكتابة فوق السماء.
+══════════════════════════════════════════════════════════════ */
