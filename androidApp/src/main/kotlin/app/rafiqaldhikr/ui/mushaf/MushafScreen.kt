@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -40,6 +42,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextLayoutResult
 import app.rafiqaldhikr.ui.theme.NaskhFamily
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlinx.coroutines.withContext
@@ -69,14 +76,30 @@ fun MushafScreen(
     val prefs = rememberMushafPrefs()
     val scope = rememberCoroutineScope()
 
-    val layout = remember { runCatching { MushafLayout.load(ctx) }.getOrNull() }
+    /*  التخطيطُ يُحمَّل على خيطٍ خلفيّ، لا داخل التأليف.
+     *
+     *  كان `remember { MushafLayout.load(ctx) }` — أي قراءةُ ١٫٢ ميغابايت
+     *  من الأصول وتحليلُها إلى ٦٠٤ صفحةٍ و٨٤٬١٠٩ عنصرٍ **على الخيط
+     *  الرئيسي وداخل أوّل تركيب**. وهو سببُ «المصحف يتجمّد عند فتحه»:
+     *  الشاشةُ لا تُرسم حتى ينتهي التحليل كلُّه.
+     *
+     *  والآن تُرسم الورقةُ فارغةً بحالة تحميلٍ ثمّ تمتلئ.  */
+    var layout by remember { mutableStateOf<MushafLayout?>(null) }
+    var layoutLoading by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        layout = withContext(Dispatchers.IO) {
+            runCatching { MushafLayout.load(ctx) }.getOrNull()
+        }
+        layoutLoading = false
+    }
     val fonts = remember { MushafFonts(ctx) }
 
     var mode by remember { mutableStateOf(prefs.mode) }
     var fontSize by remember { mutableIntStateOf(prefs.fontSize) }
     var sheet by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(openVerse.takeIf { it.isNotBlank() }) }
-    var ready by remember { mutableStateOf(layout?.let { fonts.isReady(it) } ?: false) }
+    // `isReady` يفحص وجودَ ٤٨ ملفاً — عملُ قرصٍ لا يقع في التأليف.
+    var ready by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf<MushafDownloader.Progress?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -87,9 +110,12 @@ fun MushafScreen(
     var allowed by remember { mutableStateOf(prefs.fontsAllowed) }
 
     /*  الصفحةُ المصحفية هي المقصودُ من الشاشة، لا خيارٌ في ورقة إعدادات.
-     *  فيُعرض طلبُ التنزيل أوّلَ فتحٍ مرّةً واحدة — ولا يُلحّ بعدها. */
-    LaunchedEffect(Unit) {
-        if (!ready && !prefs.askedOnce && layout != null) {
+     *  فيُعرض طلبُ التنزيل أوّلَ فتحٍ مرّةً واحدة — ولا يُلحّ بعدها.
+     *  ويُنتظر التخطيطُ أوّلاً: كان مربوطاً بـ`Unit` فيقع قبل أن يُحمَّل. */
+    LaunchedEffect(layout) {
+        val l = layout ?: return@LaunchedEffect
+        ready = withContext(Dispatchers.IO) { fonts.isReady(l) }
+        if (!ready && !prefs.askedOnce) {
             offer = true
             prefs.askedOnce = true
         }
@@ -105,16 +131,44 @@ fun MushafScreen(
     /*  خطُّ الصفحة الحاضرة يُجلَب وحدَه — مليونا بايتٍ في ثوانٍ بدل
      *  تسعين ميغابايت. فتظهر الصفحةُ المصحفية من أوّل فتحٍ
      *  لمن أذِن، ويمتلئ الباقي كلّما قلَب ورقة. */
-    LaunchedEffect(pager.currentPage, mode, fontTick, allowed) {
+    /**
+     * عدّادُ إعادة المحاولة.
+     *
+     * كان زرُّ «نزّل» يكتب `allowed = true` وهي `true` أصلاً بعد أوّل
+     * موافقة — فلا تتغيّر حالةٌ، ولا يُعاد تشغيلُ هذا الأثر، ولا يقع شيء.
+     * أي أنّ الزرَّ كان ميّتاً تماماً على كل تشغيلٍ بعد الأوّل: يضغطه من
+     * فشل تنزيلُه فلا يحدث شيء ولا رسالة.
+     */
+    var retryTick by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(pager.currentPage, mode, fontTick, allowed, retryTick) {
         val l = layout ?: return@LaunchedEffect
         if (!mode.needsFonts || !allowed) return@LaunchedEffect
-        val need = l.fontsNeeded(pager.currentPage + 1).filterNot { fonts.fileFor(it).exists() }
+        val need = withContext(Dispatchers.IO) {
+            l.fontsNeeded(pager.currentPage + 1).filterNot { fonts.fileFor(it).exists() }
+        }
         if (need.isEmpty()) return@LaunchedEffect
         fetching = true
-        val dl = MushafDownloader(ctx)
-        val got = need.map { dl.fetchOne(fonts, it) }.all { it }
-        fetching = false
-        if (got) { fontTick++; ready = fonts.isReady(l) }
+        /*  try/finally لا إسنادان متتاليان.
+         *
+         *  الأثرُ مربوطٌ برقم الصفحة، فقلبُ صفحةٍ أثناء التنزيل يُلغي
+         *  الكوروتين **بين** `fetching = true` و`fetching = false` —
+         *  فتبقى `true` لبقيّة عمر الشاشة، ولافتةُ التنزيل مشروطةٌ
+         *  بـ`!fetching` فلا تعود تظهر أبداً.  */
+        try {
+            val dl = MushafDownloader(ctx)
+            val failed = need.filterNot { dl.fetchOne(fonts, it) }
+            if (failed.isEmpty()) {
+                fontTick++
+                ready = withContext(Dispatchers.IO) { fonts.isReady(l) }
+                error = null
+            } else {
+                // الخطأ يصل القارئَ على الورقة، لا في ورقة إعداداتٍ لا يفتحها.
+                error = ctx.getString(R.string.mushaf_font_failed)
+            }
+        } finally {
+            fetching = false
+        }
     }
 
     /*  تهيئةُ خطوطِ الصفحة والتي تليها والتي قبلها على خيطٍ خلفيّ.
@@ -132,11 +186,10 @@ fun MushafScreen(
         }
     }
 
-    val ctxVm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
-    val pageAyat by ctxVm.pageFlow(pager.currentPage + 1).collectAsState(initial = emptyList())
-    val head = pageAyat.firstOrNull()
-    val suraName = head?.let { SurahNames.of(ctx, it.surah) } ?: ""
-
+    /*  حُذف من هنا استعلامُ صفحةٍ كامل نتيجتُه لا تُستعمل: كان يجلب آياتِ
+     *  الصفحة ليحسب `suraName` ثمّ لا يقرؤه أحد — `PageMargin` يأخذ اسمَ
+     *  السورة من `data.firstSurah`. استعلامٌ ومستمعُ قاعدةٍ عند كل قلبِ
+     *  صفحةٍ بلا مقابل.  */
 
     // النمطُ المصحفيُّ بلا خطوطٍ يسقط إلى المضبوطة بدل صفحةٍ فارغة
     /*  كان السقوطُ إلى المضبوطة مشروطاً بتمام الخطوط كلِّها — فتبقى
@@ -148,7 +201,14 @@ fun MushafScreen(
         fonts.isPageReady(l, pager.currentPage + 1)
     } ?: false
     val effective = if (mode.needsFonts && !pageFontReady) MushafMode.PAGE else mode
-    val night = effective == MushafMode.MUSHAF_NIGHT
+
+    /*  الليلُ يتبع اختيار صاحبِه لا حضورَ الخطّ.
+     *
+     *  كان `night = effective == MUSHAF_NIGHT`، و`effective` تسقط إلى
+     *  `PAGE` الفاتحة حين تنقص الخطوط — فمن اختار «المصحفيةُ ليلاً» ولم
+     *  يُنزّل بعد، فُتحت له ورقةٌ كريميّةٌ ساطعةٌ في الظلام. والاختيارُ
+     *  اختيارُ لونٍ لا اختيارُ رسم، فلا يسقط بسقوطه.  */
+    val night = mode == MushafMode.MUSHAF_NIGHT
     val paper = if (night) Color(0xFF15130E) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
 
@@ -213,7 +273,15 @@ fun MushafScreen(
                             modifier = Modifier.fillMaxSize(),
                         )
                     } else {
-                        TextPage(pageNo, fontSize, ink, classic = effective == MushafMode.CLASSIC)
+                        TextPage(
+                            page = pageNo,
+                            fontSize = fontSize,
+                            ink = ink,
+                            classic = effective == MushafMode.CLASSIC,
+                            selectedVerse = selected,
+                            onTap = { toolsOn = !toolsOn },
+                            onVerseClick = { selected = if (selected == it) null else it },
+                        )
                     }
                 }
                 PageFoot(pageNo, ar, ink)
@@ -232,7 +300,14 @@ fun MushafScreen(
             }
             if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
                 MushafBanner(
-                    onDownload = { allowed = true; prefs.fontsAllowed = true },
+                    // retryTick يجعل الضغطةَ فعلاً حتى بعد أن صارت allowed = true
+                    onDownload = {
+                        allowed = true
+                        prefs.fontsAllowed = true
+                        error = null
+                        retryTick++
+                    },
+                    failed = error != null,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
                 )
             }
@@ -318,12 +393,31 @@ fun MushafScreen(
    وغيرُه نصٌّ متّصلٌ مضبوطُ الطرفين كالورقة، والأرقامُ في متنه.
 ──────────────────────────────────────────────────────────────── */
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
+private fun TextPage(
+    page: Int,
+    fontSize: Int,
+    ink: Color,
+    classic: Boolean,
+    selectedVerse: String?,
+    onTap: () -> Unit,
+    onVerseClick: (String) -> Unit,
+) {
     val rc = LocalRafiqColors.current
     val ar = LocalArabicNumerals.current
+    val ctx = LocalContext.current
     val vm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
-    val ayat by vm.pageFlow(page).collectAsState(initial = emptyList())
+
+    /*  \u0627\u0644\u0640Flow \u064A\u064F\u062A\u0630\u0643\u064E\u0651\u0631 \u0628\u0627\u0644\u0635\u0641\u062D\u0629.
+     *
+     *  \u0643\u0627\u0646 `vm.pageFlow(page)` \u064A\u064F\u0646\u0627\u062F\u0649 \u062F\u0627\u062E\u0644 \u0627\u0644\u062A\u0623\u0644\u064A\u0641 \u0641\u064A\u064F\u0646\u0634\u0626 Flow \u062C\u062F\u064A\u062F\u0627\u064B \u0641\u064A \u0643\u0644
+     *  \u0625\u0639\u0627\u062F\u0629 \u062A\u0631\u0643\u064A\u0628. \u0648`collectAsState` \u0645\u0641\u062A\u0627\u062D\u064F\u0647 \u0647\u0648\u064A\u0651\u0629\u064F \u0627\u0644\u0640Flow \u2014 \u0641\u064A\u064F\u0644\u063A\u064A
+     *  \u0627\u0644\u0627\u0634\u062A\u0631\u0627\u0643\u064E \u0648\u064A\u064F\u0639\u064A\u062F \u062A\u0633\u062C\u064A\u0644 \u0627\u0633\u062A\u0639\u0644\u0627\u0645 SQLDelight \u0648\u0645\u0633\u062A\u0645\u0639\u064E\u0647 \u0641\u064A \u0643\u0644 \u0645\u0631\u0651\u0629.  */
+    val ayat by remember(page) { vm.pageFlow(page) }.collectAsState(initial = emptyList())
+
+    /** \u0627\u0644\u0628\u0633\u0645\u0644\u0629 \u0645\u0646 \u0627\u0644\u0642\u0627\u0639\u062F\u0629 (\u0627\u0644\u0641\u0627\u062A\u062D\u0629 \u0661) \u0644\u0627 \u0645\u0643\u062A\u0648\u0628\u0629\u064B \u0641\u064A \u0627\u0644\u0643\u0648\u062F \u2014 \u0646\u0635\u064C\u0651 \u0642\u0631\u0622\u0646\u064A\u0651. */
+    val basmala by produceState<String?>(null) { value = vm.basmala() }
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp),
@@ -331,8 +425,37 @@ private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
         Spacer(Modifier.height(10.dp))
         if (classic) {
             ayat.forEach { a ->
+                if (a.ayahNumber == 1) {
+                    SurahOpening(
+                        name = SurahNames.of(ctx, a.surah),
+                        basmala = basmala.takeIf { needsBasmala(a.surah) },
+                        ink = ink,
+                        accent = rc.gold,
+                        fontSize = fontSize,
+                    )
+                }
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 7.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        /*  \u0627\u0644\u0646\u0642\u0631\u064F \u0648\u0627\u0644\u0636\u063A\u0637\u064F \u0627\u0644\u0645\u0637\u0648\u064E\u0651\u0644 \u2014 \u0644\u0645 \u064A\u0643\u0648\u0646\u0627 \u0645\u0648\u062C\u0648\u062F\u064E\u064A\u0646 \u0647\u0646\u0627.
+                         *
+                         *  \u0648\u0647\u0630\u0627 \u0647\u0648 \u0627\u0644\u0646\u0645\u0637\u064F \u0627\u0644\u0630\u064A \u064A\u0639\u0645\u0644 \u0639\u0644\u064A\u0647 \u0643\u0644\u064F\u0651 \u062C\u0647\u0627\u0632\u064D \u062C\u062F\u064A\u062F \u0642\u0628\u0644
+                         *  \u062A\u0646\u0632\u064A\u0644 \u0627\u0644\u062E\u0637\u0648\u0637. \u0641\u0643\u0627\u0646 \u0627\u0644\u0642\u0627\u0631\u0626 \u0644\u0627 \u064A\u0633\u062A\u0637\u064A\u0639 \u0641\u062A\u062D\u064E \u062A\u0641\u0633\u064A\u0631\u064D
+                         *  \u0648\u0644\u0627 \u0646\u0633\u062E\u064E \u0622\u064A\u0629\u064D \u0648\u0644\u0627 \u0648\u0636\u0639\u064E \u0639\u0644\u0627\u0645\u0629 \u2014 **\u0648\u0644\u0627 \u0633\u0628\u064A\u0644 \u0644\u0625\u0646\u0634\u0627\u0621
+                         *  \u0639\u0644\u0627\u0645\u0629\u064D \u0641\u064A \u0627\u0644\u062A\u0637\u0628\u064A\u0642 \u0643\u0644\u0650\u0651\u0647**\u060C \u0641\u062A\u0628\u0642\u0649 \u0634\u0627\u0634\u0629\u064F \u0627\u0644\u0639\u0644\u0627\u0645\u0627\u062A
+                         *  \u0641\u0627\u0631\u063A\u0629\u064B \u0623\u0628\u062F\u0627\u064B. \u0648\u0627\u0644\u062A\u0644\u0645\u064A\u062D\u064F \u0641\u064A \u0623\u0639\u0644\u0649 \u0627\u0644\u0634\u0627\u0634\u0629 \u064A\u0642\u0648\u0644 \u0644\u0647
+                         *  \u00AB\u0627\u0636\u063A\u0637 \u0643\u0644\u0645\u0629\u064B \u0645\u0637\u0648\u0651\u0644\u0627\u064B\u00BB \u0644\u0625\u064A\u0645\u0627\u0621\u0629\u064D \u063A\u064A\u0631\u0650 \u0645\u0648\u0635\u0648\u0644\u0629.  */
+                        .combinedClickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onTap,
+                            onLongClick = { onVerseClick("${a.surah}:${a.ayahNumber}") },
+                        )
+                        .background(
+                            if (selectedVerse == "${a.surah}:${a.ayahNumber}")
+                                rc.gold.copy(alpha = 0.10f) else Color.Transparent
+                        )
+                        .padding(vertical = 7.dp),
                     verticalAlignment = Alignment.Top,
                 ) {
                     Box(
@@ -355,14 +478,34 @@ private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
                 Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
             }
         } else {
-            val body = buildAnnotatedString {
-                ayat.forEach { a ->
-                    append(a.textUthmani)
-                    withStyle(SpanStyle(color = rc.goldLight)) {
-                        append(" \u06DD${a.ayahNumber.localized(true)} ")
+            /*  \u0627\u0644\u0646\u0635\u064F\u0651 \u0627\u0644\u0645\u062A\u0651\u0635\u0644: \u0645\u062F\u0649 \u0643\u0644\u0650\u0651 \u0622\u064A\u0629\u064D \u064A\u064F\u0633\u062C\u064E\u0651\u0644 \u0623\u062B\u0646\u0627\u0621 \u0627\u0644\u0628\u0646\u0627\u0621\u060C \u0641\u064A\u064F\u0639\u0631\u0641 \u0645\u0646
+             *  \u0645\u0648\u0636\u0639 \u0627\u0644\u0644\u0645\u0633 \u0623\u064A\u064F\u0651 \u0622\u064A\u0629\u064D \u0644\u064F\u0645\u0633\u062A.  */
+            val ranges = remember(ayat) { mutableListOf<Triple<Int, Int, String>>() }
+            val body = remember(ayat, selectedVerse, ar) {
+                ranges.clear()
+                buildAnnotatedString {
+                    ayat.forEach { a ->
+                        val key = "${a.surah}:${a.ayahNumber}"
+                        val start = length
+                        if (a.ayahNumber == 1 && needsBasmala(a.surah) && basmala != null) {
+                            withStyle(SpanStyle(color = rc.gold)) { append("\n$basmala\n") }
+                        }
+                        if (key == selectedVerse) {
+                            withStyle(SpanStyle(background = rc.gold.copy(alpha = 0.16f))) {
+                                append(a.textUthmani)
+                            }
+                        } else {
+                            append(a.textUthmani)
+                        }
+                        withStyle(SpanStyle(color = rc.goldLight)) {
+                            append(" \u06DD${a.ayahNumber.localized(true)} ")
+                        }
+                        ranges += Triple(start, length, key)
                     }
                 }
             }
+
+            var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
             Text(
                 body,
                 fontFamily = QuranFamily,
@@ -370,11 +513,63 @@ private fun TextPage(page: Int, fontSize: Int, ink: Color, classic: Boolean) {
                 lineHeight = (fontSize * 2.5f).sp,
                 color = ink,
                 textAlign = TextAlign.Justify,
-                modifier = Modifier.fillMaxWidth(),
+                onTextLayout = { layout = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(ranges.size) {
+                        detectTapGestures(
+                            onTap = { onTap() },
+                            onLongPress = { pos ->
+                                val offset = layout?.getOffsetForPosition(pos) ?: return@detectTapGestures
+                                ranges.firstOrNull { offset in it.first until it.second }
+                                    ?.let { onVerseClick(it.third) }
+                            },
+                        )
+                    },
             )
         }
         Spacer(Modifier.height(24.dp))
     }
+}
+
+/**
+ * \u0627\u0644\u0628\u0633\u0645\u0644\u0629\u064F \u062A\u064F\u0631\u0633\u0645 \u0644\u0643\u0644 \u0633\u0648\u0631\u0629\u064D \u0625\u0644\u0651\u0627 \u0627\u062B\u0646\u062A\u064A\u0646.
+ *
+ * \u0627\u0644\u0641\u0627\u062A\u062D\u0629 \u0628\u0633\u0645\u0644\u062A\u064F\u0647\u0627 \u0622\u064A\u062A\u064F\u0647\u0627 \u0627\u0644\u0623\u0648\u0644\u0649 \u0641\u062A\u064F\u0631\u0633\u0645 \u0645\u0639 \u0627\u0644\u0645\u062A\u0646\u060C \u0648\u0627\u0644\u062A\u0648\u0628\u0629 \u0628\u0644\u0627 \u0628\u0633\u0645\u0644\u0629.
+ */
+private fun needsBasmala(surah: Int): Boolean = surah != 1 && surah != 9
+
+/** \u0644\u0648\u062D\u064F \u0627\u0644\u0633\u0648\u0631\u0629 \u0641\u064A \u0646\u0645\u0637\u064E\u064A \u0627\u0644\u0646\u0635\u0651 \u2014 \u0627\u0633\u0645\u064C \u062B\u0645\u0651 \u0628\u0633\u0645\u0644\u0629\u060C \u0643\u0645\u0627 \u0641\u064A \u0627\u0644\u0648\u0631\u0642\u0629. */
+@Composable
+private fun SurahOpening(
+    name: String,
+    basmala: String?,
+    ink: Color,
+    accent: Color,
+    fontSize: Int,
+) {
+    Spacer(Modifier.height(18.dp))
+    Text(
+        name,
+        fontFamily = NaskhFamily,
+        fontSize = (fontSize + 2).sp,
+        color = accent,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    if (basmala != null) {
+        Spacer(Modifier.height(6.dp))
+        Text(
+            basmala,
+            fontFamily = QuranFamily,
+            fontSize = fontSize.sp,
+            lineHeight = (fontSize * 2f).sp,
+            color = ink.copy(alpha = 0.85f),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    Spacer(Modifier.height(12.dp))
 }
 
 /* ── هامشُ الورقة ────────────────────────────────────────────────
@@ -853,23 +1048,37 @@ private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) 
 }
 
 @Composable
-private fun MushafBanner(onDownload: () -> Unit, modifier: Modifier = Modifier) {
+private fun MushafBanner(
+    onDownload: () -> Unit,
+    /** فشلت محاولةٌ سابقة — فتقول اللافتةُ ذلك بدل أن تعِد بما لم يقع. */
+    failed: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     val rc = LocalRafiqColors.current
+    val shape = RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp)
     Row(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+            .clip(shape)
             .background(rc.emeraldPastel)
-            .border(1.dp, rc.emerald.copy(alpha = 0.22f), RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
+            .border(1.dp, rc.emerald.copy(alpha = 0.22f), shape)
             .clickable(onClick = onDownload)
             .padding(horizontal = 13.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text("هذه الصفحةُ المضبوطة", style = RafiqType.label, color = rc.emerald)
-            Text("اضغط لتظهر الصفحةُ كما في الورقة", style = RafiqType.caption, color = rc.inkMed)
+            Text(
+                stringResource(if (failed) R.string.mushaf_font_failed else R.string.mushaf_banner_title),
+                style = RafiqType.label,
+                color = rc.emerald,
+            )
+            Text(
+                stringResource(if (failed) R.string.mushaf_font_retry else R.string.mushaf_banner_body),
+                style = RafiqType.caption,
+                color = rc.inkMed,
+            )
         }
-        RafiqIcon(RIcon.ChevronLeft, 17.dp, rc.emerald)
+        RafiqIcon(if (failed) RIcon.Refresh else RIcon.ChevronLeft, 17.dp, rc.emerald)
     }
 }
 

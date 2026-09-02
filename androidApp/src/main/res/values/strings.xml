@@ -152,7 +152,7 @@
     <string name="quran_surahs">السور</string>
     <string name="quran_search_screen">بحث في القرآن</string>
     <string name="quran_search_field">اكتب كلمة أو آية...</string>
-    <string name="quran_search_min">اكتب كلمتين على الأقل للبحث</string>
+    <string name="quran_search_min">اكتب ثلاثة أحرف على الأقل</string>
     <string name="dhikr_tap_anywhere">اضغط في أيّ مكان للعدّ</string>
     <string name="dhikr_done_next">تمّ — اضغط للتالي</string>
     <string name="dhikr_section_done">تمّ القسم كاملاً</string>
@@ -277,4 +277,22 @@
     <string name="ob4_body">ولو كلمةً واحدة، تُقال في وقتها.</string>
     <string name="ob4_cta">أبدأ وِردي</string>
     <string name="ob4_link">أذكّرني لاحقاً</string>
+
+    <!-- ═══ حالاتٌ كانت شاشاتٍ بيضاء صامتة ═══ -->
+    <string name="adhkar_empty_category">لا أذكار في هذا الباب بعد.</string>
+
+    <!-- ═══ دقّةُ التنبيه — إذنٌ لم يكن يُطلب من أيّ مكان ═══ -->
+    <string name="notif_what_arrives">ما يصلك حين يكون التذكير مفعَّلاً</string>
+    <string name="notif_exact_title">اجعل التذكير في وقته بالضبط</string>
+    <string name="notif_exact_body">التذكير يصلك الآن بهامش دقائق. وبإذنٍ من النظام يصلك في دقيقة الأذان نفسِها.</string>
+    <string name="notif_exact_cta">افتح إعدادات النظام</string>
+
+    <!-- ═══ البحث ═══ -->
+    <string name="quran_search_none">لم أجد «%1$s» في المصحف.\nجرّب كلمةً أخرى من الآية.</string>
+
+    <!-- ═══ المصحف ═══ -->
+    <string name="mushaf_banner_title">هذه الصفحةُ المضبوطة</string>
+    <string name="mushaf_banner_body">اضغط لتظهر الصفحةُ كما في الورقة</string>
+    <string name="mushaf_font_failed">تعذّر جلبُ خطّ هذه الصفحة</string>
+    <string name="mushaf_font_retry">تحقّق من اتّصالك ثمّ اضغط للمحاولة ثانية</string>
 </resources>

@@ -11,9 +11,19 @@ class MushafPageViewModel(private val repo: QuranRepository) : ViewModel() {
 
     fun pageFlow(page: Int): Flow<List<AyahInfo>> = repo.getAyahsByPage(page)
 
-    /** آيةٌ بعينها — تُلتقط من صفحتها لأنّها المفهرسةُ في القاعدة. */
-    suspend fun ayah(surah: Int, ayah: Int, page: Int): AyahInfo? =
-        repo.getAyahsByPage(page).first().firstOrNull { it.surah == surah && it.ayahNumber == ayah }
+    /**
+     * آيةٌ بعينها بسورتها ورقمها.
+     *
+     * وكانت تُلتقط من **صفحة التخطيط** الحاضرة: `getAyahsByPage(page).first()
+     * .firstOrNull { … }`. والقاعدةُ تخزّن للآية صفحتَها هي، وهما يفترقان في
+     * ٥٦ آيةً على ٢٥ صفحة — كلُّ آيةٍ تبدأ في صفحةٍ وتُتِمّ في التي بعدها
+     * (‏`5:77` تُرسم في ١٢٠ وفي القاعدة ١٢١). فكانت الورقةُ تفتح فارغةً على
+     * تلك الصفحات، والنسخُ والمشاركةُ يُخرجان العنوانَ بلا نصّ.
+     */
+    suspend fun ayah(surah: Int, ayah: Int): AyahInfo? = repo.getAyah(surah, ayah)
+
+    /** نصُّ البسملة من القاعدة — الفاتحة ١. لا يُكتب نصٌّ قرآنيّ في الكود. */
+    suspend fun basmala(): String? = repo.getAyah(1, 1)?.textUthmani
 
     suspend fun tafsir(surah: Int, ayah: Int): String? = repo.getTafsir(surah, ayah)
 

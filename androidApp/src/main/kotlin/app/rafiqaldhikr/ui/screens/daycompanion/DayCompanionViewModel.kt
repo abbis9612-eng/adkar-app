@@ -3,6 +3,7 @@ package app.rafiqaldhikr.ui.screens.daycompanion
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
 import app.rafiqaldhikr.util.isFriday
+import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.RafiqResult
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -32,6 +33,11 @@ class DayCompanionViewModel(
     private val companionRepo:  DayCompanionRepository,
     private val getPrayerTimes: GetPrayerTimesUseCase,
 ) : ViewModel() {
+
+    private companion object {
+        /** أوّلُ صفحاتِ الكهف في المصحف المدنيّ — مرساةُ محطّة الجمعة. */
+        const val KAHF_PAGE = 293
+    }
 
     enum class StationStatus { UPCOMING, ACTIVE, DONE, PASSED }
 
@@ -265,7 +271,10 @@ class DayCompanionViewModel(
                 source = "الحاكم والبيهقي · صحيح",
                 timeLabel = "طوال يوم الجمعة",
                 startMillis = t.fajr, endMillis = t.isha,
-                route = "quran_reading/18",
+                // صفحةُ الكهف في المصحف المدنيّ. وكان هنا "quran_reading/18"
+                // — مسارٌ لا وجود له في الرسم البياني منذ حُذفت شاشةُ القراءة
+                // بالسورة، فكان كلُّ يوم جمعةٍ ينتهي بانهيار عند فتح المحطّة.
+                route = RafiqRoute.Mushaf.atPage(KAHF_PAGE),
             )
         ) else emptyList()
     }

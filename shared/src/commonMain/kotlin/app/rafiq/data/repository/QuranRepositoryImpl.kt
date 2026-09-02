@@ -32,6 +32,12 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
             .mapToList(Dispatchers.IO)
             .map { it.map { a -> a.toDomain() } }
 
+    override suspend fun getAyah(surah: Int, ayah: Int): AyahInfo? =
+        withContext(Dispatchers.IO) {
+            db.ayahQueries.getAyah(surah.toLong(), ayah.toLong())
+                .executeAsOneOrNull()?.toDomain()
+        }
+
     override fun searchAyahs(query: String): Flow<List<AyahInfo>> =
         db.ayahQueries.searchSimple(query)
             .asFlow()

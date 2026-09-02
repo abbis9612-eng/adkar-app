@@ -72,7 +72,15 @@ actual class DatabaseDriverFactory(private val context: Context) {
                     PRIMARY KEY (date, station)
                 )""")
 
-        // ═══ تحديث الطريقة من umm_al_qura → mwl للمستخدمين الحاليين ═══
-        exec("UPDATE UserPrefs SET prayer_method = 'mwl' WHERE id = 1 AND prayer_method = 'umm_al_qura'")
+        /*  حُذف هنا: `UPDATE UserPrefs SET prayer_method='mwl' WHERE
+         *  prayer_method='umm_al_qura'`.
+         *
+         *  كان يُنفَّذ في **كل إقلاع** لا مرّةً واحدة — ولا سبيل لجعله
+         *  لمرّةٍ بلا جدول نسخة. و«أم القرى» طريقةٌ معروضةٌ للاختيار في
+         *  `PrayerMethodScreen`. فمن اختارها — وهو في السعودية غالباً —
+         *  عاد إلى MWL عند أوّل إعادة تشغيل، ويصلّي على مواقيتَ ليست التي
+         *  اختار، ولا شيء يخبره.
+         *
+         *  وتصحيحُ اختيارٍ صريحٍ للمستخدم ليس ترحيلاً.  */
     }
 }

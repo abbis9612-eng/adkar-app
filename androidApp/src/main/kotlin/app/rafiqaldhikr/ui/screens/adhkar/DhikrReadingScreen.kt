@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.EmptyState
 import app.rafiqaldhikr.ui.components.ErrorState
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RIcon
@@ -72,12 +73,25 @@ fun DhikrReadingScreen(
                 onRetry = { viewModel.loadCategory(category) },
             )
 
+            /*  الاحتفاءُ يحلّ محلَّ القراءة في المكدّس، لا يُوضع فوقها.
+             *
+             *  كان `navigate` عارياً: يعود القارئُ من الاحتفاء إلى شاشةٍ
+             *  حالتُها ما تزال «تمّ الكلّ»، فينطلق الانتقالُ ثانيةً، وزرُّ
+             *  النظام مثلُه. والشريطُ السفليُّ مخفيٌّ على الشاشتين معاً،
+             *  فكانت الحلقةُ لا تُكسر إلا بقتل التطبيق.  */
             uiState.isAllCompleted -> LaunchedEffect(Unit) {
-                navController.navigate(RafiqRoute.Celebration.route)
+                viewModel.consumeCompletion()
+                navController.navigate(RafiqRoute.Celebration.route) {
+                    popUpTo(RafiqRoute.DhikrReading.route) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
 
             uiState.adhkar.isNotEmpty() -> {
-                val dhikr = uiState.adhkar[uiState.currentIndex]
+                // getOrNull لا فهرسة عارية: الـFlow قد يُعيد قائمةً أقصر بعد
+                // أن تقدّم tap() الفهرس، فتنهار الشاشة بـIndexOutOfBounds.
+                val dhikr = uiState.adhkar.getOrNull(uiState.currentIndex)
+                    ?: uiState.adhkar.first()
                 val done  = uiState.currentCount >= dhikr.count
 
                 Column(
@@ -168,6 +182,11 @@ fun DhikrReadingScreen(
                     }
                 }
             }
+
+            /*  تصنيفٌ بلا محتوى كان يعطي شاشةً بيضاء صامتة: لا تحميل ولا
+             *  خطأ ولا سطر. وهي حالةٌ واقعة — تُفتح الشاشة قبل أن تكتمل
+             *  تعبئةُ القاعدة في أوّل تشغيل.  */
+            else -> EmptyState(message = stringResource(R.string.adhkar_empty_category))
         }
     }
 }

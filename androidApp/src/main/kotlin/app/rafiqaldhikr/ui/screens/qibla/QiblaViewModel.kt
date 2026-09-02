@@ -90,9 +90,24 @@ class QiblaViewModel(
                         isLocationKnown = true
                     )
                 }
+
+                /*  البوصلةُ لا تبدأ قبل معرفة المكان.
+                 *
+                 *  تصحيحُ الانحراف المغناطيسي يحتاج الإحداثيات، وبدونها
+                 *  تُقرأ الإبرةُ من الشمال المغناطيسي بينما القبلةُ محسوبةٌ
+                 *  من الحقيقي — فتنحرف بمقدار انحراف المكان.  */
+                if (!compassStarted) {
+                    compassStarted = true
+                    startCompass(here.lat, here.lng)
+                }
             }
         }
+    }
 
+    /** حتى لا تُطلق البوصلةُ مرّتين حين تنبعث التفضيلاتُ ثانيةً. */
+    private var compassStarted = false
+
+    private fun startCompass(lat: Double, lng: Double) {
         viewModelScope.launch {
             if (!compassManager.isAvailable) {
                 _uiState.update { it.copy(isCompassAvailable = false) }
@@ -102,7 +117,7 @@ class QiblaViewModel(
                 والمدى بينها بالدرجات. فإن جاوز 6° فالإبرةُ ترتجف — إمّا
                 معدنٌ قريبٌ أو يدٌ تتحرّك — ولا يُعلَن اتّجاهٌ عليها. */
             val window = ArrayDeque<Float>()
-            compassManager.getReadingFlow().collect { reading ->
+            compassManager.getReadingFlow(lat, lng).collect { reading ->
                 val qibla = _uiState.value.qiblaBearing
                 window.addLast(reading.heading)
                 if (window.size > 12) window.removeFirst()

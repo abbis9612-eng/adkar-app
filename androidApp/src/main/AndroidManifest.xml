@@ -56,9 +56,40 @@
 
         <receiver android:name=".service.PrayerAlarmReceiver" android:exported="false" />
 
+        <!--
+            كلُّ حدثٍ يُبطل التنبيهات المجدولة يجب أن يُعيد جدولتها.
+
+            وكان الفلترُ يحمل `BOOT_COMPLETED` وحدَه — فيُعاد الجدولةُ بعد
+            إقلاع الجهاز لا غير. أمّا:
+
+            · MY_PACKAGE_REPLACED — أندرويد يُلغي كلَّ تنبيهات التطبيق عند
+              كل تحديث. فكان المستخدم يفقد الأذانَ بعد كل تحديثٍ من المتجر
+              ولا يعود إلّا إن فتح التطبيق بنفسه.
+
+            · TIME_SET و TIMEZONE_CHANGED — التنبيهاتُ مجدولةٌ بتوقيتٍ
+              مطلقٍ (`RTC_WAKEUP`) محسوبٍ من المنطقة الزمنية الحاضرة. فمن
+              سافر بقيت عنده مواقيتُ بلدِه: يؤذَّن الفجرُ في العصر.
+
+            و LOCKED_BOOT_COMPLETED لأجهزةٍ تُقلع إلى التخزين المحميّ أوّلاً.
+        -->
         <receiver android:name=".service.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+            يُمنح إذنُ التنبيه الدقيق من إعدادات النظام بعد أن يكون
+            التطبيق قد جدول تنبيهاتٍ تقريبية. وبلا هذا المستقبِل تبقى
+            التقريبيةُ إلى أن يُفتح التطبيق مرّةً أخرى.
+        -->
+        <receiver android:name=".service.ExactAlarmPermissionReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 

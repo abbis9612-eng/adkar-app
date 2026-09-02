@@ -25,7 +25,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AyahInfo
 import app.rafiq.domain.usecase.SearchQuranUseCase
+import app.rafiq.domain.model.ArabicSearch
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.IcoSearch
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -47,9 +49,28 @@ fun QuranSearchScreen(navController: NavHostController) {
     var query by remember { mutableStateOf("") }
     val rc = LocalRafiqColors.current
 
-    val results by remember(query) {
-        searchUseCase(query)
+    /*  الاستعلامُ يُهدَّأ قبل ضرب القاعدة.
+     *
+     *  كان كلُّ حرفٍ يُطلق مسحاً كاملاً لـ٦٢٣٦ صفّاً — والكتابةُ العربية
+     *  السريعة عشرةُ أحرفٍ في ثانيتين، أي عشرةُ مسوحٍ كاملة. و٢٢٠ ملّي
+     *  تكفي ليكتب الإنسان كلمتَه ولا يشعر بتأخّر.  */
+    var debounced by remember { mutableStateOf("") }
+    LaunchedEffect(query) {
+        kotlinx.coroutines.delay(220)
+        debounced = query
+    }
+
+    /** هل الاستعلامُ يستحقّ بحثاً بعد التطبيع؟ */
+    val searchable = remember(debounced) { ArabicSearch.isSearchable(debounced) }
+
+    val results by remember(debounced) {
+        searchUseCase(debounced)
     }.collectAsStateWithLifecycle(emptyList())
+
+    /*  «لم أجد» كانت تومض بين كل حرفٍ وحرف: النتائجُ تفرغ لحظةَ تغيّر
+     *  الاستعلام قبل أن تصل نتائجُ الجديد. فلا تُعلَن حتى يستقرّ الاستعلام
+     *  وتصل نتيجتُه.  */
+    val settled = debounced == query
 
     Box(
         Modifier
@@ -86,15 +107,20 @@ fun QuranSearchScreen(navController: NavHostController) {
                 Spacer(Modifier.height(12.dp))
 
                 when {
-                    query.length < 2 -> {
+                    !searchable -> {
                         EmptyState(
                             message = stringResource(R.string.quran_search_min),
                             modifier = Modifier.fillMaxSize()
                         )
                     }
+                    !settled -> LoadingState()
                     results.isEmpty() -> {
+                        /*  والنصيحةُ القديمة كانت «جرّب كلمةً بلا تشكيل» —
+                         *  وهو أضمنُ ما يفشل حين كان العمودُ مشكولاً. الآن
+                         *  التشكيلُ لا يضرّ ولا ينفع، فالنصيحةُ تُقال فيما
+                         *  ينفع فعلاً.  */
                         EmptyState(
-                            message = "لم أجد «$query» في المصحف\nجرّب كلمةً من الآية بلا تشكيل",
+                            message = stringResource(R.string.quran_search_none, query),
                             modifier = Modifier.fillMaxSize()
                         )
                     }

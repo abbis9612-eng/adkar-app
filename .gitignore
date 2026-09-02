@@ -41,3 +41,7 @@ Thumbs.db
 build_error.log
 build_output.log
 
+
+# مخرجاتُ بايثون من سكربتات tools/
+__pycache__/
+*.pyc

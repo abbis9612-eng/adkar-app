@@ -91,21 +91,37 @@ class SettingsViewModel(
     fun completeOnboarding() {
         viewModelScope.launch { prefsRepo.updateOnboarding(true) }
     }
+    /*  كلُّ ما يُغيّر حسابَ الميقات يجب أن يُعيد جدولة التنبيهات.
+     *
+     *  كان `setNotifications` وحدَه ينادي `reschedule()`. فمن بدّل الطريقة
+     *  من MWL إلى أم القرى، أو حرّك إزاحة الفجر، بقيت تنبيهاتُه على الحساب
+     *  القديم إلى أن يُعاد تشغيل التطبيق أو تقفز سلسلةُ تنبيهِ النوم — أي
+     *  أنّه يرى مواقيتَ جديدةً في الشاشة ويسمع أذاناً على القديمة.  */
     fun setPrayerOffsets(fajr: Int, dhuhr: Int, asr: Int, maghrib: Int, isha: Int) {
         viewModelScope.launch {
             prefsRepo.updatePrayerOffsets(fajr, dhuhr, asr, maghrib, isha)
+            runCatching { rescheduler.reschedule() }
         }
     }
     fun setElevation(elevation: Double) {
-        viewModelScope.launch { prefsRepo.updateElevation(elevation) }
+        viewModelScope.launch {
+            prefsRepo.updateElevation(elevation)
+            runCatching { rescheduler.reschedule() }
+        }
     }
     fun setMadhab(madhab: String) {
-        viewModelScope.launch { prefsRepo.updateMadhab(madhab) }
+        viewModelScope.launch {
+            prefsRepo.updateMadhab(madhab)
+            runCatching { rescheduler.reschedule() }
+        }
     }
     fun setNumerals(arabic: Boolean) {
         viewModelScope.launch { prefsRepo.updateNumerals(if (arabic) "arabic" else "latin") }
     }
     fun setPrayerMethod(method: String) {
-        viewModelScope.launch { prefsRepo.updatePrayerMethod(method) }
+        viewModelScope.launch {
+            prefsRepo.updatePrayerMethod(method)
+            runCatching { rescheduler.reschedule() }
+        }
     }
 }

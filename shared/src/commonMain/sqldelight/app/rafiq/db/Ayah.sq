@@ -23,9 +23,14 @@ SELECT * FROM Ayah WHERE page = :page ORDER BY surah, ayah_number;
 getByJuz:
 SELECT * FROM Ayah WHERE juz = :juz ORDER BY surah, ayah_number;
 
+-- :query يصل مطبَّعاً من ArabicSearch.normalize — بلا تشكيلٍ ولا ألفٍ ولا
+-- مسافات، مطابقاً للتطبيع الذي وُلّد به عمود text_simple.
+--
+-- و ESCAPE لازم: بلا هجرٍ يصير `%` و`_` في نصّ المستخدم محارفَ بدلٍ
+-- تُطابق كلَّ شيء، فيرجع البحثُ بمئة آيةٍ عشوائية بدل «لا نتائج».
 searchSimple:
 SELECT * FROM Ayah
-WHERE text_simple LIKE '%' || :query || '%'
+WHERE text_simple LIKE '%' || :query || '%' ESCAPE '\'
 ORDER BY surah, ayah_number
 LIMIT 100;
 

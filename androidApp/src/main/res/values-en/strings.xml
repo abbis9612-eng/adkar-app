@@ -148,7 +148,7 @@
     <string name="quran_surahs">Surahs</string>
     <string name="quran_search_screen">Search the Quran</string>
     <string name="quran_search_field">Type a word or verse…</string>
-    <string name="quran_search_min">Type at least two words to search</string>
+    <string name="quran_search_min">Type at least three letters</string>
     <string name="dhikr_tap_anywhere">Tap anywhere to count</string>
     <string name="dhikr_done_next">Done — tap for next</string>
     <string name="dhikr_section_done">Section complete</string>
@@ -273,4 +273,22 @@
     <string name="ob4_body">Even a single word, said in its time.</string>
     <string name="ob4_cta">Begin my wird</string>
     <string name="ob4_link">Remind me later</string>
+
+    <!-- ═══ States that used to render as a silent blank screen ═══ -->
+    <string name="adhkar_empty_category">No adhkar in this section yet.</string>
+
+    <!-- ═══ Alarm precision — a permission nothing used to request ═══ -->
+    <string name="notif_what_arrives">What you receive when reminders are on</string>
+    <string name="notif_exact_title">Get reminders at the exact time</string>
+    <string name="notif_exact_body">Reminders currently arrive within a few minutes. With system permission they arrive at the exact minute of the adhan.</string>
+    <string name="notif_exact_cta">Open system settings</string>
+
+    <!-- ═══ Search ═══ -->
+    <string name="quran_search_none">No results for “%1$s”.\nTry another word from the verse.</string>
+
+    <!-- ═══ Mushaf ═══ -->
+    <string name="mushaf_banner_title">This is the adjusted page</string>
+    <string name="mushaf_banner_body">Tap to show the page as printed</string>
+    <string name="mushaf_font_failed">Could not fetch this page\'s font</string>
+    <string name="mushaf_font_retry">Check your connection, then tap to retry</string>
 </resources>

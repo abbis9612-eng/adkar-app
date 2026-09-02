@@ -31,7 +31,7 @@ class DatabaseSeeder(
             db.transaction { db.surahQueries.deleteAll() }
             seedSurahs()
         }
-        if (db.ayahQueries.count().executeAsOne() < EXPECTED_AYAHS) {
+        if (db.ayahQueries.count().executeAsOne() < EXPECTED_AYAHS || quranTextIsStale()) {
             db.transaction { db.ayahQueries.deleteAll() }
             seedAyahs()
         }
@@ -44,6 +44,26 @@ class DatabaseSeeder(
             // insertFull يستخدم REPLACE — لا حاجة لحذف مسبق
             seedTafsir()
         }
+    }
+
+    /**
+     * هل في القاعدة نصُّ القرآن القديم المعطوب؟
+     *
+     * عطبان صُحّحا في الأصول بعد أن كانا قد زُرعا في أجهزة الناس:
+     * ‏١) البسملة ملتصقةٌ بأوّل آيةٍ في ١١٢ سورة — نصٌّ قرآنيٌّ خاطئ يُعرَض
+     *    ويُنسَخ ويُشارَك.
+     * ‏٢) `text_simple` مشكولٌ فالبحثُ يعطي صفر نتائج دائماً.
+     *
+     * والعدُّ وحدَه لا يكشفهما: الصفوفُ ٦٢٣٦ في الحالين. فيُفحص صفٌّ واحدٌ
+     * دالّ — أوّلُ البقرة — ويُعاد الزرعُ إن كان قديماً. ويقع مرّةً واحدةً
+     * لأن الزرعَ الجديد يُنتج نصّاً لا يُطابق هذين الشرطين.
+     */
+    private fun quranTextIsStale(): Boolean {
+        val first = db.ayahQueries.getAyah(surah = 2, ayah = 1).executeAsOneOrNull()
+            ?: return false
+        val fusedBismillah = first.text_uthmani.trimStart().startsWith("ب")
+        val diacritics = first.text_simple.any { it.code in 0x064B..0x0652 || it.code == 0x0670 }
+        return fusedBismillah || diacritics
     }
 
     private suspend fun seedAdhkarIfIncomplete() {
@@ -69,8 +89,20 @@ class DatabaseSeeder(
         val list: List<DuaJson> = json.decodeFromString(rawJson)
         if (db.duaQueries.count().executeAsOne() >= list.size.toLong()) return
 
+        /*  المفضّلات تنجو من تحديث المحتوى.
+         *
+         *  كان `deleteAll()` ثمّ إدراجٌ بـ`is_favorite = 0` — فإضافةُ دعاءٍ
+         *  واحدٍ في تحديثٍ قادم تمحو كلَّ ما فضّله المستخدم منذ ثبّت
+         *  التطبيق. وهو فقدُ بياناتٍ صامتٌ لا سبيل لاسترجاعه: التصدير
+         *  يُخرج المفضّلات ولا يوجد استيراد.
+         *
+         *  والمطابقةُ بالنصّ لا بالمعرّف، لأن المعرّف `AUTOINCREMENT`
+         *  يتغيّر مع كل إعادة بذر.  */
+        val favored: Set<String> = db.duaQueries.getFavorites()
+            .executeAsList().map { it.text_ar }.toSet()
+
         db.transaction { db.duaQueries.deleteAll() }
-        insertDuas(list)
+        insertDuas(list, favored)
     }
 
     private suspend fun seedTafsir() {
@@ -146,7 +178,7 @@ class DatabaseSeeder(
         }
     }
 
-    private fun insertDuas(list: List<DuaJson>) {
+    private fun insertDuas(list: List<DuaJson>, favored: Set<String> = emptySet()) {
         db.transaction {
             list.forEach { d ->
                 db.duaQueries.insertFull(
@@ -155,7 +187,7 @@ class DatabaseSeeder(
                     text_ar      = d.textAr,
                     source       = d.source,
                     source_grade = d.sourceGrade,
-                    is_favorite  = 0L,
+                    is_favorite  = if (d.textAr in favored) 1L else 0L,
                     sort_order   = d.sortOrder.toLong()
                 )
             }

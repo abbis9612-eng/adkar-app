@@ -89,7 +89,7 @@ fun AyahSheet(
     LaunchedEffect(verse) {
         if (verse == null) return@LaunchedEffect
         loading = true
-        text = runCatching { vm.ayah(surah, ayah, page) }.getOrNull()?.textUthmani.orEmpty()
+        text = runCatching { vm.ayah(surah, ayah) }.getOrNull()?.textUthmani.orEmpty()
         tafsir = runCatching { vm.tafsir(surah, ayah) }.getOrNull()
         marked = runCatching { vm.isMarked(surah, ayah) }.getOrDefault(false)
         loading = false

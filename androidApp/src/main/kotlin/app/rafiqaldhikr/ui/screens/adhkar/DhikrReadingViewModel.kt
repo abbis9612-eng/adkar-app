@@ -36,8 +36,18 @@ class DhikrReadingViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    /**
+     * مجمِّعُ التصنيف الحاضر.
+     *
+     * كان كلُّ نداءٍ لـ[loadCategory] يُطلق مجمِّعاً جديداً ولا يُلغي ما قبله —
+     * و`LaunchedEffect` يناديها عند كل دخول، وزرُّ «أعد المحاولة» ينادي أيضاً.
+     * فتتكدّس مجمّعاتٌ تكتب في الحالة نفسها.
+     */
+    private var loadJob: kotlinx.coroutines.Job? = null
+
     fun loadCategory(category: String) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 getAdhkar(category).collect { list ->
@@ -98,5 +108,19 @@ class DhikrReadingViewModel(
             
             updateStreak(today)
         }
+    }
+
+    /**
+     * يُستدعى بعد أن تُفتح شاشةُ الاحتفاء.
+     *
+     * وبدونه كانت الشاشةُ مصيدة: `isAllCompleted` تبقى `true`، فالرجوعُ من
+     * الاحتفاء يُعيد إطلاقَ الانتقال إليه، والشريطُ السفليُّ مخفيٌّ على
+     * الشاشتين — فلا مخرجَ إلا قتلُ التطبيق. والتصفيرُ هنا يجعل التصنيف
+     * يبدأ من أوّله في المرّة القادمة، وهو الصواب: الأذكار تُعاد لا تُتابَع.
+     */
+    fun consumeCompletion() {
+        savedState["index"] = 0
+        savedState["count"] = 0
+        _uiState.update { it.copy(isAllCompleted = false, currentIndex = 0, currentCount = 0) }
     }
 }

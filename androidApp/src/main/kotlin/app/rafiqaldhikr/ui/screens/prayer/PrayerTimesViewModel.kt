@@ -47,9 +47,21 @@ class PrayerTimesViewModel(
 
     init { loadData() }
 
+    /**
+     * مجمِّعا هذه الشاشة.
+     *
+     * كان `refresh()` ينادي [loadData] بلا إلغاءِ ما قبله، فيتراكم مع كل
+     * ضغطةٍ مجمِّعان دائمان على `viewModelScope`. وكلُّ واحدٍ منهما يُعيد
+     * جدولةَ التنبيهات عند كل انبعاثٍ للتفضيلات — أي أن الضغط على «تحديث»
+     * خمسَ مرّاتٍ يعني خمسَ جدولاتٍ متزامنة.
+     */
+    private var loadJob: kotlinx.coroutines.Job? = null
+    private var logJob:  kotlinx.coroutines.Job? = null
+
     private fun loadData() {
+        loadJob?.cancel()
         // ✅ v2.6: collect منفصلان — يمنع deadlock الـ collect المتداخل
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             prefsRepo.getPrefs().collectLatest { prefs ->
                 if (prefs == null) return@collectLatest
                 _uiState.update {
@@ -63,10 +75,21 @@ class PrayerTimesViewModel(
                     }
                     return@collectLatest
                 }
+                /*  الإزاحاتُ الخمس كانت تسقط هنا وحدَها.
+                 *
+                 *  فكانت الشاشةُ تعرض مواقيتَ بلا تعديلِ صاحبها، ثم تُعيد
+                 *  جدولةَ التنبيهات بها بنفس أرقام الطلب — فتدهس ما كان
+                 *  `PrayerRescheduler` قد جدوله صحيحاً بالإزاحات. أي أنّ
+                 *  فتحَ شاشة المواقيت وحدَه كان يُفسد تنبيهاتٍ سليمة.  */
                 val result = getPrayerTimes(
                     here.lat, here.lng, prefs.prayerMethod,
-                    elevation = prefs.elevation,
-                    madhab = prefs.madhab
+                    elevation     = prefs.elevation,
+                    madhab        = prefs.madhab,
+                    fajrOffset    = prefs.fajrOffset,
+                    dhuhrOffset   = prefs.dhuhrOffset,
+                    asrOffset     = prefs.asrOffset,
+                    maghribOffset = prefs.maghribOffset,
+                    ishaOffset    = prefs.ishaOffset,
                 )
                 when (result) {
                     is RafiqResult.Success -> {
@@ -91,8 +114,10 @@ class PrayerTimesViewModel(
             }
         }
 
-        // ✅ coroutine منفصل للـ prayer logs — لا يحجب prefs collector
-        viewModelScope.launch {
+        // ✅ coroutine منفصل للـ prayer logs — لا يحجب prefs collector.
+        // ويتبع loadJob كي يُلغى معه عند التحديث بدل أن يتراكم.
+        logJob?.cancel()
+        logJob = viewModelScope.launch {
             val today = Clock.System.now()
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
             prayerRepo.getByDate(today).collect { logs ->

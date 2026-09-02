@@ -35,7 +35,13 @@ data class PageFonts(
 
 class MushafFonts(private val context: Context) {
 
-    private val dir: File get() = File(context.filesDir, "mushaf").apply { mkdirs() }
+    /*  يُنشأ مرّةً واحدة.
+     *
+     *  كان `get() = File(...).apply { mkdirs() }` — أي نداءَ نظامٍ لإنشاء
+     *  المجلَّد عند **كل قراءةٍ للخاصيّة**. و`isReady` وحدَها تقرؤها ٤٨
+     *  مرّة، و`isPageReady` تُنادى داخل التأليف عند كل إعادة تركيب. أي
+     *  عشراتُ نداءاتِ القرص على الخيط الرئيسي في كل إطار.  */
+    private val dir: File = File(context.filesDir, "mushaf").apply { mkdirs() }
 
     /*  خريطةٌ متزامنة: الخطوطُ تُهيَّأ مسبقاً على خيط الإدخال/الإخراج
         وتُقرأ من خيط التأليف، فالخريطةُ العاديّة تتسابق عليها. */
@@ -98,4 +104,18 @@ class MushafFonts(private val context: Context) {
         dir.listFiles()?.forEach { it.delete() }
         cache.clear()
     }
+
+    /**
+     * يحذف بقايا التنزيلات المقطوعة.
+     *
+     * كلُّ تنزيلٍ يُلغى في منتصفه يترك `.part` في `filesDir` — لا يراه
+     * المستخدم ولا يُحسب في «حجم ما نُزِّل»، ويبقى إلى أن يُحذف التطبيق.
+     */
+    fun clearPartials() {
+        dir.listFiles()?.forEach { if (it.name.endsWith(".part")) it.delete() }
+    }
+
+    /** حجمُ الخطوط الصالحة وحدَها — لا البقايا. */
+    fun sizeMbOfFonts(): Double =
+        (dir.listFiles()?.filter { it.name.endsWith(".ttf") }?.sumOf { it.length() } ?: 0L) / 1_048_576.0
 }

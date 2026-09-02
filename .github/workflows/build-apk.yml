@@ -67,6 +67,11 @@ jobs:
       - name: Check imports
         run: python3 tools/check_imports.py
 
+      # عطبان عاشا في البيانات ولم يكشفهما مترجمٌ ولا اختبار: بحثٌ يعطي
+      # صفر نتائج دائماً، وبسملةٌ ملتصقةٌ بأوّل آيةٍ في ١١٢ سورة
+      - name: Check Quran data
+        run: python3 tools/check_quran_data.py
+
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --no-daemon
 

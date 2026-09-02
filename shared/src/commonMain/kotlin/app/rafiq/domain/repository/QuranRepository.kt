@@ -7,6 +7,17 @@ interface QuranRepository {
     fun getAllSurahs(): Flow<List<SurahInfo>>
     fun getAyahsBySurah(surahNumber: Int): Flow<List<AyahInfo>>
     fun getAyahsByPage(page: Int): Flow<List<AyahInfo>>
+
+    /**
+     * آيةٌ بعينها بسورتها ورقمها.
+     *
+     * كانت ورقةُ الآية تلتقطها من **صفحة التخطيط** الحاضرة، والقاعدةُ
+     * تخزّن للآية صفحتَها هي. وهما يفترقان في ٥٦ آيةً على ٢٥ صفحة —
+     * كلُّ آيةٍ تبدأ في صفحةٍ وتُتِمّ في التي بعدها. فكانت الورقةُ تفتح
+     * فارغةً على تلك الصفحات، والنسخُ والمشاركةُ يُخرجان العنوانَ بلا نصّ.
+     */
+    suspend fun getAyah(surah: Int, ayah: Int): AyahInfo?
+
     fun searchAyahs(query: String): Flow<List<AyahInfo>>
     fun getLastRead(): Flow<LastReadPosition?>
     suspend fun saveLastRead(surah: Int, ayah: Int, page: Int, scrollY: Float)

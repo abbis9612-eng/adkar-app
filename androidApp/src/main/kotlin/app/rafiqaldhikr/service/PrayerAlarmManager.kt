@@ -46,9 +46,18 @@ class PrayerAlarmManager(private val context: Context) {
         prayerTimes["isha"]?.let { schedulePrayer("adhkar_sleep",   it + SLEEP_DELAY_MS,   ADHKAR_SLEEP_ID) }
     }
 
+    /**
+     * هل يملك التطبيقُ إذنَ التنبيه الدقيق؟
+     *
+     * على أندرويد ١٢ فما فوق يُمنح `SCHEDULE_EXACT_ALARM` تلقائياً، لكنّه
+     * **يُسحب** عند استهداف SDK 33 فأعلى — وهذا التطبيق يستهدف ٣٦. فصار
+     * الإذن مرفوضاً افتراضياً على كل تثبيتٍ جديد على أندرويد ١٣ فأعلى.
+     */
+    fun canScheduleExact(): Boolean =
+        Build.VERSION.SDK_INT < 31 || alarmManager.canScheduleExactAlarms()
+
     private fun schedulePrayer(prayerName: String, triggerAtMillis: Long, notifId: Int) {
         if (triggerAtMillis <= System.currentTimeMillis()) return
-        if (Build.VERSION.SDK_INT >= 31 && !alarmManager.canScheduleExactAlarms()) return
 
         val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
             putExtra("prayer_name", prayerName)
@@ -58,7 +67,31 @@ class PrayerAlarmManager(private val context: Context) {
             context, notifId, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
+
+        /*  صمتٌ تامّ كان هو السلوك: `if (!canScheduleExactAlarms()) return`.
+         *
+         *  فعلى كل جهاز أندرويد ١٣ فأعلى — وهي أغلبُ الأجهزة — لم يكن
+         *  يُجدوَل أذانٌ واحد، ولا رسالةَ خطأ ولا سطرَ في السجلّ. يفتح
+         *  المستخدم الإعدادات فيجد مفتاحَ الإشعارات مضاءً، وينتظر أذاناً
+         *  لا يأتي أبداً.
+         *
+         *  والآن: الدقيقُ إن أُذن، وإلّا `setAndAllowWhileIdle` — يوقظ
+         *  الجهازَ من السبات كذلك، وهامشُه دقائق معدودة. وتنبيهٌ متأخّرٌ
+         *  دقائقَ خيرٌ من لا تنبيه، والشاشةُ تقول للمستخدم أيّهما يعمل
+         *  عنده وتعرض عليه الترقية.
+         */
+        try {
+            if (canScheduleExact()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
+            } else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
+            }
+        } catch (e: SecurityException) {
+            // سُحب الإذنُ بين الفحص والجدولة — نازلٌ نادرٌ لكنّه يُسقط التطبيق.
+            runCatching {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
+            }
+        }
     }
 
     fun cancelAll() {
