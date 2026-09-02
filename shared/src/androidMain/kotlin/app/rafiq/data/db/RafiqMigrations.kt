@@ -24,7 +24,7 @@ import app.cash.sqldelight.db.SqlDriver
  *
  * ═══ ما صارت ═══
  *
- * ‏`PRAGMA user_version` يحمل رقمَ آخرِ ترحيلٍ نُفِّذ، فلا يُعاد تنفيذُ
+ * ‏جدولُ `RafiqMigration` يحمل رقمَ آخرِ ترحيلٍ نُفِّذ، فلا يُعاد تنفيذُ
  * شيءٍ في كل إقلاع. والترحيلُ الأوّل يُصالح أيَّ قاعدةٍ قديمةٍ مع المخطّط
  * الحاضر كاملاً: كلُّ عمودٍ يُضاف، وكلُّ جدولٍ يُنشأ إن لم يوجد.
  *
@@ -140,7 +140,7 @@ internal object RafiqMigrations {
         ),
     )
 
-    /** رقمُ آخرِ ترحيلٍ معروف. تُقارَن به `PRAGMA user_version`. */
+    /** رقمُ آخرِ ترحيلٍ معروف. يُقارَن بجدول `RafiqMigration`. */
     val LATEST: Int get() = MIGRATIONS.size
 
     /**
@@ -162,7 +162,7 @@ internal object RafiqMigrations {
      * @return رقمُ النسخة بعد التنفيذ.
      */
     fun runOn(driver: SqlDriver): Int {
-        val from = readUserVersion(driver)
+        val from = readVersion(driver)
         if (from >= LATEST) return from
 
         for (index in from until LATEST) {
@@ -190,20 +190,62 @@ internal object RafiqMigrations {
             if (failures > 0) {
                 Log.e(TAG, "ترحيل $number: $failures أمرٍ فشل — القاعدةُ قد تكون ناقصة")
             }
-            writeUserVersion(driver, number)
+            writeVersion(driver, number)
         }
         return LATEST
     }
 
-    private fun readUserVersion(driver: SqlDriver): Int =
-        driver.executeQuery(null, "PRAGMA user_version", { cursor ->
+    /* ═══════════════════════════════════════════════════════════
+       رقمُ ترحيلنا في جدولنا — لا في `PRAGMA user_version`
+
+       **العطبُ الذي كان يقتل التطبيق بعد أوّل تشغيل.**
+
+       كان الرقمُ يُحفظ في `PRAGMA user_version`. وذاك الحقلُ **ليس
+       لنا**: `AndroidSqliteDriver` يمرّره إلى `SupportSQLiteOpenHelper`
+       بوصفه نسخةَ المخطّط، وأندرويد يخزّنها فيه بعينه. و
+       `RafiqDatabase.Schema.version` يساوي **١**.
+
+       فما كان يقع:
+
+         • أوّلُ تشغيل: القاعدةُ تُنشَأ، وأندرويد يكتب user_version = ١.
+           ثمّ يقرأ هذا النظامُ ١، ويرى أنّ آخرَ ترحيلٍ ٢، فينفّذ الثاني
+           ويكتب user_version = **٢**. والتطبيق يعمل — مرّةً واحدة.
+
+         • التشغيلُ التالي: `SQLiteOpenHelper` يفتح القاعدةَ فيجد ٢
+           والمطلوبُ ١، أي **تنزيلَ نسخة**، فينادي `onDowngrade`.
+           و`AndroidSqliteDriver$Callback` **لا يُعرّف `onDowngrade`**
+           (فُحص بايتكودُ المكتبة)، فيعمل الأساسُ ويرمي:
+
+               SQLiteException: Can't downgrade database from version 2 to 1
+
+           ويقع الرميُ عند بناء المحرِّك — أي قبل أن تُرسم شاشة. فالتطبيق
+           يفتح ويُغلق فوراً، **في كل مرّةٍ بعد الأولى، إلى الأبد**.
+
+       فالرقمُ الآن في جدولٍ نملكه، و`user_version` يُترك لصاحبه.
+    ═══════════════════════════════════════════════════════════ */
+
+    private const val TABLE = "RafiqMigration"
+
+    private fun ensureTable(driver: SqlDriver) {
+        driver.execute(
+            null,
+            "CREATE TABLE IF NOT EXISTS $TABLE (" +
+                "id INTEGER NOT NULL PRIMARY KEY, version INTEGER NOT NULL)",
+            0,
+        )
+    }
+
+    private fun readVersion(driver: SqlDriver): Int {
+        ensureTable(driver)
+        return driver.executeQuery(null, "SELECT version FROM $TABLE WHERE id = 1", { cursor ->
             app.cash.sqldelight.db.QueryResult.Value(
                 if (cursor.next().value) cursor.getLong(0)?.toInt() ?: 0 else 0
             )
         }, 0).value
+    }
 
-    private fun writeUserVersion(driver: SqlDriver, version: Int) {
-        driver.execute(null, "PRAGMA user_version = $version", 0)
+    private fun writeVersion(driver: SqlDriver, version: Int) {
+        driver.execute(null, "INSERT OR REPLACE INTO $TABLE(id, version) VALUES (1, $version)", 0)
     }
 
     private const val TAG = "RafiqMigration"
