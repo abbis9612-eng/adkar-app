@@ -16,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -141,21 +142,57 @@ fun DhikrReadingScreen(
 
                         Spacer(Modifier.height(14.dp))
 
-                        Text(
-                            listOfNotNull(
-                                dhikr.source.takeIf { it.isNotBlank() },
-                                dhikr.sourceGrade.takeIf { it.isNotBlank() },
-                            ).joinToString(" · "),
-                            style = RafiqType.caption,
-                            color = rc.inkMed,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        /*  الدرجةُ أوّلاً ثمّ التخريج.
+                         *
+                         *  التخريجُ في الأذكار المستورَدة فقرةٌ كاملةٌ بأرقام
+                         *  الأحاديث والأجزاء — تُنقل كما هي ولا تُختصر، لكنّها
+                         *  تُعرض أخفَّ من الدرجة وبثلاثة أسطرٍ حدّاً حتى لا
+                         *  تُزاحم الذكرَ نفسَه. */
+                        if (dhikr.sourceGrade.isNotBlank()) {
+                            Text(
+                                dhikr.sourceGrade,
+                                style = RafiqType.caption,
+                                color = rc.gold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                        if (dhikr.source.isNotBlank()) {
+                            Spacer(Modifier.height(3.dp))
+                            Text(
+                                dhikr.source,
+                                style = RafiqType.caption,
+                                color = rc.inkLight,
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
 
-                        if (dhikr.virtue.isNotBlank()) {
+                        /*  ترجمةُ المعنى لمن لا يقرأ العربية.
+                         *
+                         *  النصُّ العربيُّ فوقها يبقى دائماً ولا يُستبدَل:
+                         *  من يذكر الله يذكره بلفظه، وهذه ليفهم ما يقول.
+                         *  ولا تظهر إلّا في الواجهة الإنجليزية. */
+                        val english = !LocalContext.current.resources.getBoolean(R.bool.is_rtl)
+                        if (english && dhikr.textEn.isNotBlank()) {
+                            Spacer(Modifier.height(14.dp))
+                            Text(
+                                dhikr.textEn,
+                                style = RafiqType.bodyS,
+                                color = rc.inkMed,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+
+                        val virtue = if (english && dhikr.virtueEn.isNotBlank()) dhikr.virtueEn
+                                     else dhikr.virtue
+                        if (virtue.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                dhikr.virtue,
+                                virtue,
                                 style = RafiqType.bodyS,
                                 color = rc.inkMed,
                                 textAlign = TextAlign.Center,

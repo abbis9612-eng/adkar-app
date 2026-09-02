@@ -17,9 +17,16 @@ data class Dhikr(
     val id:          Long,
     val category:    String,
     val textAr:      String,
+    /*  ترجمةُ المعنى والنطقُ اللاتينيّ — لمن لا يقرأ العربية.
+     *
+     *  ونصُّ الذكر نفسُه لا يُترجَم ولا يُستبدَل: يُعرض عربياً دائماً،
+     *  وهذه تحته. من يذكر الله يذكره بلفظه. */
+    val textEn:      String,
+    val translit:    String,
     val source:      String,
     val sourceGrade: String,
     val virtue:      String,
+    val virtueEn:    String,
     val count:       Int,
     val audioFile:   String?,
     val sortOrder:   Int
@@ -89,6 +96,10 @@ data class UserPrefsInfo(
     val dynamicColor:         Boolean,
     val fontScale:            Double,
     val notificationsEnabled: Boolean,
+    /** تحكّمٌ منفصلٌ لكل نوع — تحت المفتاح العامّ لا بدلاً منه. */
+    val notifyMorning:        Boolean,
+    val notifyEvening:        Boolean,
+    val notifyPrayers:        Boolean,
     val glassLevel:           String,
     val gamificationVisible:  Boolean,
     val prayerMethod:         String,
@@ -134,9 +145,12 @@ fun AdhkarEntity.toDomain() = Dhikr(
     id          = id,
     category    = category,
     textAr      = text_ar,
+    textEn      = text_en,
+    translit    = translit,
     source      = source,
     sourceGrade = source_grade,
     virtue      = virtue,
+    virtueEn    = virtue_en,
     count       = count.toInt(),
     audioFile   = audio_file,
     sortOrder   = sort_order.toInt()
@@ -205,6 +219,9 @@ fun UserPrefsEntity.toDomain() = UserPrefsInfo(
     dynamicColor         = dynamic_color == 1L,
     fontScale            = font_scale,
     notificationsEnabled = notifications_enabled == 1L,
+    notifyMorning        = notify_morning == 1L,
+    notifyEvening        = notify_evening == 1L,
+    notifyPrayers        = notify_prayers == 1L,
     glassLevel           = glass_level,
     gamificationVisible  = gamification_visible == 1L,
     prayerMethod         = prayer_method,

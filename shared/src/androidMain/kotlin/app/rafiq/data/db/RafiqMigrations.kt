@@ -122,6 +122,22 @@ internal object RafiqMigrations {
             "CREATE INDEX IF NOT EXISTS idx_ayah_juz ON Ayah(juz)",
             "CREATE INDEX IF NOT EXISTS idx_dua_category ON Dua(category)",
         ),
+
+        // ═══ ٢ — مفاتيحُ الإشعار لكل نوع، وحقولُ الذكر المستورَدة ═══
+        //
+        // الثلاثةُ الأولى تجعل صفوفَ شاشة الإشعارات مفاتيحَ تعمل بدل أن
+        // تبدو مفاتيحَ ولا تُنقر. والثلاثةُ التالية جاءت مع استيراد قاعدة
+        // أذكار الصباح والمساء (MIT): ترجمةُ المعنى، والنطقُ اللاتينيّ،
+        // والفضلُ بالإنجليزية — للواجهة الإنجليزية التي كانت تعرض الذكرَ
+        // عربياً بلا شيء يفهمه صاحبُها.
+        listOf(
+            "ALTER TABLE UserPrefs ADD COLUMN notify_morning INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE UserPrefs ADD COLUMN notify_evening INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE UserPrefs ADD COLUMN notify_prayers INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE Adhkar ADD COLUMN text_en TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE Adhkar ADD COLUMN translit TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE Adhkar ADD COLUMN virtue_en TEXT NOT NULL DEFAULT ''",
+        ),
     )
 
     /** رقمُ آخرِ ترحيلٍ معروف. تُقارَن به `PRAGMA user_version`. */

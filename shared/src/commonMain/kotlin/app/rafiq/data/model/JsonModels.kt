@@ -29,9 +29,12 @@ data class AyahJson(
 @Serializable
 data class DhikrJson(
     @SerialName("text_ar")      val textAr:       String,
+    @SerialName("text_en")      val textEn:       String    = "",
+    val translit:     String    = "",
     val source:       String,
     @SerialName("source_grade") val sourceGrade:  String,
     val virtue:       String    = "",
+    @SerialName("virtue_en")    val virtueEn:     String    = "",
     val count:        Int,
     @SerialName("audio_file")   val audioFile:    String? = null,
     @SerialName("sort_order")   val sortOrder:    Int

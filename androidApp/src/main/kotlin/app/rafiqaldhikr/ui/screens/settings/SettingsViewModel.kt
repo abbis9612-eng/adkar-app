@@ -63,6 +63,18 @@ class SettingsViewModel(
         .map { it?.reducedMotion ?: false }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /*  مفاتيحُ التذكير لكل نوع — كانت الصفوفُ الثلاثة تبدو مفاتيحَ
+     *  ولا تُنقر، لأنّ التحكّمَ يحتاج أعمدةً ولم يكن ثمّة نظامُ ترحيل. */
+    val notifyMorning: StateFlow<Boolean> = _prefs
+        .map { it?.notifyMorning ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val notifyEvening: StateFlow<Boolean> = _prefs
+        .map { it?.notifyEvening ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val notifyPrayers: StateFlow<Boolean> = _prefs
+        .map { it?.notifyPrayers ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     /** كان يُحفظ في القاعدة ولا يقرؤه أحد — فالمفتاحُ في شاشة الإتاحة يكذب. */
     val highContrast: StateFlow<Boolean> = _prefs
         .map { it?.highContrast ?: false }
@@ -87,6 +99,14 @@ class SettingsViewModel(
             runCatching { rescheduler.reschedule() }
         }
     }
+    fun setNotifyKinds(morning: Boolean, evening: Boolean, prayers: Boolean) {
+        viewModelScope.launch {
+            prefsRepo.updateNotifyKinds(morning, evening, prayers)
+            // الجدولةُ تتبع المفاتيح فوراً — لا عند إعادة التشغيل.
+            runCatching { rescheduler.reschedule() }
+        }
+    }
+
     fun setGamification(visible: Boolean) {
         viewModelScope.launch { prefsRepo.updateGamification(visible) }
     }

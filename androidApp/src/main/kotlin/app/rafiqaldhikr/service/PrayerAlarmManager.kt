@@ -27,8 +27,27 @@ class PrayerAlarmManager(private val context: Context) {
         const val SLEEP_DELAY_MS   = 90 * 60_000L  // بعد العشاء
     }
 
-    fun scheduleAllForToday(prayerTimes: Map<String, Long>) {
-        prayerTimes.forEach { (name, timeMillis) ->
+    /**
+     * @param prayers هل يُجدوَل أذانُ الصلوات الخمس؟
+     * @param morning و[evening] و[sleep] تذكيراتُ الأذكار.
+     *
+     * كانت الجدولةُ تشمل الثمانيةَ دائماً، وصفوفُ شاشة الإشعارات الثلاثة
+     * تبدو مفاتيحَ ولا تُنقر. فمن أراد تذكيرَ الأذكار بلا أذانٍ لم يكن
+     * له إلّا أن يُطفئ الإشعاراتِ كلَّها.
+     */
+    fun scheduleAllForToday(
+        prayerTimes: Map<String, Long>,
+        prayers: Boolean = true,
+        morning: Boolean = true,
+        evening: Boolean = true,
+    ) {
+        if (!prayers) {
+            listOf(FAJR_ID, DHUHR_ID, ASR_ID, MAGHRIB_ID, ISHA_ID).forEach(::cancelOne)
+        }
+        if (!morning) cancelOne(ADHKAR_MORNING_ID)
+        if (!evening) cancelOne(ADHKAR_EVENING_ID)
+
+        if (prayers) prayerTimes.forEach { (name, timeMillis) ->
             val notifId = when (name) {
                 "fajr"    -> FAJR_ID
                 "dhuhr"   -> DHUHR_ID
@@ -41,8 +60,12 @@ class PrayerAlarmManager(private val context: Context) {
         }
 
         // أذكار الصباح بعد الفجر، والمساء بعد العصر، والنوم بعد العشاء
-        prayerTimes["fajr"]?.let { schedulePrayer("adhkar_morning", it + MORNING_DELAY_MS, ADHKAR_MORNING_ID) }
-        prayerTimes["asr"]?.let  { schedulePrayer("adhkar_evening", it + EVENING_DELAY_MS, ADHKAR_EVENING_ID) }
+        if (morning) prayerTimes["fajr"]?.let { schedulePrayer("adhkar_morning", it + MORNING_DELAY_MS, ADHKAR_MORNING_ID) }
+        if (evening) prayerTimes["asr"]?.let  { schedulePrayer("adhkar_evening", it + EVENING_DELAY_MS, ADHKAR_EVENING_ID) }
+        /*  تذكيرُ النوم يُجدوَل دائماً ما دامت الإشعاراتُ مفعَّلة: هو
+         *  الذي يحمل سلسلةَ إعادة الجدولة لليوم التالي (انظر
+         *  `PrayerAlarmReceiver.rescheduleTomorrow`). فإطفاؤه يُوقف
+         *  التنبيهاتِ كلَّها إلى الأبد.  */
         prayerTimes["isha"]?.let { schedulePrayer("adhkar_sleep",   it + SLEEP_DELAY_MS,   ADHKAR_SLEEP_ID) }
     }
 
@@ -92,6 +115,15 @@ class PrayerAlarmManager(private val context: Context) {
                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pending)
             }
         }
+    }
+
+    /** يُلغي تنبيهاً واحداً بمعرّفه. */
+    private fun cancelOne(id: Int) {
+        val intent = Intent(context, PrayerAlarmReceiver::class.java)
+        PendingIntent.getBroadcast(
+            context, id, intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )?.let { alarmManager.cancel(it) }
     }
 
     fun cancelAll() {

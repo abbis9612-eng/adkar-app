@@ -78,7 +78,12 @@ class DatabaseSeeder(
             cat to json.decodeFromString<List<DhikrJson>>(jsonReader.readAsset(file))
         }
         val expected = lists.sumOf { it.second.size }.toLong()
-        if (db.adhkarQueries.count().executeAsOne() >= expected) return
+        /*  العددُ وحدَه لا يكفي بعد استيراد القاعدة المرخَّصة: قد يتطابق
+            العددُ والنصوصُ قديمةٌ بلا ترجمةٍ ولا فضل. فيُفحص صفٌّ دالّ. */
+        val stale = db.adhkarQueries.count().executeAsOne() > 0 &&
+            db.adhkarQueries.getAllByCategory("morning").executeAsList()
+                .none { it.text_en.isNotBlank() }
+        if (db.adhkarQueries.count().executeAsOne() >= expected && !stale) return
 
         db.transaction { db.adhkarQueries.deleteAll() }
         lists.forEach { (category, list) -> insertAdhkar(category, list) }
@@ -167,9 +172,12 @@ class DatabaseSeeder(
                 db.adhkarQueries.insertFull(
                     category     = category,
                     text_ar      = d.textAr,
+                    text_en      = d.textEn,
+                    translit     = d.translit,
                     source       = d.source,
                     source_grade = d.sourceGrade,
                     virtue       = d.virtue,
+                    virtue_en    = d.virtueEn,
                     count        = d.count.toLong(),
                     audio_file   = d.audioFile,
                     sort_order   = d.sortOrder.toLong()

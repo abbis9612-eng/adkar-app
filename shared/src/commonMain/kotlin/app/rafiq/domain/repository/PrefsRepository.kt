@@ -8,6 +8,9 @@ interface PrefsRepository {
     suspend fun updateTheme(theme: String, dynamic: Boolean)
     suspend fun updateFontScale(scale: Double)
     suspend fun updateNotifications(enabled: Boolean)
+
+    /** تحكّمٌ منفصلٌ لكل نوع من التذكير. */
+    suspend fun updateNotifyKinds(morning: Boolean, evening: Boolean, prayers: Boolean)
     suspend fun updateGamification(visible: Boolean)
     suspend fun updatePrayerMethod(method: String)
     suspend fun updateLocale(locale: String)

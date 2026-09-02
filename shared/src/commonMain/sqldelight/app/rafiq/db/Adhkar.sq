@@ -5,6 +5,12 @@ CREATE TABLE Adhkar (
     source       TEXT    NOT NULL,
     source_grade TEXT    NOT NULL,
     virtue       TEXT    NOT NULL DEFAULT '',
+    -- الترجمةُ والنطقُ اللاتينيّ والفضلُ بالإنجليزية: جاءت مع استيراد
+    -- قاعدة أذكار الصباح والمساء (MIT). ونصُّ الذكر العربيّ لا يُترجَم —
+    -- هذه ترجمةُ معناه لمن لا يقرأ العربية، وتُعرض تحته لا بدلاً منه.
+    text_en      TEXT    NOT NULL DEFAULT '',
+    translit     TEXT    NOT NULL DEFAULT '',
+    virtue_en    TEXT    NOT NULL DEFAULT '',
     count        INTEGER NOT NULL,
     audio_file   TEXT,
     sort_order   INTEGER NOT NULL
@@ -25,8 +31,8 @@ count:
 SELECT COUNT(*) FROM Adhkar;
 
 insertFull:
-INSERT INTO Adhkar(category, text_ar, source, source_grade, virtue, count, audio_file, sort_order)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO Adhkar(category, text_ar, text_en, translit, source, source_grade, virtue, virtue_en, count, audio_file, sort_order)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteAll:
 DELETE FROM Adhkar;

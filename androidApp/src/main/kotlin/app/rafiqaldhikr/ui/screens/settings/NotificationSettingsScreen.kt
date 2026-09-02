@@ -67,6 +67,9 @@ fun NotificationSettingsScreen(
 
             // Content
             val enabled by vm.notificationsEnabled.collectAsStateWithLifecycle()
+            val morning by vm.notifyMorning.collectAsStateWithLifecycle()
+            val evening by vm.notifyEvening.collectAsStateWithLifecycle()
+            val prayers by vm.notifyPrayers.collectAsStateWithLifecycle()
 
             Column(Modifier.padding(horizontal = 16.dp)) {
                 Spacer(Modifier.height(16.dp))
@@ -108,13 +111,17 @@ fun NotificationSettingsScreen(
                     
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
 
-                    /*  قائمةُ ما يصل، لا مفاتيحُ تحكّم.
+                    /*  مفاتيحُ تعمل — لا قائمةُ «ما يصلك».
                      *
-                     *  كانت هذه الصفوفُ الثلاثة تبدو مفاتيحَ معطّلة: عنوانٌ
-                     *  ووصفٌ ولا شيء يُنقر. وهي في الحقيقة وصفٌ لما يُرسَل
-                     *  حين يُضاء المفتاحُ الأعلى. فصارت تحت عنوانٍ يقول ذلك.
-                     *  والتحكّمُ المنفصل لكل نوعٍ يحتاج عمودَين في الجدول،
-                     *  ولا يُغيَّر المخطّطُ بلا ترحيلٍ مرقَّم.  */
+                     *  كانت الصفوفُ الثلاثة نصّاً يبدو مفتاحاً ولا يُنقر،
+                     *  ثمّ صارت قائمةَ وصفٍ حتى لا تكذب — لأنّ التحكّمَ
+                     *  المنفصل يحتاج أعمدةً في الجدول ولم يكن ثمّة نظامُ
+                     *  ترحيل. صار، فصارت مفاتيحَ حقيقيةً تُطفئ ما لا يُراد.
+                     *
+                     *  وتذكيرُ النوم ليس بينها عمداً: هو الذي يحمل سلسلةَ
+                     *  إعادة الجدولة لليوم التالي، فإطفاؤه يُسكت التنبيهاتِ
+                     *  كلَّها. مذكورٌ في `PrayerAlarmManager`.
+                     */
                     Text(
                         stringResource(R.string.notif_what_arrives),
                         color = rc.inkMed,
@@ -123,20 +130,46 @@ fun NotificationSettingsScreen(
                     )
 
                     listOf(
-                        stringResource(R.string.cat_morning) to stringResource(R.string.notif_morning_desc),
-                        stringResource(R.string.cat_evening) to stringResource(R.string.notif_evening_desc),
-                        stringResource(R.string.nav_prayer) to stringResource(R.string.notif_prayer_desc)
-                    ).forEach { (title, subtitle) ->
+                        Triple(R.string.cat_morning, R.string.notif_morning_desc, morning),
+                        Triple(R.string.cat_evening, R.string.notif_evening_desc, evening),
+                        Triple(R.string.nav_prayer,  R.string.notif_prayer_desc,  prayers),
+                    ).forEachIndexed { index, (titleRes, descRes, checked) ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text(title, color = if (enabled) rc.ink else rc.inkLight, style = RafiqType.body)
-                                Text(subtitle, fontSize = 13.sp, color = rc.inkMed)
+                                Text(
+                                    stringResource(titleRes),
+                                    color = if (enabled) rc.ink else rc.inkLight,
+                                    style = RafiqType.body,
+                                )
+                                Text(
+                                    stringResource(descRes),
+                                    fontSize = 13.sp,
+                                    color = rc.inkMed,
+                                )
                             }
+                            Switch(
+                                checked = checked && enabled,
+                                // المفتاحُ العامّ يسبقها: بلا إشعاراتٍ لا معنى لتفصيلها.
+                                enabled = enabled,
+                                onCheckedChange = { v ->
+                                    when (index) {
+                                        0 -> vm.setNotifyKinds(v, evening, prayers)
+                                        1 -> vm.setNotifyKinds(morning, v, prayers)
+                                        else -> vm.setNotifyKinds(morning, evening, v)
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = rc.card,
+                                    checkedTrackColor = rc.emerald,
+                                    uncheckedThumbColor = rc.inkLight,
+                                    uncheckedTrackColor = rc.divider
+                                )
+                            )
                         }
                     }
                     Spacer(Modifier.height(6.dp))

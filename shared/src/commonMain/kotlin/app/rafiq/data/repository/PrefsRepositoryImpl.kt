@@ -19,7 +19,9 @@ class PrefsRepositoryImpl(private val db: RafiqDatabase) : PrefsRepository {
             .mapToOneOrNull(Dispatchers.IO)
             .map { it?.toDomain() ?: UserPrefsInfo(
                 theme = "system", dynamicColor = true, fontScale = 1.0,
-                notificationsEnabled = true, glassLevel = "fake",
+                notificationsEnabled = true,
+                notifyMorning = true, notifyEvening = true, notifyPrayers = true,
+                glassLevel = "fake",
                 gamificationVisible = true, prayerMethod = "mwl",
                 locale = "ar", hijriOffset = 0L, reducedMotion = false,
                 highContrast = false, soundProfile = "beads", hapticsEnabled = true,
@@ -42,6 +44,15 @@ class PrefsRepositoryImpl(private val db: RafiqDatabase) : PrefsRepository {
     override suspend fun updateNotifications(enabled: Boolean) =
         withContext(Dispatchers.IO) {
             db.userPrefsQueries.updateNotifications(if (enabled) 1L else 0L)
+        }
+
+    override suspend fun updateNotifyKinds(morning: Boolean, evening: Boolean, prayers: Boolean) =
+        withContext(Dispatchers.IO) {
+            db.userPrefsQueries.updateNotifyKinds(
+                morning = if (morning) 1L else 0L,
+                evening = if (evening) 1L else 0L,
+                prayers = if (prayers) 1L else 0L,
+            )
         }
 
     override suspend fun updateGamification(visible: Boolean) =

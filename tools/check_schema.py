@@ -35,9 +35,9 @@ SQ_DIR = ROOT / "shared/src/commonMain/sqldelight/app/rafiq/db"
 MIGRATIONS = ROOT / "shared/src/androidMain/kotlin/app/rafiq/data/db/RafiqMigrations.kt"
 
 #  يُحدَّث مع كل تغييرٍ في المخطّط — بعد إضافة ترحيلٍ يقابله.
-EXPECTED_SCHEMA_HASH = "8b2b5f1d885ef104"
+EXPECTED_SCHEMA_HASH = "ab589e8230e82b0a"
 #  عددُ الترحيلات المتوقَّع. يزيد واحداً مع كل تغييرٍ في المخطّط.
-EXPECTED_MIGRATIONS = 1
+EXPECTED_MIGRATIONS = 2
 
 DDL = re.compile(
     r"^\s*(CREATE\s+(?:TABLE|INDEX|VIEW|TRIGGER|UNIQUE\s+INDEX)\b[\s\S]*?;)",

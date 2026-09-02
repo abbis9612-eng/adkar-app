@@ -88,7 +88,12 @@ class PrayerRescheduler(
             )
         }
 
-        alarmManager.scheduleAllForToday(times.toAlarmMap())
+        alarmManager.scheduleAllForToday(
+            prayerTimes = times.toAlarmMap(),
+            prayers     = prefs.notify_prayers == 1L,
+            morning     = prefs.notify_morning == 1L,
+            evening     = prefs.notify_evening == 1L,
+        )
     }
 
     private fun PrayerTimesResult.toAlarmMap() = mapOf(

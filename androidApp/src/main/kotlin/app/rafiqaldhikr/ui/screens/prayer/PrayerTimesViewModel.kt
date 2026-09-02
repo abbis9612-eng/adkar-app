@@ -97,13 +97,16 @@ class PrayerTimesViewModel(
                         _uiState.update { it.copy(times = times, isLoading = false, error = null, needsLocation = false) }
                         if (prefs.notificationsEnabled) {
                             alarmManager.scheduleAllForToday(
-                                mapOf(
+                                prayerTimes = mapOf(
                                     "fajr"    to times.fajr,
                                     "dhuhr"   to times.dhuhr,
                                     "asr"     to times.asr,
                                     "maghrib" to times.maghrib,
                                     "isha"    to times.isha
-                                )
+                                ),
+                                prayers = prefs.notifyPrayers,
+                                morning = prefs.notifyMorning,
+                                evening = prefs.notifyEvening,
                             )
                         }
                     }
