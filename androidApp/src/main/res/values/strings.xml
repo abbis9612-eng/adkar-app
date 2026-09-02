@@ -673,4 +673,5 @@
     <string name="preset_night_emerald">ليلٌ وزمرّد</string>
     <string name="preset_night_gold">ليلٌ وذهب</string>
     <string name="preset_night_silver">ليلٌ وفضّة</string>
+    <string name="quran_list_no_match">لا سورةَ بهذا الاسم.</string>
 </resources>

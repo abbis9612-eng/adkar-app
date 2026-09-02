@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.ui.components.EmptyState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -232,6 +233,17 @@ fun QuranListScreen(
                             Text(stringResource(R.string.quran_surahs), fontWeight = FontWeight.Bold, color = LocalRafiqColors.current.inkDark, style = RafiqType.titleM)
                         }
                         Spacer(Modifier.height(10.dp))
+                    }
+
+                    /*  بحثٌ لا يجد شيئاً كان يترك فراغاً أبيض تحت مربّع
+                     *  البحث — بلا سطرٍ يقول إنّ الاسم ليس في القائمة.  */
+                    if (state.filtered.isEmpty() && !state.isLoading) {
+                        item {
+                            EmptyState(
+                                message = stringResource(R.string.quran_list_no_match),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
+                            )
+                        }
                     }
 
                     // ═══ SURAH LIST ═══

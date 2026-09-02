@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -117,7 +118,16 @@ class QiblaViewModel(
                 والمدى بينها بالدرجات. فإن جاوز 6° فالإبرةُ ترتجف — إمّا
                 معدنٌ قريبٌ أو يدٌ تتحرّك — ولا يُعلَن اتّجاهٌ عليها. */
             val window = ArrayDeque<Float>()
+            /*  المستشعرُ يعمل ما دامت الشاشةُ منظورة.
+             *
+             *  كان المجمِّعُ يعمل ما دام الـViewModel حيّاً — والـViewModel
+             *  يعيش بعمر مدخل التنقّل، فيبقى مستشعرُ الدوران يُطلق قراءاتٍ
+             *  والتطبيقُ في الخلفية. وهي نفسُ الحيلة المستعملة في مؤقّت
+             *  `DayCompanionViewModel`: لا مشترِكَ فلا عمل.  */
             compassManager.getReadingFlow(lat, lng).collect { reading ->
+                if (_uiState.subscriptionCount.value == 0) {
+                    _uiState.subscriptionCount.first { it > 0 }
+                }
                 val qibla = _uiState.value.qiblaBearing
                 window.addLast(reading.heading)
                 if (window.size > 12) window.removeFirst()

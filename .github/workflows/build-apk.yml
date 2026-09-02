@@ -104,6 +104,32 @@ jobs:
             exit 1
           fi
 
+      # ═══ بناءٌ إصداريٌّ مصغَّرٌ فعلاً ═══
+      #
+      # كان CI يبني `assembleDebug` وحدَه، ويستدعي `bundleRelease` ليتحقّق
+      # أنّه **يفشل** بلا مفتاح. فلم يكن R8 يعمل في أيّ بناءٍ قطّ — وكلُّ
+      # ثغرةٍ في `proguard-rules.pro` تبقى مخفيّةً حتى أوّل نسخةٍ تُنشر،
+      # حيث تظهر انهياراً عند مستخدمٍ لا مطوّر. وقد كان فيها فعلاً قواعدُ
+      # لمكتبتين محذوفتين (Ktor وRevenueCat) ولا قاعدةَ للودجت.
+      #
+      # المفتاحُ هنا مؤقّتٌ يُولَّد ويُرمى: الغرضُ إثباتُ أنّ R8 يمرّ
+      # ويُنتج حزمةً، لا توقيعُ نسخةٍ للنشر.
+      - name: Build a minified release (R8 gate)
+        run: |
+          keytool -genkeypair -v -keystore /tmp/ci.jks \
+            -storepass ci_only -keypass ci_only -alias ci \
+            -keyalg RSA -keysize 2048 -validity 1 \
+            -dname "CN=CI, O=CI, C=IQ" > /dev/null 2>&1
+          KEYSTORE_FILE=/tmp/ci.jks KEYSTORE_PASSWORD=ci_only \
+          KEY_ALIAS=ci KEY_PASSWORD=ci_only \
+            ./gradlew :androidApp:assembleRelease --no-daemon
+          rm -f /tmp/ci.jks
+          # قواعدُ ناقصة يكتبها R8 هنا — وجودُ الملفّ غيرَ فارغ يعني ثغرة
+          M=androidApp/build/outputs/mapping/release/missing_rules.txt
+          if [ -s "$M" ]; then
+            echo "::error::R8 يبلّغ عن قواعد ناقصة:"; cat "$M"; exit 1
+          fi
+
       # اسم ملف يحمل رقم البناء ومعرّف الكومِت — يمنع الكاش ويوضّح النسخة
       - name: Rename APK
         run: |
