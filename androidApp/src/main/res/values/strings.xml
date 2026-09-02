@@ -555,4 +555,66 @@
     <string name="ayah_share_title">مشاركةُ الآية</string>
     <string name="tafsir_label">التفسير الميسّر:</string>
     <string name="mushaf_offer_body_long">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة. وتحتاج خطوطاً تُنزَّل مرّةً واحدة.</string>
+
+    <!-- ═══ المواقيت والموقع ═══ -->
+    <string name="prayer_needs_location">مواقيت الصلاة تُحسب من موقعك، ولا يصحّ حسابها بموقع غيرك.</string>
+    <string name="action_change">تغيير</string>
+    <string name="prayer_logged">سجّلتَها</string>
+    <string name="prayer_past">مضى</string>
+    <string name="prayer_fajr_edge">حدُّ الفجر والضحى</string>
+    <string name="prayer_time_passed">مضى وقتُها</string>
+    <string name="action_later">لاحقاً</string>
+    <string name="prayer_logged_count">سجّلتَ %1$s من %2$s صلوات</string>
+    <string name="loc_needed_body">المواقيت تُحسب من موقعك، ولا يمكن حسابها بدونه.</string>
+    <string name="loc_finding">جارٍ تحديد الموقع…</string>
+    <string name="loc_enable">تفعيل الموقع</string>
+    <string name="loc_pick_city">أو اختر مدينتك يدوياً</string>
+    <string name="loc_failed">تعذّر الحصول على الموقع. تأكّد من تفعيل خدمة الموقع في جهازك، أو امنح الإذن من إعدادات النظام، أو اختر مدينتك يدوياً.</string>
+    <string name="elevation_manual">أو اختر يدوياً: %1$s متر</string>
+    <string name="elevation_maghrib_corr">⏱ تصحيح المغرب: +%1$s دقيقة</string>
+    <string name="elevation_sea">0 — مستوى البحر</string>
+    <string name="elevation_metres">%1$s متر</string>
+
+    <!-- ═══ محطّاتُ رفيق اليوم — كانت مكتوبةً في الـViewModel ═══ -->
+    <string name="st_wake_t">الاستيقاظ</string>
+    <string name="st_wake_s">الاستيقاظ</string>
+    <string name="st_wake_d">«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك</string>
+    <string name="st_wake_time">قبل الفجر</string>
+    <string name="st_fajr_t">الفجر وأذكار الصباح</string>
+    <string name="st_fajr_s">الفجر</string>
+    <string name="st_fajr_d">صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس</string>
+    <string name="st_fajr_time">من الفجر إلى الشروق</string>
+    <string name="st_duha_t">صلاة الضحى</string>
+    <string name="st_duha_s">الضحى</string>
+    <string name="st_duha_d">ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك</string>
+    <string name="st_duha_time">من بعد الشروق إلى قبيل الظهر</string>
+    <string name="st_dhuhr_t">الظهر وأذكار بعد الصلاة</string>
+    <string name="st_dhuhr_s">الظهر</string>
+    <string name="st_dhuhr_d">الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي</string>
+    <string name="st_dhuhr_time">من الظهر إلى العصر</string>
+    <string name="st_asr_t">العصر وأذكار المساء</string>
+    <string name="st_asr_s">العصر</string>
+    <string name="st_asr_d">صلاة العصر ثم أذكار المساء قبل الغروب</string>
+    <string name="st_asr_time">من العصر إلى المغرب</string>
+    <string name="st_maghrib_t">المغرب وأذكار بعد الصلاة</string>
+    <string name="st_maghrib_s">المغرب</string>
+    <string name="st_maghrib_d">الصلاة وأذكارها</string>
+    <string name="st_maghrib_d_friday">الصلاة وأذكارها — وأكثِر من الدعاء، فآخرُ ساعةٍ من الجمعة ساعةُ إجابة</string>
+    <string name="st_maghrib_time">من المغرب إلى العشاء</string>
+    <string name="st_isha_t">العشاء والوتر</string>
+    <string name="st_isha_s">العشاء</string>
+    <string name="st_isha_d">صلاة العشاء ثم الوتر ولو بركعة</string>
+    <string name="st_isha_time">بعد العشاء</string>
+    <string name="st_sleep_t">أذكار النوم</string>
+    <string name="st_sleep_s">النوم</string>
+    <string name="st_sleep_d">الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح</string>
+    <string name="st_sleep_time">عند النوم</string>
+    <string name="st_kahf_t">سورة الكهف والصلاة على النبي ﷺ</string>
+    <string name="st_kahf_s">الكهف</string>
+    <string name="st_kahf_d">قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة</string>
+    <string name="st_kahf_time">طوال يوم الجمعة</string>
+    <string name="waraqa_you_are_in">أنت الآن في %1$s</string>
+    <string name="waraqa_start_station">ابدأ %1$s</string>
+    <string name="hub_station_window">نافذةُ %1$s</string>
+    <string name="hub_remaining"> · بقي %1$s</string>
 </resources>

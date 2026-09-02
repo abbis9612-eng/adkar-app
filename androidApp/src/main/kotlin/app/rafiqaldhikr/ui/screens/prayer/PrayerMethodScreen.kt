@@ -13,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +56,7 @@ fun PrayerMethodScreen(
     val elevation by settingsVM.elevation.collectAsState()
 
     val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
 
     Box(
         Modifier
@@ -165,14 +168,17 @@ fun PrayerMethodScreen(
                 )
                 Spacer(Modifier.height(12.dp))
                 
+                /*  ارتفاعاتٌ شائعة. وكان فيها «٨٥٠ متر (السليمانية)» —
+                 *  مدينةٌ بعينها في قائمةٍ عامّة، بقيّةُ أثرِ الاحتياطيّ
+                 *  الذي كان يفرض إحداثياتِها على كل من لا موقعَ له.  */
                 val presetElevations = listOf(
-                    0.0    to "0 — مستوى البحر",
-                    200.0  to "200 متر",
-                    500.0  to "500 متر",
-                    700.0  to "700 متر",
-                    850.0  to "850 متر (السليمانية)",
-                    1000.0 to "1000 متر",
-                    1500.0 to "1500 متر"
+                    0.0    to stringResource(R.string.elevation_sea),
+                    200.0  to stringResource(R.string.elevation_metres, 200.localized(ar)),
+                    500.0  to stringResource(R.string.elevation_metres, 500.localized(ar)),
+                    700.0  to stringResource(R.string.elevation_metres, 700.localized(ar)),
+                    850.0  to stringResource(R.string.elevation_metres, 850.localized(ar)),
+                    1000.0 to stringResource(R.string.elevation_metres, 1000.localized(ar)),
+                    1500.0 to stringResource(R.string.elevation_metres, 1500.localized(ar)),
                 )
                 
                 Column(
@@ -220,7 +226,7 @@ fun PrayerMethodScreen(
                     if (elevation > 0) {
                         val corrMinutes = ((elevation / 100.0) * 37.5 / 60.0).toInt()
                         Text(
-                            text = "⏱ تصحيح المغرب: +$corrMinutes دقيقة",
+                            text = stringResource(R.string.elevation_maghrib_corr, corrMinutes.localized(ar)),
                             fontSize = 13.sp,
                             color = rc.gold,
                             fontWeight = FontWeight.Bold,

@@ -127,7 +127,7 @@ private fun Header(hijri: String, onSettings: () -> Unit, onBell: () -> Unit) {
             RafiqIcon(RIcon.Bell, 18.dp, rc.emerald)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("رَفِيقُ الذِّكر", style = RafiqType.titleM, color = rc.emerald)
+            Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = rc.emerald)
             Text(
                 hijri.ifEmpty { stringResource(R.string.hijri_suffix) }.localizedDigits(LocalArabicNumerals.current),
                 style = RafiqType.caption, color = rc.inkMed,
@@ -150,10 +150,10 @@ private fun StateLine(now: StationUi?) {
             Text(stringResource(R.string.waraqa_opens_first), style = RafiqType.bodyS, color = rc.inkMed)
         } else {
             Text(
-                "أنت الآن في ${now.title}",
+                stringResource(R.string.waraqa_you_are_in, stringResource(now.title)),
                 style = RafiqType.ayah, color = rc.ink,
             )
-            Text(now.timeLabel, style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(now.timeLabel), style = RafiqType.bodyS, color = rc.inkMed)
         }
     }
 }
@@ -250,7 +250,7 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
         Column(Modifier.weight(1f).padding(end = 2.dp)) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    st.title,
+                    stringResource(st.title),
                     style = if (isNow) RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize)
                             else RafiqType.titleM.copy(
                                 fontWeight = if (passed || done) FontWeight.Normal else FontWeight.Bold
@@ -260,7 +260,7 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
                 Text(clockOf(st.startMillis, LocalArabicNumerals.current),
                     style = RafiqType.caption, color = soft)
             }
-            Text(st.description, style = RafiqType.bodyS, color = soft,
+            Text(stringResource(st.description), style = RafiqType.bodyS, color = soft,
                 modifier = Modifier.padding(top = 2.dp))
 
             if (isNow) OpenStation(st, nav)
@@ -336,7 +336,7 @@ private fun OpenStation(st: StationUi, nav: NavHostController) {
                     .clickable { nav.navigate(route) },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("ابدأ ${st.title}", style = RafiqType.label,
+                Text(stringResource(R.string.waraqa_start_station, stringResource(st.title)), style = RafiqType.label,
                     fontWeight = FontWeight.Bold, color = rc.bg)
             }
         }

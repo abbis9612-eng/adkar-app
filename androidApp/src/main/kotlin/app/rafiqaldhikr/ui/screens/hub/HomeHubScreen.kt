@@ -315,7 +315,8 @@ private fun WindowPill(
         station == null -> stringResource(R.string.waraqa_title)
         else -> {
             val left = humanRemaining(station.endMillis - System.currentTimeMillis())
-            "نافذةُ ${station.short}" + (left?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
+            stringResource(R.string.hub_station_window, stringResource(station.short)) +
+                (left?.let { stringResource(R.string.hub_remaining, it.localizedDigits(ar)) } ?: "")
         }
     }
     Row(
@@ -518,11 +519,11 @@ private fun MeeqatCard(
             source = null; cta = stringResource(R.string.action_open); action = onDayPage
         }
         station.route == null -> {
-            title = station.title; desc = station.description.localizedDigits(ar)
+            title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
             source = station.source; cta = stringResource(R.string.action_detail); action = onDayPage
         }
         else -> {
-            title = station.title; desc = station.description.localizedDigits(ar)
+            title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
             source = station.source; cta = stringResource(R.string.action_start); action = onStart
         }
     }
@@ -720,7 +721,7 @@ private fun DayRow(
                             Spacer(Modifier.width(3.dp))
                         }
                         Text(
-                            short,
+                            stringResource(short),
                             fontSize   = 14.sp,
                             fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
                             color      = nameColor,
@@ -791,14 +792,14 @@ private fun DayRow(
                     )
                     Spacer(Modifier.width(13.dp))
                     Text(
-                        st.title,
+                        stringResource(st.title),
                         style = RafiqType.titleM,
                         fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
                         color = if (isNow || isPast) rc.ink else rc.inkMed,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
-                        st.timeLabel.localizedDigits(ar),
+                        stringResource(st.timeLabel).localizedDigits(ar),
                         style = RafiqType.bodyS,
                         color = rc.inkMed,
                     )
@@ -849,7 +850,8 @@ private fun NowUnderline(active: Boolean) {
 /** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
  *  يومه قبل أن يحدّد موقعه. مطابقة لـ`short` في محطّات DayCompanion. */
 private val FALLBACK_DAY = listOf(
-    "الاستيقاظ", "الفجر", "الضحى", "الظهر", "العصر", "المغرب", "العشاء", "النوم",
+    R.string.st_wake_s, R.string.st_fajr_s, R.string.st_duha_s, R.string.st_dhuhr_s,
+    R.string.st_asr_s, R.string.st_maghrib_s, R.string.st_isha_s, R.string.st_sleep_s,
 )
 
 /* ── الطبقة ٤: الأبواب الثلاثة في صفّ ───────────────────────────

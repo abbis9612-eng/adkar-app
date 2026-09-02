@@ -3,6 +3,7 @@ package app.rafiqaldhikr.ui.screens.daycompanion
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
 import app.rafiqaldhikr.util.isFriday
+import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.RafiqResult
@@ -43,10 +44,18 @@ class DayCompanionViewModel(
 
     data class StationUi(
         val id:          String,
-        val title:       String,
+        /*  العنوانُ والاسمُ القصيرُ والوصفُ والتوقيتُ مراجعُ موارد لا نصوص:
+         *  كانت أربعتُها مكتوبةً عربيةً هنا لعشرِ محطّات — فميزةُ «رفيق
+         *  اليوم» كلُّها لا تُترجَم، وهي بطلةُ الشاشة الرئيسية.
+         *
+         *  و[virtue] و[source] يبقيان نصّاً عربياً: هما حديثٌ وتخريجُه،
+         *  وترجمةُ الحديث تفسيرٌ له لا نقل — وقاعدةُ المشروع أن لا يُصاغ
+         *  نصٌّ دينيٌّ ولا يُعاد صوغُه. فيُعرضان بالعربية في اللغتين، وهو
+         *  الصدق. */
+        @androidx.annotation.StringRes val title: Int,
         /** اسمٌ من كلمة واحدة لصفّ اليوم في الرئيسية — تسعةٌ منها تتّسع في سطر. */
-        val short:       String,
-        val description: String,
+        @androidx.annotation.StringRes val short: Int,
+        @androidx.annotation.StringRes val description: Int,
         val virtue:      String,          // الفضل الوارد بدليله
         /**
          * تخريجُ [virtue] وحده — شارةُ المصدر في بطاقة الميقات.
@@ -57,7 +66,7 @@ class DayCompanionViewModel(
          * تكذب يوماً، والكذبُ هنا في الإسناد لا في الواجهة.
          */
         val source:      String,
-        val timeLabel:   String,          // «بعد الفجر حتى الشروق»
+        @androidx.annotation.StringRes val timeLabel: Int,
         val startMillis: Long,
         val endMillis:   Long,
         val route:       String?,         // وجهة «ابدأ» — فئة أذكار غالباً
@@ -175,101 +184,102 @@ class DayCompanionViewModel(
         return listOf(
             StationUi(
                 id = "wake",
-                title = "الاستيقاظ",
-                short = "الاستيقاظ",
-                description = "«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك",
+                title = R.string.st_wake_t,
+                short = R.string.st_wake_s,
+                description = R.string.st_wake_d,
                 virtue = "هدي النبي ﷺ عند الاستيقاظ — رواه البخاري",
                 source = "رواه البخاري",
-                timeLabel = "قبل الفجر",
+                timeLabel = R.string.st_wake_time,
                 startMillis = t.fajr - 90 * 60_000L, endMillis = t.fajr,
                 route = null,
             ),
             StationUi(
                 id = "fajr_morning",
-                title = "الفجر وأذكار الصباح",
-                short = "الفجر",
-                description = "صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس",
+                title = R.string.st_fajr_t,
+                short = R.string.st_fajr_s,
+                description = R.string.st_fajr_d,
                 virtue = "«من صلى الغداة في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كانت له كأجر حجة وعمرة تامة تامة تامة» — الترمذي (حسن)",
                 source = "الترمذي · حسن",
-                timeLabel = "من الفجر إلى الشروق",
+                timeLabel = R.string.st_fajr_time,
                 startMillis = t.fajr, endMillis = t.sunrise,
                 route = "dhikr_reading/morning",
             ),
             StationUi(
                 id = "duha",
-                title = "صلاة الضحى",
-                short = "الضحى",
-                description = "ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك",
+                title = R.string.st_duha_t,
+                short = R.string.st_duha_s,
+                description = R.string.st_duha_d,
                 virtue = "«يصبح على كل سُلامى من أحدكم صدقة... ويجزئ من ذلك ركعتان يركعهما من الضحى» — رواه مسلم",
                 source = "رواه مسلم",
-                timeLabel = "من بعد الشروق إلى قبيل الظهر",
+                timeLabel = R.string.st_duha_time,
                 startMillis = t.sunrise + 20 * 60_000L, endMillis = t.dhuhr - 10 * 60_000L,
                 route = null,
             ),
             StationUi(
                 id = "dhuhr",
-                title = "الظهر وأذكار بعد الصلاة",
-                short = "الظهر",
-                description = "الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي",
+                title = R.string.st_dhuhr_t,
+                short = R.string.st_dhuhr_s,
+                description = R.string.st_dhuhr_d,
                 virtue = "«من سبّح الله دبر كل صلاة... غُفرت خطاياه وإن كانت مثل زبد البحر» — رواه مسلم",
                 source = "رواه مسلم",
-                timeLabel = "من الظهر إلى العصر",
+                timeLabel = R.string.st_dhuhr_time,
                 startMillis = t.dhuhr, endMillis = t.asr,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "asr_evening",
-                title = "العصر وأذكار المساء",
-                short = "العصر",
-                description = "صلاة العصر ثم أذكار المساء قبل الغروب",
+                title = R.string.st_asr_t,
+                short = R.string.st_asr_s,
+                description = R.string.st_asr_d,
                 virtue = "اختار ابن القيم في الوابل الصيّب أن وقت أذكار المساء بين العصر والغروب",
                 source = "اختيار ابن القيّم · الوابل الصيّب",
-                timeLabel = "من العصر إلى المغرب",
+                timeLabel = R.string.st_asr_time,
                 startMillis = t.asr, endMillis = t.maghrib,
                 route = "dhikr_reading/evening",
             ),
             StationUi(
                 id = "maghrib",
-                title = "المغرب وأذكار بعد الصلاة",
-                short = "المغرب",
-                description = "الصلاة وأذكارها" + if (friday) " — وأكثر من الدعاء فآخر ساعة من الجمعة ساعة إجابة" else "",
+                title = R.string.st_maghrib_t,
+                short = R.string.st_maghrib_s,
+                // الجمعةُ لها وصفٌ خاصّ: آخرُ ساعةٍ منها ساعةُ إجابة.
+                description = if (friday) R.string.st_maghrib_d_friday else R.string.st_maghrib_d,
                 virtue = "«لا مانع لما أعطيت ولا معطي لما منعت» — متفق عليه",
                 source = "متفق عليه",
-                timeLabel = "من المغرب إلى العشاء",
+                timeLabel = R.string.st_maghrib_time,
                 startMillis = t.maghrib, endMillis = t.isha,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "isha",
-                title = "العشاء والوتر",
-                short = "العشاء",
-                description = "صلاة العشاء ثم الوتر ولو بركعة",
+                title = R.string.st_isha_t,
+                short = R.string.st_isha_s,
+                description = R.string.st_isha_d,
                 virtue = "«اجعلوا آخر صلاتكم بالليل وتراً» — متفق عليه",
                 source = "متفق عليه",
-                timeLabel = "بعد العشاء",
+                timeLabel = R.string.st_isha_time,
                 startMillis = t.isha, endMillis = sleepStart,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "sleep",
-                title = "أذكار النوم",
-                short = "النوم",
-                description = "الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح",
+                title = R.string.st_sleep_t,
+                short = R.string.st_sleep_s,
+                description = R.string.st_sleep_d,
                 virtue = "«إذا أويت إلى فراشك فاقرأ آية الكرسي... لن يزال عليك من الله حافظ ولا يقربك شيطان حتى تصبح» — رواه البخاري",
                 source = "رواه البخاري",
-                timeLabel = "عند النوم",
+                timeLabel = R.string.st_sleep_time,
                 startMillis = sleepStart, endMillis = dayEnd,
                 route = "dhikr_reading/sleep",
             ),
         ) + if (friday) listOf(
             StationUi(
                 id = "friday_kahf",
-                title = "سورة الكهف والصلاة على النبي ﷺ",
-                short = "الكهف",
-                description = "قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة",
+                title = R.string.st_kahf_t,
+                short = R.string.st_kahf_s,
+                description = R.string.st_kahf_d,
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",
                 source = "الحاكم والبيهقي · صحيح",
-                timeLabel = "طوال يوم الجمعة",
+                timeLabel = R.string.st_kahf_time,
                 startMillis = t.fajr, endMillis = t.isha,
                 // صفحةُ الكهف في المصحف المدنيّ. وكان هنا "quran_reading/18"
                 // — مسارٌ لا وجود له في الرسم البياني منذ حُذفت شاشةُ القراءة

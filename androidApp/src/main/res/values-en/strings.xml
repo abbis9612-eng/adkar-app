@@ -536,4 +536,66 @@
     <string name="ayah_share_title">Share the verse</string>
     <string name="tafsir_label">Al-Tafsir al-Muyassar:</string>
     <string name="mushaf_offer_body_long">Fifteen lines matching the Madinah Mushaf — each word in its place, each line breaking where the printed page breaks. It needs fonts, downloaded once.</string>
+
+    <!-- ═══ Prayer times and location ═══ -->
+    <string name="prayer_needs_location">Prayer times are computed from your location; another place\'s location gives another place\'s times.</string>
+    <string name="action_change">Change</string>
+    <string name="prayer_logged">Logged</string>
+    <string name="prayer_past">Passed</string>
+    <string name="prayer_fajr_edge">End of Fajr, start of Duha</string>
+    <string name="prayer_time_passed">Its time has passed</string>
+    <string name="action_later">Later</string>
+    <string name="prayer_logged_count">You logged %1$s of %2$s prayers</string>
+    <string name="loc_needed_body">Prayer times are computed from your location and cannot be computed without it.</string>
+    <string name="loc_finding">Finding your location…</string>
+    <string name="loc_enable">Enable location</string>
+    <string name="loc_pick_city">Or choose your city manually</string>
+    <string name="loc_failed">Could not get your location. Check that location services are on, grant the permission in system settings, or choose your city manually.</string>
+    <string name="elevation_manual">Or set manually: %1$s m</string>
+    <string name="elevation_maghrib_corr">⏱ Maghrib correction: +%1$s min</string>
+    <string name="elevation_sea">0 — sea level</string>
+    <string name="elevation_metres">%1$s m</string>
+
+    <!-- ═══ Day-companion stations ═══ -->
+    <string name="st_wake_t">Waking</string>
+    <string name="st_wake_s">Waking</string>
+    <string name="st_wake_d">“Praise be to Allah who gave us life after death, and to Him is the return” — and the siwak</string>
+    <string name="st_wake_time">Before Fajr</string>
+    <string name="st_fajr_t">Fajr and the morning adhkar</string>
+    <string name="st_fajr_s">Fajr</string>
+    <string name="st_fajr_d">The Fajr prayer, then the morning adhkar until sunrise</string>
+    <string name="st_fajr_time">From Fajr to sunrise</string>
+    <string name="st_duha_t">The Duha prayer</string>
+    <string name="st_duha_s">Duha</string>
+    <string name="st_duha_d">Two rak’ahs that suffice as charity for every joint of your body</string>
+    <string name="st_duha_time">From after sunrise until just before Dhuhr</string>
+    <string name="st_dhuhr_t">Dhuhr and the post-prayer adhkar</string>
+    <string name="st_dhuhr_s">Dhuhr</string>
+    <string name="st_dhuhr_d">The prayer, then istighfar and tasbih 33/33/34 and Ayat al-Kursi</string>
+    <string name="st_dhuhr_time">From Dhuhr to Asr</string>
+    <string name="st_asr_t">Asr and the evening adhkar</string>
+    <string name="st_asr_s">Asr</string>
+    <string name="st_asr_d">The Asr prayer, then the evening adhkar before sunset</string>
+    <string name="st_asr_time">From Asr to Maghrib</string>
+    <string name="st_maghrib_t">Maghrib and the post-prayer adhkar</string>
+    <string name="st_maghrib_s">Maghrib</string>
+    <string name="st_maghrib_d">The prayer and its adhkar</string>
+    <string name="st_maghrib_d_friday">The prayer and its adhkar — and make much dua, for the last hour of Friday is an hour of answer</string>
+    <string name="st_maghrib_time">From Maghrib to Isha</string>
+    <string name="st_isha_t">Isha and Witr</string>
+    <string name="st_isha_s">Isha</string>
+    <string name="st_isha_d">The Isha prayer, then Witr, even a single rak’ah</string>
+    <string name="st_isha_time">After Isha</string>
+    <string name="st_sleep_t">The adhkar of sleep</string>
+    <string name="st_sleep_s">Sleep</string>
+    <string name="st_sleep_d">Wudu, Ayat al-Kursi, al-Ikhlas and the two mu’awwidhat, the closing verses of al-Baqarah, and tasbih</string>
+    <string name="st_sleep_time">At bedtime</string>
+    <string name="st_kahf_t">Surat al-Kahf and salawat upon the Prophet ﷺ</string>
+    <string name="st_kahf_s">Al-Kahf</string>
+    <string name="st_kahf_d">Reading Surat al-Kahf and abundant salawat upon the Prophet ﷺ on Friday</string>
+    <string name="st_kahf_time">All of Friday</string>
+    <string name="waraqa_you_are_in">You are now in %1$s</string>
+    <string name="waraqa_start_station">Start %1$s</string>
+    <string name="hub_station_window">%1$s window</string>
+    <string name="hub_remaining"> · %1$s left</string>
 </resources>

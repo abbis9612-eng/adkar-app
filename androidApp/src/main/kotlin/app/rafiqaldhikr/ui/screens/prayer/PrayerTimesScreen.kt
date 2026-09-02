@@ -72,7 +72,7 @@ fun PrayerTimesScreen(
             state.isLoading -> LoadingState()
             // قبل هذا كانت تُعرض هنا مواقيت السليمانية لكل من لم يمنح الإذن
             state.needsLocation -> NeedsLocation(
-                message = "مواقيت الصلاة تُحسب من موقعك، ولا يصحّ حسابها بموقع غيرك."
+                message = stringResource(R.string.prayer_needs_location)
             )
             state.error != null -> ErrorState(
                 message = state.error!!,
@@ -114,7 +114,7 @@ private fun PrayerTimesContent(
         الضحى)، ويُعرض ولا يُسجَّل — فلا مربّعَ تسجيلٍ بجانبه. */
     val rows = listOf(
         PrayerRowData("fajr",    stringResource(R.string.fajr),    times.fajr,    LightKey.NIGHT, true),
-        PrayerRowData("sunrise", "الشروق",                          times.sunrise, LightKey.DAWN,  false),
+        PrayerRowData("sunrise", stringResource(R.string.sunrise),                          times.sunrise, LightKey.DAWN,  false),
         PrayerRowData("dhuhr",   stringResource(R.string.dhuhr),   times.dhuhr,   LightKey.DAY,   true),
         PrayerRowData("asr",     stringResource(R.string.asr),     times.asr,     LightKey.WARM,  true),
         PrayerRowData("maghrib", stringResource(R.string.maghrib), times.maghrib, LightKey.DUSK,  true),
@@ -166,11 +166,11 @@ private fun PrayerTimesContent(
                         IcoPin(14.dp, rc.inkMed)
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            state.city.ifEmpty { "حدّد مدينتك" },
+                            state.city.ifEmpty { stringResource(R.string.hub_set_city) },
                             color = rc.inkMed, style = RafiqType.caption,
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text("تغيير", color = rc.emerald, style = RafiqType.micro)
+                        Text(stringResource(R.string.action_change), color = rc.emerald, style = RafiqType.micro)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IconButton(onClick = onRefresh) {
@@ -195,7 +195,14 @@ private fun PrayerTimesContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("سجّلتَ ${prayedCount.localized(LocalArabicNumerals.current)} من ٥ صلوات",
+                        Text(
+                            /*  «٥» كانت مكتوبةً بالأرقام العربية مهما اختار
+                                المستخدم لغةَ الأرقام — فيقرأ «3 / ٥».  */
+                            stringResource(
+                                R.string.prayer_logged_count,
+                                prayedCount.localized(LocalArabicNumerals.current),
+                                5.localized(LocalArabicNumerals.current),
+                            ),
                             fontWeight = FontWeight.Bold,
                             color = rc.onEmeraldFill, style = RafiqType.bodyS)
                         Text(
@@ -306,12 +313,12 @@ private fun PrayerCard(
                 color = if (isNext) rc.emerald else rc.ink)
             Text(
                 when {
-                    isPrayed -> "سجّلتَها"
-                    isNext   -> "الصلاةُ التالية"
-                    !row.loggable && isPast -> "مضى"
-                    !row.loggable -> "حدُّ الفجر والضحى"
-                    isPast   -> "مضى وقتُها"
-                    else     -> "لاحقاً"
+                    isPrayed -> stringResource(R.string.prayer_logged)
+                    isNext   -> stringResource(R.string.next_prayer)
+                    !row.loggable && isPast -> stringResource(R.string.prayer_past)
+                    !row.loggable -> stringResource(R.string.prayer_fajr_edge)
+                    isPast   -> stringResource(R.string.prayer_time_passed)
+                    else     -> stringResource(R.string.action_later)
                 },
                 style = RafiqType.caption,
                 color = if (isPrayed || isNext) rc.emerald else rc.inkMed,
