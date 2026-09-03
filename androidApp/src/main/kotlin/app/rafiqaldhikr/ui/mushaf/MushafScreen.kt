@@ -113,18 +113,32 @@ fun MushafScreen(
     /** يُبدَّل كلّما وصل خطٌّ جديد فتُعاد قراءةُ الخطوط. */
     var fontTick by remember { mutableIntStateOf(0) }
     var fetching by remember { mutableStateOf(false) }
-    var allowed by remember { mutableStateOf(prefs.fontsAllowed) }
+    /*  الجلبُ مأذونٌ به على الواي‑فاي بلا سؤال، ومحظورٌ على بيانات
+     *  الجوّال حتى يأذن صاحبُها صراحةً من ورقة الإعدادات.
+     *
+     *  فمن فتح المصحفَ في بيته وجد الصفحةَ المصحفية بعد ثوانٍ ولم
+     *  يُسأل شيئاً؛ ومن فتحه في الطريق قرأ بالخطّ المشحون ولم يُنقص
+     *  رصيدُه بايتاً واحداً بلا علمه. */
+    var allowed by remember {
+        mutableStateOf(prefs.fontsAllowed || ctx.isUnmetered())
+    }
 
     /*  الصفحةُ المصحفية هي المقصودُ من الشاشة، لا خيارٌ في ورقة إعدادات.
      *  فيُعرض طلبُ التنزيل أوّلَ فتحٍ مرّةً واحدة — ولا يُلحّ بعدها.
      *  ويُنتظر التخطيطُ أوّلاً: كان مربوطاً بـ`Unit` فيقع قبل أن يُحمَّل. */
+    /*  لا سؤالَ عند أوّل فتح — الصفحةُ تظهر وكفى.
+     *
+     *  كان يُعرض حوارٌ يغطّي الشاشة يشرح الفرقَ بين نمطَي عرضٍ لم يرَ
+     *  المستخدمُ واحداً منهما بعد، ويعرض تنزيلَ تسعين ميغابايت. وفوقه
+     *  بطاقةٌ ثانيةٌ وشريطُ تلميحٍ ثالث — ثلاثةُ نداءاتٍ قبل أن تُقرأ
+     *  آية. ومن فتح المصحفَ أراد أن يقرأ، لا أن يقرّر.
+     *
+     *  والمصحفُ يُقرأ فوراً بخطّ Scheherazade المشحون في التطبيق —
+     *  خطُّ نسخٍ قرآنيٌّ كاملُ التشكيل — ثمّ **يرقى من نفسه** إلى
+     *  الصفحة المصحفية كلّما جاء خطُّها. فالفرقُ يُرى ولا يُشرح. */
     LaunchedEffect(layout) {
         val l = layout ?: return@LaunchedEffect
         ready = withContext(Dispatchers.IO) { fonts.isReady(l) }
-        if (!ready && !prefs.askedOnce) {
-            offer = true
-            prefs.askedOnce = true
-        }
     }
 
     // صفر يعني: افتح على آخر ما قرأ. وما عداه صفحةٌ طُلبت من القائمة أو البحث.
@@ -338,6 +352,14 @@ fun MushafScreen(
 
         /*  ما لا يُخفى: البلاغُ حين ينقص خطٌّ، وشريطُ التنزيل حين يجري.
             هذان حالُ النظام لا زينتُه، فيبقيان ظاهرين. */
+        /*  نداءٌ واحدٌ في الوقت الواحد.
+         *
+         *  كانت الثلاثةُ تظهر معاً — تلميحُ اللمس، وبطاقةُ الصفحة
+         *  المصحفية، وحوارٌ يغطّي الشاشة — فوق آيةٍ لم تُقرأ بعد.
+         *
+         *  فالتلميحُ أوّلاً لأنّه يُقرأ في ثانيةٍ ويُطوى؛ وبطاقةُ الخطّ
+         *  تنتظر دورَها. ولا تُعرض البطاقةُ أصلاً إن كان الجلبُ مأذوناً
+         *  به (واي‑فاي): الخطُّ آتٍ من نفسه، فلا معنى لطلبه. */
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding()) {
             if (hint) {
                 HintBar(
@@ -346,7 +368,9 @@ fun MushafScreen(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                 )
             }
-            if (mode.needsFonts && !pageFontReady && progress == null && !fetching) {
+            if (!hint && !allowed && mode.needsFonts && !pageFontReady &&
+                progress == null && !fetching
+            ) {
                 MushafBanner(
                     // retryTick يجعل الضغطةَ فعلاً حتى بعد أن صارت allowed = true
                     onDownload = {
@@ -406,6 +430,7 @@ fun MushafScreen(
         )
     }
 
+    //  يُفتح من ورقة الإعدادات وحدَها الآن — لا من أوّل فتح.
     if (offer) {
         OfferDialog(
             onNow = {
