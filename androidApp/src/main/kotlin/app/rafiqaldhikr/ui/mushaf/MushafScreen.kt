@@ -171,7 +171,21 @@ fun MushafScreen(
      */
     var retryTick by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(pager.currentPage, mode, fontTick, allowed, retryTick) {
+    /*  `layout` في المفاتيح — وغيابُه كان يمنع جلبَ خطّ أوّل صفحة.
+     *
+     *  التخطيطُ يُحمَّل على خيطٍ خلفيّ ويصل بعد إطاراتٍ من أوّل تركيب.
+     *  فكان هذا الأثرُ يعمل أوّلَ مرّةٍ ويجد `layout == null` فينسحب —
+     *  **ولا يعود أبداً**، لأنّ وصولَ التخطيط لا يُغيّر شيئاً من مفاتيحه.
+     *  فلا يُجلَب خطُّ الصفحة التي فُتح عليها المصحفُ إطلاقاً.
+     *
+     *  وكان الحوارُ القديم يستره: زرُّ «نزّل» يُبدّل `allowed` فيُعاد
+     *  تشغيلُ الأثر — أي أنّ الجلبَ كان يعمل بالصدفة، بأثرٍ جانبيٍّ
+     *  لضغطةٍ لا علاقة لها بالتخطيط. فلمّا حُذف الحوارُ ظهر العطبُ عارياً:
+     *  الصفحةُ الأولى تبقى مضبوطةً ولا ترقى، حتى تُقلَب ورقةٌ فيتغيّر
+     *  رقمُ الصفحة ويعمل الأثرُ أخيراً.
+     *
+     *  والقاعدة: كلُّ حالةٍ تُقرأ داخل الأثر تكون في مفاتيحه. */
+    LaunchedEffect(layout, pager.currentPage, mode, fontTick, allowed, retryTick) {
         val l = layout ?: return@LaunchedEffect
         if (!mode.needsFonts || !allowed) return@LaunchedEffect
         val need = withContext(Dispatchers.IO) {
@@ -206,7 +220,9 @@ fun MushafScreen(
         `Typeface.createFromFile` لملفٍّ في مليونَي بايت عملٌ ثقيل، وكان
         يقع داخلَ التأليف حين يُركّب المقلِّبُ الصفحةَ المجاورة — أي في
         منتصف السحب بالضبط، فيتقطّع القلب. وهنا يقع قبلَه بخطوة. */
-    LaunchedEffect(pager.currentPage, fontTick) {
+    //  و`layout` هنا كذلك، للسبب نفسِه: التهيئةُ المسبقة كانت تنسحب
+    //  على `null` ولا تعود، فيقع بناءُ الخطّ في منتصف السحب كما كان.
+    LaunchedEffect(layout, pager.currentPage, fontTick) {
         val l = layout ?: return@LaunchedEffect
         withContext(Dispatchers.IO) {
             val now = pager.currentPage + 1
