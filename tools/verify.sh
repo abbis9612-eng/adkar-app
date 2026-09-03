@@ -14,6 +14,7 @@ step() {
     if "$@"; then :; else echo "  ✗ فشل"; fail=1; fi
 }
 
+step "خطوط المصحف"     python3 tools/check_mushaf_fonts.py
 step "المسارات اليتيمة"   python3 tools/check_orphan_routes.py
 step "وثائقُ الشاشات"     python3 tools/check_docs_screens.py
 step "السياق البصريّ"    python3 tools/check_visual_context.py

@@ -106,13 +106,10 @@ fun MushafScreen(
     var selected by remember { mutableStateOf(openVerse.takeIf { it.isNotBlank() }) }
     // `isReady` يفحص وجودَ ٤٨ ملفاً — عملُ قرصٍ لا يقع في التأليف.
     var ready by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf<MushafDownloader.Progress?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    var offer by remember { mutableStateOf(false) }
     /** يُبدَّل كلّما وصل خطٌّ جديد فتُعاد قراءةُ الخطوط. */
     var fontTick by remember { mutableIntStateOf(0) }
-    var fetching by remember { mutableStateOf(false) }
     /*  الجلبُ مأذونٌ به على الواي‑فاي بلا سؤال، ومحظورٌ على بيانات
      *  الجوّال حتى يأذن صاحبُها صراحةً من ورقة الإعدادات.
      *
@@ -169,57 +166,14 @@ fun MushafScreen(
      * أي أنّ الزرَّ كان ميّتاً تماماً على كل تشغيلٍ بعد الأوّل: يضغطه من
      * فشل تنزيلُه فلا يحدث شيء ولا رسالة.
      */
-    var retryTick by remember { mutableIntStateOf(0) }
 
-    /*  `layout` في المفاتيح — وغيابُه كان يمنع جلبَ خطّ أوّل صفحة.
+    /*  حُذف من هنا جلبُ خطّ الصفحة من الإنترنت.
      *
-     *  التخطيطُ يُحمَّل على خيطٍ خلفيّ ويصل بعد إطاراتٍ من أوّل تركيب.
-     *  فكان هذا الأثرُ يعمل أوّلَ مرّةٍ ويجد `layout == null` فينسحب —
-     *  **ولا يعود أبداً**، لأنّ وصولَ التخطيط لا يُغيّر شيئاً من مفاتيحه.
-     *  فلا يُجلَب خطُّ الصفحة التي فُتح عليها المصحفُ إطلاقاً.
-     *
-     *  وكان الحوارُ القديم يستره: زرُّ «نزّل» يُبدّل `allowed` فيُعاد
-     *  تشغيلُ الأثر — أي أنّ الجلبَ كان يعمل بالصدفة، بأثرٍ جانبيٍّ
-     *  لضغطةٍ لا علاقة لها بالتخطيط. فلمّا حُذف الحوارُ ظهر العطبُ عارياً:
-     *  الصفحةُ الأولى تبقى مضبوطةً ولا ترقى، حتى تُقلَب ورقةٌ فيتغيّر
-     *  رقمُ الصفحة ويعمل الأثرُ أخيراً.
-     *
-     *  والقاعدة: كلُّ حالةٍ تُقرأ داخل الأثر تكون في مفاتيحه. */
-    LaunchedEffect(layout, pager.currentPage, mode, fontTick, allowed, retryTick) {
-        val l = layout ?: return@LaunchedEffect
-        if (!mode.needsFonts || !allowed) return@LaunchedEffect
-        val need = withContext(Dispatchers.IO) {
-            l.fontsNeeded(pager.currentPage + 1).filterNot { fonts.fileFor(it).exists() }
-        }
-        if (need.isEmpty()) return@LaunchedEffect
-        fetching = true
-        /*  try/finally لا إسنادان متتاليان.
-         *
-         *  الأثرُ مربوطٌ برقم الصفحة، فقلبُ صفحةٍ أثناء التنزيل يُلغي
-         *  الكوروتين **بين** `fetching = true` و`fetching = false` —
-         *  فتبقى `true` لبقيّة عمر الشاشة، ولافتةُ التنزيل مشروطةٌ
-         *  بـ`!fetching` فلا تعود تظهر أبداً.  */
-        try {
-            val dl = MushafDownloader(ctx)
-            val failed = need.filterNot { dl.fetchOne(fonts, it) }
-            if (failed.isEmpty()) {
-                fontTick++
-                ready = withContext(Dispatchers.IO) { fonts.isReady(l) }
-                error = null
-            } else {
-                // الخطأ يصل القارئَ على الورقة، لا في ورقة إعداداتٍ لا يفتحها.
-                error = ctx.getString(R.string.mushaf_font_failed)
-            }
-        } finally {
-            fetching = false
-        }
-    }
+     *  كان يُنزّل خطَّ الصفحة الحاضرة عند كل قلبِ ورقة — مليونَي بايتٍ
+     *  في ثوانٍ — لأنّ الخطوطَ لم تكن في التطبيق. وقد صارت فيه، فسقط
+     *  الجلبُ ومعه لافتتُه وشريطُ تقدّمه وحوارُ إذنه وعدّادُ إعادة
+     *  محاولته: خمسُ حالاتٍ كانت تتعقّب شيئاً لم يعد يقع. */
 
-    /*  تهيئةُ خطوطِ الصفحة والتي تليها والتي قبلها على خيطٍ خلفيّ.
-
-        `Typeface.createFromFile` لملفٍّ في مليونَي بايت عملٌ ثقيل، وكان
-        يقع داخلَ التأليف حين يُركّب المقلِّبُ الصفحةَ المجاورة — أي في
-        منتصف السحب بالضبط، فيتقطّع القلب. وهنا يقع قبلَه بخطوة. */
     //  و`layout` هنا كذلك، للسبب نفسِه: التهيئةُ المسبقة كانت تنسحب
     //  على `null` ولا تعود، فيقع بناءُ الخطّ في منتصف السحب كما كان.
     LaunchedEffect(layout, pager.currentPage, fontTick) {
@@ -384,24 +338,6 @@ fun MushafScreen(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                 )
             }
-            if (!hint && !allowed && mode.needsFonts && !pageFontReady &&
-                progress == null && !fetching
-            ) {
-                MushafBanner(
-                    // retryTick يجعل الضغطةَ فعلاً حتى بعد أن صارت allowed = true
-                    onDownload = {
-                        allowed = true
-                        prefs.fontsAllowed = true
-                        error = null
-                        retryTick++
-                    },
-                    failed = error != null,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
-                )
-            }
-            if (progress != null) {
-                DownloadStrip(progress!!, Modifier.padding(horizontal = 14.dp, vertical = 6.dp))
-            }
         }
 
         ToolBar(
@@ -446,30 +382,6 @@ fun MushafScreen(
         )
     }
 
-    //  يُفتح من ورقة الإعدادات وحدَها الآن — لا من أوّل فتح.
-    if (offer) {
-        OfferDialog(
-            onNow = {
-                offer = false
-                allowed = true
-                prefs.fontsAllowed = true
-            },
-            onAll = {
-                offer = false
-                allowed = true
-                prefs.fontsAllowed = true
-                error = null
-                scope.launch {
-                    val l = layout ?: return@launch
-                    error = MushafDownloader(ctx).download(l, fonts) { progress = it }
-                    ready = fonts.isReady(l)
-                    progress = null
-                }
-            },
-            onNo = { offer = false },
-        )
-    }
-
     if (jump) {
         JumpSheet(
             ar = ar,
@@ -486,24 +398,8 @@ fun MushafScreen(
             mode = mode,
             fontSize = fontSize,
             sizeApplies = !effective.needsFonts,
-            ready = ready,
-            downloaded = layout?.let { fonts.downloadedCount(it) } ?: 0,
-            totalFonts = layout?.fonts?.size ?: 0,
-            sizeMb = fonts.sizeMb(),
-            progress = progress,
-            error = error,
             onMode = { mode = it; prefs.mode = it },
             onSize = { fontSize = it; prefs.fontSize = it },
-            onDownload = {
-                error = null
-                scope.launch {
-                    val l = layout ?: return@launch
-                    error = MushafDownloader(ctx).download(l, fonts) { progress = it }
-                    ready = fonts.isReady(l)
-                    progress = null
-                }
-            },
-            onClear = { fonts.clear(); ready = false },
             onDismiss = { sheet = false },
         )
     }
@@ -914,16 +810,8 @@ private fun SettingsSheet(
     /*  الورقةُ المصحفية مقاسُها يُشتقّ من عرض الشاشة لتستوي الأسطرُ كما
         في المصحف — فلا معنى لمقياسٍ يدويٍّ معها. */
     sizeApplies: Boolean,
-    ready: Boolean,
-    downloaded: Int,
-    totalFonts: Int,
-    sizeMb: Double,
-    progress: MushafDownloader.Progress?,
-    error: String?,
     onMode: (MushafMode) -> Unit,
     onSize: (Int) -> Unit,
-    onDownload: () -> Unit,
-    onClear: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -952,8 +840,8 @@ private fun SettingsSheet(
             Text(stringResource(R.string.mushaf_mode), style = RafiqType.titleM, color = rc.ink)
             Spacer(Modifier.height(9.dp))
 
+            //  لا نمطَ مقفولاً بعد اليوم: الخطوطُ مشحونةٌ فكلُّها جاهز.
             MushafMode.entries.forEach { m ->
-                val locked = m.needsFonts && !ready
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -973,8 +861,7 @@ private fun SettingsSheet(
                         Text(stringResource(m.label), style = RafiqType.label,
                             color = if (m == mode) rc.emerald else rc.ink)
                         Text(
-                            if (locked) stringResource(R.string.mushaf_not_downloaded, stringResource(m.note))
-                            else stringResource(m.note),
+                            stringResource(m.note),
                             style = RafiqType.caption, color = rc.inkMed,
                         )
                     }
@@ -1009,79 +896,11 @@ private fun SettingsSheet(
                 }
             }
 
-            /* ── الصفحةُ المصحفية: تنزيلٌ بإذن ── */
-            Spacer(Modifier.height(16.dp))
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
-                    .background(rc.card)
-                    .border(1.dp, rc.divider, RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
-                    .padding(14.dp),
-            ) {
-                Text(stringResource(R.string.mushaf_mode_page), style = RafiqType.titleM, color = rc.emerald)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    stringResource(R.string.mushaf_offer_body_long),
-                    style = RafiqType.bodyS, color = rc.inkMed,
-                )
-                Spacer(Modifier.height(10.dp))
-
-                when {
-                    progress != null -> {
-                        Text(
-                            "يُنزَّل ${progress.done.localized(ar)} من ${progress.total.localized(ar)} " +
-                                "· ${(progress.bytes / 1_048_576).toInt().localized(ar)} م.ب",
-                            style = RafiqType.caption, color = rc.inkMed,
-                        )
-                        Spacer(Modifier.height(7.dp))
-                        LinearProgressIndicator(
-                            progress = { progress.done.toFloat() / progress.total },
-                            modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
-                            color = rc.emerald, trackColor = rc.divider,
-                        )
-                    }
-                    ready -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RafiqIcon(RIcon.Check, 16.dp, rc.emerald)
-                            Spacer(Modifier.width(7.dp))
-                            Text(
-                                stringResource(R.string.mushaf_dl_ready, sizeMb.toInt().localized(ar)),
-                                style = RafiqType.bodyS, color = rc.emerald,
-                            )
-                            Spacer(Modifier.weight(1f))
-                            Text(stringResource(R.string.action_delete), style = RafiqType.bodyS, color = rc.error,
-                                modifier = Modifier.clickable(onClick = onClear))
-                        }
-                    }
-                    else -> {
-                        Box(
-                            Modifier
-                                .fillMaxWidth().heightIn(min = 50.dp)
-                                .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
-                                .background(rc.emerald)
-                                .clickable(onClick = onDownload),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                if (downloaded > 0)
-                                    stringResource(R.string.mushaf_dl_resume, downloaded.localized(ar), totalFonts.localized(ar))
-                                else stringResource(R.string.mushaf_dl_title),
-                                style = RafiqType.titleM, color = rc.onEmerald,
-                            )
-                        }
-                        Spacer(Modifier.height(7.dp))
-                        Text(
-                            stringResource(R.string.mushaf_dl_note),
-                            style = RafiqType.caption, color = rc.inkMed,
-                        )
-                    }
-                }
-                if (error != null) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(error, style = RafiqType.bodyS, color = rc.error)
-                }
-            }
+            /*  حُذف من هنا قسمُ التنزيل كلُّه — شريطُ التقدّم وزرُّ
+             *  «نزّل» وسطرُ «مُنزَّل ٩٠ م.ب» وزرُّ الحذف.
+             *
+             *  الخطوطُ في الحزمة، فلا شيءَ يُنزَّل ولا شيءَ يُحذف. وإعدادٌ
+             *  يعرض حالةَ شيءٍ لا يقع أسوأُ من إعدادٍ ناقص. */
             Spacer(Modifier.height(20.dp))
         }
     }
@@ -1093,128 +912,6 @@ private fun SettingsSheet(
    تعمل في ورقة إعدادات. ويُسأل مرّةً: من قَبِل عمل المصحفُ كما في
    الورقة، ومن أبى بقيت الصفحةُ المضبوطةُ تعمل دون إنترنت.
 ──────────────────────────────────────────────────────────────── */
-
-@Composable
-private fun OfferDialog(onNow: () -> Unit, onAll: () -> Unit, onNo: () -> Unit) {
-    val rc = LocalRafiqColors.current
-    Box(
-        Modifier.fillMaxSize().background(Color(0x88101A14)).clickable(onClick = onNo),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth(0.9f)
-                .clip(RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
-                .background(rc.card)
-                .border(1.dp, rc.cardBorder, RoundedCornerShape(8.dp, 8.dp, 30.dp, 8.dp))
-                .clickable(enabled = false) {}
-                .padding(20.dp),
-        ) {
-            Text(stringResource(R.string.mushaf_mode_page), style = RafiqType.hero, color = rc.emerald)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                stringResource(R.string.mushaf_offer_body),
-                style = RafiqType.body, color = rc.inkMed,
-            )
-            Spacer(Modifier.height(16.dp))
-            Box(
-                Modifier
-                    .fillMaxWidth().heightIn(min = 54.dp)
-                    .clip(RoundedCornerShape(6.dp, 6.dp, 20.dp, 6.dp))
-                    .background(rc.emerald)
-                    .clickable(onClick = onNow),
-                contentAlignment = Alignment.Center,
-            ) { Text(stringResource(R.string.mushaf_offer_now), style = RafiqType.titleM, color = rc.onEmerald) }
-            Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(R.string.mushaf_offer_now_note),
-                style = RafiqType.caption, color = rc.inkMed,
-            )
-            Spacer(Modifier.height(14.dp))
-            Box(
-                Modifier
-                    .fillMaxWidth().heightIn(min = 50.dp)
-                    .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
-                    .border(1.dp, rc.divider, RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
-                    .clickable(onClick = onAll),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(R.string.mushaf_offer_all), style = RafiqType.label, color = rc.emerald)
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                stringResource(R.string.mushaf_offer_all_note),
-                style = RafiqType.caption, color = rc.inkMed,
-                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                stringResource(R.string.mushaf_offer_later),
-                style = RafiqType.bodyS, color = rc.inkMed,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().clickable(onClick = onNo).padding(vertical = 6.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun MushafBanner(
-    onDownload: () -> Unit,
-    /** فشلت محاولةٌ سابقة — فتقول اللافتةُ ذلك بدل أن تعِد بما لم يقع. */
-    failed: Boolean = false,
-    modifier: Modifier = Modifier,
-) {
-    val rc = LocalRafiqColors.current
-    val shape = RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp)
-    Row(
-        modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(rc.emeraldPastel)
-            .border(1.dp, rc.emerald.copy(alpha = 0.22f), shape)
-            .clickable(onClick = onDownload)
-            .padding(horizontal = 13.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                stringResource(if (failed) R.string.mushaf_font_failed else R.string.mushaf_banner_title),
-                style = RafiqType.label,
-                color = rc.emerald,
-            )
-            Text(
-                stringResource(if (failed) R.string.mushaf_font_retry else R.string.mushaf_banner_body),
-                style = RafiqType.caption,
-                color = rc.inkMed,
-            )
-        }
-        RafiqIcon(if (failed) RIcon.Refresh else RIcon.ChevronLeft, 17.dp, rc.emerald)
-    }
-}
-
-@Composable
-private fun DownloadStrip(p: MushafDownloader.Progress, modifier: Modifier = Modifier) {
-    val rc = LocalRafiqColors.current
-    val ar = LocalArabicNumerals.current
-    Column(modifier.fillMaxWidth()) {
-        Text(
-            stringResource(
-                R.string.mushaf_dl_progress,
-                p.done.localized(ar),
-                p.total.localized(ar),
-                (p.bytes / 1_048_576).toInt().localized(ar),
-            ),
-            style = RafiqType.caption, color = rc.inkMed,
-        )
-        Spacer(Modifier.height(5.dp))
-        LinearProgressIndicator(
-            progress = { p.done.toFloat() / p.total },
-            modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
-            color = rc.emerald, trackColor = rc.divider,
-        )
-    }
-}
 
 /* ── الانتقالُ إلى صفحة ─────────────────────────────────────────
 
