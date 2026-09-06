@@ -70,4 +70,20 @@ class SkyWeatherTest {
         val w = wx(82, mm = 900.0, cloud = 400.0)
         assertTrue(w.rain <= 1f && w.cloud <= 1f)
     }
+
+    /*  الريحُ تُقرأ كما هي بالكيلومتر في الساعة، لأنّ ميلَ السعف في
+     *  البستان يُحسب منها مباشرةً. وتُحدّ بمئةٍ وعشرين: قراءةٌ أعلى من
+     *  ذلك عطبٌ في المصدر لا إعصارٌ في مدينة صاحب الهاتف. */
+    @Test
+    fun `الريحُ تُقرأ كما هي وتُحدّ عند مئةٍ وعشرين`() {
+        assertEquals(0f, WeatherStore.interpret(0, 0.0, 0.0, 50_000.0, 25.0).windKmh, 1e-6f)
+        assertEquals(18.4f, WeatherStore.interpret(0, 0.0, 0.0, 50_000.0, 25.0, 18.4).windKmh, 1e-3f)
+        assertEquals(120f, WeatherStore.interpret(0, 0.0, 0.0, 50_000.0, 25.0, 400.0).windKmh, 1e-6f)
+    }
+
+    /** ريحٌ ساكنةٌ لا تعني طقساً مجهولاً — الرمزُ وحدَه يقرّر ذلك. */
+    @Test
+    fun `سكونُ الريح لا يُبطل معرفةَ الحال`() {
+        assertTrue(WeatherStore.interpret(3, 80.0, 0.0, 50_000.0, 30.0, 0.0).known)
+    }
 }

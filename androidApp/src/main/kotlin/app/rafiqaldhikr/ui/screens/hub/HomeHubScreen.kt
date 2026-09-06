@@ -57,7 +57,7 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
-import app.rafiqaldhikr.ui.sky.SkyGL
+import app.rafiqaldhikr.ui.bustan.Bustan
 import app.rafiqaldhikr.ui.sky.WeatherStore
 import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -181,20 +181,19 @@ fun HomeHubScreen(
     val skyInk = remember(sky) { skyInk(sky) }
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        /*  السماءُ تُحسب على المعالج الرسوميّ — انظر `SkyShader`.
+        /*  البستان — انظر `ui/bustan/Bustan.kt`.
          *
-         *  كانت رسماً على قماش: ٤٦ نقطةً بيضاءَ متساوية، وقرصَ قمرٍ
-         *  مسطَّحاً في موضعٍ ثابت، ووهجاً في وسط الشاشة لا عند الشمس.
-         *  والآن شعاعٌ لكل بكسل: تشتّتٌ جوّيٌّ يحمرّ الأفقَ من نفسه،
-         *  ونجومٌ بأقدارها ودربِ تبّانتها، وقمرٌ كرةٌ يقطعها الشعاعُ
-         *  فالهلالُ نتيجةُ هندسةٍ لا شكلٌ مرسوم، وغيمٌ يزحف ويُضاء.
+         *  كان هنا تدرُّجٌ رماديٌّ يقطعه شريطٌ داكنٌ في منتصف الشاشة، ثمّ
+         *  صارت سماءً تُحسب على المعالج الرسوميّ. وكلتاهما كانت **سماءً
+         *  فارغةً بلا مقياس**: لا أفقَ ولا شجرةَ تُقاس بها، فتُقرأ العينُ
+         *  تدرُّجاً لا سماء.
          *
-         *  ولا مكتبةَ ولا صورةَ ولا ميغابايت — نصُّ مُظلِّلٍ لا غير. */
-        SkyGL(
+         *  والآن بستانُ أهوارٍ يعيش: نخلٌ يتمايل بريح مدينتك المقيسة،
+         *  وظلالٌ تدور مع الشمس، وماءٌ يعكس ما فوقه، ومضيفٌ ومشحوفٌ
+         *  وبلشونٌ ومنارة. ويذوب أسفلُه في الورقة فلا يبقى ذلك القطع. */
+        Bustan(
             sunAlt        = sun.altitude,
             sunAz         = sun.azimuth,
-            moonAlt       = moonAt.altitude,
-            moonAz        = moonAt.azimuth,
             moon          = moon,
             reducedMotion = LocalReducedMotion.current,
             weather       = weather,

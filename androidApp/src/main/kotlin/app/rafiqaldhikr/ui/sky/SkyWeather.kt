@@ -39,6 +39,8 @@ data class SkyWeather(
     val fog: Float = 0f,
     val thunder: Boolean = false,
     val tempC: Float = Float.NaN,
+    /** سرعةُ الريح كم/س — بها يميل السعفُ في البستان. */
+    val windKmh: Float = 0f,
     /** رمزُ WMO كما جاء — يُعرض اسمُه للمستخدم. */
     val code: Int = -1,
     val fetchedAt: Long = 0L,
@@ -69,6 +71,7 @@ object WeatherStore {
             fog = p.getFloat("fog", 0f),
             thunder = p.getBoolean("thunder", false),
             tempC = p.getFloat("temp", Float.NaN),
+            windKmh = p.getFloat("wind", 0f),
             code = p.getInt("code", -1),
             fetchedAt = at,
         )
@@ -90,6 +93,7 @@ object WeatherStore {
                 .putFloat("cloud", fresh.cloud).putFloat("rain", fresh.rain)
                 .putFloat("snow", fresh.snow).putFloat("fog", fresh.fog)
                 .putBoolean("thunder", fresh.thunder).putFloat("temp", fresh.tempC)
+                .putFloat("wind", fresh.windKmh)
                 .putInt("code", fresh.code).putLong("at", fresh.fetchedAt)
                 .apply()
             fresh
@@ -99,7 +103,7 @@ object WeatherStore {
         val url = URL(
             "https://api.open-meteo.com/v1/forecast" +
                 "?latitude=$lat&longitude=$lng" +
-                "&current=temperature_2m,weather_code,cloud_cover,precipitation,visibility" +
+                "&current=temperature_2m,weather_code,cloud_cover,precipitation,visibility,wind_speed_10m" +
                 "&timezone=auto",
         )
         val conn = (url.openConnection() as HttpURLConnection).apply {
@@ -120,6 +124,7 @@ object WeatherStore {
             precipMm = cur.optDouble("precipitation", 0.0),
             visibilityM = cur.optDouble("visibility", 50_000.0),
             tempC = cur.optDouble("temperature_2m", Double.NaN),
+            windKmh = cur.optDouble("wind_speed_10m", 0.0),
         )
     }
 
@@ -136,6 +141,7 @@ object WeatherStore {
         precipMm: Double,
         visibilityM: Double,
         tempC: Double,
+        windKmh: Double = 0.0,
     ): SkyWeather {
         val wet = (precipMm / 2.2).coerceIn(0.0, 1.0).toFloat()
 
@@ -156,6 +162,7 @@ object WeatherStore {
             fog = maxOf(if (isFog) 0.75f else 0f, fogFromVis.toFloat()),
             thunder = code in 95..99,
             tempC = tempC.toFloat(),
+            windKmh = windKmh.toFloat().coerceIn(0f, 120f),
             code = code,
             fetchedAt = System.currentTimeMillis(),
         )
