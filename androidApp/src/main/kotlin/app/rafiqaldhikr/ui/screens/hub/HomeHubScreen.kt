@@ -57,7 +57,7 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
-import app.rafiqaldhikr.ui.bustan.Bustan
+import app.rafiqaldhikr.ui.tareeq.Tareeq
 import app.rafiqaldhikr.ui.sky.WeatherStore
 import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -181,22 +181,22 @@ fun HomeHubScreen(
     val skyInk = remember(sky) { skyInk(sky) }
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        /*  البستان — انظر `ui/bustan/Bustan.kt`.
+        /*  الطريق — انظر `ui/tareeq/Tareeq.kt`.
          *
-         *  كان هنا تدرُّجٌ رماديٌّ يقطعه شريطٌ داكنٌ في منتصف الشاشة، ثمّ
-         *  صارت سماءً تُحسب على المعالج الرسوميّ. وكلتاهما كانت **سماءً
-         *  فارغةً بلا مقياس**: لا أفقَ ولا شجرةَ تُقاس بها، فتُقرأ العينُ
-         *  تدرُّجاً لا سماء.
+         *  مرّت هذه الرقعةُ بثلاثة أطوار: تدرُّجٌ رماديٌّ يقطعه شريطٌ
+         *  داكن، ثمّ سماءٌ تُحسب على المعالج الرسوميّ، ثمّ بستانٌ
+         *  مرسوم. والأولان كانا **سماءً فارغةً بلا مقياس** — لا أفقَ
+         *  ولا شجرةَ تُقاس بها — والثالثُ رسمٌ يُعرف أنّه رسم.
          *
-         *  والآن بستانُ أهوارٍ يعيش: نخلٌ يتمايل بريح مدينتك المقيسة،
-         *  وظلالٌ تدور مع الشمس، وماءٌ يعكس ما فوقه، ومضيفٌ ومشحوفٌ
-         *  وبلشونٌ ومنارة. ويذوب أسفلُه في الورقة فلا يبقى ذلك القطع. */
-        Bustan(
+         *  والآن صورةٌ واحدةٌ يتحرّك فيها الماءُ وحدَه: بستانٌ أخضرُ على
+         *  نهر، ضوؤه من غيمٍ منتشرٍ **بلا قرصِ شمسٍ يوجع العين**،
+         *  وطريقٌ حجريٌّ يصعد من أسفل اليسار نحو المئذنة. ويذوب أسفلُه
+         *  في الورقة فلا يبقى ذلك القطع. */
+        Tareeq(
             sunAlt        = sun.altitude,
-            sunAz         = sun.azimuth,
-            moon          = moon,
             reducedMotion = LocalReducedMotion.current,
             weather       = weather,
+            fade          = rc.bg,
             modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
@@ -208,7 +208,7 @@ fun HomeHubScreen(
              *  طيّب». الآن للصورة نطاقٌ خالصٌ بينهما، والحبّةُ — وهي
              *  أقربُ ما يُقرأ إلى الفعل — تجلس على حافّة الورقة مباشرةً.
              */
-            CompositionLocalProvider(LocalContentColor provides skyInk) {
+            CompositionLocalProvider(LocalContentColor provides heroInk) {
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -217,14 +217,24 @@ fun HomeHubScreen(
                 ) {
                     SkyTopBar(
                         hijri = home.hijriDate.localizedDigits(ar),
-                        ink   = skyInk,
+                        ink   = heroInk,
                         onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                     )
                     Spacer(Modifier.height(16.dp))
+                    /*  نداءٌ لا تحيّة.
+                     *
+                     *  «نهارٌ طيّب» مجاملةٌ تُقرأ مرّةً ثمّ تُهمَل. والشاشةُ
+                     *  الأولى موضعُ فعلٍ لا مجاملة، فصار السطرُ فعلاً
+                     *  مضارعاً يتبع الساعة: ابدأ · أدِمْ · أمسِكْ · اختم.
+                     *
+                     *  وهو **كلامُنا نحن لا حديثٌ مرويّ**، فلا إسنادَ
+                     *  يُطلب منه. وما كان حديثاً فله بطاقتُه كاملاً
+                     *  بتخريجه في «كلمةُ اليوم» — ولا يُقصُّ منه سطرٌ
+                     *  ليُكتب فوق صورة. */
                     Text(
-                        if (sun.altitude > 8) stringResource(R.string.greet_day) else if (sun.altitude > -1) stringResource(R.string.greet_blessed) else stringResource(R.string.greet_evening),
+                        stringResource(heroCall()),
                         style = RafiqType.hero,
-                        color = skyInk,
+                        color = heroInk,
                     )
                     /*  سطرُ الطقس تحت التحيّة مباشرةً — لا حبّةً ثانيةً
                      *  تزاحم حبّةَ الميقات في الأسفل.
@@ -237,11 +247,11 @@ fun HomeHubScreen(
                         Text(
                             weatherLine(weather, ar),
                             style = RafiqType.bodyS,
-                            color = skyInk.copy(alpha = 0.72f),
+                            color = heroInk.copy(alpha = 0.80f),
                         )
                     }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
-                    WindowPill(day.nowStation, day.needsLocation, ar, skyInk)
+                    WindowPill(day.nowStation, day.needsLocation, ar, heroInk)
                     Spacer(Modifier.height(14.dp))
                 }
             }
@@ -306,6 +316,15 @@ fun HomeHubScreen(
         }
     }
 }
+
+/**
+ * حبرُ الشاشة الأولى — كريميٌّ ثابتٌ في كلّ ساعة.
+ *
+ * كان يُشتقّ من ألوان السماء المحسوبة، ولا سماءَ محسوبةً اليوم: الصورةُ
+ * تحته شجرٌ داكنٌ في أعلى الإطار مهما تغيّرت الساعة، وحجابُ `Tareeq`
+ * يضمن التباينَ فوق ذلك.
+ */
+private val heroInk = Color(0xFFF4EFE2)
 
 /** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
 private val SKY_H = 360.dp
@@ -418,6 +437,22 @@ private fun HubTopBar(onSettings: () -> Unit) {
         }
     }
 }
+
+/**
+ * نداءُ الساعة: فعلٌ مضارعٌ مباشر، لا تحيّةٌ ولا حديث.
+ *
+ * ولا يُشتقّ من ارتفاع الشمس بل من الساعة نفسِها: «ابدأ يومَك» تُقال
+ * لمن فتح التطبيق في التاسعة صباحاً في كانون، ولو تبعنا الشمسَ لقالت
+ * له «اختم» لأنّ النهارَ قصير.
+ */
+@Composable
+private fun heroCall(): Int =
+    when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+        in 4..10  -> R.string.hero_begin
+        in 11..15 -> R.string.hero_keep
+        in 16..19 -> R.string.hero_hold
+        else      -> R.string.hero_seal
+    }
 
 /* ── التحية ─────────────────────────────────────────────────────── */
 

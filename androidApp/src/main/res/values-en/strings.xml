@@ -358,6 +358,11 @@
     <string name="and_separator">" and "</string>
 
     <!-- ═══ Home ═══ -->
+    <!-- The opening call: a verb that follows the clock, not a greeting or a narration -->
+    <string name="hero_begin">Begin your day</string>
+    <string name="hero_keep">Keep it, however small</string>
+    <string name="hero_hold">Hold what is left</string>
+    <string name="hero_seal">Seal your day</string>
     <string name="greet_salam">Peace be upon you</string>
     <string name="greet_morning">A blessed morning</string>
     <string name="greet_day">A good day</string>
