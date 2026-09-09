@@ -57,6 +57,8 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
+import app.rafiqaldhikr.ui.hero.HeroKind
+import app.rafiqaldhikr.ui.hero.HeroStore
 import app.rafiqaldhikr.ui.tareeq.Tareeq
 import app.rafiqaldhikr.ui.sky.WeatherStore
 import app.rafiqaldhikr.ui.sky.moonPosition
@@ -172,6 +174,25 @@ fun HomeHubScreen(
      *  نقطةٍ في المحيط الأطلسيّ، لا طقسُ صاحب الهاتف. */
     val ctx = androidx.compose.ui.platform.LocalContext.current
     var weather by remember { mutableStateOf(WeatherStore.cached(ctx)) }
+
+    /*  بطاقةُ الشاشة الأولى — انظر `ui/hero/HeroCard.kt`.
+     *
+     *  المحفوظُ يُقرأ فوراً بلا شبكة، ثمّ يُجدَّد في الخلفية إن مضت
+     *  ثلاثُ ساعات. فلا تنتظر الشاشةُ الشبكةَ لحظةً واحدة، ولا تظهر
+     *  فارغةً في الطائرة. */
+    val heroBase = stringResource(R.string.hero_base_url)
+    var hero by remember { mutableStateOf(HeroStore.cached(ctx)) }
+    LaunchedEffect(heroBase) {
+        if (heroBase.isNotBlank()) HeroStore.refresh(ctx, heroBase)?.let { hero = it }
+    }
+    //  الصورةُ تُفكّ مرّةً لكلّ ملفّ، لا في كلّ إطار.
+    val heroBg = remember(hero?.src) {
+        val c = hero
+        if (c == null || c.kind != HeroKind.IMAGE) null
+        else HeroStore.mediaFile(ctx, c.src)?.let {
+            runCatching { android.graphics.BitmapFactory.decodeFile(it.path) }.getOrNull()
+        }
+    }
     LaunchedEffect(home.lat, home.lng) {
         if (home.lat != 0.0 || home.lng != 0.0) {
             weather = WeatherStore.refresh(ctx, home.lat, home.lng)
@@ -197,6 +218,8 @@ fun HomeHubScreen(
             reducedMotion = LocalReducedMotion.current,
             weather       = weather,
             fade          = rc.bg,
+            background    = heroBg,
+            anim          = hero?.anim ?: app.rafiqaldhikr.ui.hero.HeroAnim.NASMA,
             modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
@@ -232,7 +255,7 @@ fun HomeHubScreen(
                      *  بتخريجه في «كلمةُ اليوم» — ولا يُقصُّ منه سطرٌ
                      *  ليُكتب فوق صورة. */
                     Text(
-                        stringResource(heroCall()),
+                        hero?.title?.takeIf { it.isNotBlank() } ?: stringResource(heroCall()),
                         style = RafiqType.hero,
                         color = heroInk,
                     )
@@ -242,13 +265,13 @@ fun HomeHubScreen(
                      *  والسماءُ تُظهر المطرَ والضبابَ، لكنّ العينَ تحتاج
                      *  من يسمّي لها ما ترى: «غائمٌ · ٢٨°» تُقرأ في لحظة،
                      *  والغيمُ وحدَه يحتمل أن يكون زينة. */
-                    if (weather.known) {
+                    //  سطرُ البطاقة يحلّ محلَّ سطر الطقس حين يوجد — سطرٌ
+                    //  واحدٌ تحت التحيّة لا سطران يتزاحمان.
+                    val sub = hero?.note?.takeIf { it.isNotBlank() }
+                        ?: weatherLine(weather, ar).takeIf { weather.known }
+                    if (sub != null) {
                         Spacer(Modifier.height(6.dp))
-                        Text(
-                            weatherLine(weather, ar),
-                            style = RafiqType.bodyS,
-                            color = heroInk.copy(alpha = 0.80f),
-                        )
+                        Text(sub, style = RafiqType.bodyS, color = heroInk.copy(alpha = 0.80f))
                     }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
                     WindowPill(day.nowStation, day.needsLocation, ar, heroInk)

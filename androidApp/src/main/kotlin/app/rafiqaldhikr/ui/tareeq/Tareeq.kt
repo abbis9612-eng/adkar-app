@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.RadialGradient
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.RectF
@@ -25,9 +26,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.hero.HeroAnim
 import app.rafiqaldhikr.ui.sky.SkyWeather
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -145,6 +148,9 @@ internal class TareeqState(
     val sunAlt: Float,
     val weather: SkyWeather,
     val still: Boolean,
+    /** صورةُ البطاقة الواردة، أو `null` فيُرسم المشهدُ المضمَّن. */
+    val bg: Bitmap? = null,
+    val anim: HeroAnim = HeroAnim.NASMA,
 )
 
 internal class TareeqRenderer(private val pl: Plates) {
@@ -152,6 +158,11 @@ internal class TareeqRenderer(private val pl: Plates) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val src = Rect()
     private val dstR = RectF()
+    private val dst = RectF()
+    private val add = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        xfermode = android.graphics.PorterDuffXfermode(PorterDuff.Mode.ADD)
+    }
+    private val clearMode = android.graphics.PorterDuffXfermode(PorterDuff.Mode.CLEAR)
 
     fun render(c: android.graphics.Canvas, s: TareeqState, viewH: Float) {
         //  نهارٌ ودفء: صفرٌ تحت الشفق المدنيّ، وواحدٌ فوق ستِّ درجات.
@@ -160,11 +171,24 @@ internal class TareeqRenderer(private val pl: Plates) {
         val t = if (s.still) 6f else s.time
         val wind = (s.weather.windKmh / 34f).coerceIn(0.25f, 1.6f)
 
-        c.drawBitmap(pl.photo, 0f, 0f, filter)
-        drawWater(c, t, day, wind)
-        if (day > 0.5f && s.weather.rain < 0.35f) birds(c, t, day)
+        //  الخلفيّةُ الواردةُ تُملأ إلى الإطار وتُقصّ، ولا يُشوَّه نسبُها.
+        if (s.bg != null) cover(c, s.bg) else c.drawBitmap(pl.photo, 0f, 0f, filter)
+
+        /*  الماءُ يُرسم للمشهد المضمَّن وحدَه: حافّتا النهر مقروءتان من
+         *  بكسلات تلك الصورة بعينِها، ووضعُهما فوق صورةٍ أخرى يضع موجاً
+         *  في وسط عشبٍ أو سماء. فالبطاقةُ الواردةُ تُحرَّك بالضوء لا
+         *  بالماء — والضوءُ لا يحتاج هندسةَ مشهد. */
+        if (s.bg == null) {
+            drawWater(c, t, day, wind)
+            if (day > 0.5f && s.weather.rain < 0.35f) birds(c, t, day)
+        }
         weatherVeil(c, s, t)
         grade(c, day, warm)
+        when (s.anim) {
+            HeroAnim.NASMA -> nasma(c, t, viewH)
+            HeroAnim.FANOUS -> fanous(c, t, viewH)
+            HeroAnim.NONE -> Unit
+        }
         scrim(c, viewH)
     }
 
@@ -294,6 +318,89 @@ internal class TareeqRenderer(private val pl: Plates) {
         )
     }
 
+    /* ── حركةُ الدخول: تُعزف مرّةً ثمّ تسكن ──────────────────────
+       بدايةُ الحركةِ هي التي تخطف الانتباه لا الحركةُ نفسُها، وما
+       يتحرّك بلا توقّفٍ يُقرأ إعلاناً فيُهمَل. ولذلك ينتهي كلُّ ما
+       هنا عند الثانية الرابعة ولا يعود حتى الفتحة القادمة —
+       وهو أوفرُ للبطاريّة أيضاً.
+    ───────────────────────────────────────────────────────────── */
+    private fun nasma(c: android.graphics.Canvas, t: Float, viewH: Float) {
+        val live = sm(t, 0.5f, 1.0f) * (1f - sm(t, 2.9f, 3.9f))
+        if (live < 0.01f) return
+        val top = FRAME_TOP * PH
+        val front = PW * 1.12f - out5((t - 0.65f) / 2.05f) * (PW * 1.30f)
+        p.shader = LinearGradient(
+            front + 176f, 0f, front - 226f, 0f,
+            intArrayOf(0x00FFF7E0, (((0.20f * live * 255).toInt()) shl 24) or 0xFFF7E0, 0x00FFF7E0),
+            floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP,
+        )
+        c.drawRect(0f, top, PW.toFloat(), top + viewH, p)
+        p.shader = null
+        //  ذرّاتٌ تتكاثف عند جبهة الضوء وتخفت كلّما بعُدت عنها
+        for (i in 0 until 46) {
+            val h1 = frac(sin(i * 12.9898f) * 43758.55f)
+            val h2 = frac(sin(i * 78.233f) * 43758.55f)
+            val x = front + (h2 - 0.5f) * 380f
+            if (x < -20f || x > PW + 20f) continue
+            val near = exp(-((x - front) / 158f) * ((x - front) / 158f))
+            val y = top + h1 * viewH + sin(t * 1.5f + h2 * 9f) * 16f
+            val a = live * near * (0.35f + 0.65f * (0.5f + 0.5f * sin(t * 3f + h2 * 9f)))
+            if (a < 0.03f) continue
+            val r = (2f + h1 * 6f)
+            p.shader = RadialGradient(
+                x, y, r, Color.argb((a * 235).toInt().coerceIn(0, 255), 255, 250, 232),
+                Color.argb(0, 255, 250, 232), Shader.TileMode.CLAMP,
+            )
+            c.drawCircle(x, y, r, p)
+            p.shader = null
+        }
+    }
+
+    private fun fanous(c: android.graphics.Canvas, t: Float, viewH: Float) {
+        val sweep = sm(t, 0.45f, 2.6f)
+        val rest = sm(t, 2.7f, 3.8f)
+        val top = FRAME_TOP * PH
+        val cx2 = PW * 0.86f - sweep * (PW * 0.92f)
+        val cy = top + viewH * 0.30f
+        val rr = PW * 0.42f + sweep * PW * 0.09f
+        //  ظلامٌ ينحسر أمام الشعاع: يُرسم مستطيلاً ثمّ يُثقَب بهالةٍ
+        //  ويُمسح ما خلفَه، وكلُّه داخلَ طبقةٍ فلا يخرج الثقبُ عن الإطار.
+        val lay = c.saveLayer(0f, top, PW.toFloat(), top + viewH, null)
+        p.color = Color.argb(((0.62f * (1f - rest * 0.66f)) * 255).toInt().coerceIn(0, 255), 6, 12, 10)
+        c.drawRect(0f, top, PW.toFloat(), top + viewH, p)
+        p.xfermode = clearMode
+        p.shader = RadialGradient(
+            cx2, cy, rr, intArrayOf(-0x1000000, -0x49000000, 0),
+            floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP,
+        )
+        c.drawRect(0f, top, PW.toFloat(), top + viewH, p)
+        p.shader = LinearGradient(
+            cx2 - 100f, 0f, cx2 + 300f, 0f,
+            intArrayOf(0, (((0.60f * sweep * 255).toInt()) shl 24)),
+            null, Shader.TileMode.CLAMP,
+        )
+        c.drawRect(cx2 - 100f, top, PW.toFloat(), top + viewH, p)
+        p.xfermode = null
+        p.shader = null
+        c.restoreToCount(lay)
+        //  دفءُ الهالة
+        add.shader = RadialGradient(
+            cx2, cy, rr * 0.9f,
+            Color.argb(((0.30f * (1f - rest * 0.18f)) * 255).toInt().coerceIn(0, 255), 255, 206, 122),
+            Color.argb(0, 255, 206, 122), Shader.TileMode.CLAMP,
+        )
+        c.drawRect(0f, top, PW.toFloat(), top + viewH, add)
+        add.shader = null
+    }
+
+    private fun cover(c: android.graphics.Canvas, b: Bitmap) {
+        val s = max(PW.toFloat() / b.width, PH.toFloat() / b.height)
+        val w = b.width * s
+        val h = b.height * s
+        dst.set((PW - w) / 2f, (PH - h) / 2f, (PW + w) / 2f, (PH + h) / 2f)
+        c.drawBitmap(b, null, dst, filter)
+    }
+
     /* ── حجابُ الكلام ───────────────────────────────────────────
        الكلامُ يقع فوق شجرٍ داكنٍ تارةً وفوق ماءٍ فاتحٍ تارة، فلا لونَ
        حبرٍ واحدٍ يكفي وحدَه. تدرُّجٌ خافتٌ من الأعلى يضمن التباينَ في
@@ -316,6 +423,13 @@ internal class TareeqRenderer(private val pl: Plates) {
 }
 
 private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
+private fun sm(x: Float, a: Float, b: Float) = smoothstep(a, b, x)
+private fun out5(t: Float): Float {
+    val u = t.coerceIn(0f, 1f)
+    val v = 1f - u
+    return 1f - v * v * v * v * v
+}
+private fun frac(v: Float) = v - kotlin.math.floor(v)
 private fun ch(v: Float) = (v * 255f).toInt().coerceIn(0, 255)
 private fun smoothstep(e0: Float, e1: Float, x: Float): Float {
     val t = ((x - e0) / (e1 - e0)).coerceIn(0f, 1f)
@@ -342,6 +456,9 @@ fun Tareeq(
     reducedMotion: Boolean,
     weather: SkyWeather = SkyWeather(),
     fade: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent,
+    /** خلفيّةُ البطاقة الواردة، أو `null` فيبقى المشهدُ المضمَّن. */
+    background: Bitmap? = null,
+    anim: HeroAnim = HeroAnim.NASMA,
     modifier: Modifier = Modifier,
 ) {
     var time by remember { mutableFloatStateOf(0f) }
@@ -376,6 +493,8 @@ fun Tareeq(
                 sunAlt = sunAlt.toFloat(),
                 weather = weather,
                 still = reducedMotion,
+                bg = background,
+                anim = anim,
             ), viewH)
             nc.restore()
             //  ذوبانُ الأسفل في الورقة: فلا يبقى قطعٌ حادٌّ بين
