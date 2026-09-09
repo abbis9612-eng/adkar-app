@@ -57,9 +57,12 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
+import app.rafiqaldhikr.ui.hero.HeroAnim
+import app.rafiqaldhikr.ui.hero.HeroBackdrop
 import app.rafiqaldhikr.ui.hero.HeroKind
 import app.rafiqaldhikr.ui.hero.HeroStore
-import app.rafiqaldhikr.ui.tareeq.Tareeq
+import app.rafiqaldhikr.ui.hero.heroPen
+import app.rafiqaldhikr.ui.hero.rememberHeroEntrance
 import app.rafiqaldhikr.ui.sky.WeatherStore
 import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -202,24 +205,21 @@ fun HomeHubScreen(
     val skyInk = remember(sky) { skyInk(sky) }
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        /*  الطريق — انظر `ui/tareeq/Tareeq.kt`.
+        /*  الخلفيّة — انظر `ui/hero/HeroBackdrop.kt`.
          *
-         *  مرّت هذه الرقعةُ بثلاثة أطوار: تدرُّجٌ رماديٌّ يقطعه شريطٌ
-         *  داكن، ثمّ سماءٌ تُحسب على المعالج الرسوميّ، ثمّ بستانٌ
-         *  مرسوم. والأولان كانا **سماءً فارغةً بلا مقياس** — لا أفقَ
-         *  ولا شجرةَ تُقاس بها — والثالثُ رسمٌ يُعرف أنّه رسم.
+         *  مرّت هذه الرقعةُ بأربعة أطوار وسقط كلُّها: تدرُّجٌ رماديٌّ
+         *  يقطعه شريط، فسماءٌ على المعالج الرسوميّ، فبستانٌ مرسوم،
+         *  فصورةُ نهرٍ فوتوغرافيّة. والصورةُ سقطت بالقياس لا بالذوق:
+         *  ٦:١ تبايناً خلف السطر بعد حجابٍ ثقيل، مقابل ما فوق ١٢:١
+         *  للتدرُّج بحجابٍ خفيف — و٣٠٨ كيلوبايت مقابل سطور حساب.
          *
-         *  والآن صورةٌ واحدةٌ يتحرّك فيها الماءُ وحدَه: بستانٌ أخضرُ على
-         *  نهر، ضوؤه من غيمٍ منتشرٍ **بلا قرصِ شمسٍ يوجع العين**،
-         *  وطريقٌ حجريٌّ يصعد من أسفل اليسار نحو المئذنة. ويذوب أسفلُه
-         *  في الورقة فلا يبقى ذلك القطع. */
-        Tareeq(
+         *  وما بقي حركةٌ واحدةٌ صادقة: الضوءُ يزحف مع الساعة. */
+        HeroBackdrop(
             sunAlt        = sun.altitude,
             reducedMotion = LocalReducedMotion.current,
             weather       = weather,
             fade          = rc.bg,
             background    = heroBg,
-            anim          = hero?.anim ?: app.rafiqaldhikr.ui.hero.HeroAnim.NASMA,
             modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
@@ -254,10 +254,18 @@ fun HomeHubScreen(
                      *  يُطلب منه. وما كان حديثاً فله بطاقتُه كاملاً
                      *  بتخريجه في «كلمةُ اليوم» — ولا يُقصُّ منه سطرٌ
                      *  ليُكتب فوق صورة. */
+                    /*  والقلمُ يكتبه: القناعُ يمرّ عليه فيُقرأ كتابةً،
+                     *  ويبقى **نصّاً** لا صورة — فيكبر مع خطّ المستخدم
+                     *  ويقرؤه التدقيقُ الصوتيّ. */
+                    val line = hero?.title?.takeIf { it.isNotBlank() }
+                        ?: stringResource(heroCall())
+                    val anim = hero?.anim ?: HeroAnim.PEN
+                    val write by rememberHeroEntrance(line, anim, LocalReducedMotion.current)
                     Text(
-                        hero?.title?.takeIf { it.isNotBlank() } ?: stringResource(heroCall()),
+                        line,
                         style = RafiqType.hero,
                         color = heroInk,
+                        modifier = Modifier.heroPen(anim, write),
                     )
                     /*  سطرُ الطقس تحت التحيّة مباشرةً — لا حبّةً ثانيةً
                      *  تزاحم حبّةَ الميقات في الأسفل.
@@ -271,7 +279,12 @@ fun HomeHubScreen(
                         ?: weatherLine(weather, ar).takeIf { weather.known }
                     if (sub != null) {
                         Spacer(Modifier.height(6.dp))
-                        Text(sub, style = RafiqType.bodyS, color = heroInk.copy(alpha = 0.80f))
+                        //  السطرُ الصغيرُ يتبع الكبيرَ بعد أن يُكتب نصفُه.
+                        Text(
+                            sub,
+                            style = RafiqType.bodyS,
+                            color = heroInk.copy(alpha = 0.80f * ((write - 0.45f) / 0.55f).coerceIn(0f, 1f)),
+                        )
                     }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
                     WindowPill(day.nowStation, day.needsLocation, ar, heroInk)

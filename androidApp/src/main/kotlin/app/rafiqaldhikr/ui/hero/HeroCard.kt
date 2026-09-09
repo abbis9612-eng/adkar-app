@@ -45,9 +45,6 @@ import java.net.URL
 /** ما تحمله البطاقة. وما خرج عن هذه القائمة يُقرأ `TEXT`. */
 enum class HeroKind { TEXT, IMAGE, VIDEO, MISBAHA }
 
-/** حركةُ الدخول. تُعزف **مرّةً** عند الفتح ثمّ تسكن. */
-enum class HeroAnim { NASMA, FANOUS, NONE }
-
 /**
  * بطاقةٌ واحدة. `from`/`to` تاريخان بصيغة `YYYY-MM-DD` شاملان للطرفين.
  */
@@ -56,7 +53,7 @@ data class HeroCard(
     val from: String,
     val to: String,
     val kind: HeroKind = HeroKind.TEXT,
-    val anim: HeroAnim = HeroAnim.NASMA,
+    val anim: HeroAnim = HeroAnim.PEN,
     val title: String = "",
     val note: String = "",
     /** اسمُ ملفٍّ في مجلَّد المُضيف — لا رابط. فارغٌ إن لم تحمل وسائط. */
@@ -261,11 +258,7 @@ object HeroStore {
 
         return HeroCard(
             id = id, from = from, to = to, kind = kind,
-            anim = when (anim) {
-                "fanous" -> HeroAnim.FANOUS
-                "none" -> HeroAnim.NONE
-                else -> HeroAnim.NASMA
-            },
+            anim = HeroAnim.of(anim),
             title = title.trim().take(MAX_TITLE),
             note = note.trim().take(MAX_NOTE),
             src = if (kind == HeroKind.IMAGE) src else "",

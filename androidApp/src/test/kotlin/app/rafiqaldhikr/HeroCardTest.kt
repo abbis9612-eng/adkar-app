@@ -27,7 +27,7 @@ class HeroCardTest {
         assertNotNull(c)
         assertEquals("ابدأ يومَك", c!!.title)          // تُقلَّم أطرافُها
         assertEquals(HeroKind.TEXT, c.kind)
-        assertEquals(HeroAnim.NASMA, c.anim)          // الحركةُ الافتراضية
+        assertEquals(HeroAnim.PEN, c.anim)            // القلمُ هو الافتراض
     }
 
     @Test
