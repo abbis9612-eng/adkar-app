@@ -53,6 +53,15 @@ data class Meeqat(
     val marks: List<MeeqatMark>,
     /** هل اشتُقّ من مواقيت حقيقية؟ إن لا، الشريط لا يُرسم. */
     val resolved: Boolean,
+    /**
+     * المواقيتُ الخام كما حُسبت — لمن يحتاج الساعةَ نفسَها لا موضعَها
+     * على الشريط، مثل `SunArc`. و`null` حين [resolved] = false.
+     *
+     * **وهي هنا لا في نموذجِ عرضٍ ثانٍ:** `ProvideMeeqat` يحسبها مرّةً
+     * لكلّ التطبيق، وطلبُها ثانيةً في الرئيسية حسابٌ مكرَّرٌ ومصدرُ
+     * حقيقةٍ ثانٍ قد يفترق عن الأوّل بدقيقة.
+     */
+    val times: PrayerTimesResult? = null,
 )
 
 /**
@@ -116,6 +125,7 @@ fun meeqatOf(times: PrayerTimesResult, nowMs: Long, palette: RafiqPalette): Meeq
             MeeqatMark(R.string.isha, at(times.isha)),
         ),
         resolved = true,
+        times    = times,
     )
 }
 

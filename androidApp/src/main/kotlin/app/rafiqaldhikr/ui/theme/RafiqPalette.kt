@@ -145,13 +145,22 @@ val LightRafiqPalette = RafiqPalette(
     // الزمرّد عاد زمرّداً. كان العنبر يشغل العائلة كلَّها فيقرأ البنّي
     // «برتقالياً»، وهذا اللون هو heroMid الموجود في التطبيق أصلاً —
     // فالبطاقة الخضراء الداكنة كانت تلبسه وحدها، وصار لَونَ الهويّة.
-    emerald        = Color(0xFF09472B),  // 10.78:1 على البطاقة · 10.59 على الورق
+    /*  لونُ الشاشة الأولى عينُه: هو أعلى تدرّج `HeroBackdrop` عند
+        الظهيرة (#17402F)، محسوباً من معادلته لا مختاراً بالعين.
+        فالزرُّ والأيقونةُ من لون السماء التي فوقهما.  ١١٫٣٩:١ على الورق. */
+    emerald        = Color(0xFF17402F),  // 11.39:1 على الورق · 11.57 على البطاقة
     emeraldMed     = Color(0xFF062F1D),
     emeraldLight   = Color(0xFF0B5934),  //  8.42:1
     emeraldPastel  = Color(0xFFDCECE2),  // نبرته عن الورق 1.20 — أدنى ما تراه العين
 
-    // الملء أفتحُ درجةً من النصّ: لَونان لدورين كما كان، لكن كليهما أخضر.
-    emeraldFill    = Color(0xFF0B5934),
+    /*  والملءُ صار **اللونَ نفسَه** لا درجةً أفتح.
+     *
+     *  كانا لونين لدورين: داكنٌ يُقرأ نصّاً وفاتحٌ يصلح ملءاً. وقد طُلب
+     *  أن تكون الأيقونةُ والزرُّ من لون أعلى الشاشة نفسِه — ولونُ أعلى
+     *  الشاشة واحد. فالدوران يقعان على لونٍ واحدٍ ويبقى كلاهما سليماً:
+     *  نصّاً ١١٫٣٩:١ على الورق، وملءاً ٧٫٥٤:١ بحبر [onEmeraldFill]
+     *  فوقه — وكلاهما فوق حدّ ٤٫٥. */
+    emeraldFill    = Color(0xFF17402F),
     onEmeraldFill  = Color(0xFFF7F2E6),  // 7.54:1 فوق الملء (الحبر الداكن هناك 2.12)
 
     gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
@@ -204,7 +213,7 @@ val DarkRafiqPalette = RafiqPalette(
     chipBg         = Color(0xFF221F19),
 
     // في الداكن ينقلب السلّم: الأخضرُ الداكن يختفي في الليل، فيصير فاتحاً.
-    emerald        = Color(0xFF5CBF88),  // 7.52:1 على البطاقة
+    emerald        = Color(0xFF6FBF97),  // 8.67:1 على الورق الداكن
     emeraldMed     = Color(0xFF4CAF7B),  // 6.27:1
     emeraldLight   = Color(0xFF7BD3A4),  // 9.49:1
     emeraldPastel  = Color(0xFF173126),  // الحبر فوقه 11.44:1
@@ -212,7 +221,7 @@ val DarkRafiqPalette = RafiqPalette(
     gold           = Color(0xFFDAA520),
     goldLight      = Color(0xFFE8B84D),
 
-    emeraldFill    = Color(0xFF4CAF7B),
+    emeraldFill    = Color(0xFF6FBF97),
     onEmeraldFill  = Color(0xFF14201A),  // 6.17:1 — الأبيض فوقه 2.72 فقط
 
     onEmerald      = Color(0xFF14201A),  // 7.40:1 — الأبيض هنا 2.07:1 فقط

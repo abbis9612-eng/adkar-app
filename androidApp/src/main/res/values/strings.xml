@@ -595,7 +595,7 @@
     <string name="st_duha_time">من بعد الشروق إلى قبيل الظهر</string>
     <string name="st_dhuhr_t">الظهر وأذكار بعد الصلاة</string>
     <string name="st_dhuhr_s">الظهر</string>
-    <string name="st_dhuhr_d">الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي</string>
+    <string name="st_dhuhr_d">الصلاة ثم الاستغفار والتسبيح وآية الكرسي</string>
     <string name="st_dhuhr_time">من الظهر إلى العصر</string>
     <string name="st_asr_t">العصر وأذكار المساء</string>
     <string name="st_asr_s">العصر</string>
@@ -620,6 +620,9 @@
     <string name="st_kahf_time">طوال يوم الجمعة</string>
     <string name="waraqa_you_are_in">أنت الآن في %1$s</string>
     <string name="waraqa_start_station">ابدأ %1$s</string>
+    <!-- قوسُ الشمس: اسمُ الميقات التالي فوق القوس -->
+    <string name="meeqat_next">التالي %1$s</string>
+    <string name="meeqat_in">بعد %1$s</string>
     <string name="hub_station_window">نافذةُ %1$s</string>
     <string name="hub_remaining"> · بقي %1$s</string>
 

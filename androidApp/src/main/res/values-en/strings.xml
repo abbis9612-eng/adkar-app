@@ -601,6 +601,9 @@
     <string name="st_kahf_time">All of Friday</string>
     <string name="waraqa_you_are_in">You are now in %1$s</string>
     <string name="waraqa_start_station">Start %1$s</string>
+    <!-- Sun arc: the next window, above the curve -->
+    <string name="meeqat_next">Next: %1$s</string>
+    <string name="meeqat_in">in %1$s</string>
     <string name="hub_station_window">%1$s window</string>
     <string name="hub_remaining"> · %1$s left</string>
 

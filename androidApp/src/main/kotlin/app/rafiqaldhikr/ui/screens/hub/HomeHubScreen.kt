@@ -59,6 +59,8 @@ import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
 import app.rafiqaldhikr.ui.hero.HeroAnim
 import app.rafiqaldhikr.ui.hero.HeroBackdrop
+import app.rafiqaldhikr.ui.hero.HeroWreath
+import app.rafiqaldhikr.ui.hero.SunArc
 import app.rafiqaldhikr.ui.hero.HeroKind
 import app.rafiqaldhikr.ui.hero.HeroStore
 import app.rafiqaldhikr.ui.hero.heroPen
@@ -89,11 +91,11 @@ import androidx.compose.foundation.layout.Box
    فلا عدّاد ولا علامةُ صحّ ولا شريطُ تقدّم. ومن أراد التفصيل ضغطه
    فانفتح بالأسماء الكاملة والأوقات.
 
-   ═══ الأخضران ═══
-   [RafiqPalette.emerald] داكنٌ يُقرأ نصّاً على الورق (7.61) ولا يصلح
-   ملءاً. و[RafiqPalette.emeraldFill] فاتحٌ عكسه: ملءٌ ممتاز (8.54 بحبر
-   داكن فوقه) ونصٌّ لا يُقرأ (1.66). لونان لدورين — لا لونٌ واحد يُجبَر
-   على الدورين.
+   ═══ الأخضر ═══
+   كانا أخضرين: داكنٌ يُقرأ نصّاً وفاتحٌ يصلح ملءاً. وصارا **واحداً**
+   هو #17402F — أعلى تدرّج `HeroBackdrop` عند الظهيرة بعينه، فالأيقونةُ
+   والزرُّ من لون السماء التي فوقهما لا من لونٍ يجاورها. ويصحّ الدوران
+   معاً: نصّاً ١١٫٣٩:١ على الورق، وملءاً ٧٫٥٤:١ بحبرٍ فاتحٍ فوقه.
 
    ═══ سطحٌ واحد ═══
    لا بطاقةَ في هذه الشاشة ولا حبّةَ ملوّنة: الورق يمتدّ من أعلاها إلى
@@ -223,6 +225,15 @@ fun HomeHubScreen(
             modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
+        /*  الإكليل — انظر `ui/hero/HeroWreath.kt`.
+         *
+         *  هنا لا داخلَ `HeroBackdrop`: ذاك يُنهي رسمَه بحجابٍ يُطفئ ما
+         *  تحته ليُقرأ الكلام، والغصنُ إن وقع أسفلَه ابتُلع. */
+        HeroWreath(
+            reducedMotion = LocalReducedMotion.current,
+            modifier      = Modifier.fillMaxWidth().height(SKY_H).statusBarsPadding(),
+        )
+
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             /*  ترتيبُ السماء: كلامٌ أعلى · صورةٌ وسطى · حبّةٌ على الأفق.
              *
@@ -287,7 +298,34 @@ fun HomeHubScreen(
                         )
                     }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
-                    WindowPill(day.nowStation, day.needsLocation, ar, heroInk)
+                    /*  الميقاتُ على قوس الشمس — انظر `ui/hero/SunArc.kt`.
+                     *
+                     *  كانت هنا حبّةٌ زجاجيّةٌ مكتوبٌ فيها «الظهر بعد
+                     *  ساعةٍ وربع». والحبّةُ شكلٌ يُستعار من أيّ تطبيق،
+                     *  والجملةُ تقول ما يقوله عدّادٌ في أيّ تطبيق.
+                     *
+                     *  والقوسُ يقول الشيءَ نفسَه **بموضعٍ لا بعبارة**:
+                     *  الظهرُ في القمّة لأنّه الزوال، والمغربُ على الأفق
+                     *  لأنّه الغروب، والفجرُ والعشاءُ تحته فيصير القرصُ
+                     *  هلالاً. والسطرُ الذي كانت الحبّةُ تحمله باقٍ
+                     *  تحته — اسمُ القادم ووقتُه وكم بقي.
+                     *
+                     *  والمواقيتُ من `LocalMeeqat` لا من حسابٍ جديد، فإن
+                     *  لم تُحلّ لم يُرسم شيء — لا نخترع وقتاً. */
+                    val meeqat = LocalMeeqat.current
+                    if (meeqat.times != null) {
+                        val nextAt = nextMeeqatAt(meeqat.times, now)
+                        SunArc(
+                            times  = meeqat.times,
+                            nowMs  = now,
+                            left   = humanRemaining(nextAt - now),
+                            ink    = heroInk,
+                            accent = MEEQAT_GOLD,
+                            ar     = ar,
+                        )
+                    } else {
+                        WindowPill(day.nowStation, day.needsLocation, ar, heroInk)
+                    }
                     Spacer(Modifier.height(14.dp))
                 }
             }
@@ -361,6 +399,18 @@ fun HomeHubScreen(
  * يضمن التباينَ فوق ذلك.
  */
 private val heroInk = Color(0xFFF4EFE2)
+
+/*  علامةُ الميقات القادم.
+ *
+ *  جُرّب الأخضرُ الزيتونيُّ نفسُه فاختفى ليلاً: القوسُ يقع على سماءٍ
+ *  تُظلم، وداكنٌ على داكنٍ لا يُرى. والذهبُ يُقرأ على طرفَي اليوم كليهما. */
+private val MEEQAT_GOLD = Color(0xFFE8C46A)
+
+/** أوّلُ ميقاتٍ لم يأتِ بعد، وإلّا فجرُ الغد — بالترتيب نفسِه الذي
+ *  يمشي عليه `SunArc`، فلا يفترق السطرُ عن العلامة. */
+private fun nextMeeqatAt(t: app.rafiq.domain.model.PrayerTimesResult, now: Long): Long =
+    listOf(t.fajr, t.sunrise, t.dhuhr, t.asr, t.maghrib, t.isha)
+        .firstOrNull { it > now } ?: (t.fajr + 86_400_000L)
 
 /** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
 private val SKY_H = 360.dp
