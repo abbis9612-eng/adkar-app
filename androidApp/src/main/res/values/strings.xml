@@ -751,6 +751,7 @@
     <!-- تابِع القراءة -->
     <string name="continue_reading">تابِع القراءة</string>
     <string name="continue_reading_at">%1$s · صفحة %2$s</string>
+    <string name="continue_reading_ayat">الآيات %1$s – %2$s</string>
 
     <!-- الاستيراد -->
     <string name="import_action">استيراد</string>

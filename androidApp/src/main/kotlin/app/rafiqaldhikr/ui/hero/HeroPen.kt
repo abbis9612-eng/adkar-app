@@ -109,12 +109,20 @@ fun Modifier.heroPen(anim: HeroAnim, p: Float, rule: Color = Color(0x9EC9A227)):
                     ),
                     blendMode = BlendMode.DstIn,
                 )
-                if (p > 0.02f) {
-                    val x = cut.coerceAtMost(size.width)
+                /*  الخيطُ **يتبع القلمَ ثمّ يذهب معه**.
+                 *
+                 *  كان يبقى بعد انتهاء الكتابة: عند `p = 1` يصير
+                 *  `cut = 0` فيُرسم من الطرف إلى الطرف — خطٌّ ذهبيٌّ
+                 *  دائمٌ تحت السطر لا أحدَ طلبه، وقد ظهر في الجهاز.
+                 *  فيخفت في آخر خُمسٍ من الحركة ولا يبقى منه شيء. */
+                val trail = (p / 0.02f).coerceIn(0f, 1f) *
+                    ((1f - p) / 0.20f).coerceIn(0f, 1f)
+                if (trail > 0f) {
                     drawLine(
                         color = rule,
+                        alpha = trail,
                         start = Offset(size.width, size.height - 2f),
-                        end = Offset(x, size.height - 2f),
+                        end = Offset(cut.coerceAtMost(size.width), size.height - 2f),
                         strokeWidth = 1.6f * density,
                     )
                 }

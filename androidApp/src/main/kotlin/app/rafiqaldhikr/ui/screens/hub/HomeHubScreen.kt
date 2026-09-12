@@ -61,6 +61,7 @@ import app.rafiqaldhikr.ui.hero.HeroAnim
 import app.rafiqaldhikr.ui.hero.HeroBackdrop
 import app.rafiqaldhikr.ui.hero.HeroWreath
 import app.rafiqaldhikr.ui.hero.SunArc
+import app.rafiqaldhikr.ui.hero.SunArcEmpty
 import app.rafiqaldhikr.ui.hero.HeroKind
 import app.rafiqaldhikr.ui.hero.HeroStore
 import app.rafiqaldhikr.ui.hero.heroPen
@@ -231,7 +232,7 @@ fun HomeHubScreen(
          *  تحته ليُقرأ الكلام، والغصنُ إن وقع أسفلَه ابتُلع. */
         HeroWreath(
             reducedMotion = LocalReducedMotion.current,
-            modifier      = Modifier.fillMaxWidth().height(SKY_H).statusBarsPadding(),
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -324,7 +325,17 @@ fun HomeHubScreen(
                             ar     = ar,
                         )
                     } else {
-                        WindowPill(day.nowStation, day.needsLocation, ar, heroInk)
+                        /*  ولا مواقيتَ بعد: يُرسم **الإطارُ فارغاً** —
+                         *  أفقٌ وقوسان بلا علامةٍ ولا شمس. فلا وقتَ
+                         *  مخترعٌ ولا شاشةٌ تبدو معطّلة، ويرى صاحبُها
+                         *  أين سيُرسم يومُه حين يحدّد موقعَه. */
+                        SunArcEmpty(
+                            ink    = heroInk,
+                            note   = stringResource(R.string.hub_times_unset),
+                            cta    = stringResource(R.string.hub_set_location),
+                            accent = MEEQAT_GOLD,
+                            onSet  = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+                        )
                     }
                     Spacer(Modifier.height(14.dp))
                 }
@@ -459,39 +470,6 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
     }
 }
 
-/** «نافذةُ الضحى · بقي ١٢ دقيقة» — على السماء، فوق الأفق. */
-@Composable
-private fun WindowPill(
-    station: DayCompanionViewModel.StationUi?,
-    needsLoc: Boolean,
-    ar: Boolean,
-    ink: Color,
-) {
-    val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
-    val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
-    val label = when {
-        needsLoc -> stringResource(R.string.hub_times_unset)
-        station == null -> stringResource(R.string.waraqa_title)
-        else -> {
-            val left = humanRemaining(station.endMillis - System.currentTimeMillis())
-            stringResource(R.string.hub_station_window, stringResource(station.short)) +
-                (left?.let { stringResource(R.string.hub_remaining, it.localizedDigits(ar)) } ?: "")
-        }
-    }
-    Row(
-        Modifier
-            .clip(CircleShape)
-            .background(glassBg)
-            .border(1.dp, glassBd, CircleShape)
-            .padding(horizontal = 13.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(6.dp).clip(CircleShape).background(ink.copy(alpha = 0.8f)))
-        Spacer(Modifier.width(8.dp))
-        Text(label, style = RafiqType.bodyS, color = ink, maxLines = 1)
-    }
-}
-
 /* ── الشريط العلوي ─────────────────────────────────────────────── */
 
 @Composable
@@ -577,50 +555,6 @@ private fun greetingText(): String {
         in 11..15 -> stringResource(R.string.greet_day)
         in 16..19 -> stringResource(R.string.greet_calm_evening)
         else      -> stringResource(R.string.greet_night)
-    }
-}
-
-/* ── تابِع القراءة ──────────────────────────────────────────────
-
-   `QuranLastRead` جدولٌ في القاعدة وطرقُه في المستودع منذ البداية، وله
-   صفرُ مستدعين: لا كاتبَ ولا قارئ. فمن قرأ صفحةَ ٥٧٧ ثمّ خرج، لم يكن
-   له إلّا أن يبحث عنها ثانيةً في ست مئةٍ وأربع.
-
-   والبطاقةُ لا تظهر إلّا لمن فتح المصحفَ فعلاً — لا موضعَ محفوظٌ فلا
-   بطاقة، ولا تشغل مكاناً في شاشة من لم يقرأ بعد.
-──────────────────────────────────────────────────────────────── */
-
-@Composable
-private fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
-    val rc  = LocalRafiqColors.current
-    val ctx = LocalContext.current
-    val name = remember(surah) { app.rafiqaldhikr.ui.mushaf.SurahNames.of(ctx, surah) }
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(top = 14.dp)
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.gold.copy(alpha = BorderIdle), RafiqShape.card)
-            .clickable(onClick = onOpen)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RafiqIcon(RIcon.Book, 20.dp, rc.emerald)
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.continue_reading), style = RafiqType.bodyS, color = rc.inkMed)
-            Spacer(Modifier.height(2.dp))
-            Text(
-                stringResource(R.string.continue_reading_at, name, page.toString())
-                    .localizedDigits(ar),
-                style = RafiqType.body,
-                color = rc.ink,
-            )
-        }
-        // السهمُ يتبع اتّجاهَ الكتابة — `autoMirrored` في المورد نفسِه.
-        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
     }
 }
 

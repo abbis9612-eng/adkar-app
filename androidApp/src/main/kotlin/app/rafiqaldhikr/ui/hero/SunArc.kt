@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -260,4 +261,80 @@ private fun DrawScope.drawSunPath(
         at(theta(hourOf(next.at), sunrise, sunset)),
         style = Stroke(1.4.dp.toPx()),
     )
+}
+
+/**
+ * القوسُ **قبل أن يُعرف الموقع**: أفقٌ وقوسان بلا علامةٍ ولا شمس.
+ *
+ * البديلُ كان حبّةً زجاجيّةً مكتوباً فيها «مواقيتُك لم تُضبط بعد» —
+ * شكلٌ من تصميمٍ آخرَ يظهر في أوّل ما يفتحه صاحبُ الهاتف، فيرى شاشةً
+ * لا تشبه ما بعدها. والإطارُ الفارغ يقول الشيءَ نفسَه بلغة الشاشة:
+ * **المكانُ محجوزٌ ليومك، وينقصه موقعُك**.
+ *
+ * ولا وقتَ يُخترع هنا: لا علامةَ ولا قرصَ ولا خطَّ تقدُّم.
+ */
+@Composable
+fun SunArcEmpty(
+    ink: Color,
+    note: String,
+    cta: String,
+    accent: Color,
+    onSet: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth()) {
+        Canvas(Modifier.fillMaxWidth().height(ARC_H)) {
+            val cx = size.width / 2f
+            val cy = ARC_CY.toPx()
+            val rx = size.width / 2f - ARC_PAD.toPx()
+            fun at(th: Float): Offset {
+                val s = sin(th)
+                return Offset(
+                    cx + rx * cos(th),
+                    cy - s * (if (s > 0f) ARC_RY_DAY.toPx() else ARC_RY_NIGHT.toPx()),
+                )
+            }
+            fun arc(a: Float, b: Float): Path = Path().apply {
+                for (i in 0..72) {
+                    val p = at(a + (b - a) * i / 72)
+                    if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
+                }
+            }
+            drawLine(
+                ink.copy(alpha = 0.18f),
+                Offset(6.dp.toPx(), cy), Offset(size.width - 6.dp.toPx(), cy),
+                1.dp.toPx(),
+            )
+            drawPath(
+                arc(PI.toFloat(), (2 * PI).toFloat()),
+                ink.copy(alpha = 0.14f),
+                style = Stroke(
+                    width = 1.2.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(2.dp.toPx(), 4.dp.toPx()),
+                    ),
+                ),
+            )
+            drawPath(arc(0f, PI.toFloat()), ink.copy(alpha = 0.18f), style = Stroke(1.6.dp.toPx()))
+        }
+        Row(
+            Modifier.fillMaxWidth().padding(top = 2.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            androidx.compose.material3.Text(
+                note, style = RafiqType.bodyS, color = ink.copy(alpha = 0.78f), maxLines = 1,
+            )
+            androidx.compose.material3.Text(
+                cta,
+                style = RafiqType.body,
+                color = accent,
+                maxLines = 1,
+                //  مساحةُ اللمس ٤٨ نقطةً حدّاً أدنى مهما صغر الحرف.
+                modifier = Modifier
+                    .clickable(onClick = onSet)
+                    .padding(horizontal = 10.dp, vertical = 13.dp),
+            )
+        }
+    }
 }
