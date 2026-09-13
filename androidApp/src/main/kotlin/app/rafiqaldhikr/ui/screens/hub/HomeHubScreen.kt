@@ -22,6 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -839,8 +847,48 @@ private fun DayRow(
             // في التطبيق. الصفُّ كلُّه بابٌ الآن.
             .clickable(onClick = onOpen),
     ) {
+        /*  ═══ نقطةٌ لكلِّ محطّةٍ على قضيبٍ يمتلئ ═══
+         *
+         *  كان خطٌّ واحدٌ تحت الحاضر وحدَه وعلامةُ صحٍّ بجانب الاسم.
+         *  والخطُّ يقول «أنت هنا» ولا يقول **أين هنا من اليوم كلِّه**؛
+         *  وعلامةُ الصحّ تزاحم الاسمَ فتضيق الأسماءُ الثمانية.
+         *
+         *  والآن نقطةٌ تحت كلِّ اسم، وقضيبٌ رفيعٌ يصلها: ما خلفك مصبوغٌ
+         *  وما أمامك خافت، فيُقرأ **المسارُ كلُّه وموضعُك منه** في نظرة.
+         *  ذهبيّةٌ لما سجّلتَه، وزمرّديّةٌ كبيرةٌ للحاضر، وباهتةٌ لما لم
+         *  يأتِ — ثلاثُ حالاتٍ بلا كلمةٍ واحدة.
+         *
+         *  وموضعُ الحاضر **يُقاس لا يُقدَّر**: الأسماءُ مختلفةُ العرض
+         *  («الاستيقاظ» ضعفُ «الفجر»)، فقسمةُ العرض على العدد تضع رأسَ
+         *  القضيب بعيداً عن نقطته. `onGloballyPositioned` يعطي مركزَها
+         *  الحقيقيّ. */
+        val railBg = rc.divider
+        /*  والقضيبُ المصبوغُ **ليس ذهبيّاً**.
+         *
+         *  الذهبُ في هذا التطبيق معناه واحد: «سجّلتَه أنت». والقضيبُ
+         *  يمتلئ بما **مضى من الوقت** لا بما فعلت — ولو نمتَ يومَك
+         *  كلَّه لامتلأ كما هو. فصبغُه ذهباً شهادةٌ بعبادةٍ لم تقع.
+         *  حبرٌ خافتٌ إذن: يقول «مضى» ولا يقول «تمّ». */
+        val railOn = rc.inkLight.copy(alpha = 0.45f)
+        var nowX by remember { mutableStateOf(0f) }
+        var rowW by remember { mutableStateOf(0f) }
+        val rtlRow = LocalLayoutDirection.current == LayoutDirection.Rtl
+
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { rowW = it.size.width.toFloat() }
+                .drawBehind {
+                    if (rowW <= 0f) return@drawBehind
+                    val y = size.height - DOT_R.toPx()
+                    val h = 1.5.dp.toPx()
+                    drawLine(railBg, Offset(0f, y), Offset(size.width, y), h, StrokeCap.Round)
+                    if (nowX > 0f) {
+                        //  المبدأُ حيث يبدأ اليومُ: اليمينُ في العربيّة
+                        val from = if (rtlRow) size.width else 0f
+                        drawLine(railOn, Offset(from, y), Offset(nowX, y), h, StrokeCap.Round)
+                    }
+                },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment     = Alignment.Bottom,
         ) {
@@ -865,24 +913,27 @@ private fun DayRow(
                 )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    // IntrinsicSize.Max يجعل الخطّ أدناه بعرض الاسم بالضبط
-                    modifier = Modifier.width(IntrinsicSize.Max),
+                    modifier = Modifier
+                        .width(IntrinsicSize.Max)
+                        .then(
+                            if (isNow) {
+                                Modifier.onGloballyPositioned {
+                                    nowX = it.positionInParent().x + it.size.width / 2f
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isDone) {
-                            RafiqIcon(RIcon.Check, 11.dp, rc.gold)
-                            Spacer(Modifier.width(3.dp))
-                        }
-                        Text(
-                            stringResource(short),
-                            fontSize   = 14.sp,
-                            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-                            color      = nameColor,
-                            maxLines   = 1,
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    NowUnderline(active = isNow)
+                    Text(
+                        stringResource(short),
+                        fontSize   = 14.sp,
+                        fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+                        color      = nameColor,
+                        maxLines   = 1,
+                    )
+                    Spacer(Modifier.height(9.dp))
+                    StationDot(isNow = isNow, isDone = isDone)
                 }
             }
         }
@@ -966,22 +1017,19 @@ private fun DayRow(
 }
 
 /**
- * خطُّ المحطّة الحاضرة.
+ * نقطةُ المحطّة — ثلاثُ حالاتٍ بثلاثة ألوان.
  *
- * ينبض نبضاً خافتاً (0.55↔1.0 في 1.4 ثانية) — وهو الحركةُ الوحيدة في
- * الشاشة، فتقع العين على «الآن» بلا أن يُقال لها ذلك. والنبض على
- * الشفافية لا على الحجم: تغيّرُ الحجم يزحزح ما حوله ويشتّت القراءة.
- *
- * ويحترم LocalReducedMotion فيثبت على الوضوح الكامل.
+ * والحاضرةُ وحدَها تتنفّس، وحولها حلقةٌ رفيعة: هي الجوابُ عن «أين أنا
+ * الآن» فتُرى قبل غيرها. وتحترم `LocalReducedMotion` فتثبت.
  */
 @Composable
-private fun NowUnderline(active: Boolean) {
+private fun StationDot(isNow: Boolean, isDone: Boolean) {
     val rc = LocalRafiqColors.current
     val reduced = LocalReducedMotion.current
-    val alpha = if (!active || reduced) 1f else {
+    val pulse = if (!isNow || reduced) 1f else {
         val t = rememberInfiniteTransition(label = "nowPulse")
         t.animateFloat(
-            initialValue = 0.55f,
+            initialValue = 0.45f,
             targetValue  = 1f,
             animationSpec = infiniteRepeatable(
                 tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse,
@@ -989,16 +1037,24 @@ private fun NowUnderline(active: Boolean) {
             label = "nowPulseAlpha",
         ).value
     }
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(3.dp)
-            .clip(RoundedCornerShape(3.dp))
-            .background(
-                if (active) rc.emeraldFill.copy(alpha = alpha) else Color.Transparent,
-            ),
+    val color by animateColorAsState(
+        when {
+            isNow  -> rc.emerald
+            isDone -> rc.gold
+            else   -> rc.divider
+        },
+        progressSpec(500), label = "dotColor",
     )
+    Canvas(Modifier.size(DOT_R * 2)) {
+        val c = center
+        if (isNow) drawCircle(rc.emerald.copy(alpha = 0.30f * pulse), size.minDimension / 2f, c, style = Stroke(1.4.dp.toPx()))
+        drawCircle(color, if (isNow) 4.2.dp.toPx() else 3.dp.toPx(), c)
+    }
 }
+
+/** نصفُ قطر مربّع النقطة — يحدّد أيضاً موضعَ القضيب. */
+private val DOT_R = 8.dp
+
 
 /** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
  *  يومه قبل أن يحدّد موقعه. مطابقة لـ`short` في محطّات DayCompanion. */
@@ -1029,7 +1085,7 @@ private fun DoorsRow(
     ) {
         DoorChip(stringResource(R.string.tasbeeh_title), Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
         DoorChip(stringResource(R.string.qibla_title),  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
-        DoorChip(stringResource(R.string.prayer_times_title), Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
+        DoorChip(stringResource(R.string.prayer_times_title), Modifier.weight(1f), onTimes)  { IcoClock(20.dp, it) }
     }
 }
 

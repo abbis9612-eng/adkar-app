@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -47,6 +49,28 @@ private fun DrawScope.duo(path: Path, c: Color, sw: Float) {
     duoFill(path, c)
     drawPath(path, c, style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   الخطُّ المفرَّغ — لأيقونات الأزرار الصغيرة
+
+   الـ«Duotone» وصفةٌ صحيحةٌ عند ٢٤ نقطةً فأكثر: التدرّجُ يعطي عمقاً
+   ويبقى الشكلُ مقروءاً. وعند ٢٠ نقطةً على بطاقةٍ بيضاء **يصير الملءُ
+   طيناً**: تختفي الفتحاتُ الداخليّةُ فتُقرأ الأيقونةُ كتلةً، وقبّةُ
+   المسجد بقوسها وخطِّ أرضها تُقرأ وجهاً مبتسماً لا مسجداً.
+
+   فهذه الثلاثُ مفرَّغة: حدٌّ وحدَه وبياضٌ في الداخل. والفضاءُ ٢٤×٢٤
+   كفضاء النموذج بالضبط، فلا تُترجَم الإحداثيّاتُ يدوياً ولا تنحرف.
+══════════════════════════════════════════════════════════════ */
+
+/** يرسم في فضاء ٢٤×٢٤ مهما كان مقاسُ الأيقونة. */
+private inline fun DrawScope.on24(body: DrawScope.() -> Unit) {
+    withTransform({ scale(size.width / 24f, size.height / 24f, Offset.Zero) }) { body() }
+}
+
+private val Hair = Stroke(1.6f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+
+private fun path24(d: String): Path = PathParser().parsePathString(d).toPath()
 
 /* ══════════ شريط التنقل والأساسيات ══════════ */
 
@@ -102,24 +126,12 @@ fun IcoQuran(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
 @Composable
 fun IcoMisbaha(s: Dp = 24.dp, c: Color = LocalRafiqColors.current.emerald) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height
-        val cx = w * 0.50f; val cy = h * 0.44f; val r = w * 0.27f
-        // حبات ممتلئة حول حلقة، مع فتحة أسفل للشرّابة
-        for (i in 0 until 9) {
-            if (i == 5) continue
-            val a = (i * 40 - 90) * PI.toFloat() / 180f
-            val bx = cx + r * cos(a); val by = cy + r * sin(a)
-            drawCircle(c.copy(alpha = 0.22f), w * 0.075f, Offset(bx, by))
-            drawCircle(c, w * 0.06f, Offset(bx, by))
+        on24 {
+            //  أربعُ حبّاتٍ على حلقة — لا تسعُ حبّاتٍ ممتلئةٍ تلتحم عند ٢٠ نقطة
+            for ((x, y) in listOf(12f to 6f, 17.5f to 9.5f, 6.5f to 9.5f, 12f to 18f)) {
+                drawCircle(c, 2.4f, Offset(x, y), style = Hair)
+            }
         }
-        // الشرّابة
-        drawLine(c, Offset(cx, cy + r * 0.9f), Offset(cx, h * 0.82f), w * 0.055f, StrokeCap.Round)
-        val tassel = Path().apply {
-            moveTo(cx, h * 0.82f)
-            cubicTo(w * 0.42f, h * 0.90f, w * 0.58f, h * 0.90f, cx, h * 0.94f)
-        }
-        duoFill(tassel, c)
-        drawCircle(c, w * 0.05f, Offset(cx, h * 0.88f))
     }
 }
 
@@ -214,17 +226,12 @@ fun IcoSunset(s: Dp = 28.dp, c: Color = LocalRafiqColors.current.lightDusk) {
 @Composable
 fun IcoCompass(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald, off: Boolean = false) {
     Canvas(Modifier.size(s)) {
-        val w = size.width; val h = size.height; val sw = w * 0.07f
-        val ring = Path().apply { addOval(Rect(Offset(w * 0.14f, h * 0.14f), Offset(w * 0.86f, h * 0.86f))) }
-        duo(ring, c, sw)
-        // إبرة معيّنية
-        val needle = Path().apply {
-            moveTo(w * 0.50f, h * 0.24f); lineTo(w * 0.60f, h * 0.50f)
-            lineTo(w * 0.50f, h * 0.76f); lineTo(w * 0.40f, h * 0.50f); close()
+        on24 {
+            drawCircle(c, 8.5f, Offset(12f, 12f), style = Hair)
+            //  الإبرةُ مفرَّغةٌ أيضاً: معيّنٌ ممتلئٌ داخل حلقةٍ صغيرة يصير نقطةً
+            drawPath(path24("M15 9l-2 5-5 2 2-5z"), c, style = Hair)
+            if (off) drawLine(c, Offset(4.2f, 4.2f), Offset(19.8f, 19.8f), 1.6f, StrokeCap.Round)
         }
-        drawPath(needle, c)
-        drawCircle(c, w * 0.05f, Offset(w * 0.50f, h * 0.50f))
-        if (off) drawLine(c, Offset(w * 0.16f, h * 0.16f), Offset(w * 0.84f, h * 0.84f), sw, StrokeCap.Round)
     }
 }
 
@@ -602,4 +609,69 @@ private fun starPath(cx: Float, cy: Float, outer: Float, inner: Float, points: I
         if (i == 0) moveTo(px, py) else lineTo(px, py)
     }
     close()
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ساعةُ المواقيت
+
+   كانت قبّةَ مسجدٍ ممتلئة: قوسٌ فوق خطٍّ أفقيّ. وعند عشرين نقطةً
+   **تُقرأ وجهاً مبتسماً** — القوسُ فمٌ والفتحتان عينان. وليست القبّةُ
+   لازمةً هنا أصلاً: البابُ بابُ **مواقيت**، والوقتُ ساعة.
+
+   وساعةٌ اعتياديّةٌ تُقرأ في لمحة، وفيها علامةٌ واحدةٌ تخصُّنا:
+   **علامةُ الاثنتَي عشرةَ أطولُ من أخواتها** — وهي موضعُ الزوال، أي
+   قمّةُ قوس الشمس في الشاشة الأولى بعينها. فالأعلى في الساعة هو
+   الأعلى في القوس: الظهر.
+
+   والعقربان عند الرابعة وخمس دقائق — لا عند العاشرة وعشرٍ. فذاك وضعٌ
+   متناظرٌ يصنع «حاجبين» فوق العلامة الطويلة، وهو عينُ العيب الذي
+   خرجنا منه.
+══════════════════════════════════════════════════════════════ */
+
+@Composable
+fun IcoClock(s: Dp = 22.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        on24 {
+            drawCircle(c, 8.6f, Offset(12f, 12f), style = Hair)
+            //  أربعُ علاماتٍ عند الأصيلة، وأطولُها علامةُ الزوال
+            for (k in 0..3) {
+                val a = (-90f + k * 90f) * PI.toFloat() / 180f
+                val len = if (k == 0) 2.3f else 1.4f
+                val ox = 12f + 7.5f * cos(a)
+                val oy = 12f + 7.5f * sin(a)
+                drawLine(
+                    c,
+                    Offset(ox, oy),
+                    Offset(12f + (7.5f - len) * cos(a), 12f + (7.5f - len) * sin(a)),
+                    1.6f, StrokeCap.Round,
+                )
+            }
+            //  عقربُ الساعة أقصرُ وأثخن، وعقربُ الدقائق أطولُ وأرقّ
+            fun hand(hour: Float, len: Float, w: Float) {
+                val a = (-90f + hour * 30f) * PI.toFloat() / 180f
+                drawLine(
+                    c, Offset(12f, 12f),
+                    Offset(12f + len * cos(a), 12f + len * sin(a)),
+                    w, StrokeCap.Round,
+                )
+            }
+            hand(4f, 4.4f, 1.8f)
+            hand(1f, 5.9f, 1.5f)
+            drawCircle(c, 0.95f, Offset(12f, 12f))
+        }
+    }
+}
+
+/** مصحفٌ مفتوح مفرَّغ — لبطاقة «تابِع القراءة» قبل أن تجهز صفحتُها. */
+@Composable
+fun IcoBookOpen(s: Dp = 20.dp, c: Color = LocalRafiqColors.current.emerald) {
+    Canvas(Modifier.size(s)) {
+        on24 {
+            drawPath(
+                path24("M12 6.5C10.4 5 8.4 4.3 5 4.3V18c3.4 0 5.4.7 7 2.2 1.6-1.5 3.6-2.2 7-2.2V4.3c-3.4 0-5.4.7-7 2.2Z"),
+                c, style = Hair,
+            )
+            drawLine(c, Offset(12f, 6.5f), Offset(12f, 20.2f), 1.6f, StrokeCap.Round)
+        }
+    }
 }

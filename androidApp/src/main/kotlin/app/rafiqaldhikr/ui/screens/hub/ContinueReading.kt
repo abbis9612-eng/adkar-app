@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.IcoBookOpen
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.mushaf.MushafFonts
@@ -198,7 +199,7 @@ fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (s == null) {
-                RafiqIcon(RIcon.Book, 20.dp, rc.emerald)
+                IcoBookOpen(20.dp, rc.emerald)
                 Spacer(Modifier.width(12.dp))
             }
             Column(verticalArrangement = Arrangement.Center) {
