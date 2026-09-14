@@ -68,7 +68,7 @@ import app.rafiqaldhikr.ui.sky.moonPhase
 import app.rafiqaldhikr.ui.hero.HeroAnim
 import app.rafiqaldhikr.ui.hero.HeroBackdrop
 import app.rafiqaldhikr.ui.hero.HeroWreath
-import app.rafiqaldhikr.ui.hero.SunArc
+import app.rafiqaldhikr.ui.hero.MeeqatLine
 import app.rafiqaldhikr.ui.hero.HeroKind
 import app.rafiqaldhikr.ui.hero.HeroStore
 import app.rafiqaldhikr.ui.hero.heroPen
@@ -222,8 +222,6 @@ fun HomeHubScreen(
      *  حين يُرسم القوسُ يحتاج مئةً وثمانيَ نقاطٍ وسطرَه، وحين لا
      *  يُرسم لا معنى لحجز مكانه فارغاً. */
     val times = LocalMeeqat.current.times
-    val skyTextH = if (times != null) SKY_TEXT_H_ARC else SKY_TEXT_H
-    val skyH = skyTextH + SKY_TAIL
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
         /*  الخلفيّة — انظر `ui/hero/HeroBackdrop.kt`.
@@ -239,9 +237,15 @@ fun HomeHubScreen(
             sunAlt        = sun.altitude,
             reducedMotion = LocalReducedMotion.current,
             weather       = weather,
-            fade          = rc.bg,
+            /*  **لا ذوبانَ في الورقة.**
+             *
+             *  كان أسفلُ السماء يذوب في لون الورق «فلا يبقى قطعٌ حادّ»
+             *  — وعلى الجهاز خرج **ضباباً أبيضَ متّسخاً** فوق حافّة
+             *  الورقة، لا ذوباناً. والورقةُ لها حافّةٌ مدوّرةٌ تجلس على
+             *  السماء: الحدُّ الحادُّ هنا صوابٌ لا عيب — ورقةٌ فوق
+             *  سماءٍ، لا سماءٌ تُمسح. */
             background    = heroBg,
-            modifier      = Modifier.fillMaxWidth().height(skyH),
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
         /*  الإكليل — انظر `ui/hero/HeroWreath.kt`.
@@ -250,7 +254,7 @@ fun HomeHubScreen(
          *  تحته ليُقرأ الكلام، والغصنُ إن وقع أسفلَه ابتُلع. */
         HeroWreath(
             reducedMotion = LocalReducedMotion.current,
-            modifier      = Modifier.fillMaxWidth().height(skyH),
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -265,7 +269,7 @@ fun HomeHubScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .height(skyTextH)
+                        .height(SKY_TEXT_H)
                         .padding(horizontal = 20.dp),
                 ) {
                     SkyTopBar(
@@ -331,25 +335,26 @@ fun HomeHubScreen(
                      *
                      *  والمواقيتُ من `LocalMeeqat` لا من حسابٍ جديد، فإن
                      *  لم تُحلّ لم يُرسم شيء — لا نخترع وقتاً. */
-                    /*  وبلا مواقيتَ **لا يُرسم شيء**.
+                    /*  سطرٌ واحد: الاسمُ والساعةُ وكم بقي. لا رسمَ.
                      *
-                     *  جُرّب أن يُرسم الإطارُ فارغاً — أفقٌ وقوسان بلا
-                     *  علامةٍ ولا شمس — بحجّة أن يُرى أين سيُقع اليوم.
-                     *  وعلى الجهاز خرج بيضةً رماديّةً فارغةً لا تقول
-                     *  شيئاً، وسأل صاحبُه: «ما هذا؟». وهو السؤالُ الذي
-                     *  يكفي وحدَه لحذف أيّ عنصر.
+                     *  كان هنا قوسُ شمسٍ يمشي عليه قرصٌ وعليه ستُّ
+                     *  علامات. وكان صحيحاً في حسابه — ومرفوضاً في
+                     *  شاشته: لا يُفهم بلا شرح، وبلا موقعٍ يصير بيضةً
+                     *  فارغة. والقاعدةُ التي تعلّمتُها منه: **ما احتاج
+                     *  شرحاً على الشاشة الأولى فقد سقط**.
                      *
-                     *  والشاشةُ تقول حاجتَها مرّةً واحدةً في البطاقة
-                     *  تحتها: «حدِّد مدينتك» وزرُّها. وتكرارُها في
-                     *  السماء ضجيجٌ لا إرشاد. */
+                     *  فبقي ما كان القوسُ يخدمه أصلاً: متى الصلاةُ
+                     *  القادمةُ وكم بقي لها. وهو ما يُقرأ في نصف ثانية.
+                     *
+                     *  وبلا مواقيتَ لا سطر: البطاقةُ تحته تقول «حدِّد
+                     *  مدينتك» مرّةً واحدة، وتكرارُها هنا ضجيج. */
                     if (times != null) {
-                        SunArc(
-                            times  = times,
-                            nowMs  = now,
-                            left   = humanRemaining(nextMeeqatAt(times, now) - now),
-                            ink    = heroInk,
-                            accent = MEEQAT_GOLD,
-                            ar     = ar,
+                        MeeqatLine(
+                            times = times,
+                            nowMs = now,
+                            left  = humanRemaining(nextMeeqatAt(times, now) - now),
+                            ink   = heroInk,
+                            ar    = ar,
                         )
                         Spacer(Modifier.height(14.dp))
                     }
@@ -439,11 +444,9 @@ private fun nextMeeqatAt(t: app.rafiq.domain.model.PrayerTimesResult, now: Long)
         .firstOrNull { it > now } ?: (t.fajr + 86_400_000L)
 
 /** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
-/** ما بين آخر كلام السماء وأسفل تدرّجها — يبقى خلف الورقة. */
-private val SKY_TAIL = 72.dp
 private val SKY_TEXT_H = 288.dp
-/** ومع القوس: زيادةٌ تكفيه وسطرَه بلا أن يُقصّ حين يكبّر صاحبُه الخطّ. */
-private val SKY_TEXT_H_ARC = 312.dp
+/** وأسفلُ التدرّج يبقى خلف الورقة، فلا تنتهي السماءُ عند حافّتها. */
+private val SKY_H = 360.dp
 
 /* ── الشريطُ العلويُّ فوق السماء ─────────────────────────────────
 
