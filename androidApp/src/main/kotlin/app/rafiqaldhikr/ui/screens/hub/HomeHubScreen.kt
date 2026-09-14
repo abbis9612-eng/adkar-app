@@ -22,14 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import app.rafiqaldhikr.ui.utils.formatClock
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -860,94 +856,47 @@ private fun DayRow(
             // في التطبيق. الصفُّ كلُّه بابٌ الآن.
             .clickable(onClick = onOpen),
     ) {
-        /*  ═══ نقطةٌ لكلِّ محطّةٍ على قضيبٍ يمتلئ ═══
+        /*  ═══ شرائحُ المحطّات ═══
          *
-         *  كان خطٌّ واحدٌ تحت الحاضر وحدَه وعلامةُ صحٍّ بجانب الاسم.
-         *  والخطُّ يقول «أنت هنا» ولا يقول **أين هنا من اليوم كلِّه**؛
-         *  وعلامةُ الصحّ تزاحم الاسمَ فتضيق الأسماءُ الثمانية.
+         *  مرَّ هذا الصفُّ بثلاثة أطوار: تسعةُ أسماءٍ في سطرٍ واحدٍ تحت
+         *  الحاضر منها خطّ؛ ثمّ نقطةٌ لكلٍّ على قضيبٍ يمتلئ. وسقط
+         *  كلاهما لعلّةٍ واحدة: **ثمانيةُ أسماءٍ لا تتّسع في عرض شاشة.**
+         *  فتتزاحم حتّى تلتصق، ويصغر حرفُها حتّى يُقرأ بمشقّة، ولا يبقى
+         *  مكانٌ لوقتٍ بجانب اسم.
          *
-         *  والآن نقطةٌ تحت كلِّ اسم، وقضيبٌ رفيعٌ يصلها: ما خلفك مصبوغٌ
-         *  وما أمامك خافت، فيُقرأ **المسارُ كلُّه وموضعُك منه** في نظرة.
-         *  ذهبيّةٌ لما سجّلتَه، وزمرّديّةٌ كبيرةٌ للحاضر، وباهتةٌ لما لم
-         *  يأتِ — ثلاثُ حالاتٍ بلا كلمةٍ واحدة.
+         *  والحلُّ أن يُترك العرضُ يقرّر: صفٌّ يتمرّر، كلُّ محطّةٍ فيه
+         *  شريحةٌ تأخذ ما تحتاجه — اسمُها ووقتُها. فتتنفّس الأسماء،
+         *  ويظهر الوقتُ الذي لم يكن له مكانٌ قطّ.
          *
-         *  وموضعُ الحاضر **يُقاس لا يُقدَّر**: الأسماءُ مختلفةُ العرض
-         *  («الاستيقاظ» ضعفُ «الفجر»)، فقسمةُ العرض على العدد تضع رأسَ
-         *  القضيب بعيداً عن نقطته. `onGloballyPositioned` يعطي مركزَها
-         *  الحقيقيّ. */
-        val railBg = rc.divider
-        /*  والقضيبُ المصبوغُ **ليس ذهبيّاً**.
-         *
-         *  الذهبُ في هذا التطبيق معناه واحد: «سجّلتَه أنت». والقضيبُ
-         *  يمتلئ بما **مضى من الوقت** لا بما فعلت — ولو نمتَ يومَك
-         *  كلَّه لامتلأ كما هو. فصبغُه ذهباً شهادةٌ بعبادةٍ لم تقع.
-         *  حبرٌ خافتٌ إذن: يقول «مضى» ولا يقول «تمّ». */
-        val railOn = rc.inkLight.copy(alpha = 0.45f)
-        var nowX by remember { mutableStateOf(0f) }
-        var rowW by remember { mutableStateOf(0f) }
-        val rtlRow = LocalLayoutDirection.current == LayoutDirection.Rtl
-
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { rowW = it.size.width.toFloat() }
-                .drawBehind {
-                    if (rowW <= 0f) return@drawBehind
-                    val y = size.height - DOT_R.toPx()
-                    val h = 1.5.dp.toPx()
-                    drawLine(railBg, Offset(0f, y), Offset(size.width, y), h, StrokeCap.Round)
-                    if (nowX > 0f) {
-                        //  المبدأُ حيث يبدأ اليومُ: اليمينُ في العربيّة
-                        val from = if (rtlRow) size.width else 0f
-                        drawLine(railOn, Offset(from, y), Offset(nowX, y), h, StrokeCap.Round)
-                    }
-                },
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.Bottom,
+         *  والحاضرةُ شريحةٌ **مصمتة** — أظهرُ شيءٍ في الورقة كلِّها —
+         *  ويُزحَف إليها تلقائياً عند الفتح فتُرى بلا أن يبحث عنها أحد.
+         */
+        val chips = rememberLazyListState()
+        LaunchedEffect(nowIdx, names.size) {
+            //  تُترك واحدةٌ قبلها في المشهد: يُقرأ «من أين جئت» مع «أين أنت»
+            if (nowIdx >= 0) chips.animateScrollToItem((nowIdx - 1).coerceAtLeast(0))
+        }
+        LazyRow(
+            state = chips,
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            names.forEachIndexed { i, short ->
-                val isNow  = i == nowIdx
+            itemsIndexed(names) { i, short ->
+                val isNow = i == nowIdx
                 /*  ثلاثُ حالاتٍ لا اثنتان.
                  *
                  *  التطبيقُ يعرف أنّ الوقت مضى، ولا يعرف أنّ صاحبَه صلّى.
-                 *  فما مرَّ وقتُه «مضت» بحبرٍ خافت، ولا يصير «تمّت» ذهبيّةً
-                 *  إلّا إن سجّلها هو. وكتابةُ «تمّت» لانقضاء الوقت وحده
-                 *  شهادةٌ له بعبادةٍ لم يفعلها — وهي أسوأُ من كلِّ عدّاد. */
-                val isDone = !waiting && stations.getOrNull(i)?.id in doneIds
-                val isGone = nowIdx >= 0 && i < nowIdx && !isDone
-                val nameColor by animateColorAsState(
-                    when {
-                        isNow  -> rc.ink
-                        isDone -> rc.gold
-                        isGone -> rc.inkLight
-                        else   -> rc.inkLight
-                    },
-                    progressSpec(500), label = "stationColor",
+                 *  فما مرَّ وقتُه يبقى كما هو، ولا يصير ذهبيّاً إلّا إن
+                 *  سجّله هو. وكتابةُ «تمّت» لانقضاء الوقت وحده شهادةٌ له
+                 *  بعبادةٍ لم يفعلها — وهي أسوأُ من كلِّ عدّاد. */
+                val st = stations.getOrNull(i)
+                StationChip(
+                    name = stringResource(short),
+                    time = st?.startMillis?.let { formatClock(it, ar) },
+                    isNow = isNow,
+                    isDone = !waiting && st?.id in doneIds,
+                    onClick = onOpen,
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .then(
-                            if (isNow) {
-                                Modifier.onGloballyPositioned {
-                                    nowX = it.positionInParent().x + it.size.width / 2f
-                                }
-                            } else {
-                                Modifier
-                            },
-                        ),
-                ) {
-                    Text(
-                        stringResource(short),
-                        fontSize   = 14.sp,
-                        fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-                        color      = nameColor,
-                        maxLines   = 1,
-                    )
-                    Spacer(Modifier.height(9.dp))
-                    StationDot(isNow = isNow, isDone = isDone)
-                }
             }
         }
 
@@ -1030,43 +979,79 @@ private fun DayRow(
 }
 
 /**
- * نقطةُ المحطّة — ثلاثُ حالاتٍ بثلاثة ألوان.
+ * شريحةُ محطّة — اسمٌ ووقتُ بدايتها.
  *
- * والحاضرةُ وحدَها تتنفّس، وحولها حلقةٌ رفيعة: هي الجوابُ عن «أين أنا
- * الآن» فتُرى قبل غيرها. وتحترم `LocalReducedMotion` فتثبت.
+ * والحاضرةُ مصمتةٌ بلون الهويّة وحرفٍ ثقيل، والمسجَّلةُ محاطةٌ بذهبٍ
+ * وأمامها نقطة، وما عداهما هادئ. ولا لونَ رابعاً: الموضعُ في الصفّ
+ * يقول ما مضى وما بقي بلا صبغة.
+ *
+ * والارتفاعُ اثنتان وأربعون نقطةً حدّاً أدنى — الشريحةُ مقصودةٌ باللمس
+ * لا زخرفةً تُقرأ، ومساحةُ الإصبع لا تُقاس بحجم الحرف.
  */
 @Composable
-private fun StationDot(isNow: Boolean, isDone: Boolean) {
+private fun StationChip(
+    name: String,
+    time: String?,
+    isNow: Boolean,
+    isDone: Boolean,
+    onClick: () -> Unit,
+) {
     val rc = LocalRafiqColors.current
-    val reduced = LocalReducedMotion.current
-    val pulse = if (!isNow || reduced) 1f else {
-        val t = rememberInfiniteTransition(label = "nowPulse")
-        t.animateFloat(
-            initialValue = 0.45f,
-            targetValue  = 1f,
-            animationSpec = infiniteRepeatable(
-                tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse,
-            ),
-            label = "nowPulseAlpha",
-        ).value
-    }
-    val color by animateColorAsState(
-        when {
-            isNow  -> rc.emerald
-            isDone -> rc.gold
-            else   -> rc.divider
-        },
-        progressSpec(500), label = "dotColor",
+    val bg by animateColorAsState(
+        if (isNow) rc.emeraldFill else Color.Transparent,
+        progressSpec(500), label = "chipBg",
     )
-    Canvas(Modifier.size(DOT_R * 2)) {
-        val c = center
-        if (isNow) drawCircle(rc.emerald.copy(alpha = 0.30f * pulse), size.minDimension / 2f, c, style = Stroke(1.4.dp.toPx()))
-        drawCircle(color, if (isNow) 4.2.dp.toPx() else 3.dp.toPx(), c)
+    val border = when {
+        isNow -> rc.emeraldFill
+        isDone -> rc.gold.copy(alpha = 0.40f)
+        else -> rc.divider
+    }
+    /*  `inkMed` لا `inkLight`.
+     *
+     *  النموذجُ رسمها بحبرٍ فاتحٍ جدّاً، وقاعدةُ اللوحة في هذا المشروع
+     *  صريحة: `inkLight` للأيقونات والعناصر الخاملة، و**النصُّ الخافت
+     *  يستعمل `inkMed`** — وهو ٤٫٥٤:١ على الورق، أي على حدّ المقروئيّة
+     *  بالضبط ولا يُنزَل عنه. */
+    val fg = when {
+        isNow -> rc.onEmeraldFill
+        isDone -> rc.gold
+        else -> rc.inkMed
+    }
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(bg)
+            .border(1.dp, border, CircleShape)
+            .clickable(onClick = onClick)
+            .defaultMinSize(minHeight = 42.dp)
+            .padding(horizontal = if (isNow) 17.dp else 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (isDone) {
+            Box(Modifier.size(5.dp).clip(CircleShape).background(rc.gold))
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(
+            name,
+            fontSize = 14.sp,
+            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+            color = fg,
+            maxLines = 1,
+        )
+        if (time != null) {
+            Spacer(Modifier.width(6.dp))
+            /*  الوقتُ يتميّز **بالمقاس لا بالشفافيّة**: خفضُ ألفا
+             *  الحبرِ الخافت إلى ٧٥٪ يُسقط تباينَه تحت ٤٫٥:١، وهو نصٌّ
+             *  صغيرٌ أصلاً. فبقي لونُه كاملاً وصغر حرفُه. */
+            Text(
+                time,
+                fontSize = 11.5.sp,
+                color = fg,
+                maxLines = 1,
+            )
+        }
     }
 }
-
-/** نصفُ قطر مربّع النقطة — يحدّد أيضاً موضعَ القضيب. */
-private val DOT_R = 8.dp
 
 
 /** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
