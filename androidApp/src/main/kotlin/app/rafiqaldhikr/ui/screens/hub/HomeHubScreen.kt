@@ -65,6 +65,10 @@ import app.rafiqaldhikr.ui.hero.HeroAnim
 import app.rafiqaldhikr.ui.hero.HeroBackdrop
 import app.rafiqaldhikr.ui.hero.HeroWreath
 import app.rafiqaldhikr.ui.hero.MeeqatLine
+import app.rafiqaldhikr.ui.hero.Nida
+import app.rafiqaldhikr.ui.hero.NidaBlock
+import app.rafiqaldhikr.ui.hero.NidaStore
+import app.rafiqaldhikr.ui.hero.nidaCall
 import app.rafiqaldhikr.ui.hero.HeroKind
 import app.rafiqaldhikr.ui.hero.HeroStore
 import app.rafiqaldhikr.ui.hero.heroPen
@@ -217,7 +221,18 @@ fun HomeHubScreen(
      *  الشاشةَ كلَّها فتُدفَع الورقةُ خارجها. فيُثبَّت — لكن بقيمتين:
      *  حين يُرسم القوسُ يحتاج مئةً وثمانيَ نقاطٍ وسطرَه، وحين لا
      *  يُرسم لا معنى لحجز مكانه فارغاً. */
-    val times = LocalMeeqat.current.times
+    val meeqat = LocalMeeqat.current
+    val times = meeqat.times
+
+    /*  موعظةُ الطور — انظر `ui/hero/Nida.kt`.
+     *
+     *  تُقرأ من الأصول مرّةً واحدةً خارج الخيط الرئيسيّ، ولا تُعرض حتى
+     *  تجهز: لا إطارَ فارغاً ينتظر محتواه. */
+    var nidaAll by remember { mutableStateOf<List<Nida>>(emptyList()) }
+    LaunchedEffect(Unit) { nidaAll = NidaStore.load(ctx) }
+    val nida = remember(nidaAll, meeqat.phase) {
+        nidaAll.firstOrNull { it.phase == NidaStore.keyOf(meeqat.phase) }
+    }
 
     Box(Modifier.fillMaxSize().background(rc.bg)) {
         /*  الخلفيّة — انظر `ui/hero/HeroBackdrop.kt`.
@@ -287,8 +302,16 @@ fun HomeHubScreen(
                     /*  والقلمُ يكتبه: القناعُ يمرّ عليه فيُقرأ كتابةً،
                      *  ويبقى **نصّاً** لا صورة — فيكبر مع خطّ المستخدم
                      *  ويقرؤه التدقيقُ الصوتيّ. */
+                    /*  النداءُ يتبع **طورَ الميقات** لا ساعةَ الجدار: «أقبِلْ
+                     *  قبل أن يُطبِقَ الليل» تُقال عند المغرب حيث وقع، لا عند
+                     *  السابعة في كلّ بلد. وفيه دعاءٌ لصاحبه — «رعاك الله» —
+                     *  فهو نداءٌ من رفيقٍ لا أمرٌ من آلة.
+                     *
+                     *  **وهو كلامُنا خالصاً**: لا يستعير لفظَ آيةٍ ولا حديث.
+                     *  والنصُّ المرويُّ له موضعُه على الورق بخطِّه وإسناده. */
+                    val (callId, subId) = nidaCall(meeqat.phase)
                     val line = hero?.title?.takeIf { it.isNotBlank() }
-                        ?: stringResource(heroCall())
+                        ?: stringResource(callId)
                     val anim = hero?.anim ?: HeroAnim.PEN
                     val write by rememberHeroEntrance(line, anim, LocalReducedMotion.current)
                     Text(
@@ -305,8 +328,11 @@ fun HomeHubScreen(
                      *  والغيمُ وحدَه يحتمل أن يكون زينة. */
                     //  سطرُ البطاقة يحلّ محلَّ سطر الطقس حين يوجد — سطرٌ
                     //  واحدٌ تحت التحيّة لا سطران يتزاحمان.
+                    //  سطرٌ واحدٌ تحت النداء لا ثلاثة: بطاقةُ المدير إن
+                    //  وُجدت، وإلّا الطقسُ إن عُرف، وإلّا تتمّةُ النداء.
                     val sub = hero?.note?.takeIf { it.isNotBlank() }
                         ?: weatherLine(weather, ar).takeIf { weather.known }
+                        ?: stringResource(subId)
                     if (sub != null) {
                         Spacer(Modifier.height(6.dp))
                         //  السطرُ الصغيرُ يتبع الكبيرَ بعد أن يُكتب نصفُه.
@@ -381,6 +407,14 @@ fun HomeHubScreen(
                         .clip(RoundedCornerShape(4.dp))
                         .background(rc.divider),
                 )
+
+                /*  الموعظةُ أوّلَ الورقة.
+                 *
+                 *  على **الورق** لا على السماء، وبخطّ `AmiriFamily` لا خطّ
+                 *  الواجهة، وإسنادُها ذهبيٌّ يُلمَس فيفتح المصدر. ثلاثُ
+                 *  طبقاتٍ تفصل صوتَ الوحي والأثر عن صوتنا — سطحاً وحرفاً
+                 *  ولوناً — فلا يلتبسان على عينٍ ولا على قارئٍ عجل. */
+                nida?.let { NidaBlock(it) }
 
                 MeeqatCard(
                     station   = day.nowStation,
@@ -518,22 +552,6 @@ private fun HubTopBar(onSettings: () -> Unit) {
         }
     }
 }
-
-/**
- * نداءُ الساعة: فعلٌ مضارعٌ مباشر، لا تحيّةٌ ولا حديث.
- *
- * ولا يُشتقّ من ارتفاع الشمس بل من الساعة نفسِها: «ابدأ يومَك» تُقال
- * لمن فتح التطبيق في التاسعة صباحاً في كانون، ولو تبعنا الشمسَ لقالت
- * له «اختم» لأنّ النهارَ قصير.
- */
-@Composable
-private fun heroCall(): Int =
-    when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
-        in 4..10  -> R.string.hero_begin
-        in 11..15 -> R.string.hero_keep
-        in 16..19 -> R.string.hero_hold
-        else      -> R.string.hero_seal
-    }
 
 /* ── التحية ─────────────────────────────────────────────────────── */
 

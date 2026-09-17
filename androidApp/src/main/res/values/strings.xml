@@ -369,10 +369,6 @@
 
     <!-- ═══ الرئيسية ═══ -->
     <!-- نداءُ الشاشة الأولى: فعلٌ يتبع الساعة، لا تحيّةٌ ولا حديثٌ مرويّ -->
-    <string name="hero_begin">ابدأ يومَك</string>
-    <string name="hero_keep">أدِمْ وإن قلّ</string>
-    <string name="hero_hold">أمسِكْ بآخرِه</string>
-    <string name="hero_seal">اختم يومَك</string>
     <string name="greet_salam">السلام عليكم</string>
     <string name="greet_morning">صباحٌ مبارك</string>
     <string name="greet_day">نهارٌ طيّب</string>
@@ -791,4 +787,21 @@
     <string name="wx_rain">مطر</string>
     <string name="wx_snow">ثلج</string>
     <string name="wx_thunder">عاصفةٌ رعدية</string>
+
+    <!-- نداءُ الطور — كلامُنا نحن، لا نصٌّ مَرويّ -->
+    <string name="nida_fajr">ابدأْ، رعاك الله.</string>
+    <string name="nida_fajr_sub">افتحْ يومَك بذكره.</string>
+    <string name="nida_duha">أقبِلْ، وفّقك الله.</string>
+    <string name="nida_duha_sub">ركعتان تكفيك الآن.</string>
+    <string name="nida_dhuhr">قُمْ إلى الصلاة، سدّدك الله.</string>
+    <string name="nida_dhuhr_sub">وما بعدها ذِكرٌ يسير.</string>
+    <string name="nida_asr">أمسِكْ بطرفِ يومك، رعاك الله.</string>
+    <string name="nida_asr_sub">ما بقي من نهارك قليل.</string>
+    <string name="nida_maghrib">أقبِلْ قبل أن يُطبِقَ الليل.</string>
+    <string name="nida_maghrib_sub">بارك الله فيك.</string>
+    <string name="nida_isha">اختِمْ يومَك، تقبّل الله منك.</string>
+    <string name="nida_isha_sub">وِترٌ واحدٌ يكفي.</string>
+    <string name="nida_layl">نَمْ على ذِكر، حفظك الله.</string>
+    <string name="nida_layl_sub">آيةُ الكرسيّ تكفيك.</string>
+    <string name="nida_partial">من الآية · %1$s</string>
 </resources>

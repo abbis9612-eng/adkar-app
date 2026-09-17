@@ -359,10 +359,6 @@
 
     <!-- ═══ Home ═══ -->
     <!-- The opening call: a verb that follows the clock, not a greeting or a narration -->
-    <string name="hero_begin">Begin your day</string>
-    <string name="hero_keep">Keep it, however small</string>
-    <string name="hero_hold">Hold what is left</string>
-    <string name="hero_seal">Seal your day</string>
     <string name="greet_salam">Peace be upon you</string>
     <string name="greet_morning">A blessed morning</string>
     <string name="greet_day">A good day</string>
@@ -766,4 +762,21 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="wx_rain">Rain</string>
     <string name="wx_snow">Snow</string>
     <string name="wx_thunder">Thunderstorm</string>
+
+    <!-- نداءُ الطور — كلامُنا نحن، لا نصٌّ مَرويّ -->
+    <string name="nida_fajr">Begin — may God keep you.</string>
+    <string name="nida_fajr_sub">Open your day with His remembrance.</string>
+    <string name="nida_duha">Turn to Him — may God grant you success.</string>
+    <string name="nida_duha_sub">Two rak‘ahs are enough now.</string>
+    <string name="nida_dhuhr">Rise for the prayer — may God guide you.</string>
+    <string name="nida_dhuhr_sub">And a brief remembrance after it.</string>
+    <string name="nida_asr">Hold the end of your day — may God keep you.</string>
+    <string name="nida_asr_sub">Little of your daylight remains.</string>
+    <string name="nida_maghrib">Turn to Him before night falls.</string>
+    <string name="nida_maghrib_sub">May God bless you.</string>
+    <string name="nida_isha">Seal your day — may God accept from you.</string>
+    <string name="nida_isha_sub">One witr is enough.</string>
+    <string name="nida_layl">Sleep upon remembrance — may God guard you.</string>
+    <string name="nida_layl_sub">Ayat al-Kursi is enough.</string>
+    <string name="nida_partial">From the verse · %1$s</string>
 </resources>
