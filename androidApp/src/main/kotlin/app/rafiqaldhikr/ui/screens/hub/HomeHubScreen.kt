@@ -656,8 +656,15 @@ private fun MeeqatCard(
      *    ٣) الباقي: «ابدأ» إلى شاشة أذكاره. */
     val title:  String
     val desc:   String
-    val source: String?
+    /*  الفضلُ بنصّه لا شارةُ تخريجه.
+     *
+     *  كانت البطاقة تعرض [StationUi.source] وحدَه — «رواه مسلم» — فيقرأ
+     *  المستخدم إسناداً بلا مُسنَد. والنموذج يعرض [StationUi.virtue]:
+     *  الحديثَ وتخريجَه معاً، فيعرف **لماذا** هذه المحطّة قبل أن يبدأها. */
+    val virtue: String?
     val cta:    String
+    /** «اقرأ على مهل» — لا تُقال إلّا حين يكون الزرُّ بدايةَ قراءةٍ فعلاً. */
+    val unhurried: Boolean
     val action: () -> Unit
     when {
         // بلا إحداثيات لا مواقيت، وبلا مواقيت لا محطّات — فكانت البطاقة
@@ -667,96 +674,166 @@ private fun MeeqatCard(
             title = stringResource(R.string.hub_set_city)
             desc = "محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. " +
                 "حدِّدها مرّةً واحدة ويُحسب الباقي."
-            source = null; cta = stringResource(R.string.hub_set_location); action = onDayPage
+            virtue = null; cta = stringResource(R.string.hub_set_location)
+            unhurried = false; action = onDayPage
         }
         station == null -> {
             title = stringResource(R.string.hub_day_adhkar)
             desc = stringResource(R.string.hub_day_sub)
-            source = null; cta = stringResource(R.string.action_open); action = onDayPage
+            virtue = null; cta = stringResource(R.string.action_open)
+            unhurried = false; action = onDayPage
         }
         station.route == null -> {
             title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
-            source = station.source; cta = stringResource(R.string.action_detail); action = onDayPage
+            virtue = station.virtue; cta = stringResource(R.string.action_detail)
+            unhurried = false; action = onDayPage
         }
         else -> {
             title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
-            source = station.source; cta = stringResource(R.string.action_start); action = onStart
+            virtue = station.virtue
+            //  «ابدأ» وحدَها لا تقول ماذا تبدأ. «ابدأ صلاة الضحى» تقول.
+            cta = stringResource(R.string.action_start_named, stringResource(station.title))
+            unhurried = true; action = onStart
         }
     }
 
 
     /*  كانت البطاقةُ سطحاً أخضرَ داكناً لأنّها كانت مركزَ ثقل الشاشة.
-     *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. فهي الآن على
-     *  الورق نفسه، والفعلُ وحده ملوّن. */
+     *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. ثمّ صارت عاريةً
+     *  على الورق بلا حدٍّ ولا سطح — فذابت فيه ولم تعد تُقرأ بطاقةً.
+     *
+     *  فهي الآن **صندوق**: سطحُ [card] على ورق [bg]، وحدٌّ رفيع، وزاويةٌ
+     *  واحدةٌ عريضةٌ في bottomStart توقيعاً كسائر أسطح التطبيق. */
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp),
+            .padding(top = 12.dp)
+            .clip(ActShape)
+            .background(rc.card)
+            .border(1.dp, rc.cardBorder, ActShape)
+            .padding(horizontal = 17.dp, vertical = 16.dp),
     ) {
-        /*  رأسُ البطاقة وخيطُها انتقلا إلى السماء: النافذةُ وما بقي
-         *  منها في الحبّة فوق الأفق، وموضعُ الوقت في موضع الشمس نفسِه.
-         *  وإبقاؤهما هنا تكرارٌ لما تقوله السماءُ بلا كلمة. */
-        /* الجسم */
-        Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp)) {
-            /*  عنوانُ البطاقة **أخفضُ من النصّ المرويّ** فوقه (٢٢ مقابل
-             *  ٢٦)، وبخطّ الواجهة. كان ثلاثين أميريّاً عريضاً — فتقع
-             *  العينُ على «صلاة الضحى» قبل كلام النبيّ ﷺ. */
-            Text(title, style = RafiqType.titleL, color = rc.ink)
-            Spacer(Modifier.height(5.dp))
-            Text(
-                desc,
-                style = RafiqType.bodyS,
-                color = rc.inkMed,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        /* الفعل: «ابدأ» وزرُّ «لماذا هذا الآن؟» */
+        /*  رأسُ البطاقة: «خطوتك الآن» ⟷ «محطّة الضحى».
+         *
+         *  سطرٌ صغيرٌ يفعل شيئين لا تفعلهما البطاقةُ بدونه: يقول إنّ ما
+         *  تحته **فعلٌ مطلوبٌ الآن** لا خبر، ويقول **أين أنت من يومك**
+         *  بلا أن تنزل العينُ إلى صفّ المحطّات. وكان غائباً. */
         Row(
-            Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment     = Alignment.CenterVertically,
         ) {
-            if (source != null) {
-                // كانت سطراً وحدها فوق الزرّين، فتُقرأ لصاقةً معلَّقة.
-                // وهي في صفّ الفعل تُقرأ ما تُقرأ به: سنداً لِما ستفعل.
-                Row(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(1.dp, rc.cardBorder, RoundedCornerShape(10.dp))
-                        .padding(start = 9.dp, end = 11.dp, top = 9.dp, bottom = 9.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(Modifier.width(3.dp).height(15.dp).clip(RoundedCornerShape(2.dp)).background(rc.gold))
-                    Spacer(Modifier.width(8.dp))
-                    Text(source, style = RafiqType.caption, color = rc.gold, maxLines = 1)
-                }
+            Text(
+                stringResource(R.string.hub_eyebrow_now),
+                style = RafiqType.caption,
+                fontSize = 10.5.sp,
+                color = rc.inkLight,
+                maxLines = 1,
+            )
+            //  بلا موقعٍ لا محطّةَ يُوسَم بها، ولو كانت آخرَ محطّةٍ محسوبة:
+            //  البطاقةُ تطلب الموقع، فوسمُ «محطّة العصر» فوقها يناقضها.
+            station?.takeIf { !needsLoc }?.let {
+                Text(
+                    stringResource(R.string.hub_station_tag, stringResource(it.short)),
+                    style = RafiqType.caption,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = rc.emerald,
+                    maxLines = 1,
+                )
             }
+        }
+
+        /*  عنوانُ البطاقة **أخفضُ من النصّ المرويّ** فوقه (٢٢ مقابل ٢٦)،
+         *  وبخطّ الواجهة. كان ثلاثين أميريّاً عريضاً — فتقع العينُ على
+         *  «صلاة الضحى» قبل كلام النبيّ ﷺ. */
+        Text(
+            title,
+            style = RafiqType.titleL,
+            color = rc.ink,
+            modifier = Modifier.padding(top = 3.dp),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            desc,
+            style = RafiqType.bodyS,
+            color = rc.inkMed,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        if (virtue != null) {
+            /*  الفضلُ بعرض البطاقة على سطح الورق.
+             *
+             *  كان حبّةً محاطةً **تقاسم الزرَّ الصفَّ**، فيضيق كلاهما ولا
+             *  يتّسع إلّا لشارة «رواه مسلم». وهو هنا سطرُه، فيتّسع للحديث
+             *  بتخريجه. والشريطُ الذهبيُّ يمتدّ بارتفاع النصّ لا بمقاسٍ
+             *  ثابت — ومن هنا [IntrinsicSize.Min]. */
             Row(
                 Modifier
-                    .weight(1f)
-                    .heightIn(min = 54.dp)
-                    .clip(CtaShape)
-                    .background(rc.emerald)
-                    .clickable(onClick = action)
-                    .padding(horizontal = 18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically,
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(rc.bg)
+                    .padding(horizontal = 11.dp, vertical = 9.dp)
+                    .height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(9.dp),
             ) {
-                Text(cta, style = RafiqType.titleM, color = rc.onEmerald, maxLines = 1)
-                RafiqIcon(RIcon.ChevronLeft, 19.dp, rc.onEmerald)
+                Box(
+                    Modifier
+                        .width(3.dp)
+                        .heightIn(min = 16.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(rc.gold),
+                )
+                Text(virtue, style = RafiqType.caption, color = rc.gold)
             }
-            Box(
-                Modifier
-                    .size(54.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Transparent)
-                    .border(1.dp, rc.cardBorder, RoundedCornerShape(16.dp))
-                    .clickable(onClick = onDayPage),
-                contentAlignment = Alignment.Center,
-            ) {
-                RafiqIcon(RIcon.Info, 21.dp, rc.emerald)
+        }
+
+        /*  الزرُّ بعرض البطاقة.
+         *
+         *  كان جزءَ عرضٍ بجانب حبّةِ المصدر وزرِّ ⓘ — ثلاثةُ أهدافٍ في صفٍّ
+         *  واحد، وأحدُها (ⓘ) بابُه مكرَّرٌ في صفّ «افتح ورقة يومك» تحته.
+         *  فحُذف المكرَّر، وبقي هدفٌ واحدٌ لا يُخطئه الإصبع.
+         *
+         *  و«اقرأ على مهل» في طرفه بدل السهم: السهمُ يقول «إلى أين»
+         *  وهو معلومٌ من النصّ، وهذه تقول **كيف** — وهي الأنفع. */
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 14.dp)
+                .heightIn(min = 54.dp)
+                .clip(CtaShape)
+                .background(rc.emerald)
+                .clickable(onClick = action)
+                .padding(horizontal = 17.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment     = Alignment.CenterVertically,
+        ) {
+            /*  سطران لا سطرٌ واحد.
+             *
+             *  أطولُ عنوانٍ في اليوم «سورة الكهف والصلاة على النبي ﷺ»،
+             *  ومعه «ابدأ» و«اقرأ على مهل» لا يتّسع في ٣٩٠ نقطة. وسطرٌ
+             *  واحدٌ يعني قطعَه بنقاطٍ في منتصفه — واقتطاعُ عنوانِ عملٍ
+             *  شرعيّ ليس خياراً. فيلتفّ الزرُّ ويعلو، وهو أهونُ. */
+            Text(
+                cta,
+                style = RafiqType.titleM,
+                color = rc.onEmerald,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            if (unhurried) {
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    stringResource(R.string.hub_cta_hint),
+                    style = RafiqType.caption,
+                    fontSize = 11.5.sp,
+                    color = rc.onEmerald.copy(alpha = 0.85f),
+                    maxLines = 1,
+                )
             }
         }
     }
@@ -768,7 +845,12 @@ private val MeeqatShape = RoundedCornerShape(
     topStart = 26.dp, topEnd = 26.dp, bottomEnd = 26.dp, bottomStart = 44.dp,
 )
 private val CtaShape = RoundedCornerShape(
-    topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 26.dp,
+    topStart = 15.dp, topEnd = 15.dp, bottomEnd = 15.dp, bottomStart = 26.dp,
+)
+
+/** سطحُ بطاقة الفعل — نفسُ التوقيع بمقاسٍ أكبر: زاويةٌ عريضةٌ واحدة. */
+private val ActShape = RoundedCornerShape(
+    topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 32.dp,
 )
 
 

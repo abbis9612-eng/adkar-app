@@ -386,6 +386,10 @@
     <string name="action_open">افتح</string>
     <string name="action_detail">التفصيل</string>
     <string name="action_start">ابدأ</string>
+    <string name="hub_eyebrow_now">خطوتك الآن</string>
+    <string name="hub_station_tag">محطّة %1$s</string>
+    <string name="hub_cta_hint">اقرأ على مهل</string>
+    <string name="action_start_named">ابدأ %1$s</string>
 
     <!-- ═══ القبلة ═══ -->
     <string name="qibla_needs_location">اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة.</string>

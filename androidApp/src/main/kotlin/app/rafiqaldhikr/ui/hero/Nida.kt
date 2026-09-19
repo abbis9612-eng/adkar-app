@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -218,20 +221,36 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
         ) {
             Text(
                 //  «من الآية» حين يكون مقطعاً — لا يُوهَم أنّه الآيةُ كلُّها
+                //
+                //  و«↗» بعده: السطرُ **يُلمَس فيفتح المصدر**، ولا شيءَ في
+                //  لونه الذهبيّ وحدَه يقول ذلك. والعلامةُ تقول إنّ الوجهة
+                //  خارج التطبيق قبل أن تُفاجئه بمتصفّح.
                 if (nida.partial) {
                     stringResource(R.string.nida_partial, nida.source)
                 } else {
                     nida.source
-                },
+                } + if (nida.link.isNotBlank()) " ↗" else "",
                 fontSize = 12.sp,
                 color = rc.gold,
                 maxLines = 2,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.width(8.dp))
-            Text("·", fontSize = 12.sp, color = rc.inkLight)
-            Spacer(Modifier.width(8.dp))
-            Text(nida.grade, fontSize = 11.sp, color = rc.inkMed, maxLines = 1)
+            /*  الدرجةُ **حبّةٌ محاطة** لا نصٌّ عارٍ بفاصلةٍ قبله.
+             *
+             *  «صحيح» و«حسن» حكمٌ على الإسناد لا تتمّةٌ له، وكانت تُقرأ
+             *  امتداداً للتخريج بحرفٍ أصغر. والإطارُ يفصلها عنه فتُقرأ
+             *  وسماً: هذا حكمُ ما قرأت. */
+            Text(
+                nida.grade,
+                fontSize = 10.5.sp,
+                color = rc.inkMed,
+                maxLines = 1,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .border(1.dp, rc.divider, CircleShape)
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+            )
         }
     }
 }

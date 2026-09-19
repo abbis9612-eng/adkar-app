@@ -376,6 +376,10 @@
     <string name="action_open">Open</string>
     <string name="action_detail">Details</string>
     <string name="action_start">Start</string>
+    <string name="hub_eyebrow_now">Your step now</string>
+    <string name="hub_station_tag">%1$s station</string>
+    <string name="hub_cta_hint">Read unhurried</string>
+    <string name="action_start_named">Start %1$s</string>
 
     <!-- ═══ Qibla ═══ -->
     <string name="qibla_needs_location">The qibla is computed from your location; an arrow pointing from another city points away from the Kaaba.</string>
