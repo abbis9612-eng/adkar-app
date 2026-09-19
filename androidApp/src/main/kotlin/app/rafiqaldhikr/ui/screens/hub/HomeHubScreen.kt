@@ -1158,39 +1158,53 @@ private fun DoorsRow(
     onQibla:   () -> Unit,
     onTimes:   () -> Unit,
 ) {
+    val rc = LocalRafiqColors.current
+    /*  الأبوابُ الثلاثة — وهي ليست في النموذج.
+     *
+     *  والنموذجُ يحذفها لأنّه معاينة؛ والتطبيقُ لا يقدر: `PrayerTimes`
+     *  **لا بابَ لها سواها** في التطبيق كلِّه، فحذفُها يُيتِّم الشاشة.
+     *
+     *  فالحلُّ ليس الحذفَ بل **إدخالَها في لغة النموذج**: كانت ثلاثَ
+     *  حبّاتٍ محاطةٍ بارتفاع خمسين نقطةً وخطِّ عنوانٍ ثمانيَ عشرة — لوحاً
+     *  غريباً يُنادي على نفسه أسفلَ الورق. وهي الآن بلغة الشريط السفليِّ
+     *  نفسِها: رمزٌ بجانب اسمٍ بالكوفيّ العُشْرِ والنصف، وخطٌّ فاصلٌ
+     *  فوقها. فصارت **ذيلَ الصفحة** لا بطاقةً ثالثة، ووفّرت ثلاثين نقطة.
+     *
+     *  والمساحةُ المقصودةُ باللمس ثمانٍ وأربعون نقطةً لكلّ بابٍ رغم
+     *  صِغَر ما يُرى — الإصبعُ لا يقيس بحجم الحرف. */
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+            .height(1.dp)
+            .background(rc.divider),
+    )
     Row(
-        // الحشوة السفلية ضرورية: Scaffold يفصل ارتفاع الشريط عن المحتوى
-        // لكنه لا يترك متنفَّساً بينهما، فبدت الأبواب ملتصقةً بالتنقّل.
-        Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        DoorChip(stringResource(R.string.tasbeeh_title), Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
-        DoorChip(stringResource(R.string.qibla_title),  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
-        DoorChip(stringResource(R.string.prayer_times_title), Modifier.weight(1f), onTimes)  { IcoClock(20.dp, it) }
+        Door(stringResource(R.string.tasbeeh_title), onTasbeeh) { IcoMisbaha(12.dp, it) }
+        Door(stringResource(R.string.qibla_title), onQibla) { IcoCompass(12.dp, it) }
+        Door(stringResource(R.string.prayer_times_title), onTimes) { IcoClock(12.dp, it) }
     }
 }
 
 @Composable
-private fun DoorChip(
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    icon: @Composable (Color) -> Unit,
-) {
+private fun Door(label: String, onClick: () -> Unit, icon: @Composable (Color) -> Unit) {
     val rc = LocalRafiqColors.current
     Row(
-        modifier
-            .heightIn(min = 50.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, rc.divider, RoundedCornerShape(16.dp))
+        Modifier
+            .clip(RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp),
+            .defaultMinSize(minHeight = 48.dp)
+            .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        icon(rc.inkMed)
-        Spacer(Modifier.width(7.dp))
-        Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
+        icon(rc.emerald)
+        Spacer(Modifier.width(5.dp))
+        Text(label, style = RafiqType.metaS, color = rc.emerald, maxLines = 1)
     }
 }
 
