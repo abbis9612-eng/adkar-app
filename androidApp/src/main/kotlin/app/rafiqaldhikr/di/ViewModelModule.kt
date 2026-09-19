@@ -20,6 +20,7 @@ import app.rafiqaldhikr.ui.mushaf.MushafPageViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
 import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
+import app.rafiqaldhikr.ui.screens.waraqa.WisdomViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
@@ -39,6 +40,7 @@ val viewModelModule = module {
         HomeViewModel(androidContext(), get(), get(), get(), get())
     }
     viewModelOf(::HomeHubViewModel)
+    viewModelOf(::WisdomViewModel)
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)

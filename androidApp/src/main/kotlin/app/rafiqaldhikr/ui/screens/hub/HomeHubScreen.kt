@@ -316,7 +316,8 @@ fun HomeHubScreen(
                     val write by rememberHeroEntrance(line, anim, LocalReducedMotion.current)
                     Text(
                         line,
-                        style = RafiqType.hero,
+                        //  خطُّ الواجهة لا الأميري — انظر `RafiqType.nida`.
+                        style = RafiqType.nida,
                         color = heroInk,
                         modifier = Modifier.heroPen(anim, write),
                     )
@@ -440,7 +441,12 @@ fun HomeHubScreen(
                     }
                 }
 
-                hub.wisdom?.let { WordOfDay(it) }
+                /*  «كلمةُ اليوم» نزلت إلى «أوراقي».
+                 *
+                 *  كانت الشاشةُ الأولى تحمل ثلاثةَ نصوصٍ معاً: موعظةَ
+                 *  الطور، وفضلَ المحطّة، وكلمةَ اليوم. والنصُّ الصريح:
+                 *  «كانَ يَتَخَوَّلُنا بالمَوْعِظَةِ في الأيَّامِ **كَراهَةَ
+                 *  السَّآمَةِ عَلَيْنا**» — البخاري ٦٨. فبقي نصٌّ واحد. */
 
                 DoorsRow(
                     onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
@@ -593,44 +599,6 @@ private fun greetingText(): String {
     }
 }
 
-/* ── الكلمة — بطلةُ الشاشة ──────────────────────────────────────
-
-   الاقتباس أوّل ما تقع عليه العين، ومصدرُه تحته مباشرةً لا في حاشية:
-   خيطٌ أخضر رأسيّ ثم اسم القائل ثم كتابه. وهذه علامة السند نفسها التي
-   تتكرّر حيثما ورد نصٌّ ديني في التطبيق.
-──────────────────────────────────────────────────────────────── */
-
-@Composable
-private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
-    val rc = LocalRafiqColors.current
-    Column(
-        Modifier.fillMaxWidth().padding(top = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            w.text,
-            style = RafiqType.ayah,
-            color = rc.ink,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .width(3.dp)
-                    .height(30.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(rc.emeraldFill),
-            )
-            Spacer(Modifier.width(9.dp))
-            Column {
-                Text(w.author, style = RafiqType.titleM, color = rc.emerald)
-                Text(w.source, style = RafiqType.bodyS, color = rc.inkMed)
-            }
-        }
-    }
-}
-
 /* ══════════════════════════════════════════════════════════════
    بطاقةُ الميقات — الطبقتان ١ و٢ صارتا واحدة
 
@@ -730,7 +698,10 @@ private fun MeeqatCard(
          *  وإبقاؤهما هنا تكرارٌ لما تقوله السماءُ بلا كلمة. */
         /* الجسم */
         Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp)) {
-            Text(title, style = RafiqType.heroCard, color = rc.ink)
+            /*  عنوانُ البطاقة **أخفضُ من النصّ المرويّ** فوقه (٢٢ مقابل
+             *  ٢٦)، وبخطّ الواجهة. كان ثلاثين أميريّاً عريضاً — فتقع
+             *  العينُ على «صلاة الضحى» قبل كلام النبيّ ﷺ. */
+            Text(title, style = RafiqType.titleL, color = rc.ink)
             Spacer(Modifier.height(5.dp))
             Text(
                 desc,

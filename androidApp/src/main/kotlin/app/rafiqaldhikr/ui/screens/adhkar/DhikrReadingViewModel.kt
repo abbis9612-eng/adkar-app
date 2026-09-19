@@ -69,26 +69,57 @@ class DhikrReadingViewModel(
         }
     }
 
+    /*  ═══ العدُّ يقف عند العدد، ولا ينتقل من نفسه ═══
+     *
+     *  كان بلوغُ العدد ينقل إلى الذكر التالي **في الضغطة نفسِها**. فمن
+     *  سبّح «سبحان الله وبحمده» مئةً، اختفى النصُّ تحت إصبعه عند المئة
+     *  وحلّ محلَّه نصٌّ آخر لم يستعدّ له. وهو أسوأُ ما يقع في شاشة ذِكر:
+     *  اليدُ أسرعُ من العين، فيضغط على الجديد قبل أن يقرأه.
+     *
+     *  فالعدُّ يقف الآن عند العدد، والانتقالُ بطلبٍ صريحٍ من صاحبه.
+     */
     fun tap() {
         val state = _uiState.value
         if (state.adhkar.isEmpty() || state.isAllCompleted) return
 
         val currentDhikr = state.adhkar[state.currentIndex]
-        val newCount     = state.currentCount + 1
+        if (state.currentCount >= currentDhikr.count) return   // اكتمل — ينتظر «التالي»
 
-        if (newCount >= currentDhikr.count) {
-            val nextIndex = state.currentIndex + 1
-            if (nextIndex >= state.adhkar.size) {
-                _uiState.update { it.copy(isAllCompleted = true) }
-                markCategoryCompleted()
-            } else {
-                savedState["index"] = nextIndex
-                savedState["count"] = 0
-                _uiState.update { it.copy(currentIndex = nextIndex, currentCount = 0) }
-            }
+        val newCount = state.currentCount + 1
+        savedState["count"] = newCount
+        _uiState.update { it.copy(currentCount = newCount) }
+    }
+
+    /**
+     * تراجعٌ عن ضغطةٍ واحدة.
+     *
+     *  ضغطةٌ خاطئةٌ في ذكرٍ عدده مئة كانت **لا تُستدرَك**: لا سبيلَ إلّا
+     *  إعادةُ الباب من أوّله أو المضيُّ على عددٍ يعرف صاحبُه أنّه ليس
+     *  الصواب. والعبادةُ لا تُبنى على رقمٍ يعلم أنّه خطأ.
+     */
+    fun undo() {
+        val state = _uiState.value
+        if (state.adhkar.isEmpty() || state.currentCount == 0) return
+        val newCount = state.currentCount - 1
+        savedState["count"] = newCount
+        _uiState.update { it.copy(currentCount = newCount) }
+    }
+
+    /** الانتقالُ إلى الذكر التالي — بطلبٍ صريحٍ بعد اكتمال العدد. */
+    fun next() {
+        val state = _uiState.value
+        if (state.adhkar.isEmpty() || state.isAllCompleted) return
+        val currentDhikr = state.adhkar[state.currentIndex]
+        if (state.currentCount < currentDhikr.count) return
+
+        val nextIndex = state.currentIndex + 1
+        if (nextIndex >= state.adhkar.size) {
+            _uiState.update { it.copy(isAllCompleted = true) }
+            markCategoryCompleted()
         } else {
-            savedState["count"] = newCount
-            _uiState.update { it.copy(currentCount = newCount) }
+            savedState["index"] = nextIndex
+            savedState["count"] = 0
+            _uiState.update { it.copy(currentIndex = nextIndex, currentCount = 0) }
         }
     }
 

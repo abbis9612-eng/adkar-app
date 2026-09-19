@@ -81,7 +81,17 @@ data class Nida(
     val grade: String,
     val link: String,
     val partial: Boolean,
+    /** `quran` أو `hadith` أو `athar` — يُترجَم إلى وسمٍ فوق النصّ. */
+    val kind: String,
 )
+
+/** وسمُ النوع — يُقرأ **قبل** النصّ فيعرف القارئُ ما بين يديه. */
+@androidx.annotation.StringRes
+fun kindLabel(kind: String): Int = when (kind) {
+    "quran" -> R.string.nida_kind_quran
+    "athar" -> R.string.nida_kind_athar
+    else -> R.string.nida_kind_hadith
+}
 
 object NidaStore {
     @Volatile private var cached: List<Nida>? = null
@@ -101,6 +111,7 @@ object NidaStore {
                     grade = o.getString("source_grade"),
                     link = o.optString("link"),
                     partial = o.optBoolean("partial"),
+                    kind = o.optString("kind", "hadith"),
                 )
             }
         }.getOrDefault(emptyList()).also { if (it.isNotEmpty()) cached = it }
@@ -130,6 +141,14 @@ fun nidaCall(phase: MeeqatPhase): Pair<Int, Int> = when (phase) {
     MeeqatPhase.LAYL -> R.string.nida_layl to R.string.nida_layl_sub
 }
 
+/** خيطٌ رفيع — للوسم فوق النصّ وللفصل عن إسناده. */
+@Composable
+private fun Rule(color: Color, w: androidx.compose.ui.unit.Dp = 30.dp) {
+    androidx.compose.foundation.layout.Box(
+        Modifier.width(w).height(1.dp).background(color),
+    )
+}
+
 /**
  * الموعظةُ على الورق: النصُّ بخطّ المصحف، وتحته إسنادُه ذهبيّاً.
  *
@@ -141,7 +160,30 @@ fun nidaCall(phase: MeeqatPhase): Pair<Int, Int> = when (phase) {
 fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
     val rc = LocalRafiqColors.current
     val ctx = LocalContext.current
-    Column(modifier.fillMaxWidth().padding(top = 18.dp)) {
+    Column(
+        modifier.fillMaxWidth().padding(top = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        /*  «من القرآن الكريم» / «من حديث النبي ﷺ» / «من قول صحابيّ»
+         *  — بين خطّين رفيعين فوق النصّ.
+         *
+         *  أُخذ عن نموذجٍ خارجيّ، وهو أحسنُ ما فيه: القارئُ يعرف نوعَ ما
+         *  يقرأ **قبل** أن يقرأه، فلا يلتبس عليه قرآنٌ بحديثٍ بأثر. */
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Rule(rc.divider)
+            Text(
+                stringResource(kindLabel(nida.kind)),
+                fontSize = 11.5.sp,
+                color = rc.inkMed,
+                maxLines = 1,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            Rule(rc.divider)
+        }
+        Spacer(Modifier.height(13.dp))
         Text(
             nida.text,
             style = RafiqType.ayah,
@@ -151,13 +193,7 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(14.dp))
         //  خيطٌ قصيرٌ يفصل النصَّ عن إسناده — لا إطارٌ حول النصّ
-        androidx.compose.foundation.layout.Box(
-            Modifier
-                .align(Alignment.CenterHorizontally)
-                .width(64.dp)
-                .height(1.dp)
-                .background(rc.divider),
-        )
+        Rule(rc.divider, 64.dp)
         Spacer(Modifier.height(10.dp))
         Row(
             Modifier

@@ -3,6 +3,9 @@ package app.rafiqaldhikr.ui.screens.adhkar
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -101,7 +104,11 @@ fun DhikrReadingScreen(
                     Modifier
                         .fillMaxSize()
                         // كل الشاشة هدف اللمس — لا زرّ صغير
+                        /*  الشاشةُ كلُّها تعدّ — **ما لم يكتمل العدد**.
+                         *  فإذا اكتمل سكنت، ولا ينتقل شيءٌ إلّا بزرٍّ
+                         *  يضغطه صاحبُه: النصُّ لا يختفي تحت الإصبع. */
                         .clickable(
+                            enabled = !done,
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -207,14 +214,48 @@ fun DhikrReadingScreen(
                         Spacer(Modifier.height(14.dp))
 
                         Text(
-                            when {
-                                !done -> stringResource(R.string.dhikr_tap_anywhere)
-                                uiState.currentIndex < uiState.adhkar.lastIndex -> stringResource(R.string.dhikr_done_next)
-                                else -> stringResource(R.string.dhikr_section_done)
-                            },
+                            if (done) stringResource(R.string.dhikr_done_wait)
+                            else stringResource(R.string.dhikr_tap_anywhere),
                             style = RafiqType.caption,
                             color = if (done) rc.gold else rc.inkMed,
+                            textAlign = TextAlign.Center,
                         )
+
+                        /*  التراجعُ يظهر متى وُجد ما يُتراجَع عنه. وهو
+                         *  خافتٌ عمداً: بابُ تصحيحٍ لا بابُ عمل. */
+                        if (uiState.currentCount > 0) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                stringResource(R.string.dhikr_undo),
+                                style = RafiqType.bodyS,
+                                color = rc.inkMed,
+                                textDecoration = TextDecoration.Underline,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { viewModel.undo() }
+                                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                            )
+                        }
+
+                        if (done) {
+                            Spacer(Modifier.height(16.dp))
+                            val last = uiState.currentIndex >= uiState.adhkar.lastIndex
+                            Text(
+                                stringResource(
+                                    if (last) R.string.dhikr_finish
+                                    else R.string.dhikr_next_explicit,
+                                ),
+                                style = RafiqType.label,
+                                color = rc.onEmeraldFill,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp, 16.dp, 26.dp, 16.dp))
+                                    .background(rc.emeraldFill)
+                                    .clickable { viewModel.next() }
+                                    .padding(vertical = 16.dp),
+                            )
+                        }
 
                         Spacer(Modifier.height(28.dp))
                     }

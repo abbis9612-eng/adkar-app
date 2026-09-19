@@ -779,4 +779,15 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="nida_layl">Sleep upon remembrance — may God guard you.</string>
     <string name="nida_layl_sub">Ayat al-Kursi is enough.</string>
     <string name="nida_partial">From the verse · %1$s</string>
+
+    <!-- وسمُ نوع النصّ المرويّ — يُقرأ قبل النصّ لا بعده -->
+    <string name="nida_kind_quran">From the Qur’an</string>
+    <string name="nida_kind_hadith">From a hadith of the Prophet ﷺ</string>
+    <string name="nida_kind_athar">From the words of a Companion</string>
+
+    <!-- قارئُ الأذكار: تراجعٌ وانتقالٌ صريح -->
+    <string name="dhikr_undo">Undo one tap</string>
+    <string name="dhikr_next_explicit">Next dhikr</string>
+    <string name="dhikr_finish">Finish reading</string>
+    <string name="dhikr_done_wait">Count complete — continue when you are ready</string>
 </resources>

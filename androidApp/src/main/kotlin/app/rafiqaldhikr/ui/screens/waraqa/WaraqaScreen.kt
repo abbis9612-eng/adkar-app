@@ -73,9 +73,11 @@ fun WaraqaScreen(
     navController: NavHostController,
     dayVm:  DayCompanionViewModel = koinViewModel(),
     homeVm: HomeViewModel         = koinViewModel(),
+    wisdomVm: WisdomViewModel     = koinViewModel(),
 ) {
     val day  by dayVm.uiState.collectAsStateWithLifecycle()
     val home by homeVm.uiState.collectAsStateWithLifecycle()
+    val wisdom by wisdomVm.wisdom.collectAsStateWithLifecycle()
     val rc   = LocalRafiqColors.current
     val ar   = LocalArabicNumerals.current
 
@@ -109,6 +111,15 @@ fun WaraqaScreen(
             if (day.stations.isNotEmpty()) {
                 Footer(day.doneCount, day.stations.size, ar)
             }
+        }
+
+        /*  كلمةُ اليوم — نزلت من الرئيسية إلى هنا. انظر
+         *  `ui/components/WordOfDay.kt` للسبب: «كراهةَ السآمة». */
+        wisdom?.let {
+            app.rafiqaldhikr.ui.components.WordOfDay(
+                it,
+                Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
         }
     }
 }

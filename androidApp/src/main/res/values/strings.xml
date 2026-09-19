@@ -804,4 +804,15 @@
     <string name="nida_layl">نَمْ على ذِكر، حفظك الله.</string>
     <string name="nida_layl_sub">آيةُ الكرسيّ تكفيك.</string>
     <string name="nida_partial">من الآية · %1$s</string>
+
+    <!-- وسمُ نوع النصّ المرويّ — يُقرأ قبل النصّ لا بعده -->
+    <string name="nida_kind_quran">من القرآن الكريم</string>
+    <string name="nida_kind_hadith">من حديث النبي ﷺ</string>
+    <string name="nida_kind_athar">من قول صحابيٍّ رضي الله عنه</string>
+
+    <!-- قارئُ الأذكار: تراجعٌ وانتقالٌ صريح -->
+    <string name="dhikr_undo">تراجعْ عن ضغطة</string>
+    <string name="dhikr_next_explicit">الذكرُ التالي</string>
+    <string name="dhikr_finish">أُنهي القراءة</string>
+    <string name="dhikr_done_wait">اكتمل العدد — تابِعْ حين تكون مستعدّاً</string>
 </resources>

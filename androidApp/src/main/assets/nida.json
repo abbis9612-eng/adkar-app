@@ -5,7 +5,8 @@
     "partial": false,
     "source": "القرآن الكريم · الأعراف ٢٠٥",
     "source_grade": "قرآن",
-    "link": "https://quran.com/7/205"
+    "link": "https://quran.com/7/205",
+    "kind": "quran"
   },
   {
     "phase": "duha",
@@ -13,7 +14,8 @@
     "partial": false,
     "source": "رواه البخاري ٦٤١٢ — عن ابن عبّاس رضي الله عنهما",
     "source_grade": "صحيح",
-    "link": "https://sunnah.com/bukhari:6412"
+    "link": "https://sunnah.com/bukhari:6412",
+    "kind": "hadith"
   },
   {
     "phase": "dhuhr",
@@ -21,7 +23,8 @@
     "partial": true,
     "source": "القرآن الكريم · النساء ١٠٣",
     "source_grade": "قرآن",
-    "link": "https://quran.com/4/103"
+    "link": "https://quran.com/4/103",
+    "kind": "quran"
   },
   {
     "phase": "asr",
@@ -29,7 +32,8 @@
     "partial": false,
     "source": "موقوفٌ على ابن عمر — رواه البخاري عَقِبَ ٦٤١٦",
     "source_grade": "صحيح",
-    "link": "https://sunnah.com/bukhari:6416"
+    "link": "https://sunnah.com/bukhari:6416",
+    "kind": "athar"
   },
   {
     "phase": "maghrib",
@@ -37,7 +41,8 @@
     "partial": true,
     "source": "القرآن الكريم · طه ١٣٠",
     "source_grade": "قرآن",
-    "link": "https://quran.com/20/130"
+    "link": "https://quran.com/20/130",
+    "kind": "quran"
   },
   {
     "phase": "isha",
@@ -45,7 +50,8 @@
     "partial": false,
     "source": "القرآن الكريم · البقرة ١٥٢",
     "source_grade": "قرآن",
-    "link": "https://quran.com/2/152"
+    "link": "https://quran.com/2/152",
+    "kind": "quran"
   },
   {
     "phase": "layl",
@@ -53,6 +59,7 @@
     "partial": false,
     "source": "رواه الحاكم — قال المنذري: إسنادُه صحيحٌ أو حسن",
     "source_grade": "حسن",
-    "link": "https://dorar.net/h/85rvyZPZ"
+    "link": "https://dorar.net/h/85rvyZPZ",
+    "kind": "hadith"
   }
 ]
