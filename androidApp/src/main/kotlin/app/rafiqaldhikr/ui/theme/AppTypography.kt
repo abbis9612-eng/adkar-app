@@ -41,6 +41,25 @@ val NaskhFamily = FontFamily(
     Font(R.font.noto_naskh_bold,     FontWeight.Bold),
 )
 
+/**
+ * **الخطُّ الثالث** — للسطور التي ليست كلاماً.
+ *
+ * الواجهةُ تفصل ثلاثةَ أصوات، ولكلٍّ حرفُه فلا يُخلط:
+ *   • **النصُّ المرويّ** — قرآنٌ وحديثٌ وأثر → [AmiriFamily]
+ *   • **كلامُنا نحن** — النداءُ والعناوينُ والأوصاف → [UiFamily]
+ *   • **ما ليس كلاماً** — تاريخٌ ووقتٌ ودرجةُ إسنادٍ ووسمُ نوعٍ وأسماءُ
+ *     تبويبات → هذا.
+ *
+ * والكوفيُّ هندسيٌّ ثابتُ النِّسَب، يُقرأ **شارةً** لا جملةً. ومن هنا
+ * لا يُكتب به سطرٌ يُقرأ قراءةً، ولا يزيد مقاسُه على ثلاثَ عشرةَ نقطة.
+ */
+val KufiFamily = FontFamily(
+    Font(R.font.noto_kufi_regular,  FontWeight.Normal),
+    Font(R.font.noto_kufi_medium,   FontWeight.Medium),
+    Font(R.font.noto_kufi_semibold, FontWeight.SemiBold),
+    Font(R.font.noto_kufi_semibold, FontWeight.Bold),
+)
+
 /** خط البسملة الزخرفي: Amiri — لعبارة البسملة فقط (نص قرآني قصير). */
 val AmiriFamily = FontFamily(
     Font(R.font.amiri_regular, FontWeight.Normal),
@@ -73,14 +92,16 @@ val TrimmedLeading = LineHeightStyle(
 private fun arabic(
     family: FontFamily = UiFamily,
     weight: FontWeight = FontWeight.Normal,
-    size:   Int,
-    line:   Int,
+    //  `Number` لا `Int`: الكوفيُّ يحتاج ١٠٫٥ و١١٫٥ كما في النموذج،
+    //  وتقريبُهما إلى ١٠ أو ١١ يغيّر وزنَ السطر في عينٍ تقارن.
+    size:   Number,
+    line:   Number,
     features: String? = null,
 ) = TextStyle(
     fontFamily          = family,
     fontWeight          = weight,
-    fontSize            = size.sp,
-    lineHeight          = line.sp,
+    fontSize            = size.toFloat().sp,
+    lineHeight          = line.toFloat().sp,
     lineHeightStyle     = TrimmedLeading,
     fontFeatureSettings = features,
 )
@@ -171,6 +192,20 @@ object RafiqType {
 
     /** شارة — الحدّ الأدنى المطلق للمقروئية العربية. */
     val micro = arabic(UiFamily, FontWeight.Medium, 11, 17)
+
+    /* ── الكوفيّ: ما ليس كلاماً ── */
+
+    /** وسمُ النوع فوق النصّ المرويّ، و«اقرأ على مهل» على الزرّ. */
+    val meta = arabic(KufiFamily, FontWeight.Medium, 11.5f, 20)
+
+    /** التاريخُ الهجريّ ووقتُ الميقات التالي — على السماء. */
+    val metaL = arabic(KufiFamily, FontWeight.Normal, 13, 22)
+
+    /** «خطوتك الآن» · «صحيح» · أسماءُ التبويبات — أصغرُ شارةٍ في الواجهة. */
+    val metaS = arabic(KufiFamily, FontWeight.Normal, 10.5f, 18)
+
+    /** «تابِع القراءة» و«الآيات ٧٠ – ٧٦». */
+    val metaM = arabic(KufiFamily, FontWeight.Normal, 11, 19)
 }
 
 /* ═══════════════════════════════════════════════════════════════════

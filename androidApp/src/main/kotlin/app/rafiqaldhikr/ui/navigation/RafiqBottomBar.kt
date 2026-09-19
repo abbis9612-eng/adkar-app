@@ -26,6 +26,7 @@ import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.MisbahaIcon
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.progressSpec
 import app.rafiqaldhikr.ui.theme.RafiqShape
@@ -170,11 +171,12 @@ private fun BottomBarItemEnhanced(
 
         Spacer(Modifier.height(2.dp))
 
+        //  أسماءُ التبويبات كوفيّةٌ ١٠٫٥ كما في النموذج: هي وسومُ
+        //  أماكنَ لا كلامٌ يُقرأ، فتأخذ حرفَ الوسوم لا حرفَ الكلام.
         Text(
             stringResource(item.labelRes),
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 11.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+            style = RafiqType.metaS.copy(
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             ),
             color = labelColor,
             maxLines = 1,

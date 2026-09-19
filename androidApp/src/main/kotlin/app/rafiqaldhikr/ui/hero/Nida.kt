@@ -164,7 +164,7 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
     val rc = LocalRafiqColors.current
     val ctx = LocalContext.current
     Column(
-        modifier.fillMaxWidth().padding(top = 18.dp),
+        modifier.fillMaxWidth().padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /*  «من القرآن الكريم» / «من حديث النبي ﷺ» / «من قول صحابيّ»
@@ -177,9 +177,11 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center,
         ) {
             Rule(rc.divider)
+            //  كوفيٌّ متوسّطٌ بتباعدِ حرفٍ ٠٫٤ — وسمٌ يُقرأ شارةً لا جملة
             Text(
                 stringResource(kindLabel(nida.kind)),
-                fontSize = 11.5.sp,
+                style = RafiqType.meta,
+                letterSpacing = 0.4.sp,
                 color = rc.inkMed,
                 maxLines = 1,
                 modifier = Modifier.padding(horizontal = 12.dp),
@@ -189,15 +191,17 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
         Spacer(Modifier.height(13.dp))
         Text(
             nida.text,
+            //  ١٫٩٥ لا ١٫٦٢: النموذج يفرّج أسطرَ النصّ المرويّ أكثرَ ممّا
+            //  يفرّج غيرَه، فيتنفّس الشكلُ ولا تتلاصق الأسطر.
             style = RafiqType.ayah,
+            lineHeight = 50.7.sp,
             color = rc.ink,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(14.dp))
-        //  خيطٌ قصيرٌ يفصل النصَّ عن إسناده — لا إطارٌ حول النصّ
-        Rule(rc.divider, 64.dp)
-        Spacer(Modifier.height(10.dp))
+        //  ولا خيطَ بين النصّ وإسناده: النموذج يصلهما، والخيطُ يقطع
+        //  الحديثَ عن تخريجه فيُقرآن خبرين لا خبراً بسنده.
+        Spacer(Modifier.height(4.dp))
         Row(
             Modifier
                 .fillMaxWidth()
@@ -231,6 +235,7 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
                     nida.source
                 } + if (nida.link.isNotBlank()) " ↗" else "",
                 fontSize = 12.sp,
+                lineHeight = 22.sp,
                 color = rc.gold,
                 maxLines = 2,
                 textAlign = TextAlign.Center,
@@ -243,7 +248,7 @@ fun NidaBlock(nida: Nida, modifier: Modifier = Modifier) {
              *  وسماً: هذا حكمُ ما قرأت. */
             Text(
                 nida.grade,
-                fontSize = 10.5.sp,
+                style = RafiqType.metaS,
                 color = rc.inkMed,
                 maxLines = 1,
                 modifier = Modifier

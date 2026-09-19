@@ -206,8 +206,8 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF12100A),
-    card           = Color(0xFF1E1C15),
+    bg             = Color(0xFF14120E),
+    card           = Color(0xFF1E1B16),
     cardBorder    = Color(0xFF312D22),
     cardPrayed     = Color(0xFF26241D),
     chipBg         = Color(0xFF221F19),
@@ -218,7 +218,7 @@ val DarkRafiqPalette = RafiqPalette(
     emeraldLight   = Color(0xFF7BD3A4),  // 9.49:1
     emeraldPastel  = Color(0xFF173126),  // الحبر فوقه 11.44:1
 
-    gold           = Color(0xFFDAA520),
+    gold           = Color(0xFFD8B65A),
     goldLight      = Color(0xFFE8B84D),
 
     emeraldFill    = Color(0xFF6FBF97),
@@ -227,12 +227,12 @@ val DarkRafiqPalette = RafiqPalette(
     onEmerald      = Color(0xFF14201A),  // 7.40:1 — الأبيض هنا 2.07:1 فقط
     onGold         = Color(0xFF14201A),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    ink            = Color(0xFFEFE8D8),
+    ink            = Color(0xFFF2EDE1),
     inkDark        = Color(0xFFD6CFBE),
-    inkMed         = Color(0xFFA7A194),
-    inkLight       = Color(0xFF837E73),
+    inkMed         = Color(0xFFA9A399),
+    inkLight       = Color(0xFF7C776E),
 
-    divider        = Color(0xFF35332B),
+    divider        = Color(0xFF2C281F),
 
     // كان التدرّج #0A1F14→#144430، ونبرةُ أغمقِ طرفٍ عن الصفحة 1.10 —
     // أي بطاقةٌ لا تُرى إطلاقاً (العين تبدأ التمييز عند 1.20). أُزيح

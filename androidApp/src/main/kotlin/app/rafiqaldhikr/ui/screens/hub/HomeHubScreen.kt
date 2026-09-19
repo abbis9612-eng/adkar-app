@@ -288,7 +288,7 @@ fun HomeHubScreen(
                         ink   = heroInk,
                         onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                     )
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(17.dp))
                     /*  نداءٌ لا تحيّة.
                      *
                      *  «نهارٌ طيّب» مجاملةٌ تُقرأ مرّةً ثمّ تُهمَل. والشاشةُ
@@ -335,7 +335,7 @@ fun HomeHubScreen(
                         ?: weatherLine(weather, ar).takeIf { weather.known }
                         ?: stringResource(subId)
                     if (sub != null) {
-                        Spacer(Modifier.height(6.dp))
+                        Spacer(Modifier.height(5.dp))
                         //  السطرُ الصغيرُ يتبع الكبيرَ بعد أن يُكتب نصفُه.
                         Text(
                             sub,
@@ -372,6 +372,16 @@ fun HomeHubScreen(
                      *  وبلا مواقيتَ لا سطر: البطاقةُ تحته تقول «حدِّد
                      *  مدينتك» مرّةً واحدة، وتكرارُها هنا ضجيج. */
                     if (times != null) {
+                        //  خطٌّ رفيعٌ يفصل الميقاتَ عن النداء — كان غائباً،
+                        //  فيلتصق السطرُ بما فوقه بلا حدٍّ يفصله.
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 18.dp)
+                                .height(1.dp)
+                                .background(heroInk.copy(alpha = 0.18f)),
+                        )
+                        Spacer(Modifier.height(12.dp))
                         MeeqatLine(
                             times = times,
                             nowMs = now,
@@ -379,7 +389,7 @@ fun HomeHubScreen(
                             ink   = heroInk,
                             ar    = ar,
                         )
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(18.dp))
                     }
                 }
             }
@@ -391,12 +401,10 @@ fun HomeHubScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            0f to lerp(rc.bg, sky.second, 0.14f),
-                            0.46f to rc.bg,
-                        ),
-                    )
+                    //  لونٌ واحدٌ لا تدرّج. كان طرفُ الورق يحمل نبرةً
+                    //  من السماء (١٤٪) فيُقرأ ظلّاً باهتاً تحت الحافّة،
+                    //  والنموذج ورقٌ صِرف.
+                    .background(rc.bg)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 18.dp),
             ) {
@@ -503,16 +511,17 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .size(width = 40.dp, height = 45.dp)
+                    .size(44.dp)
                     .clip(RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp))
                     .background(glassBg)
                     .border(1.dp, glassBd, RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text("ر", style = RafiqType.mark, color = ink) }
+            ) { Text("ر", style = RafiqType.mark, fontSize = 30.sp, color = ink) }
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = ink)
-                Text(hijri, style = RafiqType.bodyS, color = ink.copy(alpha = 0.78f), maxLines = 1)
+                //  التاريخُ الهجريُّ ليس كلاماً — كوفيٌّ كما في النموذج
+                Text(hijri, style = RafiqType.metaL, color = ink.copy(alpha = 0.78f), maxLines = 1)
             }
         }
         Box(
@@ -523,7 +532,7 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
                 .border(1.dp, glassBd, CircleShape)
                 .clickable(onClick = onSettings),
             contentAlignment = Alignment.Center,
-        ) { RafiqIcon(RIcon.Settings, 19.dp, ink) }
+        ) { RafiqIcon(RIcon.Settings, 17.dp, ink) }
     }
 }
 
@@ -725,8 +734,7 @@ private fun MeeqatCard(
         ) {
             Text(
                 stringResource(R.string.hub_eyebrow_now),
-                style = RafiqType.caption,
-                fontSize = 10.5.sp,
+                style = RafiqType.metaS,
                 color = rc.inkLight,
                 maxLines = 1,
             )
@@ -735,8 +743,7 @@ private fun MeeqatCard(
             station?.takeIf { !needsLoc }?.let {
                 Text(
                     stringResource(R.string.hub_station_tag, stringResource(it.short)),
-                    style = RafiqType.caption,
-                    fontSize = 10.5.sp,
+                    style = RafiqType.metaS,
                     fontWeight = FontWeight.SemiBold,
                     color = rc.emerald,
                     maxLines = 1,
@@ -750,6 +757,10 @@ private fun MeeqatCard(
         Text(
             title,
             style = RafiqType.titleL,
+            //  عشرون لا اثنتان وعشرون — النموذج يخفض العنوان ستَّ نقاطٍ
+            //  تحت النصّ المرويّ فوقه، لا أربعاً.
+            fontSize = 20.sp,
+            lineHeight = 31.sp,
             color = rc.ink,
             modifier = Modifier.padding(top = 3.dp),
         )
@@ -757,6 +768,7 @@ private fun MeeqatCard(
         Text(
             desc,
             style = RafiqType.bodyS,
+            fontSize = 13.5.sp,
             color = rc.inkMed,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -787,7 +799,7 @@ private fun MeeqatCard(
                         .clip(RoundedCornerShape(2.dp))
                         .background(rc.gold),
                 )
-                Text(virtue, style = RafiqType.caption, color = rc.gold)
+                Text(virtue, style = RafiqType.caption, fontSize = 11.5.sp, color = rc.gold)
             }
         }
 
@@ -820,6 +832,7 @@ private fun MeeqatCard(
             Text(
                 cta,
                 style = RafiqType.titleM,
+                fontSize = 16.sp,
                 color = rc.onEmerald,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -829,8 +842,7 @@ private fun MeeqatCard(
                 Spacer(Modifier.width(12.dp))
                 Text(
                     stringResource(R.string.hub_cta_hint),
-                    style = RafiqType.caption,
-                    fontSize = 11.5.sp,
+                    style = RafiqType.meta,
                     color = rc.onEmerald.copy(alpha = 0.85f),
                     maxLines = 1,
                 )

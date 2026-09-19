@@ -87,7 +87,7 @@ import kotlinx.coroutines.withContext
    شفّافةٌ فوق الكلّ تلتقطها — وهي **آخرُ ما يُرسم**، والأعلى يفوز.
 ══════════════════════════════════════════════════════════════ */
 
-private val CARD_H = 96.dp
+private val CARD_H = 92.dp
 private val SHOT_W = 150.dp
 /*  الصفحةُ تُخطَّط بعرضٍ كامل ثمّ تُصغَّر، لا تُخطَّط صغيرةً: مقاسُ
  *  الخطّ في `MushafPageView` مشتقٌّ من العرض، فلو خُطّطت بـ١٥٠ لخرجت
@@ -129,7 +129,7 @@ fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
-            .padding(top = 14.dp)
+            .padding(top = 8.dp)
             .height(CARD_H)
             .clip(RafiqShape.card)
             .background(rc.card)
@@ -203,10 +203,11 @@ fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
                 Spacer(Modifier.width(12.dp))
             }
             Column(verticalArrangement = Arrangement.Center) {
+                //  «تابِع القراءة» شارةٌ لا جملة — كوفيٌّ ١١ بحبرٍ خامل
                 Text(
                     stringResource(R.string.continue_reading),
-                    style = RafiqType.bodyS,
-                    color = rc.inkMed,
+                    style = RafiqType.metaM,
+                    color = rc.inkLight,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
@@ -222,7 +223,7 @@ fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
                             R.string.continue_reading_ayat,
                             s.from.toString(), s.to.toString(),
                         ).localizedDigits(ar),
-                        style = RafiqType.bodyS,
+                        style = RafiqType.metaM,
                         color = rc.inkMed,
                     )
                 }
