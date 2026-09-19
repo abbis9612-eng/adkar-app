@@ -157,12 +157,13 @@ private fun StateLine(now: StationUi?) {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 4.dp)) {
         if (now == null) {
-            Text(stringResource(R.string.waraqa_title), style = RafiqType.ayah, color = rc.ink)
+            //  عنوانُ الورقة وسطرُ حالها كلامُنا — بخطّ الواجهة.
+            Text(stringResource(R.string.waraqa_title), style = RafiqType.titleXL, color = rc.ink)
             Text(stringResource(R.string.waraqa_opens_first), style = RafiqType.bodyS, color = rc.inkMed)
         } else {
             Text(
                 stringResource(R.string.waraqa_you_are_in, stringResource(now.title)),
-                style = RafiqType.ayah, color = rc.ink,
+                style = RafiqType.titleXL, color = rc.ink,
             )
             Text(stringResource(now.timeLabel), style = RafiqType.bodyS, color = rc.inkMed)
         }
@@ -262,7 +263,8 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     stringResource(st.title),
-                    style = if (isNow) RafiqType.ayah.copy(fontSize = RafiqType.titleL.fontSize)
+                    //  أسماءُ المحطّات تسمياتُنا لا نصٌّ مَرويّ.
+                    style = if (isNow) RafiqType.titleL
                             else RafiqType.titleM.copy(
                                 fontWeight = if (passed || done) FontWeight.Normal else FontWeight.Bold
                             ),

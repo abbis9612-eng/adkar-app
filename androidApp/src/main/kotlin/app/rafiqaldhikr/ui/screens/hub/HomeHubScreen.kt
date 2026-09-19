@@ -508,7 +508,7 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
                     .background(glassBg)
                     .border(1.dp, glassBd, RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text("ر", style = RafiqType.hero, color = ink) }
+            ) { Text("ر", style = RafiqType.mark, color = ink) }
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = ink)

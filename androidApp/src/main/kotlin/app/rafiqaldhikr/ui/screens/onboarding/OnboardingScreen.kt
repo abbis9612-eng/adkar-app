@@ -213,7 +213,8 @@ private fun OnboardingPage(
                         2 -> R.string.ob3_title; else -> R.string.ob4_title
                     },
                 ),
-                style     = RafiqType.hero,
+                //  خطُّ الواجهة لا الأميري — عنوانُ الترحيب كلامُنا.
+                style     = RafiqType.nida,
                 color     = rc.ink,
                 textAlign = textAlign,
             )

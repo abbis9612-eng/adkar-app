@@ -209,11 +209,15 @@ private fun QiblaCompassContent(
         Spacer(Modifier.height(6.dp))
         Text(stringResource(R.string.qibla_delta_label), style = RafiqType.bodyS, color = rc.gold)
         if (aligned) {
-            Text(stringResource(R.string.qibla_face_and_pray), style = RafiqType.hero, color = rc.emerald)
+            //  «استقبل وصلِّ» كلامُنا — بخطّ الواجهة لا بحرف النصّ المرويّ.
+            Text(stringResource(R.string.qibla_face_and_pray), style = RafiqType.nida, color = rc.emerald)
         } else {
             Row(verticalAlignment = Alignment.Bottom) {
+                /*  رقمٌ لا كلام: `display` بأرقامٍ متساوية العرض —
+                 *  الزاويةُ تتغيّر مع كلّ حركةِ يد، وكانت تُكتب بالأميري
+                 *  بأرقامٍ متفاوتةٍ فيرتجف السطرُ يميناً وشمالاً. */
                 Text("${kotlin.math.abs(delta).roundToInt().localized(ar)}°",
-                    style = RafiqType.hero, color = rc.emerald)
+                    style = RafiqType.display, color = rc.emerald)
                 Spacer(Modifier.width(7.dp))
                 Text(
                     if (delta > 0) stringResource(R.string.qibla_rightward) else stringResource(R.string.qibla_leftward),
