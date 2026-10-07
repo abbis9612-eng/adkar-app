@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.ui.screens.crash
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,13 +43,6 @@ private val Card   = Color(0xFFFFFDF7)
 @Composable
 fun CrashReportScreen(report: String) {
     val ctx = LocalContext.current
-    var dismissed by remember { mutableStateOf(false) }
-
-    // بعد التجاهل: ورقةٌ خالية. والفتحُ التالي يبدأ التطبيقَ سليماً.
-    if (dismissed) {
-        Box(Modifier.fillMaxSize().background(Paper))
-        return
-    }
 
     Column(
         Modifier
@@ -100,8 +94,32 @@ fun CrashReportScreen(report: String) {
                 runCatching { ctx.startActivity(Intent.createChooser(send, "أرسِل التقرير")) }
             }
             Btn("تجاهُل ومتابعة", Card, Ink, Modifier.weight(1f)) {
+                /*  «متابعة» تعني متابعةً حقيقيّة.
+                 *
+                 *  كانت ترفع عَلَماً فتُرسم ورقةٌ خاليةٌ ويُنتظر «الفتحَ
+                 *  التالي» — و`MainActivity` قد انصرف قبل أن يبني شاشاتِ
+                 *  التطبيق أصلاً، فلا شاشةَ تحت هذه الورقة. فمن ضغطها
+                 *  بقي في بياضٍ لا مخرجَ منه إلّا إغلاقُ التطبيق بالقوّة.
+                 *
+                 *  وهي الآن تُعيد تشغيله: السجلُّ مُسح، فالفتحةُ الجديدة
+                 *  تمرّ على `CrashLog.read` فتجده فارغاً وتبني التطبيقَ
+                 *  سليماً. و`CLEAR_TASK` يمحو هذه الشاشةَ من الرِّصّة فلا
+                 *  يرجع إليها زرُّ الرجوع. */
                 CrashLog.clear(ctx)
-                dismissed = true
+                val relaunch = ctx.packageManager
+                    .getLaunchIntentForPackage(ctx.packageName)
+                    ?.addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK,
+                    )
+                if (relaunch != null) {
+                    runCatching { ctx.startActivity(relaunch) }
+                        .onSuccess { (ctx as? Activity)?.finish() }
+                } else {
+                    //  بلا نيّةِ إطلاقٍ (لا يقع عمليّاً) يبقى الإغلاقُ أصدقَ
+                    //  من ورقةٍ بيضاء: الفتحةُ التالية تبدأ سليمة.
+                    (ctx as? Activity)?.finish()
+                }
             }
         }
     }

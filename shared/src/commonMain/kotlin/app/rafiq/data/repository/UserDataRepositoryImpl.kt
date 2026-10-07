@@ -243,18 +243,52 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
                 db.userPrefsQueries.updateTheme(p.theme, if (dynamic) 1L else 0L)
             }
 
-            data.streak?.let {
-                db.streakDataQueries.upsert(it.currentStreak, it.longestStreak, it.lastActiveDate)
+            /*  السلسلةُ تُدمَج لا تُستبدَل: الأطولُ أطولُ أيّاً كان
+             *  مصدرُه، وآخرُ يومٍ نشِطٍ هو المتأخّرُ من التاريخين
+             *  (والتواريخُ `YYYY-MM-DD` فتُقارن نصّاً بلا تحليل). */
+            data.streak?.let { f ->
+                val cur = db.streakDataQueries.get().executeAsOneOrNull()
+                db.streakDataQueries.upsert(
+                    maxOf(f.currentStreak, cur?.current_streak ?: 0L),
+                    maxOf(f.longestStreak, cur?.longest_streak ?: 0L),
+                    maxOf(f.lastActiveDate, cur?.last_active_date ?: ""),
+                )
             }
 
+            /*  الأيّامُ تُدمَج حقيقةً لا بالاسم.
+             *
+             *  كان التوثيقُ فوقَه يقول «دمجٌ لا استبدال» و«لا يدهس
+             *  المستوردُ يوماً أفضلَ ممّا في الملفّ» — و`insertNew` وحدَه
+             *  هو `INSERT OR IGNORE`، أمّا `update*` بعده فتكتب قيمَ
+             *  الملفّ **فوق** ما في الجهاز بلا شرط. فمن استورد نسخةً
+             *  قديمةً مُسِح تقدّمُ يومه: الصفحاتُ والتسبيحُ والصلواتُ
+             *  تعود إلى ما كانت في النسخة، وربّما إلى أصفار.
+             *
+             *  والدمجُ الآن بقاعدةٍ واحدةٍ لكلّ نوع: العدّاداتُ **أكبرُ
+             *  القيمتين**، والعلاماتُ **تُرفع ولا تُنزَل**. فلا يُنقِص
+             *  استيرادٌ شيئاً أبداً، ومن أراد البدءَ من الملفّ وحدَه
+             *  يمسح بياناتِه أوّلاً بالزرّ الظاهر في الشاشة نفسِها. */
             data.dailyProgress.forEach { d ->
                 db.dailyProgressQueries.insertNew(d.date)
-                db.dailyProgressQueries.updateMorning(if (d.morningDone) 1L else 0L, d.date)
-                db.dailyProgressQueries.updateEvening(if (d.eveningDone) 1L else 0L, d.date)
-                db.dailyProgressQueries.updateQuranPages(d.quranPages, d.date)
-                db.dailyProgressQueries.updateTasbeeh(d.tasbeehCount, d.date)
-                db.dailyProgressQueries.updatePrayers(d.prayersLogged, d.date)
-                db.dailyProgressQueries.updateMinutes(d.totalMinutes, d.date)
+                val cur = db.dailyProgressQueries.getByDate(d.date).executeAsOneOrNull()
+                db.dailyProgressQueries.updateMorning(
+                    if (d.morningDone || cur?.morning_done == 1L) 1L else 0L, d.date,
+                )
+                db.dailyProgressQueries.updateEvening(
+                    if (d.eveningDone || cur?.evening_done == 1L) 1L else 0L, d.date,
+                )
+                db.dailyProgressQueries.updateQuranPages(
+                    maxOf(d.quranPages, cur?.quran_pages ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updateTasbeeh(
+                    maxOf(d.tasbeehCount, cur?.tasbeeh_count ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updatePrayers(
+                    maxOf(d.prayersLogged, cur?.prayers_logged ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updateMinutes(
+                    maxOf(d.totalMinutes, cur?.total_minutes ?: 0L), d.date,
+                )
                 db.streakDataQueries.insertHistory(d.date)
             }
 
@@ -280,8 +314,16 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
                 db.customDhikrQueries.insert(it.dhikrText, it.target, it.createdAt)
             }
 
+            /*  موضعُ القراءة: لا يُكتب فوق موضعٍ قائم.
+             *
+             *  كان يُستبدَل بموضع الملفّ بلا شرط — فمن استورد نسخةً
+             *  وهو في وسط سورةٍ قُذف إلى موضعٍ قديمٍ لم يطلبه. والموضعُ
+             *  الحاضرُ أعلمُ بصاحبه من نسخةٍ محفوظة، فلا يُستعاد موضعُ
+             *  الملفّ إلّا حين لا يكون في الجهاز موضعٌ أصلاً. */
             data.quranLastRead?.let {
-                db.quranLastReadQueries.upsert(it.surah, it.ayah, it.page, 0.0, 0L)
+                if (db.quranLastReadQueries.get().executeAsOneOrNull() == null) {
+                    db.quranLastReadQueries.upsert(it.surah, it.ayah, it.page, 0.0, 0L)
+                }
             }
 
             data.unlockedAchievements.forEach { db.achievementQueries.unlock(it, 0L) }

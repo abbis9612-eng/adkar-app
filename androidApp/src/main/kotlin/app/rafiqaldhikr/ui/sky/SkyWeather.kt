@@ -87,7 +87,10 @@ object WeatherStore {
             val old = cached(context)
             if (old.known && System.currentTimeMillis() - old.fetchedAt < FRESH_MS) return@withContext old
 
-            val fresh = runCatching { fetch(lat, lng) }.getOrNull() ?: return@withContext old
+            //  وشرطُ `known`: لو رجع طقسٌ لا يُعرف رمزُه لا يُكتب فوق
+            //  المعروف المحفوظ — الفراغُ لا يُستبدل به خبرٌ صحيح.
+            val fresh = runCatching { fetch(lat, lng) }.getOrNull()
+                ?.takeIf { it.known } ?: return@withContext old
 
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putFloat("cloud", fresh.cloud).putFloat("rain", fresh.rain)
@@ -99,7 +102,15 @@ object WeatherStore {
             fresh
         }
 
-    private fun fetch(lat: Double, lng: Double): SkyWeather {
+    /**
+     * الطقسُ من الخدمة، أو **null** إن لم يُعرَف.
+     *
+     * كانت تُرجِع `SkyWeather()` — طقساً «لا يُعرف» — عند ردٍّ غيرِ ناجح.
+     * و[refresh] يميّز الفشلَ بـ`null` لا بذلك، فيحسب الفارغَ نجاحاً
+     * **ويكتبه فوق** الطقس الصحيح المحفوظ. و`at` فيه صفرٌ فتُرجِع
+     * [cached] فراغاً بعدها — أي أنّ انقطاعَ الشبكة لحظةً يمحو ما كان.
+     */
+    private fun fetch(lat: Double, lng: Double): SkyWeather? {
         val url = URL(
             "https://api.open-meteo.com/v1/forecast" +
                 "?latitude=$lat&longitude=$lng" +
@@ -111,7 +122,7 @@ object WeatherStore {
             readTimeout = 8_000
         }
         val body = try {
-            if (conn.responseCode !in 200..299) return SkyWeather()
+            if (conn.responseCode !in 200..299) return null
             conn.inputStream.bufferedReader().use { it.readText() }
         } finally {
             conn.disconnect()

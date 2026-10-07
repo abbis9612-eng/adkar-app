@@ -45,7 +45,8 @@ class DuaRepositoryImpl(private val db: RafiqDatabase) : DuaRepository {
         }
 
     override fun search(query: String): Flow<List<DuaItem>> =
-        db.duaQueries.search(query)
+        //  الهجرُ قبل `LIKE`: من كتب «%» كان يرجع بكلّ الأدعية
+        db.duaQueries.search(app.rafiq.domain.model.ArabicSearch.escapeLike(query))
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { it.map { d -> d.toDomain() } }

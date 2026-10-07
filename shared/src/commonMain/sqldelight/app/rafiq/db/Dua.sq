@@ -22,7 +22,7 @@ UPDATE Dua SET is_favorite = :is_favorite WHERE id = :id;
 
 search:
 SELECT * FROM Dua
-WHERE text_ar LIKE '%' || :query || '%'
+WHERE text_ar LIKE '%' || :query || '%' ESCAPE '\'
 ORDER BY sort_order LIMIT 50;
 
 count:

@@ -76,9 +76,22 @@ class MushafFonts(private val context: Context) {
     fun family(name: String?): FontFamily? {
         if (name == null) return null
         cache[name]?.let { return it }
-        val fam = runCatching { FontFamily(Font("mushaf/$name.ttf", context.assets)) }
-            .getOrNull()
-            ?: fileFor(name).takeIf { it.exists() }
+        val assetPath = "mushaf/$name.ttf"
+        val fam = runCatching {
+            /*  فتحُ الأصل ثمّ إغلاقُه فحصٌ **حقيقيّ**.
+             *
+             *  `Font(path, assets)` كسولٌ: لا يفتح شيئاً حتى يُطلب رسمُ
+             *  حرف، فـ`runCatching` حولَه لا يفشل أبداً ولو كان الأصلُ
+             *  ناقصاً أو تالفاً — فيُرجَع خطٌّ ميّتٌ، و**البديلُ على
+             *  القرص تحتَه لا يُبلَغ قطّ**. والنتيجةُ صفحةٌ بيضاءُ لا
+             *  يُنقِذها وجودُ الملفّ في `filesDir`.
+             *
+             *  والفتحُ يقع مرّةً لكلّ خطٍّ ثمّ يُخزَّن في [cache] — فلا
+             *  عملَ قرصٍ في إعادة التركيب. */
+            context.assets.open(assetPath).close()
+            FontFamily(Font(assetPath, context.assets))
+        }.getOrNull()
+            ?: fileFor(name).takeIf { it.exists() && it.length() > 0L }
                 ?.let { runCatching { FontFamily(Font(it)) }.getOrNull() }
         return fam?.also { cache[name] = it }
     }

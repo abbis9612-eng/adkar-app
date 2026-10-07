@@ -58,14 +58,9 @@ fun ExportDataScreen(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val text = runCatching {
-            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-        }.getOrNull()
-        if (text == null) {
-            Toast.makeText(context, importNotJson, Toast.LENGTH_LONG).show()
-            return@rememberLauncherForActivityResult
-        }
-        viewModel.importJson(text) { result ->
+        //  القراءةُ في نموذج العرض على خيط الإدخال والإخراج — كانت هنا
+        //  على الخيط الرئيسيّ فتُجمّد التطبيقَ على ملفٍّ كبير.
+        viewModel.importStream({ context.contentResolver.openInputStream(uri) }) { result ->
             val msg = when (result) {
                 is ImportResult.Success ->
                     // النتيجةُ تُقال بأرقامها: «تمّ» وحدَها لا تُطمئن من
@@ -160,20 +155,26 @@ fun ExportDataScreen(
                                  *  بالضبط.  */
                                 viewModel.exportJson(
                                     onReady = { json ->
-                                        val uri = runCatching {
-                                            writeExportFile(context, json)
-                                        }.getOrNull()
-                                        if (uri == null) {
-                                            Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
-                                            return@exportJson
-                                        }
-                                        val intent = Intent(Intent.ACTION_SEND).apply {
-                                            type = "application/json"
-                                            putExtra(Intent.EXTRA_SUBJECT, shareSubject)
-                                            putExtra(Intent.EXTRA_STREAM, uri)
-                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                        }
-                                        context.startActivity(Intent.createChooser(intent, shareChooser))
+                                        //  والكتابةُ كذلك على خيط الإدخال
+                                        //  والإخراج لا في لامبدا النقر.
+                                        viewModel.writeThenShare(
+                                            write = { writeExportFile(context, json) },
+                                            onReady = { uri ->
+                                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                                    type = "application/json"
+                                                    putExtra(Intent.EXTRA_SUBJECT, shareSubject)
+                                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                }
+                                                context.startActivity(
+                                                    Intent.createChooser(intent, shareChooser),
+                                                )
+                                            },
+                                            onError = {
+                                                Toast.makeText(context, exportFailed, Toast.LENGTH_LONG)
+                                                    .show()
+                                            },
+                                        )
                                     },
                                     // الفشلُ كان صامتاً تماماً: `onSuccess` وحدَه
                                     // بلا `onFailure`، فيضغط المستخدم ولا يقع شيء.
@@ -222,7 +223,10 @@ fun ExportDataScreen(
                             .height(48.dp)
                             .clip(RafiqShape.item)
                             .background(rc.emerald.copy(alpha = 0.1f))
-                            .clickable { picker.launch(arrayOf("application/json", "text/plain", "*/*")) },
+                            //  بلا «*/*»: ملفُّ التصدير json أو نصّ، وفتحُ
+                            //  البابِ لأيّ ملفٍّ يجعل المستخدمَ يختار صورةً
+                            //  أو فيديو فيُقرأ ثمّ يُرفض.
+                            .clickable { picker.launch(arrayOf("application/json", "text/plain")) },
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

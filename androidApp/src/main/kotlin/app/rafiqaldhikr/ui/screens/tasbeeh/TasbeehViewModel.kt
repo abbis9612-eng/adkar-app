@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiq.domain.repository.TasbeehRepository
 import app.rafiq.domain.usecase.UpdateStreakUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -40,7 +43,11 @@ class TasbeehViewModel(
         UiState(count = count, target = target, dhikrText = dhikr, isCompleted = count >= target)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
-    fun increment() { savedState["count"] = _count.value + 1 }
+    fun increment() {
+        //  شوطٌ جديدٌ يبدأ: ما حُفظ قبله لا يمنع حفظَ هذا
+        runSaved = false
+        savedState["count"] = _count.value + 1
+    }
 
     /** تصفيرٌ بعد حفظِ ما عُدّ — لا محوَ له. */
     fun reset() {
@@ -61,13 +68,28 @@ class TasbeehViewModel(
     }
 
     /**
-     * آخرُ عددٍ حُفظ — حتى لا يُكتب الشيءُ نفسُه مرّتين.
+     * هل حُفظ **هذا الشوط** بعينه؟
      *
-     * الحفظُ صار يقع عند كل مخرج (تصفير، تبديل ذكر أو هدف، مغادرة الشاشة)
-     * لا عند زرّ التصفير وحده، فبلا هذا الحارس يُسجَّل الشوطُ الواحد
-     * مرّتين إن صُفِّر ثم غُودرت الشاشة.
+     * الحفظُ يقع عند كل مخرج (تصفير، تبديل ذكر أو هدف، مغادرة الشاشة)،
+     * فبلا حارسٍ يُسجَّل الشوطُ الواحد مرّتين إن صُفِّر ثم غُودرت الشاشة.
+     *
+     * **وكان الحارسُ عدداً لا حالة**: `lastSavedCount` يقارن الرقمَ وحدَه،
+     * فتسبيحُ «ثلاثٍ وثلاثين» مرّتين — وهو أصلُ التسبيح: ٣٣ · ٣٣ · ٣٤ —
+     * يُحسب شوطُه الثاني **مكرَّراً فيُطرَح**. فلا يُحفظ من المئة إلّا
+     * سبعٌ وستّون. والصوابُ أن يُعلَّم الشوطُ نفسُه محفوظاً، ويُرفع العَلَمُ
+     * عند أوّل ضغطةٍ جديدة في [increment].
      */
-    private var lastSavedCount = 0
+    private var runSaved = false
+
+    /**
+     * مجالٌ **يبقى بعد إغلاق النموذج**.
+     *
+     * [viewModelScope] يُلغى قبل [onCleared] لا بعده — فكلُّ ما يُطلَق فيه
+     * هناك يُلغى قبل أن يبدأ. وكان الحفظُ عند مغادرة الشاشة فيه، فمن عدّ
+     * مئةً وخرج لم يُحفظ له شيء: لا رقمَ في الرئيسية ولا تقدّمَ في اليوم.
+     * والتوثيقُ فوقَه يقول إنّ العيبَ أُصلح — ولم يُصلَح.
+     */
+    private val saveScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
      * يحفظ الشوطَ الحاضر ويُحدّث تقدّمَ اليوم والسلسلة.
@@ -78,17 +100,23 @@ class TasbeehViewModel(
      * [updateStreak] أبداً، والسلسلةُ لا تتقدّم بالتسبيح قطّ.
      */
     fun saveSession() {
-        val state = uiState.value
-        if (state.count <= 0 || state.count == lastSavedCount) return
-        lastSavedCount = state.count
-        viewModelScope.launch {
+        /*  القراءةُ من [savedState] لا من [uiState]: الثاني مشروطٌ
+         *  بـ`WhileSubscribed` على `viewModelScope`، وهو ملغًى في
+         *  [onCleared] — فقيمتُه هناك ما بقي لا ما هو. والأوّل حالةٌ
+         *  محفوظةٌ تُقرأ في كلّ وقت. */
+        val count  = _count.value
+        val target = _target.value
+        val dhikr  = _dhikrText.value
+        if (count <= 0 || runSaved) return
+        runSaved = true
+        saveScope.launch {
             val now   = Clock.System.now()
             val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
             tasbeehRepo.saveSession(
-                dhikrText       = state.dhikrText,
-                count           = state.count,
-                target          = state.target,
-                completed       = state.isCompleted,
+                dhikrText       = dhikr,
+                count           = count,
+                target          = target,
+                completed       = count >= target,
                 durationSeconds = 0L,
                 date            = today
             )

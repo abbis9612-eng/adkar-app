@@ -91,6 +91,37 @@ class ArabicSearchTest {
     fun normalizeIsTotal() {
         assertEquals("", n(""))
         assertEquals("abc", n("abc"))
+        //  والتطبيعُ **لا يهجر**: الهجرُ خطوةٌ مستقلّةٌ بعده
         assertEquals("%_", n("%_"))
+    }
+
+    /**
+     * محارفُ البدل تُهجَر قبل `LIKE`.
+     *
+     * `%` تُطابق أيَّ شيء — فمن بحث عن «%%%» كان يرجع بمئة آيةٍ
+     * عشوائيّةٍ بدل «لا نتائج»، و`ESCAPE '\'` في الاستعلام مكتوبٌ
+     * ولا هجرَ يقع قبله فيستعمله.
+     */
+    @Test
+    fun wildcardsAreEscaped() {
+        assertEquals("\\%\\%\\%", ArabicSearch.escapeLike("%%%"))
+        assertEquals("\\_", ArabicSearch.escapeLike("_"))
+        assertEquals("ال\\%له", ArabicSearch.escapeLike("ال%له"))
+    }
+
+    /** والشرطةُ المائلةُ تُهجَر أوّلاً — ولو تأخّرت لهجَرَت هجرَ نفسِها. */
+    @Test
+    fun backslashIsEscapedFirst() {
+        assertEquals("\\\\", ArabicSearch.escapeLike("\\"))
+        //  «\%» حرفان: مائلةٌ ثمّ نسبة — فيصير أربعةً لا ثلاثة
+        assertEquals("\\\\\\%", ArabicSearch.escapeLike("\\%"))
+    }
+
+    /** ولا يمسُّ الحرفَ العربيَّ ولا اللاتينيّ. */
+    @Test
+    fun escapeLeavesOrdinaryTextAlone() {
+        assertEquals("الرحمن", ArabicSearch.escapeLike("الرحمن"))
+        assertEquals("abc", ArabicSearch.escapeLike("abc"))
+        assertEquals("", ArabicSearch.escapeLike(""))
     }
 }

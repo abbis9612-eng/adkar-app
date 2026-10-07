@@ -499,7 +499,12 @@ private fun TextPage(
             /*  \u0627\u0644\u0646\u0635\u064F\u0651 \u0627\u0644\u0645\u062A\u0651\u0635\u0644: \u0645\u062F\u0649 \u0643\u0644\u0650\u0651 \u0622\u064A\u0629\u064D \u064A\u064F\u0633\u062C\u064E\u0651\u0644 \u0623\u062B\u0646\u0627\u0621 \u0627\u0644\u0628\u0646\u0627\u0621\u060C \u0641\u064A\u064F\u0639\u0631\u0641 \u0645\u0646
              *  \u0645\u0648\u0636\u0639 \u0627\u0644\u0644\u0645\u0633 \u0623\u064A\u064F\u0651 \u0622\u064A\u0629\u064D \u0644\u064F\u0645\u0633\u062A.  */
             val ranges = remember(ayat) { mutableListOf<Triple<Int, Int, String>>() }
-            val body = remember(ayat, selectedVerse, ar) {
+            /*  و`basmala` **مفتاحٌ** كغيره.
+             *
+             *  هو نصٌّ يُجلب غيرَ متزامن، وكان خارج المفاتيح — فإن وصل
+             *  بعد الآيات (وهو الغالب) لم يُعَد بناءُ النصّ، فلا تُرسم
+             *  البسملةُ في أوّل السورة في النمط المتّصل أبداً. */
+            val body = remember(ayat, selectedVerse, ar, basmala) {
                 ranges.clear()
                 buildAnnotatedString {
                     ayat.forEach { a ->
@@ -1194,12 +1199,18 @@ private fun PageSlider(page: Int, ink: Color, accent: Color, onGo: (Int) -> Unit
                     .clip(CircleShape)
                     .background(ink.copy(alpha = 0.14f)),
             )
-            // الجزءُ المقطوع — من أوّل المصحف إلى موضعك
+            /*  الجزءُ المقطوع — من أوّل المصحف إلى موضعك.
+             *
+             *  **ولا شرطَ على الاتّجاه**: `Alignment.CenterStart` يعرفه
+             *  بنفسه — «البداية» يمينٌ في العربية ويسارٌ في الإنجليزية،
+             *  وهي في الحالين جهةُ الصفحة الأولى. وكان الشرطُ يقلبه
+             *  مرّةً ثانيةً (`CenterEnd` في العربية = اليسار فعلاً)، فينمو
+             *  الملءُ من جهة الصفحة ٦٠٤ لا من جهة الأولى. */
             Box(
                 Modifier
                     .fillMaxWidth(fraction.coerceIn(0.004f, 1f))
                     .height(1.5.dp)
-                    .align(if (rtl) Alignment.CenterEnd else Alignment.CenterStart)
+                    .align(Alignment.CenterStart)
                     .clip(CircleShape)
                     .background(accent.copy(alpha = 0.55f)),
             )
@@ -1211,7 +1222,12 @@ private fun PageSlider(page: Int, ink: Color, accent: Color, onGo: (Int) -> Unit
                 color = accent,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset(x = (railWidth - 20.dp) * if (rtl) 1f - fraction else fraction),
+                    //  و`offset` كذلك يعرف الاتّجاه: الموجبُ يسيرُ نحو
+                    //  النهاية، أي شمالاً في العربية. فالشرطُ `1f -
+                    //  fraction` كان انعكاساً ثانياً يجعل المؤشّرَ يسير
+                    //  عكسَ الإصبع. ومن أراد إحداثيّاتٍ غيرَ مقلوبةٍ
+                    //  فله `absoluteOffset` لا هذا.
+                    .offset(x = (railWidth - 20.dp) * fraction),
             )
         }
     }

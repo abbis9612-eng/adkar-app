@@ -25,7 +25,7 @@ import app.rafiq.db.RafiqDatabase
 import app.rafiq.domain.model.PrayerTimeCalculator
 import app.rafiq.domain.model.PrayerTimesResult
 import app.rafiqaldhikr.R
-import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.formatClock
 import app.rafiqaldhikr.util.coordsOrNull
 import org.koin.core.context.GlobalContext
 
@@ -127,12 +127,20 @@ class PrayerWidget : GlanceAppWidget() {
         return next?.let { it.first to formatWidgetTime(context, it.second, numerals) }
     }
 
-    /** نفسُ صيغة شاشة المواقيت: Locale.US ثمّ تحويلُ الأرقام حسب الإعداد. */
-    private fun formatWidgetTime(context: Context, millis: Long, numerals: String): String {
-        val raw = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.US)
-            .format(java.util.Date(millis))
-        return raw.localizedDigits(numerals == "arabic")
-    }
+    /**
+     * نفسُ صيغة شاشة المواقيت — **بنداءِ دالّتها نفسِها**.
+     *
+     * كان التوثيقُ يقول «نفسُ الصيغة» والتنفيذُ يخالفه في موضعين:
+     * `"hh:mm a"` بـ`Locale.US` يُخرج `07:30 PM` — بصفرٍ بادئٍ وبـ`PM`
+     * لاتينيّة — و`localizedDigits` يحوّل الأرقامَ ولا يمسّ `AM/PM`.
+     * وشاشةُ المواقيت تكتب «٧:٣٠ م». فالودجتُ على الشاشة الرئيسية
+     * يخالف التطبيقَ في وقتٍ واحدٍ بعينه.
+     *
+     * والصيغةُ الآن من [formatClock] نفسِها، فلا موضعَ لافتراقهما.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    private fun formatWidgetTime(context: Context, millis: Long, numerals: String): String =
+        formatClock(millis, arabic = numerals == "arabic")
 }
 
 @Composable

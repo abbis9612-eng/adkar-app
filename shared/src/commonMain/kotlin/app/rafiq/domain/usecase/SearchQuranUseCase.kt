@@ -21,6 +21,8 @@ class SearchQuranUseCase(
         // الحدُّ على النصّ المطبَّع لا على ما كُتب: التطبيعُ يُقصّر الكلمة،
         // واستعلامٌ بحرفين يُطابق آلافَ الآيات فيعطي ضجيجاً لا نتائج.
         if (normalized.length < ArabicSearch.MIN_QUERY) return flowOf(emptyList())
-        return repository.searchAyahs(normalized)
+        //  والهجرُ بعد الحدّ لا قبله: الحدُّ على ما يُقرأ، والهجرُ لما
+        //  يُسلَّم إلى `LIKE`.
+        return repository.searchAyahs(ArabicSearch.escapeLike(normalized))
     }
 }
