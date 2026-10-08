@@ -5,7 +5,8 @@
 ## أولاً — افهم المشروع بنفسك
 
 قبل أي شيء افتح وافهم:
-- `build.gradle` ← كل المكتبات المستخدمة
+- `gradle/libs.versions.toml` ← كل المكتبات وإصداراتها (version catalog)
+- `androidApp/build.gradle.kts` و `shared/build.gradle.kts` ← ما تستعمله كل وحدة
 - هيكل المجلدات ← المعمارية الفعلية
 - 3-5 ملفات كود موجودة ← الأنماط المتبعة
 
