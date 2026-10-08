@@ -74,6 +74,7 @@ enum class RIcon(@DrawableRes val res: Int) {
     Food(R.drawable.ic_food),
     Health(R.drawable.ic_health),
     Check(R.drawable.ic_check),
+    Mic(R.drawable.ic_mic),
     CheckDouble(R.drawable.ic_check_double),
     // أجرام سماوية / وقت
     Sun(R.drawable.ic_sun),

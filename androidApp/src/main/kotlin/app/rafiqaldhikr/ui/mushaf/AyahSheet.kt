@@ -87,6 +87,8 @@ fun AyahSheet(
     night: Boolean,
     /** يُستدعى بـ«سورة:آية» عند التنقّل داخل الورقة. */
     onVerse: (String) -> Unit = {},
+    /** يُستدعى بـ«سورة:آية» لفتح التسميع. */
+    onTasmee: (String) -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -362,6 +364,37 @@ fun AyahSheet(
                     }
                     SheetAction(stringResource(R.string.action_share), RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
                         sharing = true
+                    }
+                }
+
+                /*  التسميعُ في صفٍّ لنفسه لا سادساً في الصفّ.
+                 *
+                 *  فالخمسةُ أفعالٌ صغيرةٌ على الآية (علامةٌ · نسخٌ · حاشيةٌ
+                 *  · وقوفٌ · مشاركة)، والتسميعُ **عملٌ يفتح شاشة**. وسادسٌ
+                 *  في الصفّ يُضيّق الخمسةَ ويُخفي الفرق. */
+                Spacer(Modifier.height(9.dp))
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(13.dp, 13.dp, 13.dp, 22.dp))
+                        .background(ink.copy(alpha = 0.06f))
+                        .clickable {
+                            onDismiss()
+                            onTasmee("$surah:$ayah")
+                        }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RafiqIcon(RIcon.Mic, 18.dp, ink.copy(alpha = 0.78f))
+                        Text(
+                            stringResource(R.string.action_tasmee),
+                            style = RafiqType.label,
+                            color = ink.copy(alpha = 0.9f),
+                        )
                     }
                 }
 

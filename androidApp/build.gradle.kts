@@ -26,6 +26,19 @@ android {
             (System.getenv("GITHUB_RUN_NUMBER") ?: "dev") +
             " (" + (System.getenv("GITHUB_SHA")?.take(7) ?: "local") + ")"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        /*  معماريّاتُ المعالج — للتسميع وحدَه (`onnxruntime-android`).
+         *
+         *  وهي المكتبةُ الأصليّةُ الوحيدةُ في التطبيق، وتُشحن لأربع
+         *  معماريّاتٍ افتراضاً: ٧٠ ميغابايت، **٤٠ منها x86 وx86_64 ولا
+         *  يعمل بهما هاتفٌ واحد** — إنّما المحاكيات. فتُقصر على الذراع.
+         *
+         *  ومن شغّله على محاكٍ x86 لا يسقط عليه التطبيق: تعذّرُ تحميل
+         *  المكتبة يُعيد `createOrNull` فارغاً، فيُقال «التسميعُ غيرُ
+         *  متاحٍ في هذه النسخة» ويعمل ما سواه. */
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
     }
 
     signingConfigs {

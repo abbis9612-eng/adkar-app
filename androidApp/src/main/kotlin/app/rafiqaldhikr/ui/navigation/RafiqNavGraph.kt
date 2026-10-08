@@ -42,6 +42,7 @@ import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
 import app.rafiqaldhikr.ui.screens.khatma.KhatmaScreen
+import app.rafiqaldhikr.ui.screens.tasmee.TasmeeScreen
 import app.rafiqaldhikr.ui.screens.mirror.MirrorScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
@@ -105,6 +106,20 @@ fun RafiqNavGraph(
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }
         composable(RafiqRoute.QuranSearch.route)    { QuranSearchScreen(navController) }
         composable(RafiqRoute.QuranBookmarks.route) { QuranBookmarksScreen(navController) }
+
+        composable(
+            route     = RafiqRoute.Tasmee.route,
+            arguments = listOf(
+                navArgument("surah") { type = NavType.IntType },
+                navArgument("ayah") { type = NavType.IntType },
+            ),
+        ) { entry ->
+            TasmeeScreen(
+                nav = navController,
+                surah = entry.arguments?.getInt("surah") ?: 1,
+                ayahNumber = entry.arguments?.getInt("ayah") ?: 1,
+            )
+        }
 
         // ═══ Prayer ═══
         composable(

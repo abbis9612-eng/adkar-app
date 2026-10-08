@@ -156,6 +156,18 @@ def main():
           f"الفرقُ عن الحساب {drift:.3e}")
     assert drift < 1e-6, f"المرشّحاتُ المشحونةُ تخالف الحساب: {drift}"
 
+    #  ═══ متّجهٌ ذهبيٌّ تقابله كوتلن ═══
+    #
+    #  جَيْبٌ عند ٤٤٠ هرتز ثانيةً واحدة. واختير لأنّه **يُولَّد في
+    #  اللغتين بالصيغة نفسِها حرفاً بحرف** — فأرقامُه تُقابَل. ومولّدُ
+    #  الأعداد العشوائيّة في numpy لا يُقابَل في كوتلن أبداً.
+    tone = np.array([0.5 * np.sin(2.0 * np.pi * 440.0 * i / SR)
+                     for i in range(SR)], dtype=np.float32)
+    tone_feats = log_mel(tone, fb)
+    print(f"الجَيْب: متوسّط {tone_feats.mean():.6f} · "
+          f"أدنى {tone_feats.min():.6f} · أقصى {tone_feats.max():.6f} · "
+          f"[0][0] {tone_feats[0][0]:.6f} · [40][50] {tone_feats[40][50]:.6f}")
+
     #  مدخلٌ صناعيٌّ محدَّدٌ تماماً — لا تلاوةَ مسجَّلة. والغرضُ إثباتُ
     #  أنّ المسارَ يعمل من أوّله إلى آخره، لا قياسُ دقّةٍ على تلاوة.
     rng = np.random.default_rng(1434)
@@ -253,6 +265,11 @@ def main():
         "feats_min": round(float(feats.min()), 6),
         "feats_max": round(float(feats.max()), 6),
         "hidden_mean": round(float(hidden.mean()), 6),
+        "tone_mean": round(float(tone_feats.mean()), 6),
+        "tone_min": round(float(tone_feats.min()), 6),
+        "tone_max": round(float(tone_feats.max()), 6),
+        "tone_0_0": round(float(tone_feats[0][0]), 6),
+        "tone_40_50": round(float(tone_feats[40][50]), 6),
         "tokens": tokens[:12],
     }
     print()

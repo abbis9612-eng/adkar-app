@@ -897,4 +897,20 @@
     <string name="dhikr_next_explicit">الذكرُ التالي</string>
     <string name="dhikr_finish">أُنهي القراءة</string>
     <string name="dhikr_done_wait">اكتمل العدد — تابِعْ حين تكون مستعدّاً</string>
+    <!-- التسميع -->
+    <string name="tasmee_title">التسميع</string>
+    <string name="tasmee_subtitle">سمِّعْ من حفظك، وتُشار المواضع</string>
+    <string name="tasmee_hint">اقرأِ الآيةَ بصوتٍ مسموع. ولا يُرسَل صوتُك إلى أحدٍ — يُنصَت إليه في جهازك ويُمحى.</string>
+    <string name="tasmee_ready">اضغطْ لتبدأ</string>
+    <string name="tasmee_start">سمِّعْ</string>
+    <string name="tasmee_stop">أتممتُ</string>
+    <string name="tasmee_recording">يسمع… بقي %1$s ثانية</string>
+    <string name="tasmee_thinking">يُنصِت…</string>
+    <string name="tasmee_clear">تمَّتِ التلاوة</string>
+    <string name="tasmee_review">مواضعُ تُراجَع: %1$s</string>
+    <string name="tasmee_unheard">لم أتبيَّنْ — أعِدْ من قريبٍ وفي هدوء</string>
+    <string name="tasmee_again">سمِّعْ مرّةً أخرى</string>
+    <string name="tasmee_no_mic">تعذَّر الميكروفون — تحقَّقْ من الإذن</string>
+    <string name="tasmee_no_model">التسميعُ غيرُ متاحٍ في هذه النسخة</string>
+    <string name="action_tasmee">سمِّعْ هذه الآية</string>
 </resources>

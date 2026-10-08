@@ -415,6 +415,11 @@ fun MushafScreen(
             //  التنقّلُ بين الآيات **والورقةُ مفتوحة**: كان لا بدّ من
             //  إغلاقها والبحثِ عن الآية والضغطِ مطوّلاً من جديدٍ لكل آية.
             onVerse = { selected = it },
+            onTasmee = { v ->
+                val s = v.substringBefore(':').toIntOrNull() ?: 1
+                val a = v.substringAfter(':').toIntOrNull() ?: 1
+                navController.navigate(RafiqRoute.Tasmee.of(s, a))
+            },
             onDismiss = { selected = null },
         )
     }

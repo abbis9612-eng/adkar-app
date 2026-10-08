@@ -872,4 +872,20 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="dhikr_next_explicit">Next dhikr</string>
     <string name="dhikr_finish">Finish reading</string>
     <string name="dhikr_done_wait">Count complete — continue when you are ready</string>
+    <!-- التسميع -->
+    <string name="tasmee_title">Recitation check</string>
+    <string name="tasmee_subtitle">Recite from memory; spots are marked</string>
+    <string name="tasmee_hint">Read the verse aloud. Your voice is not sent anywhere — it is heard on your device and erased.</string>
+    <string name="tasmee_ready">Tap to begin</string>
+    <string name="tasmee_start">Recite</string>
+    <string name="tasmee_stop">Done</string>
+    <string name="tasmee_recording">Listening… %1$s seconds left</string>
+    <string name="tasmee_thinking">Listening…</string>
+    <string name="tasmee_clear">Recitation complete</string>
+    <string name="tasmee_review">Spots to revisit: %1$s</string>
+    <string name="tasmee_unheard">I could not make it out — try again, closer and in quiet</string>
+    <string name="tasmee_again">Recite again</string>
+    <string name="tasmee_no_mic">Microphone unavailable — check the permission</string>
+    <string name="tasmee_no_model">Recitation check is not available in this build</string>
+    <string name="action_tasmee">Recite this verse</string>
 </resources>

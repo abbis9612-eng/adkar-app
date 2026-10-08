@@ -22,6 +22,7 @@ import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
 import app.rafiqaldhikr.ui.screens.khatma.KhatmaViewModel
 import app.rafiqaldhikr.ui.screens.mirror.MirrorViewModel
+import app.rafiqaldhikr.ui.screens.tasmee.TasmeeViewModel
 import app.rafiqaldhikr.ui.screens.waraqa.WisdomViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
@@ -45,6 +46,9 @@ val viewModelModule = module {
     viewModelOf(::WisdomViewModel)
     viewModelOf(::KhatmaViewModel)
     viewModelOf(::MirrorViewModel)
+
+    //  التسميعُ يحتاج سياقاً: أصولُ النموذج في الحزمة والميكروفونُ في الجهاز.
+    viewModel { TasmeeViewModel(androidContext(), get()) }
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)
