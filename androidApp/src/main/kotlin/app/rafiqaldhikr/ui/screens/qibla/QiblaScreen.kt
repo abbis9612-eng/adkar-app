@@ -324,9 +324,12 @@ private fun QiblaDial(
             size = Size(s * 2, s * 2),
             cornerRadius = CornerRadius(6.dp.toPx()),
         )
-        drawRect(rc.goldLight, Offset(k.x - s, k.y - s + s * 0.5f), Size(s * 2, s * 0.42f))
+        //  حزامُ الكعبة وبابُها بـ[kaabaGold] لا [goldLight]: الجسمُ ينقلب
+        //  بين الوضعين، والذهبُ العامُّ لا ينقلب معه فيختفيان في الليل.
+        //  والبابُ بشفافيّةٍ فوق الجسم — فيُفرَّق عن الحزام بلا لونٍ رابع.
+        drawRect(rc.kaabaGold, Offset(k.x - s, k.y - s + s * 0.5f), Size(s * 2, s * 0.42f))
         drawRoundRect(
-            Color(0xFFE0C37A),
+            rc.kaabaGold.copy(alpha = 0.70f),
             topLeft = Offset(k.x - s * 0.32f, k.y + s * 0.30f),
             size = Size(s * 0.64f, s * 0.70f),
             cornerRadius = CornerRadius(1.5.dp.toPx()),

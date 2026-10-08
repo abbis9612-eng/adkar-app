@@ -73,6 +73,15 @@ data class RafiqPalette(
     val gold: Color,
     val goldLight: Color,
 
+    /** ذهبُ الكعبة — حزامُها وبابُها على جسمها.
+     *
+     *  وهو ذهبٌ ثالثٌ لأنّ جسمَ الكعبة [ink] (أو [emerald] عند المحاذاة)،
+     *  وهذان ينقلبان بين الوضعين: داكنان على الورق وفاتحان في الليل. فذهبٌ
+     *  واحدٌ لا يُقرأ عليهما جميعاً — [goldLight] كان فاتحاً على جسمٍ فاتحٍ
+     *  في الليل، فيختفي الحزامُ والبابُ وتبقى مكعّبةٌ عارية. فهذا ينقلب
+     *  معهما: فاتحٌ على الورق، داكنٌ في الليل. */
+    val kaabaGold: Color,
+
     /* ── لون المحتوى فوق الأسطح المملوءة ──
        في الوضع الداكن يصير الزمرّدي والذهبي فاتحَين، فالأبيض فوقهما
        يهبط إلى 2.72:1 و2.24:1 — دون كل عتبة. المحتوى هناك يكون داكناً. */
@@ -165,6 +174,7 @@ val LightRafiqPalette = RafiqPalette(
 
     gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
     goldLight      = Color(0xFF9F7715),
+    kaabaGold      = Color(0xFFD9BC77),  // 9.71:1 على الحبر · 6.29:1 على الزمرّد
 
     onEmerald      = Color(0xFFF7F2E6),  // 9.65:1 فوق الزمرّد
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
@@ -220,6 +230,7 @@ val DarkRafiqPalette = RafiqPalette(
 
     gold           = Color(0xFFD8B65A),
     goldLight      = Color(0xFFE8B84D),
+    kaabaGold      = Color(0xFF6B5010),  // 6.47:1 على الحبر · 3.44:1 على الزمرّد
 
     emeraldFill    = Color(0xFF6FBF97),
     onEmeraldFill  = Color(0xFF14201A),  // 6.17:1 — الأبيض فوقه 2.72 فقط
