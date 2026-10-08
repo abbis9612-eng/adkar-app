@@ -913,4 +913,12 @@
     <string name="tasmee_no_mic">تعذَّر الميكروفون — تحقَّقْ من الإذن</string>
     <string name="tasmee_no_model">التسميعُ غيرُ متاحٍ في هذه النسخة</string>
     <string name="action_tasmee">سمِّعْ هذه الآية</string>
+    <!-- جَرْد الإسناد -->
+    <string name="isnad_title">جَرْدُ الإسناد</string>
+    <string name="isnad_subtitle">كلُّ نصٍّ ومصدرُه ودرجتُه</string>
+    <string name="isnad_percent">%1$s٪</string>
+    <string name="isnad_total">من %1$s نصّاً دينيّاً له مصدرٌ ودرجة</string>
+    <string name="isnad_counting">يُجرَد…</string>
+    <string name="isnad_note">الدرجةُ حكمُ أهل العلم بلفظه. والمسُ أيَّ سطرٍ يُظهر تخريجَه كاملاً.</string>
+    <string name="settings_isnad">جَرْدُ الإسناد</string>
 </resources>

@@ -90,6 +90,7 @@ private val GROUP_2 = listOf(
 )
 
 private val GROUP_3 = listOf(
+    SettingItem(RIcon.Document,  R.string.settings_isnad,      { it.gold },       route = "isnad"),
     SettingItem(RIcon.Info,      R.string.settings_about,      { it.lightNight }, route = "about"),
     SettingItem(RIcon.Help,      R.string.settings_help,       { it.emerald },    route = "help"),
     SettingItem(RIcon.Sparkles,  R.string.settings_whats_new,  { it.gold },       route = "whats_new"),

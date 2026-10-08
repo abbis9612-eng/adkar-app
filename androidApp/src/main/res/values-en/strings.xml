@@ -888,4 +888,12 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="tasmee_no_mic">Microphone unavailable — check the permission</string>
     <string name="tasmee_no_model">Recitation check is not available in this build</string>
     <string name="action_tasmee">Recite this verse</string>
+    <!-- جَرْد الإسناد -->
+    <string name="isnad_title">Chain of sources</string>
+    <string name="isnad_subtitle">Every text, its source and its grade</string>
+    <string name="isnad_percent">%1$s%%</string>
+    <string name="isnad_total">of %1$s religious texts carry a source and a grade</string>
+    <string name="isnad_counting">Counting…</string>
+    <string name="isnad_note">The grade is the scholars\' ruling in their own words. Tap any row for its full attribution.</string>
+    <string name="settings_isnad">Chain of sources</string>
 </resources>

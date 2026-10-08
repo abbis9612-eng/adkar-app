@@ -51,6 +51,9 @@ sealed class RafiqRoute(val route: String) {
     data object QuranSearch       : RafiqRoute("quran_search")
     data object QuranBookmarks    : RafiqRoute("quran_bookmarks")
 
+    /** جَرْدُ الإسناد — تُفتح من الإعدادات. */
+    data object Isnad             : RafiqRoute("isnad")
+
     /** تسميعُ آيةٍ بعينها — تُفتح من ورقة الآية في المصحف. */
     data object Tasmee            : RafiqRoute("tasmee/{surah}/{ayah}") {
         fun of(surah: Int, ayah: Int) = "tasmee/$surah/$ayah"
