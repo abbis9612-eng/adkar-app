@@ -29,6 +29,7 @@ import app.rafiqaldhikr.ui.utils.formatClock
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.ui.components.nextMunasaba
 import app.rafiqaldhikr.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -461,6 +462,8 @@ fun HomeHubScreen(
                     onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
                     onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
                 )
+
+                MunasabaLine(ar)
             }
         }
     }
@@ -1187,6 +1190,49 @@ private fun DoorsRow(
         Door(stringResource(R.string.tasbeeh_title), onTasbeeh) { IcoMisbaha(12.dp, it) }
         Door(stringResource(R.string.qibla_title), onQibla) { IcoCompass(12.dp, it) }
         Door(stringResource(R.string.prayer_times_title), onTimes) { IcoClock(12.dp, it) }
+    }
+}
+
+/**
+ * «المناسبة القادمة — بداية رمضان · بعد ١٢٣ يوماً».
+ *
+ * سطرٌ يُحوّل الوقتَ من شيءٍ يمرّ إلى شيءٍ **يُنتظَر**: من عرف أنّ بينه
+ * وبين رمضان أربعةَ أشهرٍ استعدّ، ومن لم يعرف فوجئ به.
+ *
+ * وموضعُه **ذيلُ الصفحة** لا رأسُها: هو خبرٌ عن بعيدٍ، وفعلُ اليوم أولى
+ * بالعين. ولا يُعرض شيءٌ إن تعذّر الحسابُ — سطرٌ خاطئٌ أسوأُ من غيابه.
+ */
+@Composable
+private fun MunasabaLine(ar: Boolean) {
+    val rc = LocalRafiqColors.current
+    val ctx = LocalContext.current
+    //  يُحسب مرّةً لكلّ يوم: التقويمُ لا يتبدّل بين إعادتَي تركيب.
+    val today = remember { System.currentTimeMillis() / 86_400_000L }
+    val m = remember(today) { nextMunasaba(ctx) } ?: return
+
+    val away = when (m.daysAway) {
+        0 -> stringResource(R.string.munasaba_today)
+        1 -> stringResource(R.string.munasaba_tomorrow)
+        else -> pluralStringResource(R.plurals.days, m.daysAway, m.daysAway)
+            .localizedDigits(ar)
+    }
+    Row(
+        Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 14.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(R.string.munasaba_next), style = RafiqType.metaS, color = rc.inkLight)
+        Spacer(Modifier.width(7.dp))
+        Text(
+            stringResource(m.name),
+            style = RafiqType.metaS,
+            fontWeight = FontWeight.SemiBold,
+            color = rc.gold,
+        )
+        Spacer(Modifier.width(7.dp))
+        Text("·", style = RafiqType.metaS, color = rc.inkLight)
+        Spacer(Modifier.width(7.dp))
+        Text(away, style = RafiqType.metaS, color = rc.inkMed)
     }
 }
 

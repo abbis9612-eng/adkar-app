@@ -549,6 +549,16 @@
     <string name="risala_title">Your message today</string>
     <string name="risala_sub">Behind this supplication may be a message written for you, and today you need it most</string>
     <string name="risala_open">Tap to open it</string>
+    <string name="munasaba_next">Next occasion</string>
+    <string name="munasaba_today">Today</string>
+    <string name="munasaba_tomorrow">Tomorrow</string>
+    <string name="munasaba_hijri_new_year">Hijri New Year</string>
+    <string name="munasaba_ashura">Ashura</string>
+    <string name="munasaba_ramadan">Start of Ramadan</string>
+    <string name="munasaba_eid_fitr">Eid al-Fitr</string>
+    <string name="munasaba_ten_dhulhijjah">First ten of Dhul-Hijjah</string>
+    <string name="munasaba_arafah">Day of Arafah</string>
+    <string name="munasaba_eid_adha">Eid al-Adha</string>
     <string name="ayah_stop_here">Stopped here</string>
     <string name="bookmarks_stop_section">Where you stopped</string>
     <string name="bookmarks_marks_section">Your bookmarks</string>

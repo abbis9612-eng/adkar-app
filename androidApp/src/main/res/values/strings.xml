@@ -568,6 +568,16 @@
     <string name="risala_title">رسالتك اليوم</string>
     <string name="risala_sub">قد يكون وراء هذا الدعاء رسالةٌ كُتبت لك، وأنت اليوم أشدُّ ما تحتاجها</string>
     <string name="risala_open">اضغط هنا لتفتحها</string>
+    <string name="munasaba_next">المناسبة القادمة</string>
+    <string name="munasaba_today">اليوم</string>
+    <string name="munasaba_tomorrow">غداً</string>
+    <string name="munasaba_hijri_new_year">رأس السنة الهجرية</string>
+    <string name="munasaba_ashura">عاشوراء</string>
+    <string name="munasaba_ramadan">بداية رمضان</string>
+    <string name="munasaba_eid_fitr">عيد الفطر</string>
+    <string name="munasaba_ten_dhulhijjah">عشر ذي الحجة</string>
+    <string name="munasaba_arafah">يوم عرفة</string>
+    <string name="munasaba_eid_adha">عيد الأضحى</string>
     <string name="ayah_stop_here">وقفتُ هنا</string>
     <string name="bookmarks_stop_section">موضع وقوفك</string>
     <string name="bookmarks_marks_section">علاماتك</string>
