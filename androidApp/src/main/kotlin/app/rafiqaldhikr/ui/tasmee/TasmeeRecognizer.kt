@@ -159,7 +159,7 @@ class TasmeeRecognizer private constructor(
                     }
 
                     decoder.run(feed).use { out ->
-                    val logits = out.get("logits").get() as OnnxTensor
+                    val logits = out.named("logits")
                     val buf = logits.floatBuffer
                     val vocab = buf.remaining() / inputIds.size
                     val base = (inputIds.size - 1) * vocab
@@ -182,9 +182,8 @@ class TasmeeRecognizer private constructor(
                         val d = Array(LAYERS * 2) { FloatArray(0) }
                         for (l in 0 until LAYERS) {
                             for ((j, kv) in KV.withIndex()) {
-                                d[l * 2 + j] = floats(
-                                    out.get("present.$l.decoder.$kv").get() as OnnxTensor,
-                                )
+                                d[l * 2 + j] =
+                                    floats(out.named("present.$l.decoder.$kv"))
                             }
                         }
                         //  وذاكرةُ المرمِّز **من الممرّ الأوّل وحدَه** —
@@ -197,7 +196,7 @@ class TasmeeRecognizer private constructor(
                             encTensors = Array(LAYERS * 2) { idx ->
                                 val l = idx / 2
                                 val kv = KV[idx % 2]
-                                val data = floats(out.get("present.$l.encoder.$kv").get() as OnnxTensor)
+                                val data = floats(out.named("present.$l.encoder.$kv"))
                                 OnnxTensor.createTensor(env, FloatBuffer.wrap(data), shape)
                                     .also(open::add)
                             }
@@ -328,4 +327,21 @@ class TasmeeRecognizer private constructor(
             return out
         }
     }
+}
+
+/**
+ * مخرَجٌ باسمه — بلا `java.util.Optional`.
+ *
+ * `OrtSession.Result.get(String)` تُرجع `Optional`، وهي من واجهةِ أندرويد
+ * ٢٤ والحدُّ الأدنى هنا ٢٣. ولا يظهر هذا في البناء ولا في الاختبارات: يسقط
+ * **على الجهاز** بـ`NoClassDefFoundError` عند أوّل خطوةِ فكّ — فمن معه
+ * أندرويد ٦ يُجهَض تطبيقُه أوّلَ ما يُسمِّع.
+ *
+ * و`Result` نفسُها `Iterable<Map.Entry<String, OnnxValue>>` — فالبحثُ
+ * بالاسم يمرّ عليها. وبالاسم لا بالموضع عمداً: ترتيبُ مخرجات النموذج ليس
+ * عقداً، و`get(0)` تصمت إذا تغيّر.
+ */
+private fun OrtSession.Result.named(name: String): OnnxTensor {
+    for (e in this) if (e.key == name) return e.value as OnnxTensor
+    error("ONNX output missing: $name")
 }
