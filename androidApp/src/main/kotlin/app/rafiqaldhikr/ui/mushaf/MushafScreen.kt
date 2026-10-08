@@ -107,6 +107,7 @@ fun MushafScreen(
     //  سالبٌ = اتبع الجهاز. ولا يُمسّ سطوعُ أحدٍ حتى يسحب الشريطَ بنفسه.
     var bright by remember { mutableFloatStateOf(prefs.brightness) }
     var railOn by remember { mutableStateOf(false) }
+    var tajweed by remember { mutableStateOf(prefs.tajweed) }
     var selected by remember { mutableStateOf(openVerse.takeIf { it.isNotBlank() }) }
     // `isReady` يفحص وجودَ ٤٨ ملفاً — عملُ قرصٍ لا يقع في التأليف.
     var ready by remember { mutableStateOf(false) }
@@ -309,6 +310,8 @@ fun MushafScreen(
                             ink = ink,
                             classic = effective == MushafMode.CLASSIC,
                             selectedVerse = selected,
+                            tajweed = tajweed,
+                            night = night,
                             onTap = { toolsOn = !toolsOn },
                             onVerseClick = { selected = if (selected == it) null else it },
                         )
@@ -434,6 +437,8 @@ fun MushafScreen(
             sizeApplies = !effective.needsFonts,
             onMode = { mode = it; prefs.mode = it },
             onSize = { fontSize = it; prefs.fontSize = it },
+            tajweed = tajweed,
+            onTajweed = { tajweed = it; prefs.tajweed = it },
             onDismiss = { sheet = false },
         )
     }
@@ -453,6 +458,8 @@ private fun TextPage(
     ink: Color,
     classic: Boolean,
     selectedVerse: String?,
+    tajweed: Boolean,
+    night: Boolean,
     onTap: () -> Unit,
     onVerseClick: (String) -> Unit,
 ) {
@@ -460,6 +467,14 @@ private fun TextPage(
     val ar = LocalArabicNumerals.current
     val ctx = LocalContext.current
     val vm: MushafPageViewModel = org.koin.androidx.compose.koinViewModel()
+    /*  أحكامُ التجويد — تُقرأ مرّةً واحدةً لا لكلّ صفحة.
+     *
+     *  والملفُّ ٥٦٣ كيلوبايت؛ قراءتُه سطراً سطراً لكلّ صفحةٍ تفتح الأصلَ
+     *  ستّمئةِ مرّةٍ في الختمة الواحدة. */
+    var tj by remember { mutableStateOf<Map<Int, List<TajweedSpan>>>(emptyMap()) }
+    LaunchedEffect(tajweed) {
+        if (tajweed && tj.isEmpty()) tj = TajweedStore.load(ctx)
+    }
 
     /*  \u0627\u0644\u0640Flow \u064A\u064F\u062A\u0630\u0643\u064E\u0651\u0631 \u0628\u0627\u0644\u0635\u0641\u062D\u0629.
      *
@@ -538,7 +553,7 @@ private fun TextPage(
              *  هو نصٌّ يُجلب غيرَ متزامن، وكان خارج المفاتيح — فإن وصل
              *  بعد الآيات (وهو الغالب) لم يُعَد بناءُ النصّ، فلا تُرسم
              *  البسملةُ في أوّل السورة في النمط المتّصل أبداً. */
-            val body = remember(ayat, selectedVerse, ar, basmala) {
+            val body = remember(ayat, selectedVerse, ar, basmala, tajweed, tj) {
                 ranges.clear()
                 buildAnnotatedString {
                     ayat.forEach { a ->
@@ -547,12 +562,32 @@ private fun TextPage(
                         if (a.ayahNumber == 1 && needsBasmala(a.surah) && basmala != null) {
                             withStyle(SpanStyle(color = rc.gold)) { append("\n$basmala\n") }
                         }
+                        /*  التلوينُ يُطبَّق على مدَيات الآية نفسِها.
+                         *
+                         *  والمدياتُ مواضعُ في نصّ الآية، و`start` موضعُها
+                         *  في النصّ المركَّب كلِّه — فتُزاح به. وبلا الإزاحة
+                         *  تلوّن الآيةُ الثانيةُ حروفَ الأولى. */
+                        val base = length
                         if (key == selectedVerse) {
                             withStyle(SpanStyle(background = rc.gold.copy(alpha = 0.16f))) {
                                 append(a.textUthmani)
                             }
                         } else {
                             append(a.textUthmani)
+                        }
+                        if (tajweed) {
+                            tj[TajweedStore.key(a.surah, a.ayahNumber)]?.forEach { sp ->
+                                //  حدٌّ على طول الآية: أصلٌ أقدمُ بعد تحديثٍ
+                                //  للنصّ قد يحمل مدًى أطولَ، فيرمي بلا هذا.
+                                val st = base + sp.start
+                                val en = (base + sp.end).coerceAtMost(length)
+                                if (st < en) {
+                                    addStyle(
+                                        SpanStyle(color = tajweedColor(sp.rule, night)),
+                                        st, en,
+                                    )
+                                }
+                            }
                         }
                         withStyle(SpanStyle(color = rc.goldLight)) {
                             append(" \u06DD${a.ayahNumber.localized(true)} ")
@@ -821,6 +856,7 @@ private fun IconDot(icon: RIcon, ink: Color, onClick: () -> Unit) {
 
 /* ── ورقةُ الإعدادات ───────────────────────────────────────────── */
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun SettingsSheet(
     mode: MushafMode,
@@ -830,6 +866,8 @@ private fun SettingsSheet(
     sizeApplies: Boolean,
     onMode: (MushafMode) -> Unit,
     onSize: (Int) -> Unit,
+    tajweed: Boolean,
+    onTajweed: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -855,6 +893,62 @@ private fun SettingsSheet(
                     .width(34.dp).height(4.dp)
                     .clip(RoundedCornerShape(4.dp)).background(rc.divider),
             )
+            /*  التجويدُ أوّلاً: هو ما يُبدَّل، والنمطُ والمقاسُ يُضبطان
+             *  مرّةً. ويُقال صراحةً إنّه في نمط النصّ وحدَه — ولا يُترك
+             *  ليكتشفه من بدّل النمطَ فلم يجد لوناً. */
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { onTajweed(!tajweed) }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.tajweed_toggle),
+                        style = RafiqType.body, color = rc.ink,
+                    )
+                    Text(
+                        stringResource(R.string.tajweed_text_only),
+                        style = RafiqType.caption, color = rc.inkMed,
+                    )
+                }
+                Box(
+                    Modifier
+                        .size(width = 44.dp, height = 26.dp)
+                        .clip(CircleShape)
+                        .background(if (tajweed) rc.emeraldFill else rc.divider),
+                    contentAlignment = if (tajweed) Alignment.CenterStart else Alignment.CenterEnd,
+                ) {
+                    Box(Modifier.padding(3.dp).size(20.dp).clip(CircleShape).background(rc.card))
+                }
+            }
+            if (tajweed) {
+                //  دليلُ الألوان — ولولاه كانت الألوانُ زينةً لا دلالة.
+                Spacer(Modifier.height(4.dp))
+                androidx.compose.foundation.layout.FlowRow(
+                    Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    listOf(0, 1, 6, 8, 9, 14, 15).forEach { r ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                Modifier.size(9.dp).clip(CircleShape)
+                                    .background(tajweedColor(r, night = false)),
+                            )
+                            Spacer(Modifier.width(5.dp))
+                            Text(
+                                stringResource(tajweedName(r)),
+                                style = RafiqType.metaS, color = rc.inkMed,
+                            )
+                        }
+                    }
+                }
+            }
+            Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
+            Spacer(Modifier.height(14.dp))
+
             Text(stringResource(R.string.mushaf_mode), style = RafiqType.titleM, color = rc.ink)
             Spacer(Modifier.height(9.dp))
 

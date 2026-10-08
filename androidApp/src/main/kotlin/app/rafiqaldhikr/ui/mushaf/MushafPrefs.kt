@@ -89,6 +89,17 @@ class MushafPrefs(context: Context) {
         get() = sp.getFloat(KEY_BRIGHT, -1f)
         set(v) = sp.edit().putFloat(KEY_BRIGHT, v).apply()
 
+    /**
+     * تلوينُ التجويد — في **نمط النصّ** وحدَه.
+     *
+     *  وصفحةُ المصحف تُرسم بخطوط QCF: رموزُ صفحةٍ لا حروفَ يونيكود، فلا
+     *  يُعرف أين الحرفُ من الرمز. ويُقال ذلك في الإعدادات صراحةً ولا
+     *  يُترك ليكتشفه من بدّل النمطَ فلم يجد شيئاً.
+     */
+    var tajweed: Boolean
+        get() = sp.getBoolean(KEY_TAJWEED, false)
+        set(v) = sp.edit().putBoolean(KEY_TAJWEED, v).apply()
+
     var lastPage: Int
         get() = sp.getInt(KEY_PAGE, 1).coerceIn(1, 604)
         set(v) = sp.edit().putInt(KEY_PAGE, v.coerceIn(1, 604)).apply()
@@ -101,6 +112,7 @@ class MushafPrefs(context: Context) {
         const val KEY_ALLOW = "allow"
         const val KEY_HINT = "hint_seen"
         const val KEY_BRIGHT = "brightness"
+        const val KEY_TAJWEED = "tajweed"
     }
 }
 
