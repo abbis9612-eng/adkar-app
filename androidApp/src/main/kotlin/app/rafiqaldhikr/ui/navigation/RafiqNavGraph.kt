@@ -42,6 +42,7 @@ import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
 import app.rafiqaldhikr.ui.screens.khatma.KhatmaScreen
+import app.rafiqaldhikr.ui.screens.mirror.MirrorScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
@@ -96,6 +97,9 @@ fun RafiqNavGraph(
 
         // ═══ Khatma ═══
         composable(RafiqRoute.Khatma.route) { KhatmaScreen(navController) }
+
+        // ═══ Mirror ═══
+        composable(RafiqRoute.Mirror.route) { MirrorScreen(navController) }
 
         // ═══ Quran ═══
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }

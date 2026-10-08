@@ -473,6 +473,35 @@ fun ProfileScreen(
                     label = stringResource(R.string.stat_detailed),
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
 
+                /*  «سنتك» — المرآة.
+                 *
+                 *  وأيقونتُها شبكةُ المرآة نفسُها مصغَّرة: ستَّ عشرةَ خانةً
+                 *  بأعماقٍ مختلفة، فتُعرف الشاشةُ من رمزها قبل اسمها. */
+                QuickLinkCard(
+                    icon = {
+                        Canvas(Modifier.size(18.dp)) {
+                            val w = size.width
+                            val c = w / 5.4f
+                            val g = (w - c * 4) / 3f
+                            val depths = listOf(
+                                0f, 0.3f, 0.7f, 1f,
+                                0.5f, 1f, 0.2f, 0.8f,
+                                1f, 0.6f, 0f, 0.4f,
+                                0.9f, 0.3f, 1f, 0.7f,
+                            )
+                            depths.forEachIndexed { i, d ->
+                                val x = (i % 4) * (c + g)
+                                val y = (i / 4) * (c + g)
+                                drawRect(
+                                    rc.emerald.copy(alpha = 0.18f + d * 0.82f),
+                                    Offset(x, y), Size(c, c),
+                                )
+                            }
+                        }
+                    },
+                    label = stringResource(R.string.mirror_title),
+                ) { navController.navigate(RafiqRoute.Mirror.route) }
+
                 QuickLinkCard(
                     icon = {
                         // شبكةُ «أوراقي» نفسها مصغَّرة: ستُّ خاناتٍ منها أربعٌ ممتلئة
