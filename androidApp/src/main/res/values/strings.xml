@@ -599,6 +599,12 @@
     <string name="khatma_day_of">اليوم %1$s من %2$s</string>
     <string name="khatma_stop">أنهِ هذه الختمة</string>
     <string name="khatma_days_n">%1$s يوماً</string>
+    <string name="pin_add">ثبّت هذا الذكر</string>
+    <string name="pin_remove">أزِل التثبيت</string>
+    <string name="pin_remind">ذكّرني به</string>
+    <string name="pin_remind_at">ذكّرني به %1$s</string>
+    <string name="pin_after">بعد %1$s</string>
+    <string name="pin_none">بلا تذكير</string>
     <string name="ayah_stop_here">وقفتُ هنا</string>
     <string name="bookmarks_stop_section">موضع وقوفك</string>
     <string name="bookmarks_marks_section">علاماتك</string>

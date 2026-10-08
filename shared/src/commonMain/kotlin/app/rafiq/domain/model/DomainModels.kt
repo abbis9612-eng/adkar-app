@@ -278,3 +278,14 @@ data class KhatmaPlan(
     val active:     Boolean,
     val finishedOn: Long?,
 )
+
+/** ذكرٌ مثبَّت: مفضّلةٌ، ومعها تذكيرٌ إن كان له ميقات. */
+data class DhikrPin(
+    val dhikrId:       Long,
+    /** فارغةٌ = مفضّلةٌ بلا تذكير. */
+    val meeqat:        String,
+    val offsetMinutes: Int,
+    val pinnedAt:      Long,
+) {
+    val hasReminder: Boolean get() = meeqat.isNotBlank()
+}

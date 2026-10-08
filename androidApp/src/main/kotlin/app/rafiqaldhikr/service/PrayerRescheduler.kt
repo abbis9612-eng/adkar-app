@@ -88,12 +88,26 @@ class PrayerRescheduler(
             )
         }
 
+        val alarmMap = times.toAlarmMap()
         alarmManager.scheduleAllForToday(
-            prayerTimes = times.toAlarmMap(),
+            prayerTimes = alarmMap,
             prayers     = prefs.notify_prayers == 1L,
             morning     = prefs.notify_morning == 1L,
             evening     = prefs.notify_evening == 1L,
         )
+
+        /*  تذكيراتُ الأذكار المثبَّتة — تُجدوَل مع مواقيت اليوم نفسِها.
+         *
+         *  وموضعُها هنا لا في شاشةٍ: هذا هو الموضعُ الذي يُنادى عند
+         *  الإقلاع وعند تبديل الوقت وعند تغيّر الموقع. فلو جُدولت في
+         *  الشاشة لضاعت تذكيراتُ من لم يفتحها بعد سفرٍ أو إعادةِ تشغيل. */
+        runCatching {
+            val pins = db.dhikrPinQueries.getReminders().executeAsList()
+            alarmManager.schedulePinned(
+                prayerTimes = alarmMap,
+                pins = pins.map { Triple(it.dhikr_id, it.meeqat, it.offset_m.toInt()) },
+            )
+        }
     }
 
     private fun PrayerTimesResult.toAlarmMap() = mapOf(

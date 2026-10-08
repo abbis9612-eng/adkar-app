@@ -35,6 +35,9 @@ import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.RafiqIconButton
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.*
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -64,6 +67,16 @@ fun DhikrReadingScreen(
 ) {
     val rc = LocalRafiqColors.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pinned by viewModel.pinned.collectAsStateWithLifecycle()
+    var showReminderFor by remember { mutableStateOf<Long?>(null) }
+
+    showReminderFor?.let { id ->
+        ReminderSheet(
+            current = pinned[id]?.meeqat.orEmpty(),
+            onPick = { viewModel.setReminder(id, it) },
+            onDismiss = { showReminderFor = null },
+        )
+    }
     val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(category) { viewModel.loadCategory(category) }
@@ -97,6 +110,7 @@ fun DhikrReadingScreen(
                 val dhikr = uiState.adhkar.getOrNull(uiState.currentIndex)
                     ?: uiState.adhkar.first()
                 val done  = uiState.currentCount >= dhikr.count
+                val pin = pinned[dhikr.id]
                 // يُقرأ خارج `semantics{}` — تلك لامبدا غير مركَّبة.
                 val tapHint = stringResource(R.string.dhikr_a11y, uiState.currentCount, dhikr.count)
 
@@ -155,6 +169,33 @@ fun DhikrReadingScreen(
                          *  الأحاديث والأجزاء — تُنقل كما هي ولا تُختصر، لكنّها
                          *  تُعرض أخفَّ من الدرجة وبثلاثة أسطرٍ حدّاً حتى لا
                          *  تُزاحم الذكرَ نفسَه. */
+                        /*  ★ و⏰ — التثبيتُ والتذكير.
+                         *
+                         *  والتذكيرُ **بالميقات لا بالساعة**: «بعد المغرب»
+                         *  صحيحةٌ في كلّ بلدٍ وفصل، و«٦:٣٠» تنفع في بلدٍ
+                         *  وفصلٍ واحدٍ ثمّ تُعطَّل. */
+                        Row(
+                            Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 2.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            PinDot(
+                                icon = if (pin != null) RIcon.Check else RIcon.Bookmark,
+                                on = pin != null,
+                                label = stringResource(
+                                    if (pin != null) R.string.pin_remove else R.string.pin_add,
+                                ),
+                                rc = rc,
+                            ) { viewModel.togglePin(dhikr.id, pin != null) }
+                            Spacer(Modifier.width(10.dp))
+                            PinDot(
+                                icon = RIcon.Bell,
+                                on = pin?.hasReminder == true,
+                                label = stringResource(R.string.pin_remind),
+                                rc = rc,
+                            ) { showReminderFor = dhikr.id }
+                        }
+
                         if (dhikr.sourceGrade.isNotBlank()) {
                             Text(
                                 dhikr.sourceGrade,
@@ -394,3 +435,90 @@ private fun getCategoryTitle(category: String): String = stringResource(
         else      -> R.string.nav_tasbeeh
     }
 )
+
+/** زرُّ تثبيتٍ صغير — مملوءٌ حين يكون مفعَّلاً. */
+@Composable
+private fun PinDot(
+    icon: RIcon,
+    on: Boolean,
+    label: String,
+    rc: app.rafiqaldhikr.ui.theme.RafiqPalette,
+    onClick: () -> Unit,
+) {
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(if (on) rc.emeraldFill else androidx.compose.ui.graphics.Color.Transparent)
+            .border(1.dp, if (on) rc.emeraldFill else rc.divider, CircleShape)
+            .clickable(onClick = onClick)
+            .defaultMinSize(minHeight = 40.dp)
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RafiqIcon(icon, 15.dp, if (on) rc.onEmeraldFill else rc.inkMed)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            label,
+            style = RafiqType.metaS,
+            color = if (on) rc.onEmeraldFill else rc.inkMed,
+            maxLines = 1,
+        )
+    }
+}
+
+/**
+ * ورقةُ اختيار ميقات التذكير.
+ *
+ * ستّةُ مواقيتَ ولا ساعاتٍ — وسطرٌ سابعٌ ينزع التذكير. ولا ليلَ هنا:
+ * أذكارُ النوم لها تذكيرُها المبنيُّ أصلاً بعد العشاء.
+ */
+@Composable
+private fun ReminderSheet(
+    current: String,
+    onPick: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    val options = listOf(
+        "" to stringResource(R.string.pin_none),
+        "fajr" to stringResource(R.string.fajr),
+        "duha" to stringResource(R.string.meeqat_duha),
+        "dhuhr" to stringResource(R.string.dhuhr),
+        "asr" to stringResource(R.string.asr),
+        "maghrib" to stringResource(R.string.maghrib),
+        "isha" to stringResource(R.string.isha),
+    )
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        containerColor = rc.card,
+        title = {
+            Text(stringResource(R.string.pin_remind), style = RafiqType.titleM, color = rc.ink)
+        },
+        text = {
+            Column {
+                options.forEach { (key, label) ->
+                    val on = key == current
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onPick(key); onDismiss() }
+                            .defaultMinSize(minHeight = 48.dp)
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            if (key.isEmpty()) label
+                            else stringResource(R.string.pin_after, label),
+                            style = RafiqType.body,
+                            color = if (on) rc.emerald else rc.ink,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (on) RafiqIcon(RIcon.Check, 17.dp, rc.emerald)
+                    }
+                }
+            }
+        },
+    )
+}

@@ -29,6 +29,7 @@ val sharedModule = module {
     single<PrefsRepository>    { PrefsRepositoryImpl(get()) }
     single<TasbeehRepository>  { TasbeehRepositoryImpl(get()) }
     single<KhatmaRepository>   { KhatmaRepositoryImpl(get()) }
+    single<DhikrPinRepository> { DhikrPinRepositoryImpl(get()) }
     single<CustomDhikrRepository> { app.rafiq.data.repository.CustomDhikrRepositoryImpl(get()) }
     single<UserDataRepository> { UserDataRepositoryImpl(get()) }
     single<AchievementRepository> { AchievementRepositoryImpl(get()) }

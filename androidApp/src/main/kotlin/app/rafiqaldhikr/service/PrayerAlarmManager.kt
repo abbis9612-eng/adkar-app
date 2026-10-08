@@ -25,6 +25,13 @@ class PrayerAlarmManager(private val context: Context) {
         const val MORNING_DELAY_MS = 25 * 60_000L  // بعد الفجر
         const val EVENING_DELAY_MS = 30 * 60_000L  // بعد العصر
         const val SLEEP_DELAY_MS   = 90 * 60_000L  // بعد العشاء
+
+        /*  تذكيراتُ الأذكار المثبَّتة — معرّفاتُها من ٣٠٠ فصاعداً.
+         *
+         *  ومعرّفُ التنبيه `PIN_ID_BASE + dhikrId`، فلكلّ ذكرٍ معرّفُه
+         *  الثابت: يُلغى ويُعاد جدولتُه بلا أن يدهس تذكيرَ غيره. ولو
+         *  استُعمل عدّادٌ متسلسلٌ لاختلطت التذكيراتُ عند حذف واحدٍ منها.  */
+        const val PIN_ID_BASE = 300
     }
 
     /**
@@ -68,6 +75,30 @@ class PrayerAlarmManager(private val context: Context) {
          *  التنبيهاتِ كلَّها إلى الأبد.  */
         prayerTimes["isha"]?.let { schedulePrayer("adhkar_sleep",   it + SLEEP_DELAY_MS,   ADHKAR_SLEEP_ID) }
     }
+
+    /**
+     * يجدول تذكيراتِ الأذكار المثبَّتة **بمواقيتها لا بساعاتها**.
+     *
+     * «ذكّرني الساعةَ ٦:٣٠» تنفع في بلدٍ وفصلٍ واحد؛ ومن سافر أو جاء
+     * الشتاء صار تذكيرُه قبل المغرب بساعتين أو بعده بساعة فيُعطّله.
+     * و«بعد المغرب» صحيحةٌ في كلّ بلدٍ وفصل، لأنّ المغربَ يُحسب من
+     * إحداثيّات صاحبه.
+     *
+     * @param pins (معرّفُ الذكر، ميقاتُه، إزاحتُه بالدقائق)
+     */
+    fun schedulePinned(prayerTimes: Map<String, Long>, pins: List<Triple<Long, String, Int>>) {
+        pins.forEach { (dhikrId, meeqat, offsetM) ->
+            val base = prayerTimes[meeqat] ?: return@forEach
+            schedulePrayer(
+                prayerName = "dhikr_pin:$dhikrId",
+                triggerAtMillis = base + offsetM * 60_000L,
+                notifId = (PIN_ID_BASE + dhikrId).toInt(),
+            )
+        }
+    }
+
+    /** يُلغي تذكيرَ ذكرٍ بعينه — ولا يمسّ غيرَه. */
+    fun cancelPinned(dhikrId: Long) = cancelOne((PIN_ID_BASE + dhikrId).toInt())
 
     /**
      * هل يملك التطبيقُ إذنَ التنبيه الدقيق؟

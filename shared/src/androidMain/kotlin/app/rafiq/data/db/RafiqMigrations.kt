@@ -171,6 +171,16 @@ internal object RafiqMigrations {
                    finished_on INTEGER
                )""",
         ),
+
+        // ═══ ٥ — تثبيتُ الذكر: مفضّلةٌ وتذكيرٌ بالميقات ═══
+        listOf(
+            """CREATE TABLE IF NOT EXISTS DhikrPin (
+                   dhikr_id  INTEGER NOT NULL PRIMARY KEY,
+                   meeqat    TEXT    NOT NULL DEFAULT '',
+                   offset_m  INTEGER NOT NULL DEFAULT 0,
+                   pinned_at INTEGER NOT NULL
+               )""",
+        ),
     )
 
     /** رقمُ آخرِ ترحيلٍ معروف. يُقارَن بجدول `RafiqMigration`. */
