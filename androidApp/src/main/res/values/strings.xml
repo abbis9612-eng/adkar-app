@@ -947,4 +947,13 @@
     <string name="athar_cat_ijaba">أسبابُ الإجابة</string>
     <string name="athar_cat_mathura">الأدعيةُ المأثورة</string>
     <string name="athar_cat_salah">أذكارُ الصلاة</string>
+    <!-- الأربعون النوويّة -->
+    <string name="arbaeen_title">الأربعون النوويّة</string>
+    <string name="arbaeen_subtitle">اثنان وأربعون حديثاً بتخريجها وشرحها</string>
+    <string name="arbaeen_absent">لم تُجلب الأربعون في هذه النسخة</string>
+    <string name="arbaeen_progress">قرأتَ %1$s من %2$s</string>
+    <string name="arbaeen_credit">المتنُ والدرجةُ والشرحُ من %1$s · إصدارُ %2$s، بلا تعديل. والترتيبُ على «متن الأربعين النووية» — نسخة دار السلام.</string>
+    <string name="arbaeen_mark">علّمْ أنّي قرأتُه</string>
+    <string name="arbaeen_read">قرأتُه</string>
+    <string name="arbaeen_entry">اثنان وأربعون حديثاً، بتخريجٍ وشرح</string>
 </resources>

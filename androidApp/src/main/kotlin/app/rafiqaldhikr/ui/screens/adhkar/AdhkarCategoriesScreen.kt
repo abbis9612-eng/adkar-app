@@ -142,6 +142,33 @@ private fun MisbahaEntry(nav: NavHostController) {
  * وموضعُه هنا لا في الإعدادات: من يقرأ الأذكارَ هو من يسأل عن دليلها،
  * وشاشةُ إعداداتٍ لا يصلها إلّا من يبحث.
  */
+/** مدخلُ الأربعين — كتابٌ يُقرأ على مُهلٍ لا قائمةٌ تُتصفَّح. */
+@Composable
+private fun ArbaeenEntry(nav: NavHostController) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .rafiqCard()
+            .clickable { nav.navigate(RafiqRoute.Arbaeen.route) }
+            .padding(horizontal = 16.dp, vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        RafiqIcon(RIcon.Book, 28.dp, rc.gold)
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.arbaeen_title), style = RafiqType.titleM, color = rc.ink)
+            Text(
+                stringResource(R.string.arbaeen_entry),
+                style = RafiqType.bodyS,
+                color = rc.inkMed,
+            )
+        }
+        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
+    }
+}
+
 @Composable
 private fun AtharEntry(nav: NavHostController) {
     val rc = LocalRafiqColors.current
@@ -252,6 +279,7 @@ fun AdhkarCategoriesScreen(
             // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.
             MisbahaEntry(navController)
             AtharEntry(navController)
+            ArbaeenEntry(navController)
 
             Spacer(Modifier.height(18.dp))
 

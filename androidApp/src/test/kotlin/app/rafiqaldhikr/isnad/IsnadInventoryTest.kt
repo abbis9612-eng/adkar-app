@@ -32,7 +32,7 @@ class IsnadInventoryTest {
     @Test
     fun inventoryMatchesGuardCount() {
         val s = summarizeIsnad(entries())
-        assertEquals(339, s.total)
+        assertEquals(381, s.total)
     }
 
     /** **ولا نصَّ واحداً بلا مصدرٍ ودرجة.** */
@@ -51,6 +51,8 @@ class IsnadInventoryTest {
             "صحيح", "حسن", "حسن صحيح", "قرآن", "من كلام أهل العلم",
             "صحيح لغيره", "صحيح بشواهده", "حسن بشواهده", "إسناده صحيح",
             "سنده صحيح", "حسن غريب", "صحيحان", "صحيح وحديث جابر حسن",
+            "قال النووي: حديث حسن", "قال النووي: حديث صحيح",
+            "قال الترمذي: حديث حسن",
         )
         val unknown = summarizeIsnad(entries()).byGrade.map { it.first }.filterNot { it in known }
         assertTrue("درجاتٌ غير معروفة: $unknown", unknown.isEmpty())
@@ -60,8 +62,8 @@ class IsnadInventoryTest {
     @Test
     fun gradeDistributionIsStable() {
         val byGrade = summarizeIsnad(entries()).byGrade.toMap()
-        assertEquals(272, byGrade["صحيح"])
-        assertEquals(39, byGrade["حسن"])
+        assertEquals(305, byGrade["صحيح"])
+        assertEquals(42, byGrade["حسن"])
         assertEquals(13, byGrade["قرآن"])
         assertEquals(2, byGrade["من كلام أهل العلم"])
     }

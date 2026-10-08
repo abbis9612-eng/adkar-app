@@ -922,4 +922,13 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="athar_cat_ijaba">Causes of acceptance</string>
     <string name="athar_cat_mathura">Transmitted supplications</string>
     <string name="athar_cat_salah">In prayer</string>
+    <!-- الأربعون النوويّة -->
+    <string name="arbaeen_title">The Forty of al-Nawawi</string>
+    <string name="arbaeen_subtitle">Forty-two hadiths with attribution and commentary</string>
+    <string name="arbaeen_absent">The Forty were not fetched in this build</string>
+    <string name="arbaeen_progress">You have read %1$s of %2$s</string>
+    <string name="arbaeen_credit">Text, grade and commentary from %1$s · edition %2$s, unmodified. The ordering follows the Dar Alsalam edition of Matn al-Arba\'in al-Nawawiyyah.</string>
+    <string name="arbaeen_mark">Mark as read</string>
+    <string name="arbaeen_read">Read</string>
+    <string name="arbaeen_entry">Forty-two hadiths, attributed and explained</string>
 </resources>

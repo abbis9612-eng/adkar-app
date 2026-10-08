@@ -42,6 +42,7 @@ import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
 import app.rafiqaldhikr.ui.screens.khatma.KhatmaScreen
+import app.rafiqaldhikr.ui.screens.arbaeen.ArbaeenScreen
 import app.rafiqaldhikr.ui.screens.athar.AtharScreen
 import app.rafiqaldhikr.ui.screens.isnad.IsnadScreen
 import app.rafiqaldhikr.ui.screens.tasmee.TasmeeScreen
@@ -110,6 +111,7 @@ fun RafiqNavGraph(
         composable(RafiqRoute.QuranBookmarks.route) { QuranBookmarksScreen(navController) }
         composable(RafiqRoute.Isnad.route) { IsnadScreen(navController) }
         composable(RafiqRoute.Athar.route) { AtharScreen(navController) }
+        composable(RafiqRoute.Arbaeen.route) { ArbaeenScreen(navController) }
 
         composable(
             route     = RafiqRoute.Tasmee.route,
