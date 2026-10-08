@@ -1,0 +1,25 @@
+{
+  "source_repo": "Sharjeelbaig/whisper-tiny-ar-quran-onnx",
+  "upstream_model": "tarteel-ai/whisper-tiny-ar-quran",
+  "license": "Apache-2.0",
+  "audio": {
+    "sample_rate": 16000,
+    "n_fft": 400,
+    "hop": 160,
+    "n_mels": 80,
+    "n_frames": 3000
+  },
+  "tokens": {
+    "startoftranscript": 50258,
+    "ar": 50272,
+    "transcribe": 50359,
+    "notimestamps": 50363,
+    "endoftext": 50257
+  },
+  "sha256": {
+    "encoder_int8.onnx": "965e0ca31daf589ffb572e8b6deb1a4e65ad72221c1873c952331ff1c52f50c1",
+    "decoder_int8.onnx": "06a5c4409988b9ae7747bd55cf81e3851e3f2238536c86467963e0241464f652",
+    "mel_filters.bin": "88df35e6c6d720d89b2d59b410cf386081a6ad04ccc6daaa732ca9b481575137",
+    "tokens.txt": "716be851e42b80c9792619fb725dafc291da6efd273f6dc4f42210f696abd40b"
+  }
+}

@@ -181,6 +181,9 @@ dependencies {
     // ═══ Location ═══
     implementation(libs.play.services.location)
 
+    //  التسميع — مُشغّلُ النموذج على الجهاز، بلا شبكة
+    implementation(libs.onnxruntime.android)
+
     /*  حُذفت هنا ثلاثُ تبعيّاتٍ لا يستعملها سطرٌ واحد:
      *  · datastore-preferences — كلا ملفَّي التفضيلات يستعملان
      *    SharedPreferences خاماً.

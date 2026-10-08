@@ -77,6 +77,10 @@ jobs:
       - name: Check tasmee normalisation
         run: python3 tools/check_tasmee_rules.py
 
+      # نموذجٌ يُبدَّل بصمتاً لا يدخل تطبيقاً يُسمَّع فيه كتابُ الله
+      - name: Check tasmee model assets
+        run: python3 tools/check_tasmee_model.py
+
       # عمودٌ جديد في .sq يعمل على تثبيتٍ نظيف ويُسقط كلَّ ترقية —
       # ولا يظهر في CI لأنّ كل تشغيلٍ هنا تثبيتٌ نظيف
       - name: Check schema vs migrations
