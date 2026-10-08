@@ -94,6 +94,34 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
                 .executeAsOne() > 0L
         }
 
+    override suspend fun ayahNote(surah: Int, ayah: Int): String? =
+        withContext(Dispatchers.IO) {
+            db.quranBookmarkQueries.getNote(surah.toLong(), ayah.toLong())
+                .executeAsOneOrNull()?.note?.takeIf { it.isNotBlank() }
+        }
+
+    /*  الملاحظةُ تُكتب على آيةٍ قد لا تكون مُعلَّمةً بعد.
+     *
+     *  فيُنشَأ لها صفٌّ أوّلاً (`INSERT OR IGNORE` فلا يُمسّ صفٌّ قائم)
+     *  ثمّ تُحدَّث. ولولا ذلك ضاعت كتابةُ من كتب ملاحظةً قبل أن يُعلّم.
+     *
+     *  والفارغةُ تُكتب null لا سلسلةً فارغة: `note` حقلٌ يحتمل الغياب،
+     *  والفراغُ غيابٌ لا قيمة. */
+    override suspend fun setAyahNote(surah: Int, ayah: Int, page: Int, note: String?) =
+        withContext(Dispatchers.IO) {
+            db.quranBookmarkQueries.upsertNote(
+                surah      = surah.toLong(),
+                ayah       = ayah.toLong(),
+                page       = page.toLong(),
+                created_at = Clock.System.now().toEpochMilliseconds(),
+            )
+            db.quranBookmarkQueries.updateNote(
+                note  = note?.trim()?.takeIf { it.isNotEmpty() },
+                surah = surah.toLong(),
+                ayah  = ayah.toLong(),
+            )
+        }
+
     override suspend fun getTafsir(surah: Int, ayah: Int): String? =
         withContext(Dispatchers.IO) {
             db.tafsirQueries.getByAyah(surah.toLong(), ayah.toLong())

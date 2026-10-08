@@ -25,6 +25,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +40,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.widget.Toast
+import androidx.compose.ui.graphics.toArgb
+import app.rafiqaldhikr.ui.share.renderAyahCard
+import app.rafiqaldhikr.ui.share.shareBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import app.rafiqaldhikr.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
@@ -87,6 +98,12 @@ fun AyahSheet(
     var tafsir by remember(verse) { mutableStateOf<String?>(null) }
     var marked by remember(verse) { mutableStateOf(false) }
     var loading by remember(verse) { mutableStateOf(true) }
+    /*  الملاحظة: `note` هو المحفوظ، و`draft` ما يُكتب الآن، و`editing`
+     *  هل الحقلُ مفتوح. وفصلُ الثلاثة لازم: من فتح الحقلَ وغيّر رأيَه
+     *  يُغلقه فيرجع المحفوظُ كما كان بلا حفظٍ ضمنيّ. */
+    var note by remember(verse) { mutableStateOf<String?>(null) }
+    var draft by remember(verse) { mutableStateOf("") }
+    var editing by remember(verse) { mutableStateOf(false) }
 
     LaunchedEffect(verse) {
         if (verse == null) return@LaunchedEffect
@@ -94,11 +111,24 @@ fun AyahSheet(
         text = runCatching { vm.ayah(surah, ayah) }.getOrNull()?.textUthmani.orEmpty()
         tafsir = runCatching { vm.tafsir(surah, ayah) }.getOrNull()
         marked = runCatching { vm.isMarked(surah, ayah) }.getOrDefault(false)
+        note = runCatching { vm.note(surah, ayah) }.getOrNull()
+        draft = note.orEmpty()
+        editing = false
         loading = false
     }
 
     // يُقرأ في التأليف: `stringResource` لا تُنادى داخل onClick.
     val shareTitle = stringResource(R.string.ayah_share_title)
+    val ayahLabel = if (surah > 0) {
+        stringResource(R.string.ayah_label, SurahNames.of(ctx, surah), ayah.toString())
+    } else {
+        ""
+    }
+    val appName = stringResource(R.string.app_name)
+    val shareFailed = stringResource(R.string.share_failed)
+    /*  «مشاركة» صارت بابين: نصّاً وصورةً. ويُسأل السؤالُ عند الضغط لا
+     *  بزرّين في الصفّ — الصفُّ خمسةُ أفعالٍ أصلاً، والسادسُ يُضيّقها. */
+    var sharing by remember(verse) { mutableStateOf(false) }
 
     val paper = if (night) Color(0xFF1A1712) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
@@ -179,6 +209,90 @@ fun AyahSheet(
                     Spacer(Modifier.height(15.dp))
                 }
 
+                /*  الملاحظةُ المحفوظة تُعرض فوق الأفعال لا تحتها:
+                 *  هي **كلامُ المستخدم** لا فعلاً يفعله، وموضعُها مع
+                 *  النصّ والتفسير لا مع الأزرار. */
+                val n = note
+                if (!editing && !n.isNullOrBlank()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(ink.copy(alpha = 0.05f))
+                            .clickable { editing = true; draft = n }
+                            .padding(horizontal = 11.dp, vertical = 9.dp)
+                            .height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(9.dp),
+                    ) {
+                        Box(
+                            Modifier
+                                .width(3.dp)
+                                .heightIn(min = 16.dp)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(rc.gold),
+                        )
+                        Text(
+                            n,
+                            fontFamily = NaskhFamily,
+                            fontSize = 13.sp,
+                            lineHeight = 24.sp,
+                            color = ink.copy(alpha = 0.88f),
+                        )
+                    }
+                    Spacer(Modifier.height(13.dp))
+                }
+
+                if (editing) {
+                    OutlinedTextField(
+                        value = draft,
+                        onValueChange = { draft = it },
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.ayah_note_hint),
+                                fontFamily = NaskhFamily,
+                                fontSize = 13.sp,
+                                color = ink.copy(alpha = 0.45f),
+                            )
+                        },
+                        textStyle = LocalTextStyle.current.copy(
+                            fontFamily = NaskhFamily,
+                            fontSize = 14.sp,
+                            lineHeight = 26.sp,
+                            color = ink,
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = rc.gold,
+                            unfocusedBorderColor = hair,
+                            cursorColor = rc.gold,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                        ),
+                        shape = RoundedCornerShape(11.dp),
+                        minLines = 2,
+                        maxLines = 5,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(9.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SheetAction(
+                            stringResource(R.string.action_save), RIcon.Check, true,
+                            ink, hair, Modifier.weight(1f),
+                        ) {
+                            scope.launch {
+                                vm.setNote(surah, ayah, page, draft)
+                                note = draft.trim().takeIf { it.isNotEmpty() }
+                                editing = false
+                            }
+                        }
+                        SheetAction(
+                            stringResource(R.string.action_close), RIcon.Close, false,
+                            ink, hair, Modifier.weight(1f),
+                        ) { draft = note.orEmpty(); editing = false }
+                    }
+                    Spacer(Modifier.height(13.dp))
+                }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SheetAction(
                         label = if (marked) stringResource(R.string.ayah_bookmarked) else stringResource(R.string.ayah_bookmark),
@@ -193,12 +307,57 @@ fun AyahSheet(
                     SheetAction(stringResource(R.string.action_copy), RIcon.Copy, false, ink, hair, Modifier.weight(1f)) {
                         clip.setText(AnnotatedString(shareBody(text, tf, surah, ayah, ctx)))
                     }
+                    SheetAction(
+                        stringResource(R.string.ayah_note), RIcon.Edit, false,
+                        ink, hair, Modifier.weight(1f),
+                    ) { draft = note.orEmpty(); editing = true }
                     SheetAction(stringResource(R.string.action_share), RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
-                        val i = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, shareBody(text, tf, surah, ayah, ctx))
+                        sharing = true
+                    }
+                }
+
+                if (sharing) {
+                    Spacer(Modifier.height(9.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SheetAction(
+                            stringResource(R.string.share_as_text), RIcon.Copy, false,
+                            ink, hair, Modifier.weight(1f),
+                        ) {
+                            sharing = false
+                            val i = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, shareBody(text, tf, surah, ayah, ctx))
+                            }
+                            ctx.startActivity(Intent.createChooser(i, shareTitle))
                         }
-                        ctx.startActivity(Intent.createChooser(i, shareTitle))
+                        SheetAction(
+                            stringResource(R.string.share_as_image), RIcon.Share, true,
+                            ink, hair, Modifier.weight(1f),
+                        ) {
+                            sharing = false
+                            scope.launch {
+                                /*  الرسمُ والكتابةُ على خيط الإدخال والإخراج:
+                                 *  بطاقةٌ بعرض ١٠٨٠ وضغطُ PNG ليسا عملَ
+                                 *  الخيط الرئيسيّ. */
+                                val ok = withContext(Dispatchers.IO) {
+                                    runCatching {
+                                        val bmp = renderAyahCard(
+                                            ctx = ctx,
+                                            ayahText = text,
+                                            label = ayahLabel,
+                                            appName = appName,
+                                            bg = paper.toArgb(),
+                                            ink = ink.toArgb(),
+                                            gold = rc.gold.toArgb(),
+                                        )
+                                        shareBitmap(ctx, bmp, shareTitle, "rafiq-ayah.png")
+                                    }.getOrDefault(false)
+                                }
+                                if (!ok) {
+                                    Toast.makeText(ctx, shareFailed, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
                     }
                 }
             }

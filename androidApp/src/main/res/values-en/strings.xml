@@ -538,6 +538,13 @@
     <string name="ayah_label">%1$s · verse %2$s</string>
     <string name="ayah_bookmarked">Bookmarked</string>
     <string name="ayah_bookmark">Bookmark</string>
+    <string name="ayah_note">Note</string>
+    <string name="ayah_note_hint">Write what came to you at this verse</string>
+    <string name="ayah_note_saved">Note saved</string>
+    <string name="ayah_note_cleared">Note cleared</string>
+    <string name="action_save">Save</string>
+    <string name="share_as_text">As text</string>
+    <string name="share_as_image">As image</string>
     <string name="ayah_share_title">Share the verse</string>
     <string name="tafsir_label">Al-Tafsir al-Muyassar:</string>
     <string name="mushaf_offer_body_long">Fifteen lines matching the Madinah Mushaf — each word in its place, each line breaking where the printed page breaks. It needs fonts, downloaded once.</string>

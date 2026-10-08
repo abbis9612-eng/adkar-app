@@ -26,5 +26,11 @@ interface QuranRepository {
     suspend fun removeBookmark(id: Long)
     suspend fun removeBookmarkByPosition(surah: Int, ayah: Int)
     suspend fun isBookmarked(surah: Int, ayah: Int): Boolean
+
+    /** ملاحظةُ المستخدم على آية، أو null إن لم يكتب. */
+    suspend fun ayahNote(surah: Int, ayah: Int): String?
+
+    /** يكتب الملاحظة — والفارغةُ تمحو ما كُتب. */
+    suspend fun setAyahNote(surah: Int, ayah: Int, page: Int, note: String?)
     suspend fun getTafsir(surah: Int, ayah: Int): String?
 }

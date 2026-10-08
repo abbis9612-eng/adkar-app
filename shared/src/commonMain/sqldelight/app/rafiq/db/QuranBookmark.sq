@@ -15,6 +15,25 @@ insert:
 INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note)
 VALUES (:surah, :ayah, :page, :created_at, :note);
 
+-- الملاحظةُ على الآية.
+--
+-- العمودُ `note` موجودٌ في الجدول منذ إنشائه، ولم يكن له كاتبٌ ولا قارئ:
+-- `insert` يمرّر فيه null دائماً، ولا استعلامَ يحدّثه. فكان حقلاً ميّتاً
+-- في القاعدة وميزةً غائبةً في الواجهة. وهذان الاستعلامان يُحييانه —
+-- **ولا يمسّان المخطّط**، فلا ترحيلَ ولا تغييرَ في توقيعه.
+--
+-- و`INSERT OR IGNORE` قبل التحديث: من كتب ملاحظةً على آيةٍ لم يُعلّمها
+-- بعدُ يجب أن يُنشَأ لها صفّ، وإلّا ضاعت كتابتُه صامتةً.
+upsertNote:
+INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note)
+VALUES (:surah, :ayah, :page, :created_at, NULL);
+
+updateNote:
+UPDATE QuranBookmark SET note = :note WHERE surah = :surah AND ayah = :ayah;
+
+getNote:
+SELECT note FROM QuranBookmark WHERE surah = :surah AND ayah = :ayah;
+
 delete:
 DELETE FROM QuranBookmark WHERE id = :id;
 
