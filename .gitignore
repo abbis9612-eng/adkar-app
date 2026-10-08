@@ -45,3 +45,6 @@ build_output.log
 # مخرجاتُ بايثون من سكربتات tools/
 __pycache__/
 *.pyc
+
+# ذاكرةُ جالب الأثر — مئاتُ ملفّاتٍ خامٍ من المصدر، تُعاد بـfetch_athar.py
+tools/.athar_cache/

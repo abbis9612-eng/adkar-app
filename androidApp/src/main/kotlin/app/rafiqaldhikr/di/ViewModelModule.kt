@@ -22,6 +22,7 @@ import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
 import app.rafiqaldhikr.ui.screens.khatma.KhatmaViewModel
 import app.rafiqaldhikr.ui.screens.mirror.MirrorViewModel
+import app.rafiqaldhikr.ui.screens.athar.AtharViewModel
 import app.rafiqaldhikr.ui.screens.isnad.IsnadViewModel
 import app.rafiqaldhikr.ui.screens.tasmee.TasmeeViewModel
 import app.rafiqaldhikr.ui.screens.waraqa.WisdomViewModel
@@ -53,6 +54,7 @@ val viewModelModule = module {
 
     //  الجردُ يُقرأ من الأصول — فيحتاج سياقاً لا مستودعاً.
     viewModel { IsnadViewModel(androidContext()) }
+    viewModel { AtharViewModel(androidContext()) }
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)

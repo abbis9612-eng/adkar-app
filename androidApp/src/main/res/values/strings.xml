@@ -921,4 +921,30 @@
     <string name="isnad_counting">يُجرَد…</string>
     <string name="isnad_note">الدرجةُ حكمُ أهل العلم بلفظه. والمسُ أيَّ سطرٍ يُظهر تخريجَه كاملاً.</string>
     <string name="settings_isnad">جَرْدُ الإسناد</string>
+    <!-- الأثر — أحاديث الذكر والدعاء بأدلّتها -->
+    <string name="athar_title">الأثر</string>
+    <string name="athar_subtitle">أحاديثُ الذكر والدعاء بأدلّتها</string>
+    <string name="athar_absent">لم تُجلب نصوصُ الأثر في هذه النسخة</string>
+    <string name="athar_credit">الناشر: %1$s · إصدارُ %2$s. يُعرَض المتنُ والشرحُ كما نشرهما المصدرُ بلا تعديل.</string>
+    <string name="athar_takhrij">التخريج</string>
+    <string name="athar_sharh">الشرح</string>
+    <string name="athar_ref_id">رقمُه عند المصدر: %1$s</string>
+    <string name="athar_entry">الدليل: أحاديثُ الذكر وفضائله</string>
+    <string name="athar_cat_fadl_dhikr">فضائلُ الذكر</string>
+    <string name="athar_cat_fadl_dua">فضلُ الدعاء</string>
+    <string name="athar_cat_hady_dhikr">هديُ النبيّ في الذكر</string>
+    <string name="athar_cat_fawaid_dhikr">فوائدُ ذكر الله</string>
+    <string name="athar_cat_morning_evening">أذكارُ الصباح والمساء</string>
+    <string name="athar_cat_mutlaq">الأذكارُ المطلقة</string>
+    <string name="athar_cat_home">أذكارُ المنزل</string>
+    <string name="athar_cat_khala">أذكارُ الخلاء</string>
+    <string name="athar_cat_masjid">أذكارُ المسجد</string>
+    <string name="athar_cat_shidda">أذكارُ الشدّة</string>
+    <string name="athar_cat_arida">الأمورُ العارضة</string>
+    <string name="athar_cat_ahkam_dua">أحكامُ الدعاء</string>
+    <string name="athar_cat_anwa_dua">أنواعُ الدعاء</string>
+    <string name="athar_cat_adab_dua">آدابُ الدعاء</string>
+    <string name="athar_cat_ijaba">أسبابُ الإجابة</string>
+    <string name="athar_cat_mathura">الأدعيةُ المأثورة</string>
+    <string name="athar_cat_salah">أذكارُ الصلاة</string>
 </resources>

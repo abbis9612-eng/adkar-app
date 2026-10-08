@@ -896,4 +896,30 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="isnad_counting">Counting…</string>
     <string name="isnad_note">The grade is the scholars\' ruling in their own words. Tap any row for its full attribution.</string>
     <string name="settings_isnad">Chain of sources</string>
+    <!-- الأثر -->
+    <string name="athar_title">Evidence</string>
+    <string name="athar_subtitle">Hadiths on remembrance and supplication, with their chains</string>
+    <string name="athar_absent">Evidence texts were not fetched in this build</string>
+    <string name="athar_credit">Publisher: %1$s · edition %2$s. Text and commentary are shown exactly as published, unmodified.</string>
+    <string name="athar_takhrij">Attribution</string>
+    <string name="athar_sharh">Commentary</string>
+    <string name="athar_ref_id">Source reference: %1$s</string>
+    <string name="athar_entry">Evidence: hadiths on remembrance</string>
+    <string name="athar_cat_fadl_dhikr">Virtues of remembrance</string>
+    <string name="athar_cat_fadl_dua">Virtue of supplication</string>
+    <string name="athar_cat_hady_dhikr">The Prophet\'s way in remembrance</string>
+    <string name="athar_cat_fawaid_dhikr">Benefits of remembering Allah</string>
+    <string name="athar_cat_morning_evening">Morning and evening</string>
+    <string name="athar_cat_mutlaq">Unrestricted remembrance</string>
+    <string name="athar_cat_home">At home</string>
+    <string name="athar_cat_khala">The washroom</string>
+    <string name="athar_cat_masjid">The mosque</string>
+    <string name="athar_cat_shidda">In hardship</string>
+    <string name="athar_cat_arida">Occasional matters</string>
+    <string name="athar_cat_ahkam_dua">Rulings of supplication</string>
+    <string name="athar_cat_anwa_dua">Kinds of supplication</string>
+    <string name="athar_cat_adab_dua">Manners of supplication</string>
+    <string name="athar_cat_ijaba">Causes of acceptance</string>
+    <string name="athar_cat_mathura">Transmitted supplications</string>
+    <string name="athar_cat_salah">In prayer</string>
 </resources>

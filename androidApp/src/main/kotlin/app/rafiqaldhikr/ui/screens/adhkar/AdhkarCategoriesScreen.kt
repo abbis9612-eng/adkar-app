@@ -136,6 +136,38 @@ private fun MisbahaEntry(nav: NavHostController) {
     }
 }
 
+/**
+ * مدخلُ الأثر — جوابُ «من أين لكم هذا؟».
+ *
+ * وموضعُه هنا لا في الإعدادات: من يقرأ الأذكارَ هو من يسأل عن دليلها،
+ * وشاشةُ إعداداتٍ لا يصلها إلّا من يبحث.
+ */
+@Composable
+private fun AtharEntry(nav: NavHostController) {
+    val rc = LocalRafiqColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .rafiqCard()
+            .clickable { nav.navigate(RafiqRoute.Athar.route) }
+            .padding(horizontal = 16.dp, vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        RafiqIcon(RIcon.Document, 28.dp, rc.emerald)
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.athar_title), style = RafiqType.titleM, color = rc.ink)
+            Text(
+                stringResource(R.string.athar_entry),
+                style = RafiqType.bodyS,
+                color = rc.inkMed,
+            )
+        }
+        RafiqIcon(RIcon.ChevronLeft, 16.dp, rc.inkLight)
+    }
+}
+
 /* ══════════════════════════════════════════════════════════════
    CATEGORY DATA
 ══════════════════════════════════════════════════════════════ */
@@ -219,6 +251,7 @@ fun AdhkarCategoriesScreen(
 
             // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.
             MisbahaEntry(navController)
+            AtharEntry(navController)
 
             Spacer(Modifier.height(18.dp))
 
