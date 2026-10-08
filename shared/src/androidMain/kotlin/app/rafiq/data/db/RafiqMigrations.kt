@@ -152,6 +152,25 @@ internal object RafiqMigrations {
         listOf(
             "ALTER TABLE QuranBookmark ADD COLUMN kind TEXT NOT NULL DEFAULT 'mark'",
         ),
+
+        // ═══ ٤ — جدولُ الختمة ═══
+        //
+        // جدولٌ جديدٌ لا عمود، فـ`IF NOT EXISTS` تكفي: التثبيتُ النظيف
+        // يُنشئه من المخطّط، والقاعدةُ القائمةُ تناله هنا.
+        listOf(
+            """CREATE TABLE IF NOT EXISTS Khatma (
+                   id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                   started_on  INTEGER NOT NULL,
+                   days        INTEGER NOT NULL,
+                   from_page   INTEGER NOT NULL DEFAULT 1,
+                   to_page     INTEGER NOT NULL DEFAULT 604,
+                   read_to     INTEGER NOT NULL DEFAULT 0,
+                   meeqat      TEXT    NOT NULL DEFAULT 'dhuhr',
+                   continuous  INTEGER NOT NULL DEFAULT 0,
+                   active      INTEGER NOT NULL DEFAULT 1,
+                   finished_on INTEGER
+               )""",
+        ),
     )
 
     /** رقمُ آخرِ ترحيلٍ معروف. يُقارَن بجدول `RafiqMigration`. */

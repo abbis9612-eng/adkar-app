@@ -10,7 +10,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
 /** آياتُ صفحةٍ بترقيم المصحف — للنمط المضبوط الذي يعمل بلا تنزيل. */
-class MushafPageViewModel(private val repo: QuranRepository) : ViewModel() {
+class MushafPageViewModel(
+    private val repo: QuranRepository,
+    private val khatma: app.rafiq.domain.repository.KhatmaRepository,
+) : ViewModel() {
 
     fun pageFlow(page: Int): Flow<List<AyahInfo>> = repo.getAyahsByPage(page)
 
@@ -58,8 +61,17 @@ class MushafPageViewModel(private val repo: QuranRepository) : ViewModel() {
      * لكنّه لا يخرج من الشاشة: لا تراه الرئيسيةُ ولا يدخل في التصدير.
      * وهذا يفعل الاثنين.
      */
+    /*  تسجيلُ الموضع يُسجّل وِردَ الختمة معه.
+     *
+     *  ولا يُطلب من القارئ أن يضغط «أتممتُ وِردي»: من قرأ فقد قرأ،
+     *  والتطبيقُ يعرف أين بلغ. وزرُّ إقرارٍ زائدٌ يُنسى فيبدو صاحبُه
+     *  متأخّراً وهو مواظب. */
     fun rememberPosition(surah: Int, ayah: Int, page: Int) {
-        viewModelScope.launch { repo.saveLastRead(surah, ayah, page, 0f) }
+        viewModelScope.launch {
+            repo.saveLastRead(surah, ayah, page, 0f)
+            //  الصفحةُ تُحتسب متى غادرها إلى ما بعدها — لا بمجرّد فتحها
+            khatma.markRead(page - 1)
+        }
     }
 
     fun lastRead(): Flow<LastReadPosition?> = repo.getLastRead()

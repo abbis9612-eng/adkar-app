@@ -22,6 +22,7 @@ sealed class RafiqRoute(val route: String) {
 
     // ═══ M1 — Tasbeeh ═══
     data object Tasbeeh           : RafiqRoute("tasbeeh")
+    data object Khatma            : RafiqRoute("khatma")
 
     // ═══ M1 — Quran ═══
     data object QuranList         : RafiqRoute("quran_list")

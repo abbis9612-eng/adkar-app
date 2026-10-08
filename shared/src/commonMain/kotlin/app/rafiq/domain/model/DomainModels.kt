@@ -263,3 +263,18 @@ fun QuranBookmarkEntity.toDomain() = QuranBookmark(
     note      = note,
     kind      = kind,
 )
+
+/** خطّةُ ختمةٍ كما هي في القاعدة. */
+data class KhatmaPlan(
+    val id:         Long,
+    val startedOn:  Long,
+    val days:       Int,
+    val fromPage:   Int,
+    val toPage:     Int,
+    val readTo:     Int,
+    /** الميقاتُ الذي يظهر عنده الوِرد في صفّ المحطّات. */
+    val meeqat:     String,
+    val continuous: Boolean,
+    val active:     Boolean,
+    val finishedOn: Long?,
+)

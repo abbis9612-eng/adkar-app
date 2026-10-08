@@ -461,6 +461,7 @@ fun HomeHubScreen(
                     onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
                     onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
                     onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+                    onKhatma  = { navController.navigate(RafiqRoute.Khatma.route) },
                 )
 
                 MunasabaLine(ar)
@@ -1160,6 +1161,7 @@ private fun DoorsRow(
     onTasbeeh: () -> Unit,
     onQibla:   () -> Unit,
     onTimes:   () -> Unit,
+    onKhatma:  () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
     /*  الأبوابُ الثلاثة — وهي ليست في النموذج.
@@ -1190,6 +1192,8 @@ private fun DoorsRow(
         Door(stringResource(R.string.tasbeeh_title), onTasbeeh) { IcoMisbaha(12.dp, it) }
         Door(stringResource(R.string.qibla_title), onQibla) { IcoCompass(12.dp, it) }
         Door(stringResource(R.string.prayer_times_title), onTimes) { IcoClock(12.dp, it) }
+        //  الختمةُ بابٌ رابع — تُضبط مرّةً، ثمّ وِردُها محطّةٌ في الصفّ.
+        Door(stringResource(R.string.khatma_title), onKhatma) { IcoBookOpen(12.dp, it) }
     }
 }
 

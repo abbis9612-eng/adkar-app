@@ -41,6 +41,7 @@ import app.rafiqaldhikr.ui.screens.settings.SettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
+import app.rafiqaldhikr.ui.screens.khatma.KhatmaScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
@@ -92,6 +93,9 @@ fun RafiqNavGraph(
             route     = RafiqRoute.Tasbeeh.route,
             deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/tasbeeh" })
         ) { TasbeehScreen(navController) }
+
+        // ═══ Khatma ═══
+        composable(RafiqRoute.Khatma.route) { KhatmaScreen(navController) }
 
         // ═══ Quran ═══
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }

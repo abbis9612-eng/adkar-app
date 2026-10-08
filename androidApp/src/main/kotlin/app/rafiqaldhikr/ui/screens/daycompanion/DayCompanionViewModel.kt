@@ -3,6 +3,8 @@ package app.rafiqaldhikr.ui.screens.daycompanion
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
 import app.rafiqaldhikr.util.isFriday
+import app.rafiq.domain.model.wirdOf
+import app.rafiq.domain.repository.KhatmaRepository
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.lifecycle.viewModelScope
@@ -33,6 +35,7 @@ class DayCompanionViewModel(
     private val progressRepo:   ProgressRepository,
     private val companionRepo:  DayCompanionRepository,
     private val getPrayerTimes: GetPrayerTimesUseCase,
+    private val khatmaRepo:     KhatmaRepository,
 ) : ViewModel() {
 
     private companion object {
@@ -120,8 +123,9 @@ class DayCompanionViewModel(
                 prefsRepo.getPrefs(),
                 progressRepo.getByDate(today),
                 companionRepo.getCompletedStations(today),
+                khatmaRepo.active(),
                 refreshTrigger,
-            ) { prefs, progress, completed, _ ->
+            ) { prefs, progress, completed, khatma, _ ->
                 // محطّات اليوم كلّها موقوتة بأوقات الصلاة. بلا موقع لا محطّات —
                 // والورقة تطلب الموقع بدل أن تعرض جدول مدينةٍ ليست مدينته.
                 val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
@@ -148,7 +152,24 @@ class DayCompanionViewModel(
                 }
                 val allDone = completed + auto
 
-                val stations = buildStations(times, todayDate.isFriday()).map { st ->
+                /*  وِردُ الختمة **محطّةٌ في الصفّ** لا شاشةٌ في درج.
+                 *
+                 *  والمنافسُ يضعها أداةً بين خمسَ عشرةَ أداةً وتذكيرُها
+                 *  «مرتبطٌ بالصلاة». ونحن أولى بالفكرة: محطّاتُنا موقوتةٌ
+                 *  بالصلاة أصلاً، فيدخل الوِردُ بينها في ميقاته ويُرتَّب
+                 *  معها بالوقت — لا يُلحق في آخر القائمة. */
+                val todayEpoch = todayDate.toEpochDays().toLong()
+                val wirdStation = khatma?.let { k ->
+                    val w = wirdOf(
+                        fromPage = k.fromPage, toPage = k.toPage, days = k.days,
+                        startedOn = k.startedOn, readTo = k.readTo, today = todayEpoch,
+                    )
+                    if (w.finished) null else wirdStationOf(k, w, times)
+                }
+
+                val stations = (buildStations(times, todayDate.isFriday()) + listOfNotNull(wirdStation))
+                    .sortedBy { it.startMillis }
+                    .map { st ->
                     val status = when {
                         st.id in allDone                      -> StationStatus.DONE
                         now in st.startMillis..st.endMillis   -> StationStatus.ACTIVE
@@ -175,6 +196,40 @@ class DayCompanionViewModel(
         viewModelScope.launch {
             companionRepo.completeStation(today, id)
         }
+    }
+
+    /**
+     * محطّةُ الوِرد — نافذتُها من ميقاتها إلى الذي يليه.
+     *
+     * ووصفُها **بالوقت لا بالصفحات وحدَها**: «٢١ صفحة» لا تقول شيئاً لمن
+     * لا يعرف كم تأخذ، و«نحو ٣٥ دقيقة» تقول. ومن تأخّر يُقال له كم
+     * تأخّر صراحةً — لا يُترك يكتشفه بنفسه حين ييأس.
+     */
+    private fun wirdStationOf(
+        k: app.rafiq.domain.model.KhatmaPlan,
+        w: app.rafiq.domain.model.Wird,
+        t: app.rafiq.domain.model.PrayerTimesResult,
+    ): StationUi {
+        val (start, end) = when (k.meeqat) {
+            "fajr"    -> t.fajr to t.sunrise
+            "duha"    -> t.sunrise to t.dhuhr
+            "asr"     -> t.asr to t.maghrib
+            "maghrib" -> t.maghrib to t.isha
+            "isha"    -> t.isha to (t.fajr + 86_400_000L)
+            else      -> t.dhuhr to t.asr
+        }
+        return StationUi(
+            id = "wird",
+            title = R.string.wird_title,
+            short = R.string.wird_short,
+            description = R.string.wird_title,
+            //  لا نصَّ دينيَّ هنا: الفضلُ يُضاف في مرحلة الإسناد بتخريجه.
+            virtue = "",
+            source = "",
+            timeLabel = R.string.wird_time,
+            startMillis = start, endMillis = end,
+            route = RafiqRoute.Mushaf.atPage(w.from),
+        )
     }
 
     private fun buildStations(t: app.rafiq.domain.model.PrayerTimesResult, friday: Boolean): List<StationUi> {
