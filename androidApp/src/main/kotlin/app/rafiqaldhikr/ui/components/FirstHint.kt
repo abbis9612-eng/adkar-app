@@ -53,14 +53,26 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 
 /** هل عُرض تلميحُ هذه الشاشة من قبل؟ */
 private fun seen(ctx: Context, key: String): Boolean =
-    ctx.getSharedPreferences(STORE, Context.MODE_PRIVATE).getBoolean(key, false)
+    ctx.getSharedPreferences(HINT_STORE, Context.MODE_PRIVATE).getBoolean(key, false)
 
 private fun markSeen(ctx: Context, key: String) {
-    ctx.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+    ctx.getSharedPreferences(HINT_STORE, Context.MODE_PRIVATE)
         .edit().putBoolean(key, true).apply()
 }
 
-private const val STORE = "rafiq_hints"
+/** مخزنُ التلميحات — تشاركه الجولةُ في [SpotlightTour]. */
+internal const val HINT_STORE = "rafiq_hints"
+
+/**
+ * يمحو كلَّ علامات «رُئي».
+ *
+ * فتعود التلميحاتُ السبعةُ والجولةُ كما كانت أوّلَ تثبيت. ولا يلمس هذا
+ * بياناً واحداً من بيانات صاحبه: المخزنُ علاماتُ عرضٍ لا محتوى.
+ */
+fun clearHints(ctx: Context) {
+    ctx.getSharedPreferences(HINT_STORE, Context.MODE_PRIVATE)
+        .edit().clear().apply()
+}
 
 /**
  * شريطُ تلميحٍ يظهر مرّةً واحدةً لكلّ [key].

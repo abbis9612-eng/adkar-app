@@ -30,6 +30,7 @@ import app.rafiqaldhikr.ui.components.GlyphHeart
 import app.rafiqaldhikr.ui.components.GlyphDotted
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.tourAnchor
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.progressSpec
@@ -39,19 +40,21 @@ data class BottomNavItem(
     val labelRes: Int,
     // أيقونة مخصصة من مكتبة RafiqIcons الموحّدة (حجم، لون)
     val icon:     @Composable (Dp, Color) -> Unit,
-    val route:    RafiqRoute
+    val route:    RafiqRoute,
+    /** مفتاحُ مرساة الجولة التعريفيّة — تُثقَب الشاشةُ فوق هذا التبويب. */
+    val tourKey:  String,
 )
 
 @Composable
 fun RafiqBottomBar(navController: NavHostController) {
     val items = listOf(
-        BottomNavItem(R.string.nav_home,    { s, c -> GlyphHouse(s, c) },   RafiqRoute.Home),
+        BottomNavItem(R.string.nav_home,    { s, c -> GlyphHouse(s, c) },   RafiqRoute.Home, "nav_home"),
         // تبويبُ المصحف يفتح المصحف نفسَه لا قائمةَ السور: الصفحةُ هي
         // المقصود، والقائمةُ بابٌ داخلَها لمن أراد الانتقالَ بالسورة.
-        BottomNavItem(R.string.nav_quran,   { s, c -> GlyphLines(s, c) },   RafiqRoute.Mushaf),
-        BottomNavItem(R.string.nav_tasbeeh, { s, c -> GlyphDotted(s, c) },  RafiqRoute.AdhkarCategories),
-        BottomNavItem(R.string.nav_dua,     { s, c -> GlyphHeart(s, c) },   RafiqRoute.DuaCategories),
-        BottomNavItem(R.string.nav_profile, { s, c -> GlyphTrigram(s, c) }, RafiqRoute.Profile),
+        BottomNavItem(R.string.nav_quran,   { s, c -> GlyphLines(s, c) },   RafiqRoute.Mushaf, "nav_quran"),
+        BottomNavItem(R.string.nav_tasbeeh, { s, c -> GlyphDotted(s, c) },  RafiqRoute.AdhkarCategories, "nav_adhkar"),
+        BottomNavItem(R.string.nav_dua,     { s, c -> GlyphHeart(s, c) },   RafiqRoute.DuaCategories, "nav_dua"),
+        BottomNavItem(R.string.nav_profile, { s, c -> GlyphTrigram(s, c) }, RafiqRoute.Profile, "nav_profile"),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -137,6 +140,9 @@ private fun BottomBarItemEnhanced(
 
     Row(
         modifier = modifier
+            //  المرساةُ على الصفّ كلِّه لا على الأيقونة: الثقبُ يجب أن
+            //  يُظهر الرمزَ والاسمَ معاً، فالاسمُ هو ما يُقرأ.
+            .tourAnchor(item.tourKey)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

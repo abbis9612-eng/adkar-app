@@ -153,6 +153,19 @@ class MainActivity : AppCompatActivity() {
                     RafiqRoute.DhikrReading.route,
                 ) && !immersive.value
 
+                /*  الجولةُ التعريفيّة طبقةٌ فوق التطبيق كلِّه.
+                 *
+                 *  هنا لا داخلَ شاشةٍ: الثقبُ يُطبق على تبويبات الشريط
+                 *  السفليّ، وهي **خارج** `NavHost`. فلو رُكّبت الجولةُ
+                 *  داخل شاشةٍ لما استطاعت أن تشير إلى ما تحتها.
+                 *
+                 *  وشرطُها: انتهى الترحيبُ، ونحن على الشاشة الأولى. فلا
+                 *  تُعتم الشاشةُ على من فتح المصحفَ ليقرأ — والمراسي
+                 *  أصلاً لا تُقاس إلّا حيث رُكّبت. */
+                app.rafiqaldhikr.ui.components.TourHost(
+                    active = onboardingCompleted == true &&
+                        currentRoute == RafiqRoute.Home.route,
+                ) {
                 Scaffold(
                     containerColor = LocalRafiqColors.current.bg,
                     // الشاشات تتكفل بـ statusBarsPadding بنفسها — منع ازدواج الحشوة
@@ -177,6 +190,7 @@ class MainActivity : AppCompatActivity() {
                             modifier            = Modifier.padding(innerPadding)
                         )
                     }
+                }
                 }
                }
               }

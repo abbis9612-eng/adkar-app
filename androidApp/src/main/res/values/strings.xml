@@ -960,4 +960,32 @@
     <string name="arbaeen_hint">المسِ الحديثَ ليظهر تخريجُه وشرحُه. وزرُّ «قرأتُه» يحفظ موضعَك.</string>
     <string name="notif_pin_title">ذكرٌ ثبّتَه</string>
     <string name="notif_pin_body">حان وقتُ ذكرٍ ثبّتَه — اضغط لتفتحه</string>
+
+    <!-- الجولة التعريفيّة -->
+    <string name="tour_step_of">%1$s من %2$s</string>
+    <string name="tour_next">التالي</string>
+    <string name="tour_done">تمّت</string>
+    <string name="tour_skip">تخطّي</string>
+
+    <string name="tour_meeqat_title">محطّتُك الآن</string>
+    <string name="tour_meeqat_body">هذه البطاقةُ تتبدّل مع الوقت: تقول أين أنت من يومك، وتفتح أذكارَ هذه المحطّة بلمسة.</string>
+
+    <string name="tour_nav_home_title">اليوم</string>
+    <string name="tour_nav_home_body">مبدؤك — السماءُ تتبع ساعتك، والورقةُ تحتها فيها محطّتُك ومواقيتُك وأبوابُك.</string>
+
+    <string name="tour_nav_quran_title">المصحف</string>
+    <string name="tour_nav_quran_body">يفتح على الصفحة لا على قائمة السور — فيبدأ من حيث وقفت. ومنه الختمةُ والتجويدُ والتسميع.</string>
+
+    <string name="tour_nav_adhkar_title">الذِّكر</string>
+    <string name="tour_nav_adhkar_body">أذكارُ الصباح والمساء والنوم وما بينها، وكلُّ نصٍّ بمصدره ودرجته. ومنه المسبحةُ والأثرُ والأربعون.</string>
+
+    <string name="tour_nav_dua_title">الدعاء</string>
+    <string name="tour_nav_dua_body">أدعيةٌ مأثورةٌ مبوَّبة — للهمّ والسفر والمرض والاستخارة وغيرها.</string>
+
+    <string name="tour_nav_profile_title">أوراقي</string>
+    <string name="tour_nav_profile_body">ما جمعتَه: ختمتُك وتسبيحُك وسنتُك ومحفوظاتُك. وهنا الإعداداتُ وبياناتُك.</string>
+
+    <!-- إعادة الجولة من الإعدادات -->
+    <string name="settings_replay_tour">أعد الجولة التعريفيّة</string>
+    <string name="settings_replay_tour_sub">تُعرَض الجولةُ والتلميحاتُ من جديد. لا يُحذَف شيءٌ من بياناتك.</string>
 </resources>

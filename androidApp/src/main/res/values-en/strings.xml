@@ -935,4 +935,32 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="arbaeen_hint">Tap a hadith for its attribution and commentary. The \"Read\" button keeps your place.</string>
     <string name="notif_pin_title">A dhikr you pinned</string>
     <string name="notif_pin_body">Time for a dhikr you pinned — tap to open it</string>
+
+    <!-- Guided tour -->
+    <string name="tour_step_of">%1$s of %2$s</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_done">Done</string>
+    <string name="tour_skip">Skip</string>
+
+    <string name="tour_meeqat_title">Where you are now</string>
+    <string name="tour_meeqat_body">This card changes through the day: it tells you which station you are in, and opens its adhkar with one tap.</string>
+
+    <string name="tour_nav_home_title">Today</string>
+    <string name="tour_nav_home_body">Your starting point — the sky follows your clock, and the page below it holds your station, prayer times and doors.</string>
+
+    <string name="tour_nav_quran_title">Quran</string>
+    <string name="tour_nav_quran_body">Opens on the page, not a list of surahs — so it starts where you stopped. Khatma, tajweed and recitation live here.</string>
+
+    <string name="tour_nav_adhkar_title">Dhikr</string>
+    <string name="tour_nav_adhkar_body">Morning, evening, sleep and everything between — every text with its source and grading. The counter, the Athar and the Forty are here.</string>
+
+    <string name="tour_nav_dua_title">Duas</string>
+    <string name="tour_nav_dua_body">Transmitted supplications, by occasion — distress, travel, illness, istikhara and more.</string>
+
+    <string name="tour_nav_profile_title">My Pages</string>
+    <string name="tour_nav_profile_body">What you have gathered: your khatma, your tasbeeh, your year and your saved texts. Settings and your data are here too.</string>
+
+    <!-- Replaying the tour from Settings -->
+    <string name="settings_replay_tour">Replay the guided tour</string>
+    <string name="settings_replay_tour_sub">Shows the tour and the first-time hints again. Nothing of your data is deleted.</string>
 </resources>

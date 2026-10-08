@@ -439,6 +439,7 @@ fun HomeHubScreen(
                 nida?.let { NidaBlock(it) }
 
                 MeeqatCard(
+                    modifier  = Modifier.tourAnchor("meeqat"),
                     station   = day.nowStation,
                     needsLoc  = day.needsLocation,
                     nextName  = home.nextPrayerName,
@@ -664,6 +665,7 @@ private fun humanRemaining(millis: Long): String? {
 
 @Composable
 private fun MeeqatCard(
+    modifier:  Modifier = Modifier,
     station:   DayCompanionViewModel.StationUi?,
     needsLoc:  Boolean,
     nextName:  String,
@@ -733,6 +735,9 @@ private fun MeeqatCard(
         Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
+            //  بعد الحشوة العلويّة لا قبلها: مرساةُ الجولة تقيس هذا
+            //  الموضع، والثقبُ يجب أن يُطبق على البطاقة لا على فراغٍ فوقها.
+            .then(modifier)
             .clip(ActShape)
             .background(rc.card)
             .border(1.dp, rc.cardBorder, ActShape)

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.annotation.StringRes
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -215,7 +216,80 @@ fun SettingsScreen(navController: NavHostController) {
             // ═══ GROUP 3 — المعلومات ═══
             SettingsGroup(GROUP_3, navController)
 
+            Spacer(Modifier.height(14.dp))
+
+            ReplayTourRow(navController)
+
             Spacer(Modifier.height(28.dp))
+        }
+    }
+}
+
+/**
+ * «أعد الجولة التعريفيّة».
+ *
+ * ═══ ولماذا صفٌّ وحدَه لا عنصرٌ في القائمة ═══
+ *
+ * عناصرُ [SettingsGroup] كلُّها أبوابٌ تُفتح على شاشة — تحمل `route`
+ * وسهماً يدلّ عليه. وهذا **فعلٌ يُنفَّذ في موضعه** ثمّ يُخرجك من
+ * الإعدادات. فسهمُ الدخول عليه يكذب.
+ *
+ * ═══ ولماذا السطرُ الثاني ═══
+ *
+ * «أعد» على زرٍّ في الإعدادات تُقرأ تصفيراً. فمكتوبٌ تحته صريحاً أنّ
+ * شيئاً من بياناته لا يُحذَف: الجولةُ علاماتُ عرضٍ في [HINT_STORE]،
+ * والختمةُ والتسبيحُ والمحفوظاتُ في القاعدة ولا تُلمَس.
+ *
+ * وكان الطريقُ الوحيدُ إلى الجولة قبل هذا **محوَ كلّ البيانات** — فذاك
+ * مسارُ `ExportDataScreen` وحدَه كان يعود إلى `Onboarding`.
+ */
+@Composable
+private fun ReplayTourRow(navController: NavHostController) {
+    val rc = LocalRafiqColors.current
+    val ctx = LocalContext.current
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .rafiqCard()
+            .clickable {
+                app.rafiqaldhikr.ui.components.clearHints(ctx)
+                //  إلى الشاشة الأولى: هناك تُقاس المراسي وهناك تبدأ
+                //  الجولة. و`inclusive` حتى لا تبقى نسخةٌ قديمةٌ منها
+                //  في المكدَّس شرطُها محسوبٌ على ما كان.
+                navController.navigate(RafiqRoute.Home.route) {
+                    popUpTo(RafiqRoute.Home.route) { inclusive = true }
+                }
+            }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            Modifier
+                .size(36.dp)
+                .clip(RafiqShape.item)
+                .background(rc.bg)
+                .background(rc.gold.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            RafiqIcon(RIcon.Sparkles, 18.dp, rc.gold)
+        }
+
+        Spacer(Modifier.width(14.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.settings_replay_tour),
+                color = rc.ink,
+                style = RafiqType.body,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.settings_replay_tour_sub),
+                color = rc.inkMed,
+                style = RafiqType.caption,
+            )
         }
     }
 }
