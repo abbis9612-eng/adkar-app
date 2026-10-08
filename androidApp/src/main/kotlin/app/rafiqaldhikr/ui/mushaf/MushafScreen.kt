@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.R
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -103,6 +104,9 @@ fun MushafScreen(
     var mode by remember { mutableStateOf(prefs.mode) }
     var fontSize by remember { mutableIntStateOf(prefs.fontSize) }
     var sheet by remember { mutableStateOf(false) }
+    //  سالبٌ = اتبع الجهاز. ولا يُمسّ سطوعُ أحدٍ حتى يسحب الشريطَ بنفسه.
+    var bright by remember { mutableFloatStateOf(prefs.brightness) }
+    var railOn by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(openVerse.takeIf { it.isNotBlank() }) }
     // `isReady` يفحص وجودَ ٤٨ ملفاً — عملُ قرصٍ لا يقع في التأليف.
     var ready by remember { mutableStateOf(false) }
@@ -332,11 +336,38 @@ fun MushafScreen(
          *  به (واي‑فاي): الخطُّ آتٍ من نفسه، فلا معنى لطلبه. */
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding()) {
             if (hint) {
-                HintBar(
-                    ink = ink,
-                    onDismiss = { hint = false; prefs.hintSeen = true },
+                //  النمطُ نفسُه صار مشتركاً في `ui/components/FirstHint.kt`
+                //  وتستعمله القبلةُ والمسبحةُ والورقة. وكان هنا وحدَه.
+                FirstHint(
+                    key = "mushaf",
+                    text = R.string.mushaf_hint,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                 )
+            }
+        }
+
+        //  يسري ما دامت هذه الشاشةُ ظاهرة، ويرجع الجهازُ إلى حاله فور
+        //  الخروج منها — انظر `BrightnessRail.kt`.
+        ApplyWindowBrightness(bright)
+
+        /*  الشريطُ يظهر مع الأدوات لا دونَها: الصفحةُ الخاليةُ مقصودة،
+         *  ومن أراد ضبطاً لمس المنتصفَ فظهرت الأدواتُ كلُّها. */
+        androidx.compose.animation.AnimatedVisibility(
+            visible = toolsOn,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
+            enter = androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.fadeOut(),
+        ) {
+            if (railOn) {
+                BrightnessRail(
+                    value = bright,
+                    ink = ink,
+                    accent = if (night) rc.goldLight else rc.gold,
+                    surface = paper,
+                    onChange = { bright = it; prefs.brightness = it },
+                )
+            } else {
+                IconDot(RIcon.Sun, ink) { railOn = true }
             }
         }
 
@@ -378,6 +409,9 @@ fun MushafScreen(
             verse = selected,
             page = pager.currentPage + 1,
             night = night,
+            //  التنقّلُ بين الآيات **والورقةُ مفتوحة**: كان لا بدّ من
+            //  إغلاقها والبحثِ عن الآية والضغطِ مطوّلاً من جديدٍ لكل آية.
+            onVerse = { selected = it },
             onDismiss = { selected = null },
         )
     }
@@ -698,27 +732,6 @@ private fun PageFoot(page: Int, hizb: Int, ar: Boolean, ink: Color, onJump: () -
    الصفحة موضعٌ يُلمس. فيُقال مرّةً واحدة، ثمّ لا يعود.
 ──────────────────────────────────────────────────────────────── */
 
-@Composable
-private fun HintBar(ink: Color, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
-    val rc = LocalRafiqColors.current
-    Row(
-        modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp, 6.dp, 18.dp, 6.dp))
-            .background(rc.tintGold)
-            .clickable(onClick = onDismiss)
-            .padding(horizontal = 13.dp, vertical = 11.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.mushaf_hint),
-            style = RafiqType.caption,
-            color = ink.copy(alpha = 0.82f),
-            modifier = Modifier.weight(1f),
-        )
-        Text(stringResource(R.string.action_got_it), style = RafiqType.label, color = rc.emerald)
-    }
-}
 
 /* ── الأدواتُ التي تذوب ─────────────────────────────────────────── */
 

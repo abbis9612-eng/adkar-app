@@ -578,6 +578,9 @@
     <string name="munasaba_ten_dhulhijjah">عشر ذي الحجة</string>
     <string name="munasaba_arafah">يوم عرفة</string>
     <string name="munasaba_eid_adha">عيد الأضحى</string>
+    <string name="hint_tasbeeh">اضغط الدائرة لتسبّح. وما عددتَه يُحفظ حين تخرج، والسهمُ يتراجع عن ضغطة.</string>
+    <string name="hint_qibla">أمسِك جهازك مستوياً وأدِره ببطء حتى يستقيم السهم.</string>
+    <string name="hint_waraqa">هذه ورقةُ يومك: محطّاتُه من الاستيقاظ إلى النوم. اضغط محطّةً لتفتحها.</string>
     <string name="ayah_stop_here">وقفتُ هنا</string>
     <string name="bookmarks_stop_section">موضع وقوفك</string>
     <string name="bookmarks_marks_section">علاماتك</string>

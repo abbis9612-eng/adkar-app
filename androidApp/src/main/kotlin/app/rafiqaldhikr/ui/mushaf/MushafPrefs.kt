@@ -75,6 +75,20 @@ class MushafPrefs(context: Context) {
         get() = sp.getBoolean(KEY_ASKED, false)
         set(v) = sp.edit().putBoolean(KEY_ASKED, v).apply()
 
+    /**
+     * سطوعُ الشاشة داخل المصحف — ٠٫٠٥ إلى ١٫٠، أو **سالبٌ** أي «اتبع الجهاز».
+     *
+     * والسالبُ هو الأصل: لا يُمسّ سطوعُ أحدٍ حتى يطلبه بنفسه.
+     *
+     * وهو **سطوعُ النافذة لا سطوعُ النظام**: يسري ما دامت شاشةُ المصحف
+     * ظاهرةً ويرجع الجهازُ إلى حاله فور الخروج منها. ولو غُيّر سطوعُ
+     * النظام لخرج أثرُه إلى التطبيقات كلِّها، وهذا ليس ما يطلبه من أراد
+     * أن يُظلم صفحةَ قراءته ليلاً.
+     */
+    var brightness: Float
+        get() = sp.getFloat(KEY_BRIGHT, -1f)
+        set(v) = sp.edit().putFloat(KEY_BRIGHT, v).apply()
+
     var lastPage: Int
         get() = sp.getInt(KEY_PAGE, 1).coerceIn(1, 604)
         set(v) = sp.edit().putInt(KEY_PAGE, v.coerceIn(1, 604)).apply()
@@ -86,6 +100,7 @@ class MushafPrefs(context: Context) {
         const val KEY_ASKED = "asked"
         const val KEY_ALLOW = "allow"
         const val KEY_HINT = "hint_seen"
+        const val KEY_BRIGHT = "brightness"
     }
 }
 

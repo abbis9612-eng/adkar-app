@@ -46,6 +46,8 @@ import app.rafiqaldhikr.ui.share.renderAyahCard
 import app.rafiqaldhikr.ui.share.shareBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.layout.size
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.rafiqaldhikr.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
@@ -83,6 +85,8 @@ fun AyahSheet(
     /** صفحةُ المصحف التي فُتحت منها — بها تُلتقط الآيةُ من القاعدة. */
     page: Int,
     night: Boolean,
+    /** يُستدعى بـ«سورة:آية» عند التنقّل داخل الورقة. */
+    onVerse: (String) -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -98,6 +102,15 @@ fun AyahSheet(
     var tafsir by remember(verse) { mutableStateOf<String?>(null) }
     var marked by remember(verse) { mutableStateOf(false) }
     var loading by remember(verse) { mutableStateOf(true) }
+    /*  آياتُ الصفحة — بها يُعرف ما قبل الآية وما بعدها.
+     *
+     *  والحدودُ **حدودُ الصفحة لا حدودُ السورة**: من بلغ آخرَ آيةٍ في
+     *  الصفحة انتهى تنقّلُه، ولا يُقفز به إلى صفحةٍ أخرى والورقةُ فوقها
+     *  — فيجد تحتها نصّاً غيرَ الذي كان يقرأ. */
+    val pageVerses by vm.pageFlow(page).collectAsStateWithLifecycle(emptyList())
+    val idx = pageVerses.indexOfFirst { it.surah == surah && it.ayahNumber == ayah }
+    val prev = pageVerses.getOrNull(idx - 1)?.takeIf { idx > 0 }
+    val next = pageVerses.getOrNull(idx + 1)
     /*  الملاحظة: `note` هو المحفوظ، و`draft` ما يُكتب الآن، و`editing`
      *  هل الحقلُ مفتوح. وفصلُ الثلاثة لازم: من فتح الحقلَ وغيّر رأيَه
      *  يُغلقه فيرجع المحفوظُ كما كان بلا حفظٍ ضمنيّ. */
@@ -176,12 +189,32 @@ fun AyahSheet(
                 )
                 Spacer(Modifier.height(13.dp))
 
-                Text(
-                    stringResource(R.string.ayah_label, SurahNames.of(ctx, surah), ayah.toString()),
-                    fontFamily = NaskhFamily,
-                    fontSize = 13.sp,
-                    color = ink.copy(alpha = 0.55f),
-                )
+                /*  سطرُ التنقّل: ⌃ «البقرة · الآية ١٣» ⌄
+                 *
+                 *  قراءةُ تفسيرِ صفحةٍ كاملةٍ كانت تكلّف إحدى وعشرين ضغطة
+                 *  (إغلاقٌ وبحثٌ وضغطٌ مطوّلٌ لكلّ آية). وصارت سبعاً. */
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StepDot(RIcon.ChevronRight, prev != null, ink) {
+                        prev?.let { onVerse("${it.surah}:${it.ayahNumber}") }
+                    }
+                    Text(
+                        stringResource(
+                            R.string.ayah_label,
+                            SurahNames.of(ctx, surah),
+                            ayah.toString(),
+                        ),
+                        fontFamily = NaskhFamily,
+                        fontSize = 13.sp,
+                        color = ink.copy(alpha = 0.55f),
+                    )
+                    StepDot(RIcon.ChevronLeft, next != null, ink) {
+                        next?.let { onVerse("${it.surah}:${it.ayahNumber}") }
+                    }
+                }
                 Spacer(Modifier.height(9.dp))
 
                 Text(
@@ -378,6 +411,25 @@ fun AyahSheet(
                 }
             }
         }
+    }
+}
+
+/**
+ * زرُّ خطوةٍ في سطر التنقّل — يُعطَّل عند الطرف ولا يختفي.
+ *
+ * واختفاؤه كان يُزحزح العنوانَ يميناً وشمالاً مع كل آية، فيرقص السطر.
+ * والمعطَّلُ يقول «لا مزيدَ هنا» وهو أصدقُ من الغياب.
+ */
+@Composable
+private fun StepDot(icon: RIcon, enabled: Boolean, ink: Color, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .size(40.dp)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        RafiqIcon(icon, 17.dp, ink.copy(alpha = if (enabled) 0.6f else 0.18f))
     }
 }
 

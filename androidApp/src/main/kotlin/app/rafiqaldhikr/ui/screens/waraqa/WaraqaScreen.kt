@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.ui.components.RisalaCard
 import app.rafiqaldhikr.ui.components.pickRisala
 import app.rafiqaldhikr.ui.theme.LocalMeeqat
@@ -137,6 +138,11 @@ fun WaraqaScreen(
          *
          *  هي فعلٌ يُفعل (يُفتح فيُقرأ دعاء)، وتلك خبرٌ يُقرأ. والفعلُ
          *  يسبق الخبر. */
+        FirstHint(
+            "waraqa", R.string.hint_waraqa,
+            Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+        )
+
         RisalaCard(
             dua = pickRisala(duas, wisdomVm.today, meeqat.phase),
             opened = opened,

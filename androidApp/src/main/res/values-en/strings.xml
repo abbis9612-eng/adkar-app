@@ -559,6 +559,9 @@
     <string name="munasaba_ten_dhulhijjah">First ten of Dhul-Hijjah</string>
     <string name="munasaba_arafah">Day of Arafah</string>
     <string name="munasaba_eid_adha">Eid al-Adha</string>
+    <string name="hint_tasbeeh">Tap the circle to count. What you count is saved when you leave, and the arrow undoes a tap.</string>
+    <string name="hint_qibla">Hold your device flat and turn slowly until the arrow settles.</string>
+    <string name="hint_waraqa">This is your day\'s page: its stations from waking to sleep. Tap a station to open it.</string>
     <string name="ayah_stop_here">Stopped here</string>
     <string name="bookmarks_stop_section">Where you stopped</string>
     <string name="bookmarks_marks_section">Your bookmarks</string>

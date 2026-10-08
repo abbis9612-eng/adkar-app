@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -87,6 +88,11 @@ fun QiblaScreen(
             RafiqTopBar(
                 title  = stringResource(R.string.qibla_title),
                 onBack = {navController.popBackStack()},
+            )
+            //  تلميحٌ في موضعه لا جولةٌ في أوّل التطبيق — انظر `FirstHint`.
+            FirstHint(
+                "qibla", R.string.hint_qibla,
+                Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
             )
 
             Column(

@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.R
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -274,6 +275,12 @@ fun TasbeehScreen(
                 ) { RafiqIcon(RIcon.Refresh, 18.dp, rc.emerald) }
                 RafiqIconButton(onClick = { showDhikrPicker = true }, label = stringResource(R.string.tasbeeh_pick)) { RafiqIcon(RIcon.Edit, 18.dp, rc.emerald) }
             }
+
+            //  تلميحٌ في موضعه — ويذكر التراجعَ لأنّه أخفى ما في الشاشة.
+            FirstHint(
+                "tasbeeh", R.string.hint_tasbeeh,
+                Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            )
 
             // ═══ DHIKR SELECTOR — Horizontal ═══
             Row(
