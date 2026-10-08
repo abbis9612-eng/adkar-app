@@ -546,6 +546,9 @@
     <string name="share_as_text">As text</string>
     <string name="share_as_image">As image</string>
     <string name="ayah_stop">Stop</string>
+    <string name="risala_title">Your message today</string>
+    <string name="risala_sub">Behind this supplication may be a message written for you, and today you need it most</string>
+    <string name="risala_open">Tap to open it</string>
     <string name="ayah_stop_here">Stopped here</string>
     <string name="bookmarks_stop_section">Where you stopped</string>
     <string name="bookmarks_marks_section">Your bookmarks</string>

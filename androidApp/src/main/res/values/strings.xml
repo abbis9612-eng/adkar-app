@@ -565,6 +565,9 @@
     <string name="share_as_text">نصّاً</string>
     <string name="share_as_image">صورةً</string>
     <string name="ayah_stop">فاصل</string>
+    <string name="risala_title">رسالتك اليوم</string>
+    <string name="risala_sub">قد يكون وراء هذا الدعاء رسالةٌ كُتبت لك، وأنت اليوم أشدُّ ما تحتاجها</string>
+    <string name="risala_open">اضغط هنا لتفتحها</string>
     <string name="ayah_stop_here">وقفتُ هنا</string>
     <string name="bookmarks_stop_section">موضع وقوفك</string>
     <string name="bookmarks_marks_section">علاماتك</string>

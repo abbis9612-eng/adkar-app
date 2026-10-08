@@ -15,6 +15,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.ui.components.RisalaCard
+import app.rafiqaldhikr.ui.components.pickRisala
+import app.rafiqaldhikr.ui.theme.LocalMeeqat
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -78,6 +86,18 @@ fun WaraqaScreen(
     val day  by dayVm.uiState.collectAsStateWithLifecycle()
     val home by homeVm.uiState.collectAsStateWithLifecycle()
     val wisdom by wisdomVm.wisdom.collectAsStateWithLifecycle()
+    val duas by wisdomVm.duas.collectAsStateWithLifecycle()
+    val meeqat = LocalMeeqat.current
+    val ctx = LocalContext.current
+    /*  حالةُ الفتح تُحفظ في تفضيلاتٍ لا في القاعدة: هي حالةُ عرضٍ ليومٍ
+     *  واحد، لا بيانُ مستخدمٍ يُصدَّر ويُستعاد. ومفتاحُها رقمُ اليوم،
+     *  فتنغلق الرسالةُ من نفسِها مع أوّل فجر. */
+    var opened by remember(wisdomVm.today) {
+        mutableStateOf(
+            ctx.getSharedPreferences("risala", android.content.Context.MODE_PRIVATE)
+                .getLong("opened_day", -1L) == wisdomVm.today,
+        )
+    }
     val rc   = LocalRafiqColors.current
     val ar   = LocalArabicNumerals.current
 
@@ -112,6 +132,21 @@ fun WaraqaScreen(
                 Footer(day.doneCount, day.stations.size, ar)
             }
         }
+
+        /*  رسالةُ اليوم — **فوق** كلمة اليوم.
+         *
+         *  هي فعلٌ يُفعل (يُفتح فيُقرأ دعاء)، وتلك خبرٌ يُقرأ. والفعلُ
+         *  يسبق الخبر. */
+        RisalaCard(
+            dua = pickRisala(duas, wisdomVm.today, meeqat.phase),
+            opened = opened,
+            onOpen = {
+                opened = true
+                ctx.getSharedPreferences("risala", android.content.Context.MODE_PRIVATE)
+                    .edit().putLong("opened_day", wisdomVm.today).apply()
+            },
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        )
 
         /*  كلمةُ اليوم — نزلت من الرئيسية إلى هنا. انظر
          *  `ui/components/WordOfDay.kt` للسبب: «كراهةَ السآمة». */
