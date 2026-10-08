@@ -956,4 +956,6 @@
     <string name="arbaeen_mark">علّمْ أنّي قرأتُه</string>
     <string name="arbaeen_read">قرأتُه</string>
     <string name="arbaeen_entry">اثنان وأربعون حديثاً، بتخريجٍ وشرح</string>
+    <string name="athar_hint">المسِ الحديثَ ليظهر تخريجُه وشرحُه كاملين.</string>
+    <string name="arbaeen_hint">المسِ الحديثَ ليظهر تخريجُه وشرحُه. وزرُّ «قرأتُه» يحفظ موضعَك.</string>
 </resources>

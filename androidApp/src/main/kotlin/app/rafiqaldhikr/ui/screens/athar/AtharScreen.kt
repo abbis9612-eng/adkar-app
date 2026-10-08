@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AtharItem
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqType
@@ -134,6 +135,10 @@ fun AtharScreen(nav: NavHostController) {
                     )
                 }
             }
+
+            //  بعد نسبة الناشر لا قبلها: النسبةُ حقٌّ يُقرأ أوّلاً،
+            //  والتلميحُ تعليمٌ يأتي بعده.
+            item { FirstHint("athar", R.string.athar_hint) }
 
             item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp)) {

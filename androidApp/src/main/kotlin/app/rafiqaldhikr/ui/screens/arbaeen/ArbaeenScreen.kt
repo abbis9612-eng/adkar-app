@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import app.rafiq.domain.model.AtharItem
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.RafiqTopBar
@@ -122,6 +123,8 @@ fun ArbaeenScreen(nav: NavHostController) {
                     }
                 }
             }
+
+            item { FirstHint("arbaeen", R.string.arbaeen_hint) }
 
             itemsIndexed(b.items, key = { _, it -> it.sourceId }) { i, item ->
                 HadithRow(

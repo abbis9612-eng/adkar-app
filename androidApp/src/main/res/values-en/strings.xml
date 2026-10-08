@@ -931,4 +931,6 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="arbaeen_mark">Mark as read</string>
     <string name="arbaeen_read">Read</string>
     <string name="arbaeen_entry">Forty-two hadiths, attributed and explained</string>
+    <string name="athar_hint">Tap a hadith to see its full attribution and commentary.</string>
+    <string name="arbaeen_hint">Tap a hadith for its attribution and commentary. The \"Read\" button keeps your place.</string>
 </resources>
