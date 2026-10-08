@@ -72,6 +72,11 @@ jobs:
       - name: Check Quran data
         run: python3 tools/check_quran_data.py
 
+      # جدولُ تطبيعٍ منسوخٌ بين البحث والتسميع — وافتراقُه يتّهم قارئاً
+      # بخطأٍ في كتاب الله سببُه حرفٌ في جدول
+      - name: Check tasmee normalisation
+        run: python3 tools/check_tasmee_rules.py
+
       # عمودٌ جديد في .sq يعمل على تثبيتٍ نظيف ويُسقط كلَّ ترقية —
       # ولا يظهر في CI لأنّ كل تشغيلٍ هنا تثبيتٌ نظيف
       - name: Check schema vs migrations

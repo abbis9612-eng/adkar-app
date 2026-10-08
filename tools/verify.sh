@@ -25,6 +25,7 @@ step "نصّ ديني في الكود"   python3 tools/check_devotional_in_code.
 step "إحداثيات المدن"      python3 tools/check_cities.py
 step "بيانات القرآن"       python3 tools/check_quran_data.py
 step "أحكام التجويد"      python3 tools/check_tajweed.py
+step "تطبيع التسميع"      python3 tools/check_tasmee_rules.py
 step "مخطّط القاعدة"       python3 tools/check_schema.py
 step "نصٌّ عربي في الواجهة" python3 tools/check_hardcoded_ui.py
 step "الاستيرادات"        python3 tools/check_imports.py
