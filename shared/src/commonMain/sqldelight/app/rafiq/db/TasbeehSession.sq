@@ -24,5 +24,13 @@ VALUES (:dhikr_text, :count, :target, :completed, :duration_seconds, :date, :cre
 getAll:
 SELECT * FROM TasbeehSession ORDER BY created_at;
 
+-- جلسةٌ بهذه اللحظةِ بعينها موجودةٌ؟
+--
+-- يُستعمل في الاستيراد: `created_at` لحظةٌ بالملّي ثانية، ولا تتكرّر
+-- لجلستين. وبلا هذا الفحصِ كانت إعادةُ استيراد نسخةٍ تُضاعف الجلسات —
+-- ويُضاعَف معها مجموعُ التسبيح في «سنتك» وفي تقدّم اليوم.
+existsAt:
+SELECT COUNT(*) FROM TasbeehSession WHERE created_at = :created_at;
+
 deleteAll:
 DELETE FROM TasbeehSession;

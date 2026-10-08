@@ -95,7 +95,7 @@ fun nextMunasaba(ctx: Context, hijriOffset: Int = 0): Munasaba? {
     if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) return null
     return runCatching {
         val now = System.currentTimeMillis() + hijriOffset * DAY_MS
-        val todayEpochDay = Math.floorDiv(now, DAY_MS)
+        val todayEpochDay = localDay(now)
 
         val cal = android.icu.util.IslamicCalendar().apply {
             calculationType = android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA
@@ -116,7 +116,7 @@ fun nextMunasaba(ctx: Context, hijriOffset: Int = 0): Munasaba? {
                     clear()
                     set(y, d.month, d.day)
                 }
-                candidates += Triple(name, Math.floorDiv(c.timeInMillis, DAY_MS), y)
+                candidates += Triple(name, localDay(c.timeInMillis), y)
             }
         }
 
@@ -130,10 +130,35 @@ fun nextMunasaba(ctx: Context, hijriOffset: Int = 0): Munasaba? {
             hijriDay = date.day,
             hijriMonth = date.month,
             hijriYear = chosen.third,
-            gregorianMillis = pick.second * DAY_MS,
+            //  لحظةُ المناسبة كما حسبها التقويمُ — لا تُبنى من رقم اليوم:
+            //  رقمُ اليوم محليٌّ، وضربُه في طول اليوم يُرجع لحظةً بالتوقيت
+            //  العالميّ فتُعرَض تاريخاً سابقاً شرقَ غرينتش.
+            gregorianMillis = chosen.second * DAY_MS - localOffset(now),
             daysAway = (pick.second - todayEpochDay).toInt(),
         )
     }.getOrNull()
 }
 
 private const val DAY_MS = 86_400_000L
+
+/**
+ * رقمُ اليوم في **التقويم المحليّ** لا في التوقيت العالميّ.
+ *
+ * ═══ وهذا أخطرُ سطرٍ في هذا الملفّ ═══
+ *
+ * `IslamicCalendar` تُرجع **منتصفَ ليلٍ محليّاً** لتاريخٍ هجريّ. وقسمةُ
+ * تلك اللحظةِ على طول اليوم تُرجع رقمَ اليوم **العالميّ**: فشرقَ غرينتش
+ * منتصفُ الليل المحليُّ يقع في اليوم العالميّ **السابق** — بغدادُ مثلاً
+ * تبدأ يومَها الساعةَ ٢١:٠٠ من أمسِ غرينتش.
+ *
+ * وكان «اليوم» يُحسب عالميّاً والمناسباتُ محليّاً، فتبدو كلُّ مناسبةٍ
+ * **قد مضت بيومٍ**. فصباحَ عرفة تُحذَف عرفةُ من المرشَّحين **ويُقفَز إلى
+ * عرفةِ العام القادم** — في اليوم الذي صاحبُه أحوجُ ما يكون إلى علمه.
+ *
+ * فالطرفان يُقاسان بالمسطرة نفسِها: التقويمُ المحليّ.
+ */
+internal fun localDay(millis: Long): Long =
+    Math.floorDiv(millis + localOffset(millis), DAY_MS)
+
+internal fun localOffset(millis: Long): Int =
+    java.util.TimeZone.getDefault().getOffset(millis)

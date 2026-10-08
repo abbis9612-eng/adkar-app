@@ -17,6 +17,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -109,6 +114,7 @@ class QiblaViewModel(
     /** حتى لا تُطلق البوصلةُ مرّتين حين تنبعث التفضيلاتُ ثانيةً. */
     private var compassStarted = false
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startCompass(lat: Double, lng: Double) {
         viewModelScope.launch {
             if (!compassManager.isAvailable) {
@@ -134,12 +140,23 @@ class QiblaViewModel(
              *
              *  وشاشةُ القبلة تعرف كيف تقول «لا بوصلة في جهازك» — وهي
              *  الرسالةُ الصحيحة حين تخفق البوصلةُ لأيّ سبب. */
-            compassManager.getReadingFlow(lat, lng)
+            /*  والتعليقُ داخل المجمِّع لا يُوقف المستشعر.
+             *
+             *  كان يُنتظَر مشترِكٌ **داخل** `collect`: فيتوقّف العملُ
+             *  ويبقى المستشعرُ مسجَّلاً يستهلك البطّاريةَ، ثمّ تُفرَّغ
+             *  عليه قراءاتٌ قديمةٌ تراكمت حين يرجع الناظر.
+             *
+             *  فالتدفّقُ يُبنى على عدد المشترِكين: لا مشترِكَ فلا تدفّقَ
+             *  أصلاً — و`flatMapLatest` يُلغي السابقَ فيُنزَع تسجيلُ
+             *  المستشعر، ويُعاد بناؤه نظيفاً عند العودة. */
+            _uiState.subscriptionCount
+                .map { it > 0 }
+                .distinctUntilChanged()
+                .flatMapLatest { watched ->
+                    if (watched) compassManager.getReadingFlow(lat, lng) else emptyFlow()
+                }
                 .catch { _uiState.update { s -> s.copy(isCompassAvailable = false) } }
                 .collect { reading ->
-                if (_uiState.subscriptionCount.value == 0) {
-                    _uiState.subscriptionCount.first { it > 0 }
-                }
                 val qibla = _uiState.value.qiblaBearing
                 window.addLast(reading.heading)
                 if (window.size > 12) window.removeFirst()

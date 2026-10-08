@@ -157,10 +157,27 @@ class PrayerAlarmManager(private val context: Context) {
         )?.let { alarmManager.cancel(it) }
     }
 
-    fun cancelAll() {
-        listOf(
-            FAJR_ID, DHUHR_ID, ASR_ID, MAGHRIB_ID, ISHA_ID,
-            ADHKAR_MORNING_ID, ADHKAR_EVENING_ID, ADHKAR_SLEEP_ID
+    /**
+     * يُلغي كلَّ ما جُدول — **والمثبَّتةُ منه كذلك**.
+     *
+     * وكانت الثمانيةُ الثابتةُ وحدَها تُلغى، فتبقى تذكيراتُ الأذكار
+     * المثبَّتة تعمل بعد أن يُطفئ صاحبُها التنبيهاتَ أو يمحو موقعه. ومن
+     * أطفأ التنبيهاتِ فجاءه تنبيهٌ لم يُطفئ شيئاً.
+     *
+     * ومعرّفاتُ المثبَّتة تُمرَّر من القاعدة ولا تُخمَّن بنطاق: المعرّفُ
+     * `PIN_ID_BASE + dhikrId` ورقمُ الذكر غيرُ محدود، فنطاقٌ ثابتٌ يترك
+     * ثغرةً فوقه. ومن يُنادي هذه الدالّةَ يقرأ القاعدةَ أصلاً.
+     *
+     * @param pinIds أرقامُ الأذكار المثبَّتة كلِّها — لا المذكَّرةُ منها
+     *               وحدَها: من أزال التذكيرَ ثمّ أطفأ التنبيهات لا يبقى له
+     *               تنبيهٌ معلَّق
+     */
+    fun cancelAll(pinIds: List<Long> = emptyList()) {
+        (
+            listOf(
+                FAJR_ID, DHUHR_ID, ASR_ID, MAGHRIB_ID, ISHA_ID,
+                ADHKAR_MORNING_ID, ADHKAR_EVENING_ID, ADHKAR_SLEEP_ID
+            ) + pinIds.map { (PIN_ID_BASE + it).toInt() }
         ).forEach { id ->
             val intent  = Intent(context, PrayerAlarmReceiver::class.java)
             val pending = PendingIntent.getBroadcast(

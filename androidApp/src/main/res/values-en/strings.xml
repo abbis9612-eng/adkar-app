@@ -429,7 +429,7 @@
     <string name="pp_storage_b">• All your data lives on your device: a local SQLite database and a preferences file. We run no servers that receive it.\n• These files are not encrypted; they are protected by Android app sandboxing — no other app can reach them on a non-rooted device.\n• Cloud backup is disabled for this app, so nothing is uploaded to Google Drive.\n• Uninstalling the app erases all of it.</string>
 
     <string name="pp_network_t">Network access</string>
-    <string name="pp_network_b">The app holds the internet permission for exactly one purpose: downloading the Mushaf page fonts, when you explicitly ask for them.\n\nNo connection is opened before you agree, and nothing about you is sent in that request — no device identifier, no location, no usage. Everything else ships inside the app: the Quran, the tafsir, the adhkar, the duas, the prayer times and the qibla. It works fully in airplane mode.</string>
+    <string name="pp_network_b">The app uses the internet for two things only:\n\n1 · Downloading mushaf page fonts, and only when you explicitly ask — no connection is opened before you agree, and nothing about you is sent with that request.\n\n2 · Weather, so the sky on the home screen is drawn cloudy or clear as it actually is where you are. Your position is sent **rounded to about 11 km** — not your exact coordinates, no device identifier, nothing about your usage. Turning the sky off in settings removes this too.\n\nEverything else is on the device: the mushaf, the tafsir, the adhkar, the supplications, the prayer times and the qibla. It works fully in airplane mode.</string>
 
     <string name="pp_rights_t">Your rights</string>
     <string name="pp_rights_b">You can export or erase all of your data at any time from: Settings → Export data.</string>
@@ -933,4 +933,6 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="arbaeen_entry">Forty-two hadiths, attributed and explained</string>
     <string name="athar_hint">Tap a hadith to see its full attribution and commentary.</string>
     <string name="arbaeen_hint">Tap a hadith for its attribution and commentary. The \"Read\" button keeps your place.</string>
+    <string name="notif_pin_title">A dhikr you pinned</string>
+    <string name="notif_pin_body">Time for a dhikr you pinned — tap to open it</string>
 </resources>

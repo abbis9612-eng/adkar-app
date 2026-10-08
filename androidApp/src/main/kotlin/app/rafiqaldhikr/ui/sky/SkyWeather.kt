@@ -111,9 +111,20 @@ object WeatherStore {
      * [cached] فراغاً بعدها — أي أنّ انقطاعَ الشبكة لحظةً يمحو ما كان.
      */
     private fun fetch(lat: Double, lng: Double): SkyWeather? {
+        /*  الإحداثيّةُ تُدوَّر إلى منزلةٍ عشريّةٍ واحدة — نحو أحدَ عشرَ
+         *  كيلومتراً.
+         *
+         *  والطقسُ لا يتغيّر في أحدَ عشرَ كيلومتراً، أمّا الإحداثيّةُ
+         *  الكاملةُ (سبعُ منازل) **فتدلّ على البيت**. وكانت تُرسَل كما
+         *  هي إلى خدمةٍ خارجيّةٍ بلا حاجة.
+         *
+         *  وفيه نفعٌ ثانٍ: ساكنو مدينةٍ واحدةٍ يتشاركون الإحداثيّةَ
+         *  المدوَّرة، فلا يُفرَّق بينهم في سجلّات الخدمة. */
+        val latR = kotlin.math.round(lat * 10) / 10
+        val lngR = kotlin.math.round(lng * 10) / 10
         val url = URL(
             "https://api.open-meteo.com/v1/forecast" +
-                "?latitude=$lat&longitude=$lng" +
+                "?latitude=$latR&longitude=$lngR" +
                 "&current=temperature_2m,weather_code,cloud_cover,precipitation,visibility,wind_speed_10m" +
                 "&timezone=auto",
         )

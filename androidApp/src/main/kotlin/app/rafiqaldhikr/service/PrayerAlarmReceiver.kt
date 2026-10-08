@@ -27,6 +27,14 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val prayerName = intent.getStringExtra("prayer_name") ?: return
         val notifId    = intent.getIntExtra("notif_id", 0)
 
+        /*  الذكرُ المثبَّت يُرسَل بوسم `dhikr_pin:<id>`، وهو لا يبدأ بـ
+         *  `adhkar_` — فكان يسقط إلى فرع الصلاة فيُعرَض على القارئ
+         *  «حان وقت dhikr_pin:5». وهو وسمٌ داخليٌّ لا يُعرض لأحد. */
+        if (prayerName.startsWith("dhikr_pin:")) {
+            showPinnedDhikr(context, prayerName.removePrefix("dhikr_pin:"), notifId)
+            return
+        }
+
         if (prayerName.startsWith("adhkar_")) {
             showAdhkarReminder(context, prayerName, notifId)
             // تذكير النوم هو آخر تنبيه في اليوم — بعده نجدول مواقيت الغد
@@ -94,6 +102,80 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             } finally {
                 pendingResult.finish()
             }
+        }
+    }
+
+    /**
+     * تذكيرُ ذكرٍ ثبّته القارئُ بنفسه.
+     *
+     * ونصُّ الذكر يُقرأ من القاعدة على خيطٍ خلفيٍّ بـ[goAsync]: مُستقبِلُ
+     * البثّ يعمل على الخيط الرئيسيّ، وقراءةُ قاعدةٍ عليه تُعلّق النظام.
+     *
+     * وإن تعذّرت القراءةُ — قاعدةٌ مغلقةٌ أو ذكرٌ حُذف — عُرض عنوانٌ عامٌّ
+     * ولم يُعرض **الوسمُ الداخليّ**: «حان وقت dhikr_pin:5» ليست رسالةً
+     * تُقال لأحد، وهي ما كان يظهر قبل هذا.
+     */
+    private fun showPinnedDhikr(context: Context, dhikrId: String, notifId: Int) {
+        val id = dhikrId.toLongOrNull() ?: return
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            var text: String? = null
+            var category: String? = null
+            try {
+                val db = GlobalContext.get().get<app.rafiq.db.RafiqDatabase>()
+                db.adhkarQueries.getById(id).executeAsOneOrNull()?.let {
+                    text = it.text_ar
+                    category = it.category
+                }
+            } catch (_: Exception) {
+                // قاعدةٌ غيرُ مهيّأةٍ — يُعرَض العنوانُ العامُّ وحدَه
+            }
+
+            val channelId = "adhkar_channel"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.getSystemService(NotificationManager::class.java)
+                    .createNotificationChannel(
+                        NotificationChannel(
+                            channelId,
+                            context.getString(R.string.notif_channel_adhkar),
+                            NotificationManager.IMPORTANCE_DEFAULT,
+                        ),
+                    )
+            }
+
+            val target = category ?: "misc"
+            val tapPending = PendingIntent.getActivity(
+                context, notifId,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://rafiqaldhikr.app/adhkar/$target"),
+                    context, MainActivity::class.java,
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+
+            val notification = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(context.getString(R.string.notif_pin_title))
+                .setContentText(text ?: context.getString(R.string.notif_pin_body))
+                .setStyle(NotificationCompat.BigTextStyle().bigText(
+                    text ?: context.getString(R.string.notif_pin_body),
+                ))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setAutoCancel(true)
+                .setContentIntent(tapPending)
+                .build()
+
+            if (ActivityCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                NotificationManagerCompat.from(context).notify(notifId, notification)
+            }
+            pendingResult.finish()
         }
     }
 

@@ -184,8 +184,23 @@ object HeroStore {
             if (conn.responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) return Got(null, etag)
             if (conn.responseCode !in 200..299) return null
             if (conn.contentLength > MAX_BODY) return null
-            val body = conn.inputStream.bufferedReader().use { it.readText() }
-            if (body.length > MAX_BODY) return null
+            /*  والحدُّ يُفرَض بالقراءة لا بالترويسة.
+             *
+             *  `contentLength` يكون ‎-1‎ في الردّ المقطَّع (chunked) — وهو
+             *  ما تُرسله Cloudflare Pages — فيمرّ الشرطُ أعلاه، ثمّ
+             *  `readText()` يحفظ **كلَّ شيء** في الذاكرة قبل أن يُقاس.
+             *  فخادمٌ مُختَلٌّ أو مُعتَدًى عليه يُنزل ما يشاء. */
+            val body = conn.inputStream.reader().use { r ->
+                val buf = CharArray(8 * 1024)
+                val sb = StringBuilder()
+                while (true) {
+                    val n = r.read(buf)
+                    if (n < 0) break
+                    sb.append(buf, 0, n)
+                    if (sb.length > MAX_BODY) return null
+                }
+                sb.toString()
+            }
             return Got(body, conn.getHeaderField("ETag"))
         } catch (_: Exception) {
             return null

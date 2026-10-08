@@ -119,39 +119,46 @@ class TasmeeRecognizer private constructor(
             )
             var decPast: Array<FloatArray>? = null
             var decPastLen = 0
-            var encPast: Array<FloatArray>? = null
+
+            /*  ذاكرةُ المرمِّز موتوراتٌ **تُنشأ مرّةً وتبقى**.
+             *
+             *  وهي ثمانيةٌ، كلُّ واحدٍ ٢٫٣ م.ب. وقيمُها لا تتغيّر بعد
+             *  الممرّ الأوّل — فإنشاؤها في كلّ خطوةٍ يحجز ١٨ م.ب لكلّ
+             *  رمزٍ يُخرجه النموذج، أي نحو ١٫٧ غيغابايت عند سقف ٩٦
+             *  رمزاً. وذاك إجهاضُ التطبيق لا بطؤه. */
+            var encTensors: Array<OnnxTensor>? = null
 
             for (step in 0 until maxTokens) {
-                val feed = HashMap<String, OnnxTensor>(24)
-                feed["encoder_hidden_states"] = hiddenTensor
-                feed["input_ids"] = OnnxTensor.createTensor(
-                    env, LongBuffer.wrap(inputIds),
-                    longArrayOf(1, inputIds.size.toLong()),
-                ).also(open::add)
-                feed["use_cache_branch"] = OnnxTensor.createTensor(
-                    env, booleanArrayOf(decPast != null),
-                ).also(open::add)
-
-                for (l in 0 until LAYERS) {
-                    for ((j, kv) in KV.withIndex()) {
-                        val dIdx = l * 2 + j
-                        feed["past_key_values.$l.decoder.$kv"] = decPast?.let {
-                            OnnxTensor.createTensor(
-                                env, FloatBuffer.wrap(it[dIdx]),
-                                longArrayOf(1, HEADS.toLong(), decPastLen.toLong(), HEAD_DIM.toLong()),
-                            ).also(open::add)
-                        } ?: emptyDec
-                        feed["past_key_values.$l.encoder.$kv"] = encPast?.let {
-                            OnnxTensor.createTensor(
-                                env, FloatBuffer.wrap(it[dIdx]),
-                                longArrayOf(1, HEADS.toLong(), encLen.toLong(), HEAD_DIM.toLong()),
-                            ).also(open::add)
-                        } ?: zeroEnc
-                    }
-                }
-
+                //  موتوراتُ هذه الخطوة وحدَها — تُغلَق في آخرها لا في
+                //  آخر الحلقة، فلا تتراكم.
+                val perStep = ArrayList<OnnxTensor>(18)
                 var next: Int
-                decoder.run(feed).use { out ->
+                try {
+                    val feed = HashMap<String, OnnxTensor>(24)
+                    feed["encoder_hidden_states"] = hiddenTensor
+                    feed["input_ids"] = OnnxTensor.createTensor(
+                        env, LongBuffer.wrap(inputIds),
+                        longArrayOf(1, inputIds.size.toLong()),
+                    ).also(perStep::add)
+                    feed["use_cache_branch"] = OnnxTensor.createTensor(
+                        env, booleanArrayOf(decPast != null),
+                    ).also(perStep::add)
+
+                    for (l in 0 until LAYERS) {
+                        for ((j, kv) in KV.withIndex()) {
+                            val dIdx = l * 2 + j
+                            feed["past_key_values.$l.decoder.$kv"] = decPast?.let {
+                                OnnxTensor.createTensor(
+                                    env, FloatBuffer.wrap(it[dIdx]),
+                                    longArrayOf(1, HEADS.toLong(), decPastLen.toLong(), HEAD_DIM.toLong()),
+                                ).also(perStep::add)
+                            } ?: emptyDec
+                            feed["past_key_values.$l.encoder.$kv"] =
+                                encTensors?.get(dIdx) ?: zeroEnc
+                        }
+                    }
+
+                    decoder.run(feed).use { out ->
                     val logits = out.get("logits").get() as OnnxTensor
                     val buf = logits.floatBuffer
                     val vocab = buf.remaining() / inputIds.size
@@ -181,21 +188,26 @@ class TasmeeRecognizer private constructor(
                             }
                         }
                         //  وذاكرةُ المرمِّز **من الممرّ الأوّل وحدَه** —
-                        //  المصيدةُ الثانية.
-                        if (encPast == null) {
-                            val e = Array(LAYERS * 2) { FloatArray(0) }
-                            for (l in 0 until LAYERS) {
-                                for ((j, kv) in KV.withIndex()) {
-                                    e[l * 2 + j] = floats(
-                                        out.get("present.$l.encoder.$kv").get() as OnnxTensor,
-                                    )
-                                }
+                        //  المصيدةُ الثانية. وتُحوَّل موتوراتٍ هنا مرّةً
+                        //  فتبقى حتى آخر الحلقة.
+                        if (encTensors == null) {
+                            val shape = longArrayOf(
+                                1, HEADS.toLong(), encLen.toLong(), HEAD_DIM.toLong(),
+                            )
+                            encTensors = Array(LAYERS * 2) { idx ->
+                                val l = idx / 2
+                                val kv = KV[idx % 2]
+                                val data = floats(out.get("present.$l.encoder.$kv").get() as OnnxTensor)
+                                OnnxTensor.createTensor(env, FloatBuffer.wrap(data), shape)
+                                    .also(open::add)
                             }
-                            encPast = e
                         }
                         decPastLen += inputIds.size
                         decPast = d
                     }
+                    }
+                } finally {
+                    for (x in perStep) runCatching { x.close() }
                 }
 
                 if (next == ids.endOfText) break

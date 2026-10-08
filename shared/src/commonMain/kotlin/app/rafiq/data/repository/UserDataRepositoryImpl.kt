@@ -292,7 +292,18 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
                 db.streakDataQueries.insertHistory(d.date)
             }
 
+            /*  الجلسةُ الموجودةُ لا تُضاف ثانيةً.
+             *
+             *  وكان الإدخالُ عارياً: فمن استورد نسختَه مرّتين — وهو يفعل،
+             *  إذ لا شيءَ يمنعه ولا يُخبره — تضاعفت جلساتُه، وتضاعف معها
+             *  مجموعُ التسبيح في «سنتك» وفي تقدّم اليوم. ولا سبيلَ إلى
+             *  معرفة الصحيح بعدها.
+             *
+             *  والمفتاحُ `created_at`: لحظةٌ بالملّي ثانية لا تتكرّر. */
             data.tasbeehSessions.forEach {
+                if (db.tasbeehSessionQueries.existsAt(it.createdAt).executeAsOne() > 0L) {
+                    return@forEach
+                }
                 db.tasbeehSessionQueries.insert(
                     it.dhikrText, it.count, it.target,
                     if (it.completed) 1L else 0L, it.durationSeconds, it.date, it.createdAt,

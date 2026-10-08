@@ -3,6 +3,7 @@ package app.rafiqaldhikr.ui.screens.isnad
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.rafiq.domain.model.ISNAD_SKIP
 import app.rafiq.domain.model.IsnadEntry
 import app.rafiq.domain.model.parseIsnadFile
 import app.rafiq.domain.model.IsnadSummary
@@ -57,7 +58,10 @@ class IsnadViewModel(private val ctx: Context) : ViewModel() {
         for (name in names.sorted()) {
             //  `assets.list` يُرجع المجلّدات أيضاً (`mushaf` و`tasmee`)،
             //  وفتحُ مجلّدٍ يرمي. فيُفلتر الاسمُ قبل أن يُفتح.
-            if (!name.endsWith(".json")) continue
+            //  والمتجاوَزُ يُستبعَد **قبل القراءة** لا بعدها: قراءةُ
+            //  `quran_uthmani.json` و`tafsir_muyassar.json` نحو عشرين
+            //  ميغابايت تُقرأ ثمّ تُرمى في كلّ فتحةٍ للشاشة.
+            if (!name.endsWith(".json") || name in ISNAD_SKIP) continue
             val raw = runCatching {
                 ctx.assets.open(name).use { it.readBytes().toString(Charsets.UTF_8) }
             }.getOrNull() ?: continue

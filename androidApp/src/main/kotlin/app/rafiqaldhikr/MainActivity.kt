@@ -39,11 +39,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Keep splash while prefs haven't loaded yet
-        splash.setKeepOnScreenCondition {
-            settingsViewModel.onboardingCompleted.value == null
-        }
-
         /*  تقريرُ الانهيار يسبق كلَّ شيء.
          *
          *  ويُقرأ **قبل** أوّل لمسةٍ لـ`settingsViewModel`: ذاك يُحلّ من
@@ -56,6 +51,17 @@ class MainActivity : AppCompatActivity() {
         if (crash != null) {
             setContent { app.rafiqaldhikr.ui.screens.crash.CrashReportScreen(crash) }
             return
+        }
+
+        /*  شريطُ البداية يُثبَّت **بعد** فحص الانهيار لا قبله، لسببين:
+         *
+         *  ١. شرطُه يلمس `settingsViewModel`، وذاك يُحلّ من Koin — وهو
+         *     بعينه ما قال التعليقُ أعلاه أن لا يُلمَس قبل قراءة التقرير.
+         *  ٢. وشرطُه معلَّقٌ على تدفّقٍ من القاعدة: فإن كانت القاعدةُ هي
+         *     العطبَ بقي الشريطُ أبداً **وشاشةُ التقرير خلفه** — في
+         *     الحالة الوحيدة التي وُجدت من أجلها. */
+        splash.setKeepOnScreenCondition {
+            settingsViewModel.onboardingCompleted.value == null
         }
 
         setContent {

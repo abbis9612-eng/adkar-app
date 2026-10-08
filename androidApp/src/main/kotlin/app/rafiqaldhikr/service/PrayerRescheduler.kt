@@ -41,8 +41,14 @@ class PrayerRescheduler(
         val alarmManager = PrayerAlarmManager(context)
         val prefs = db.userPrefsQueries.get().executeAsOneOrNull() ?: return
 
+        //  معرّفاتُ المثبَّتة تُمرَّر إلى الإلغاء: وإلّا بقيت تذكيراتُها
+        //  تعمل بعد إطفاء التنبيهات أو محو الموقع.
+        val pinIds = runCatching {
+            db.dhikrPinQueries.getAll().executeAsList().map { it.dhikr_id }
+        }.getOrDefault(emptyList())
+
         if (prefs.notifications_enabled == 0L) {
-            alarmManager.cancelAll()
+            alarmManager.cancelAll(pinIds)
             return
         }
 
@@ -50,7 +56,7 @@ class PrayerRescheduler(
         // يوقظه على وقت خاطئ ويثق به. بلا موقع لا جدولة — والصمت هنا صدق.
         val here = coordsOrNull(prefs.last_known_lat, prefs.last_known_lng)
         if (here == null) {
-            alarmManager.cancelAll()
+            alarmManager.cancelAll(pinIds)
             return
         }
         val lat = here.lat

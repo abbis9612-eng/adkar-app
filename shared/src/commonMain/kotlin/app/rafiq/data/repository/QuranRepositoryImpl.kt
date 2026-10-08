@@ -141,6 +141,21 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
     override suspend fun setStop(surah: Int, ayah: Int, page: Int) =
         withContext(Dispatchers.IO) {
             db.transaction {
+                /*  الصفُّ قائمٌ على هذه الآية؟ لا يُلمَس **ولا يُمحى
+                 *  الموضعُ القديم**.
+                 *
+                 *  وكان `clearStops()` يسبق الإدخال: فإن كانت الآيةُ
+                 *  معلَّمةً من قبلُ منع `UNIQUE(surah, ayah)` الإدخالَ
+                 *  بـ`OR IGNORE`، فيضيع الموضعُ القديمُ ولا يُكتب الجديد
+                 *  — ويُقال لصاحبه «وقفتَ هنا» وما وقف شيءٌ.
+                 *
+                 *  والعلامةُ لا تُحوَّل موضعاً: قد يكون عليها حاشيةٌ
+                 *  كتبها، وتحويلُها إتلافٌ لها. */
+                if (db.quranBookmarkQueries.exists(surah.toLong(), ayah.toLong())
+                        .executeAsOne() > 0L
+                ) {
+                    return@transaction
+                }
                 db.quranBookmarkQueries.clearStops()
                 db.quranBookmarkQueries.insert(
                     surah      = surah.toLong(),

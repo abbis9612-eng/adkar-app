@@ -20,6 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.lazy.LazyRow
@@ -199,12 +201,22 @@ fun HomeHubScreen(
     LaunchedEffect(heroBase) {
         if (heroBase.isNotBlank()) HeroStore.refresh(ctx, heroBase)?.let { hero = it }
     }
-    //  الصورةُ تُفكّ مرّةً لكلّ ملفّ، لا في كلّ إطار.
-    val heroBg = remember(hero?.src) {
+    /*  الصورةُ تُفكّ **على خيطٍ خلفيٍّ وبحدٍّ للأبعاد**.
+     *
+     *  وكانت تُفكّ في أثناء التركيب على الخيط الرئيسيّ: فأوّلُ إطارٍ
+     *  يتوقّف حتى تُفكّ الصورةُ كلُّها. والحدُّ ٦ م.ب كان على **بايتات
+     *  الملفّ** لا على أبعاده — وصورةٌ مضغوطةٌ بستّة ميغابايت قد تكون
+     *  أربعةَ آلافٍ في ثلاثة، أي نحو ٤٨ ميغابايت في الذاكرة.
+     *
+     *  فتُقرأ أبعادُها أوّلاً (`inJustDecodeBounds`) ويُحسب التصغيرُ
+     *  إلى عرض الشاشة — فلا تُفكّ أكبرَ من حاجتها. */
+    val heroBg by produceState<android.graphics.Bitmap?>(null, hero?.src) {
         val c = hero
-        if (c == null || c.kind != HeroKind.IMAGE) null
-        else HeroStore.mediaFile(ctx, c.src)?.let {
-            runCatching { android.graphics.BitmapFactory.decodeFile(it.path) }.getOrNull()
+        value = if (c == null || c.kind != HeroKind.IMAGE) null
+        else withContext(Dispatchers.IO) {
+            HeroStore.mediaFile(ctx, c.src)?.let { f ->
+                runCatching { decodeBounded(f.path, 1080) }.getOrNull()
+            }
         }
     }
     LaunchedEffect(home.lat, home.lng) {
@@ -1284,4 +1296,20 @@ private fun weatherLine(w: app.rafiqaldhikr.ui.sky.SkyWeather, ar: Boolean): Str
     if (w.tempC.isNaN()) return name
     val deg = kotlin.math.round(w.tempC).toInt().toString().localizedDigits(ar)
     return "$name · $deg°"
+}
+
+/**
+ * يفكّ صورةً بحدٍّ لعرضها — فلا تُحمَّل أكبرَ من حاجة الشاشة.
+ *
+ * ويُقرأ الرأسُ أوّلاً بـ`inJustDecodeBounds` فلا تُحجَز ذاكرةٌ لبكسل،
+ * ثمّ يُحسب `inSampleSize` قوّةَ اثنين — وهو ما يقبله فاكُّ أندرويد.
+ */
+private fun decodeBounded(path: String, maxWidth: Int): android.graphics.Bitmap? {
+    val head = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    android.graphics.BitmapFactory.decodeFile(path, head)
+    if (head.outWidth <= 0) return null
+    var sample = 1
+    while (head.outWidth / sample > maxWidth) sample *= 2
+    val opts = android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }
+    return android.graphics.BitmapFactory.decodeFile(path, opts)
 }

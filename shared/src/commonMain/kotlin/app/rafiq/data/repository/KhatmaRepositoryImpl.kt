@@ -52,10 +52,21 @@ class KhatmaRepositoryImpl(private val db: RafiqDatabase) : KhatmaRepository {
      *
      *  من رجع يراجع صفحةً قديمةً لا يُمحى تقدّمُه — والمراجعةُ لا تُلغي
      *  ما قُرئ. فيُؤخذ الأكبرُ دائماً. */
+    /**
+     * تُحتسب **الصفحةُ التاليةُ لآخر ما قُرئ وحدَها** — لا أيُّ صفحةٍ تُفتح.
+     *
+     * وكان `maxOf(read_to, page)`: فمن قفز إلى الصفحة ٥٠٠ بالبحث أو
+     * بشريط الصفحات سُجّل له **أربعُمئةٍ وتسعٌ وتسعون صفحةً لم يقرأها،
+     * بلا رجعة** — فتُفسد ختمتُه ولا سبيلَ إلى ردّها.
+     *
+     * والقفزُ ليس قراءةً. فالتقدّمُ صفحةً صفحةً، وما سواه يُهمَل بصمت.
+     */
     override suspend fun markRead(page: Int) = withContext(Dispatchers.IO) {
         val k = db.khatmaQueries.getActive().executeAsOneOrNull() ?: return@withContext
-        val next = maxOf(k.read_to, page.toLong().coerceIn(0, k.to_page))
-        if (next != k.read_to) db.khatmaQueries.updateReadTo(next, k.id)
+        val p = page.toLong()
+        val start = maxOf(k.from_page - 1, 0L)
+        val expected = (if (k.read_to < start) start else k.read_to) + 1
+        if (p == expected && p <= k.to_page) db.khatmaQueries.updateReadTo(p, k.id)
     }
 
     /*  الختمُ يُنهي النشطة. والمستمرّةُ تبدأ غيرَها بالمواصفات نفسِها في
