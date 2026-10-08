@@ -138,6 +138,20 @@ internal object RafiqMigrations {
             "ALTER TABLE Adhkar ADD COLUMN translit TEXT NOT NULL DEFAULT ''",
             "ALTER TABLE Adhkar ADD COLUMN virtue_en TEXT NOT NULL DEFAULT ''",
         ),
+
+        // ═══ ٣ — فصلُ «موضع الوقوف» عن «العلامة» ═══
+        //
+        // كانا عموداً واحداً، وهما في الاستعمال نوعان: علامةٌ تبقى،
+        // وموضعُ وقوفٍ يتبدّل كلَّ يوم. ودمجُهما يملأ قائمةَ العلامات
+        // بمواضعَ قديمةٍ لا معنى لها فتضيع المقصودةُ بينها.
+        //
+        // والافتراضيُّ 'mark' مقصود: كلُّ ما علّمه الناسُ قبل اليوم
+        // علامةٌ يُقصد بقاؤها، فلا يُحوَّل شيءٌ منه إلى موضعٍ يُزاح.
+        // وهو إضافةٌ محضة — نسخةٌ أقدمُ من التطبيق تتجاهل العمودَ ولا
+        // تسقط به، فالرجوعُ آمن.
+        listOf(
+            "ALTER TABLE QuranBookmark ADD COLUMN kind TEXT NOT NULL DEFAULT 'mark'",
+        ),
     )
 
     /** رقمُ آخرِ ترحيلٍ معروف. يُقارَن بجدول `RafiqMigration`. */

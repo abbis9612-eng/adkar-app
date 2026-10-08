@@ -74,7 +74,8 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
                 ayah       = ayah.toLong(),
                 page       = page.toLong(),
                 created_at = Clock.System.now().toEpochMilliseconds(),
-                note       = null
+                note       = null,
+                kind       = "mark",
             )
         }
 
@@ -121,6 +122,41 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
                 ayah  = ayah.toLong(),
             )
         }
+
+    /*  موضعُ الوقوف **واحدٌ لا يتعدّد**.
+     *
+     *  فوضعُ موضعٍ جديد يمحو القديمَ أوّلاً. ولو تُرك يتراكم لصار قائمةَ
+     *  مواضعَ لا موضعاً — وذاك عملُ «العلامة» لا عملُه.
+     *
+     *  وإن كانت الآيةُ معلَّمةً أصلاً فلا تُحوَّل إلى موضعِ وقوف: علامتُها
+     *  مقصودةٌ لصاحبها، ونقلُها إلى ما يُزاح غداً إتلافٌ لها. فيُترك
+     *  الصفُّ كما هو ولا يُوضع موضعٌ على تلك الآية.
+     */
+    override fun stopMark(): Flow<QuranBookmark?> =
+        db.quranBookmarkQueries.getStop()
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { it?.toDomain() }
+
+    override suspend fun setStop(surah: Int, ayah: Int, page: Int) =
+        withContext(Dispatchers.IO) {
+            db.transaction {
+                db.quranBookmarkQueries.clearStops()
+                db.quranBookmarkQueries.insert(
+                    surah      = surah.toLong(),
+                    ayah       = ayah.toLong(),
+                    page       = page.toLong(),
+                    created_at = Clock.System.now().toEpochMilliseconds(),
+                    note       = null,
+                    kind       = "stop",
+                )
+                //  `INSERT OR IGNORE` لا يفعل شيئاً إن كان الصفُّ قائماً
+                //  علامةً — فتُترك علامتُه ولا تُحوَّل.
+            }
+        }
+
+    override suspend fun clearStop() =
+        withContext(Dispatchers.IO) { db.quranBookmarkQueries.clearStops() }
 
     override suspend fun getTafsir(surah: Int, ayah: Int): String? =
         withContext(Dispatchers.IO) {

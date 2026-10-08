@@ -545,6 +545,10 @@
     <string name="action_save">Save</string>
     <string name="share_as_text">As text</string>
     <string name="share_as_image">As image</string>
+    <string name="ayah_stop">Stop</string>
+    <string name="ayah_stop_here">Stopped here</string>
+    <string name="bookmarks_stop_section">Where you stopped</string>
+    <string name="bookmarks_marks_section">Your bookmarks</string>
     <string name="ayah_share_title">Share the verse</string>
     <string name="tafsir_label">Al-Tafsir al-Muyassar:</string>
     <string name="mushaf_offer_body_long">Fifteen lines matching the Madinah Mushaf — each word in its place, each line breaking where the printed page breaks. It needs fonts, downloaded once.</string>

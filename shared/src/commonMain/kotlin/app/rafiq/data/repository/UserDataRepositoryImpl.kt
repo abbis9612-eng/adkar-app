@@ -306,8 +306,15 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
                 )
             }
 
+            /*  المستورَدةُ **علاماتٌ دائماً** لا مواضعَ وقوف.
+             *
+             *  ملفُّ التصدير لا يحمل النوعَ (صيغتُه أقدمُ من العمود)،
+             *  وموضعُ الوقوف شيءٌ يتبدّل كلَّ يومٍ فلا معنى لاستعادته من
+             *  نسخةٍ محفوظة. والعلامةُ هي التي يُقصد بقاؤها. */
             data.quranBookmarks.forEach {
-                db.quranBookmarkQueries.insert(it.surah, it.ayah, it.page, it.createdAt, it.note)
+                db.quranBookmarkQueries.insert(
+                    it.surah, it.ayah, it.page, it.createdAt, it.note, "mark",
+                )
             }
 
             data.customAdhkar.forEach {

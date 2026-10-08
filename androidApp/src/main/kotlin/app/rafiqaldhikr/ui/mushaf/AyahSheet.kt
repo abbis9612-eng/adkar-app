@@ -129,6 +129,7 @@ fun AyahSheet(
     /*  «مشاركة» صارت بابين: نصّاً وصورةً. ويُسأل السؤالُ عند الضغط لا
      *  بزرّين في الصفّ — الصفُّ خمسةُ أفعالٍ أصلاً، والسادسُ يُضيّقها. */
     var sharing by remember(verse) { mutableStateOf(false) }
+    val stopped = stringResource(R.string.ayah_stop_here)
 
     val paper = if (night) Color(0xFF1A1712) else rc.bg
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
@@ -311,6 +312,21 @@ fun AyahSheet(
                         stringResource(R.string.ayah_note), RIcon.Edit, false,
                         ink, hair, Modifier.weight(1f),
                     ) { draft = note.orEmpty(); editing = true }
+                    /*  «فاصل» ≠ «علامة».
+                     *
+                     *  العلامةُ تبقى، والفاصلُ موضعُ وقوفٍ **واحدٌ** يتبدّل
+                     *  كلَّ يوم. وكانا زرّاً واحداً، فتمتلئ قائمةُ العلامات
+                     *  بمواضعَ قديمةٍ لا معنى لها فتضيع المقصودةُ بينها. */
+                    SheetAction(
+                        stringResource(R.string.ayah_stop), RIcon.Pin, false,
+                        ink, hair, Modifier.weight(1f),
+                    ) {
+                        scope.launch {
+                            vm.setStop(surah, ayah, page)
+                            Toast.makeText(ctx, stopped, Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        }
+                    }
                     SheetAction(stringResource(R.string.action_share), RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
                         sharing = true
                     }

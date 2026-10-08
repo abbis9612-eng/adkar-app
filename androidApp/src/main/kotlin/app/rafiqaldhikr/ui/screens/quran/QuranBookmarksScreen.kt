@@ -4,6 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,7 +51,10 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun QuranBookmarksScreen(navController: NavHostController) {
     val repository = koinInject<QuranRepository>()
+    //  `getBookmarks` صارت تُرجع العلاماتِ وحدَها — وموضعُ الوقوف
+    //  مجرًى منفصلٌ يُعرض قسماً خاصّاً فوقها، فلا يختلط النوعان.
     val bookmarks by repository.getBookmarks().collectAsStateWithLifecycle(emptyList())
+    val stop by repository.stopMark().collectAsStateWithLifecycle(null)
     val rc = LocalRafiqColors.current
     val scope = rememberCoroutineScope()
 
@@ -67,7 +74,7 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                 onBack = {navController.popBackStack()},
             )
 
-            if (bookmarks.isEmpty()) {
+            if (bookmarks.isEmpty() && stop == null) {
                 EmptyState(
                     message  = stringResource(R.string.bookmarks_empty),
                     modifier = Modifier.fillMaxSize()
@@ -78,6 +85,28 @@ fun QuranBookmarksScreen(navController: NavHostController) {
                     contentPadding = PaddingValues(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    stop?.let { st ->
+                        item(key = "stop-section") {
+                            SectionLabel(stringResource(R.string.bookmarks_stop_section), rc)
+                        }
+                        item(key = "stop-${st.id}") {
+                            BookmarkCard(
+                                bookmark = st,
+                                onClick = {
+                                    navController.navigate(
+                                        RafiqRoute.Mushaf.atVerse(st.page, "${st.surah}:${st.ayah}"),
+                                    )
+                                },
+                                onDelete = { scope.launch { repository.clearStop() } },
+                                rc = rc,
+                            )
+                        }
+                    }
+                    if (bookmarks.isNotEmpty() && stop != null) {
+                        item(key = "marks-section") {
+                            SectionLabel(stringResource(R.string.bookmarks_marks_section), rc)
+                        }
+                    }
                     items(bookmarks, key = { it.id }) { bookmark ->
                         BookmarkCard(
                             bookmark  = bookmark,
@@ -98,6 +127,12 @@ fun QuranBookmarksScreen(navController: NavHostController) {
             }
         }
     }
+}
+
+/** عنوانُ قسمٍ في القائمة — كوفيٌّ صغيرٌ بحبرٍ خامل. */
+@Composable
+private fun SectionLabel(text: String, rc: RafiqPalette) {
+    Text(text, style = RafiqType.metaS, color = rc.inkLight)
 }
 
 @Composable
@@ -128,6 +163,31 @@ private fun BookmarkCard(
                 Spacer(Modifier.height(4.dp))
                 Text("صفحة ${bookmark.page}".localizedDigits(LocalArabicNumerals.current),
                     color = rc.inkMed, style = RafiqType.bodyS)
+                val note = bookmark.note
+                if (!note.isNullOrBlank()) {
+                    //  ملاحظةُ صاحبها — بشريطٍ ذهبيٍّ كما في ورقة الآية،
+                    //  فتُقرأ كلامَه لا بياناً من التطبيق.
+                    Spacer(Modifier.height(9.dp))
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(rc.bg)
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                            .height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Box(
+                            Modifier
+                                .width(3.dp)
+                                .heightIn(min = 14.dp)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(rc.gold),
+                        )
+                        Text(note, style = RafiqType.caption, color = rc.inkMed)
+                    }
+                }
                 if (bookmark.createdAt > 0) {
                     Spacer(Modifier.height(8.dp))
                     val dateStr = SimpleDateFormat("yyyy/MM/dd", Locale.US)

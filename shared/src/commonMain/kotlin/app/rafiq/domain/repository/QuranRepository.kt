@@ -32,5 +32,14 @@ interface QuranRepository {
 
     /** يكتب الملاحظة — والفارغةُ تمحو ما كُتب. */
     suspend fun setAyahNote(surah: Int, ayah: Int, page: Int, note: String?)
+
+    /** موضعُ الوقوف الحاضر — واحدٌ لا يتعدّد، أو null. */
+    fun stopMark(): Flow<QuranBookmark?>
+
+    /** يضع موضعَ الوقوف هنا — ويُزيح ما قبله. */
+    suspend fun setStop(surah: Int, ayah: Int, page: Int)
+
+    /** يمحو موضعَ الوقوف بلا وضعِ غيره. */
+    suspend fun clearStop()
     suspend fun getTafsir(surah: Int, ayah: Int): String?
 }

@@ -564,6 +564,10 @@
     <string name="action_save">احفظ</string>
     <string name="share_as_text">نصّاً</string>
     <string name="share_as_image">صورةً</string>
+    <string name="ayah_stop">فاصل</string>
+    <string name="ayah_stop_here">وقفتُ هنا</string>
+    <string name="bookmarks_stop_section">موضع وقوفك</string>
+    <string name="bookmarks_marks_section">علاماتك</string>
     <string name="ayah_share_title">مشاركةُ الآية</string>
     <string name="tafsir_label">التفسير الميسّر:</string>
     <string name="mushaf_offer_body_long">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة. وتحتاج خطوطاً تُنزَّل مرّةً واحدة.</string>

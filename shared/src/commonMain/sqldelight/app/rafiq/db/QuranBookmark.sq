@@ -5,15 +5,35 @@ CREATE TABLE QuranBookmark (
     page       INTEGER NOT NULL DEFAULT 1,
     created_at INTEGER NOT NULL,
     note       TEXT,
+    -- نوعُ العلامة: 'mark' تبقى · 'stop' موضعُ وقوفٍ يتبدّل.
+    --
+    -- كانا شيئاً واحداً، وهما في الاستعمال نوعان: «هذه آيةٌ أرجع إليها»
+    -- تبقى للأبد، و«هنا وقفتُ اليوم» يتبدّل غداً. ودمجُهما يملأ قائمةَ
+    -- العلامات بمواضعِ وقوفٍ قديمةٍ لا معنى لها، فتضيع المقصودةُ بينها.
+    --
+    -- والافتراضيُّ 'mark': كلُّ ما علّمه الناسُ قبل هذا اليومِ علامةٌ
+    -- يُقصد بقاؤها، فلا يُحوَّل شيءٌ منه إلى موضعِ وقوفٍ يُزاح.
+    kind       TEXT NOT NULL DEFAULT 'mark',
     UNIQUE(surah, ayah)
 );
 
 getAll:
-SELECT * FROM QuranBookmark ORDER BY created_at DESC;
+SELECT * FROM QuranBookmark WHERE kind = 'mark' ORDER BY created_at DESC;
+
+-- موضعُ الوقوف — **واحدٌ لا يتعدّد**، فيُرجَع صفٌّ أو لا شيء.
+getStop:
+SELECT * FROM QuranBookmark WHERE kind = 'stop' LIMIT 1;
+
+-- وضعُ موضعِ وقوفٍ جديد: يُمحى القديمُ أوّلاً فلا يجتمع اثنان.
+clearStops:
+DELETE FROM QuranBookmark WHERE kind = 'stop';
+
+setKind:
+UPDATE QuranBookmark SET kind = :kind WHERE surah = :surah AND ayah = :ayah;
 
 insert:
-INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note)
-VALUES (:surah, :ayah, :page, :created_at, :note);
+INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note, kind)
+VALUES (:surah, :ayah, :page, :created_at, :note, :kind);
 
 -- الملاحظةُ على الآية.
 --
@@ -25,8 +45,8 @@ VALUES (:surah, :ayah, :page, :created_at, :note);
 -- و`INSERT OR IGNORE` قبل التحديث: من كتب ملاحظةً على آيةٍ لم يُعلّمها
 -- بعدُ يجب أن يُنشَأ لها صفّ، وإلّا ضاعت كتابتُه صامتةً.
 upsertNote:
-INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note)
-VALUES (:surah, :ayah, :page, :created_at, NULL);
+INSERT OR IGNORE INTO QuranBookmark(surah, ayah, page, created_at, note, kind)
+VALUES (:surah, :ayah, :page, :created_at, NULL, 'mark');
 
 updateNote:
 UPDATE QuranBookmark SET note = :note WHERE surah = :surah AND ayah = :ayah;

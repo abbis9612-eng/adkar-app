@@ -37,6 +37,10 @@ class MushafPageViewModel(private val repo: QuranRepository) : ViewModel() {
     suspend fun setNote(surah: Int, ayah: Int, page: Int, note: String?) =
         repo.setAyahNote(surah, ayah, page, note)
 
+    fun stopMark() = repo.stopMark()
+
+    suspend fun setStop(surah: Int, ayah: Int, page: Int) = repo.setStop(surah, ayah, page)
+
     /**
      * يضع العلامةَ أو يرفعها — ويُرجع حالَها بعد الفعل.
      *

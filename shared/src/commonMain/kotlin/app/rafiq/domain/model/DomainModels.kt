@@ -136,7 +136,9 @@ data class QuranBookmark(
     val ayah:      Int,
     val page:      Int,
     val createdAt: Long,
-    val note:      String?
+    val note:      String?,
+    /** `mark` علامةٌ تبقى · `stop` موضعُ وقوفٍ يتبدّل. */
+    val kind:      String = "mark",
 )
 
 // ═══ Mapping Extensions: DB Entity → Domain Model ═══
@@ -258,5 +260,6 @@ fun QuranBookmarkEntity.toDomain() = QuranBookmark(
     ayah      = ayah.toInt(),
     page      = page.toInt(),
     createdAt = created_at,
-    note      = note
+    note      = note,
+    kind      = kind,
 )
