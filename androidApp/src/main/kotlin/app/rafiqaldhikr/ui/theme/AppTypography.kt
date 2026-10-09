@@ -126,6 +126,14 @@ object RafiqType {
     /** نص الذكر والدعاء المشكول (1.80). */
     val dhikr = arabic(NaskhFamily, FontWeight.Normal, 20, 36)
 
+    /** الذكرُ حين يكون هو **الفعلَ الأوّل** — موضعَ اللمس في المسبحة (1.80).
+     *
+     *  وكان في الشاشة `TextStyle(fontSize = 34.sp, lineHeight = 56.sp)`
+     *  مكتوباً بيده خارجَ السلّم. ومقاسٌ مكتوبٌ عارياً **لا يكبر مع
+     *  «مقياس الخطّ»** — فمن كبّره لأنّه يحتاجه لا يُكبَّر له أكبرُ
+     *  نصٍّ في الشاشة. فصار رُتبةً مسمّاةً كغيرها. */
+    val dhikrL = arabic(NaskhFamily, FontWeight.Bold, 30, 54)
+
     /** البسملة والآية المقتبسة القصيرة (1.62). */
     val ayah = arabic(AmiriFamily, FontWeight.Normal, 26, 42)
 

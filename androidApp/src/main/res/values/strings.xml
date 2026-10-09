@@ -411,6 +411,20 @@
     <string name="qibla_no_sensor_body">جهازك لا يدعم مستشعر البوصلة</string>
 
     <!-- ═══ المسبحة ═══ -->
+    <string name="tasbeeh_mode_word">الكلمة</string>
+    <string name="tasbeeh_mode_thread">الخيط</string>
+    <string name="tasbeeh_tap_invite">المس الذكرَ لتعدّ</string>
+    <string name="tasbeeh_thread_invite">ادفع الحبّةَ تحت إبهامك</string>
+    <string name="tasbeeh_undo">تراجع</string>
+    <string name="tasbeeh_cycle">دُبُرَ الصلاة</string>
+    <string name="tasbeeh_left_of">%1$s باقيةٌ من %2$s</string>
+    <string name="tasbeeh_hundred">تمَّت المائة</string>
+    <string name="tasbeeh_of_hundred">%1$s من %2$s</string>
+    <string name="tasbeeh_cycle_start">ابدأ الدورة</string>
+    <string name="khatma_open_from">تبدأ عند</string>
+    <string name="khatma_open_to">تقف عند</string>
+    <string name="khatma_open_spine">%1$s صفحة · الجزء %2$s</string>
+    <string name="khatma_open_verb">افتح المصحفَ هنا</string>
     <string name="tasbeeh_milestones">محطات الإنجاز</string>
     <string name="tasbeeh_reset">تصفير العدّاد</string>
     <string name="tasbeeh_pick">اختيار الذكر</string>
@@ -578,7 +592,7 @@
     <string name="munasaba_ten_dhulhijjah">عشر ذي الحجة</string>
     <string name="munasaba_arafah">يوم عرفة</string>
     <string name="munasaba_eid_adha">عيد الأضحى</string>
-    <string name="hint_tasbeeh">اضغط الدائرة لتسبّح. وما عددتَه يُحفظ حين تخرج، والسهمُ يتراجع عن ضغطة.</string>
+    <string name="hint_tasbeeh">المس الذكرَ نفسَه لتعدّ — تخرج حبّةٌ من موضع إبهامك وتصل إلى العدد. وما عددتَه يُحفظ حين تخرج، و«تراجع» يردّ ضغطة.</string>
     <string name="hint_qibla">أمسِك جهازك مستوياً وأدِره ببطء حتى يستقيم السهم.</string>
     <string name="hint_waraqa">هذه ورقةُ يومك: محطّاتُه من الاستيقاظ إلى النوم. اضغط محطّةً لتفتحها.</string>
     <string name="wird_title">وِردك من الختمة</string>

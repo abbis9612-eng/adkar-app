@@ -112,6 +112,32 @@ else:
         if token not in src:
             fail(f"ArabicSearch.kt: ينقصه {token} — افترق عن مولّد بايثون")
 
+# ═══ جدولُ أوّلِ صفحةٍ لكلِّ جزءٍ في Kotlin ═══
+# `JuzPages.kt` يحمل ثلاثين رقماً بدل تحميل `mushaf_layout.json` (ميغابايتٌ
+# وربع) من أجل كلمةِ «الجزء ١٢» في بطاقة. والنسخةُ تنجرف بصمت: لا مترجمَ
+# يمسكها ولا اختبارَ وحدة — فتُقابَل بالأصل هنا.
+JUZ_KT = ROOT / "androidApp/src/main/kotlin/app/rafiqaldhikr/ui/mushaf/JuzPages.kt"
+_first = {}
+for r in quran:
+    j = r["juz"]
+    if j not in _first or r["page"] < _first[j]:
+        _first[j] = r["page"]
+_expected = [_first[j] for j in sorted(_first)]
+if len(_expected) != 30:
+    fail(f"الأجزاءُ في البيانات {len(_expected)} لا ثلاثون")
+elif not JUZ_KT.exists():
+    fail("JuzPages.kt مفقود — ومن حذفه فقد حذف الجدولَ المحروس")
+else:
+    _m = re.search(r"JUZ_FIRST_PAGE\s*=\s*intArrayOf\(([^)]*)\)",
+                   JUZ_KT.read_text(encoding="utf-8"), re.S)
+    if not _m:
+        fail("JuzPages.kt: لم يُعثر JUZ_FIRST_PAGE")
+    else:
+        _got = [int(x) for x in re.findall(r"\d+", _m.group(1))]
+        if _got != _expected:
+            fail("JUZ_FIRST_PAGE انجرف عن quran_uthmani.json — "
+                 f"في الكود {_got[:6]}… وفي البيانات {_expected[:6]}…")
+
 print(f"فُحصت {len(quran)} آية · {len(surahs)} سورة · "
       f"{len(bism)} بسملة مفصولة · مشاكل {len(problems)}")
 if problems:

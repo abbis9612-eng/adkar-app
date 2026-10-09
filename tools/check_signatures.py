@@ -44,7 +44,7 @@ UI = ROOT / "androidApp/src/main/kotlin/app/rafiqaldhikr/ui"
 
 #  السقف: عددُ الشاشات بلا توقيعٍ يوم كُتب هذا الحارس.
 #  يُخفَض ولا يُرفَع — ومن رفعه فقد عطّل الحارس.
-CEILING = 38
+CEILING = 37
 
 #  ما ليس شاشةً وإن انتهى اسمُه بـScreen: شاشاتُ النظام والحالات.
 SKIP = {"CrashReportScreen.kt"}

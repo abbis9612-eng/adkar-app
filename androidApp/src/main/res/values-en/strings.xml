@@ -24,6 +24,20 @@
     <string name="back">Back</string>
 
     <!-- Tasbeeh -->
+    <string name="tasbeeh_mode_word">Word</string>
+    <string name="tasbeeh_mode_thread">Thread</string>
+    <string name="tasbeeh_tap_invite">Tap the dhikr to count</string>
+    <string name="tasbeeh_thread_invite">Push a bead under your thumb</string>
+    <string name="tasbeeh_undo">Undo</string>
+    <string name="tasbeeh_cycle">After prayer</string>
+    <string name="tasbeeh_left_of">%1$s left of %2$s</string>
+    <string name="tasbeeh_hundred">The hundred is complete</string>
+    <string name="tasbeeh_of_hundred">%1$s of %2$s</string>
+    <string name="tasbeeh_cycle_start">Start the cycle</string>
+    <string name="khatma_open_from">Start at</string>
+    <string name="khatma_open_to">Stop at</string>
+    <string name="khatma_open_spine">%1$s pages · Juz %2$s</string>
+    <string name="khatma_open_verb">Open the Mushaf here</string>
     <string name="tasbeeh_title">Tasbeeh</string>
     <string name="tap_to_count">Tap to count</string>
     <string name="reset">Reset</string>
@@ -559,7 +573,7 @@
     <string name="munasaba_ten_dhulhijjah">First ten of Dhul-Hijjah</string>
     <string name="munasaba_arafah">Day of Arafah</string>
     <string name="munasaba_eid_adha">Eid al-Adha</string>
-    <string name="hint_tasbeeh">Tap the circle to count. What you count is saved when you leave, and the arrow undoes a tap.</string>
+    <string name="hint_tasbeeh">Tap the dhikr itself to count — a bead leaves your thumb and lands in the tally. What you counted is saved when you leave, and Undo takes back one tap.</string>
     <string name="hint_qibla">Hold your device flat and turn slowly until the arrow settles.</string>
     <string name="hint_waraqa">This is your day\'s page: its stations from waking to sleep. Tap a station to open it.</string>
     <string name="wird_title">Your daily portion</string>

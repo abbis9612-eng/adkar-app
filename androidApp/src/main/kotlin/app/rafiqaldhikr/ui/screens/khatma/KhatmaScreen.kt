@@ -3,6 +3,7 @@ package app.rafiqaldhikr.ui.screens.khatma
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -40,6 +41,13 @@ import androidx.navigation.NavHostController
 import app.rafiq.domain.model.wirdOf
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.RafiqTopBar
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.ui.mushaf.SurahNames
+import app.rafiqaldhikr.ui.mushaf.juzOfPage
+import app.rafiqaldhikr.ui.navigation.RafiqRoute
+import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqType
@@ -47,6 +55,11 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
 
 /*
+ *  التوقيع: وِردُ اليوم بطاقةٌ على هيئة مصحفٍ مفتوح — بدايتُه يميناً ووقوفُه شمالاً
+ *
+ *  وهي الفعلُ الأوّلُ نفسُه: لمسُها تفتح المصحفَ عند أوّل صفحةٍ من
+ *  الوِرد. فما يُنظَر إليه هو ما يُلمَس، لا زينةٌ فوق زرّ.
+ *
  * شاشةُ الختمة — **تُضبط مرّةً ثمّ تُنسى**.
  *
  * ولا تُفتح كلَّ يوم: الوِردُ يظهر محطّةً في صفّ يومك، ويُحتسب ما قرأتَه
@@ -187,27 +200,22 @@ fun KhatmaScreen(
                     ).localizedDigits(ar),
                     style = RafiqType.titleL, color = rc.ink,
                 )
-                Spacer(Modifier.height(12.dp))
-                //  شريطُ تقدّمٍ يُقرأ بلمحة
-                Box(
-                    Modifier.fillMaxWidth().height(6.dp).clip(CircleShape)
-                        .background(rc.divider),
-                ) {
-                    val f = ((k.readTo - k.fromPage + 1).toFloat() /
-                        (k.toPage - k.fromPage + 1)).coerceIn(0f, 1f)
-                    Box(
-                        Modifier.fillMaxWidth(f).height(6.dp).clip(CircleShape)
-                            .background(rc.emeraldFill),
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    stringResource(
-                        R.string.wird_pages,
-                        w.from.toString(), w.to.toString(), w.minutes.toString(),
-                    ).localizedDigits(ar),
-                    style = RafiqType.body, color = rc.inkMed,
+
+                Spacer(Modifier.height(18.dp))
+
+                /*  وِردُ اليوم — مصحفٌ مفتوحٌ لا صندوقٌ وزرٌّ عريض.
+                 *
+                 *  وكان صندوقاً فيه سطرٌ وزرٌّ أخضر: شكلٌ يصلح لأيّ تطبيق
+                 *  بتبديل الكلمات — فيرسب في اختبار النسخ. وهذه بطاقةٌ
+                 *  **هي الفعلُ نفسُه**: ورقتان، البدايةُ يميناً والوقوفُ
+                 *  شمالاً، وفي الكعب عددُ الصفحات وجزؤها. ولمسُها فتحٌ. */
+                OpenLeafWird(
+                    from = w.from, to = w.to, pages = w.pages, minutes = w.minutes,
+                    onOpen = {
+                        navController.navigate(RafiqRoute.Mushaf.atPage(w.from))
+                    },
                 )
+
                 if (w.behind > 0) {
                     Spacer(Modifier.height(6.dp))
                     //  يُقال صراحةً — لا يُترك ليكتشفه حين ييأس
@@ -279,4 +287,138 @@ private fun <T> Chips(items: List<Pair<T, String>>, selected: T, onPick: (T) -> 
 @Composable
 private fun FlowRowCompat(content: @Composable FlowRowScope.() -> Unit) {
     FlowRow(Modifier.fillMaxWidth(), content = content)
+}
+
+/* ── وِردُ اليوم: مصحفٌ مفتوح ───────────────────────────────────────── */
+
+/**
+ * بطاقةُ الوِرد على هيئة ورقتين مفتوحتين.
+ *
+ * البدايةُ في اليمين والوقوفُ في اليسار — **لا عكسَ ذلك**: المصحفُ يُقرأ
+ * من اليمين، فورقتُه اليمنى هي التي تبدأ. وفي الكعب عددُ الصفحات وجزؤها.
+ *
+ * وليست زينةً فوق زرّ: **البطاقةُ كلُّها هي الفعل** — لمسُها يفتح المصحفَ
+ * عند أوّل صفحةٍ من الوِرد، فيُكمل من حيث يجب أن يبدأ.
+ */
+@Composable
+private fun OpenLeafWird(
+    from: Int,
+    to: Int,
+    pages: Int,
+    minutes: Int,
+    onOpen: () -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
+    val ctx = LocalContext.current
+    //  الاسمُ من `surah_metadata.json` — لا من تخطيط المصحف الضخم
+    val fromSurah = remember(from) { SurahNames.atPage(ctx, from) }
+    val toSurah = remember(to) { SurahNames.atPage(ctx, to) }
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RafiqShape.card)
+            .clickable(onClick = onOpen),
+    ) {
+        Text(
+            stringResource(R.string.wird_short),
+            style = RafiqType.metaS, color = rc.inkLight,
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(134.dp)
+                .clip(RafiqShape.item)
+                .border(1.dp, rc.gold.copy(alpha = 0.38f), RafiqShape.item),
+        ) {
+            Row(Modifier.fillMaxSize()) {
+                Leaf(
+                    label = stringResource(R.string.khatma_open_from),
+                    page = from, surah = fromSurah, dim = false,
+                    modifier = Modifier.weight(1f),
+                )
+                //  الكعبُ — خطٌّ ذهبيٌّ رقيقٌ لا فاصلٌ ثقيل
+                Box(
+                    Modifier
+                        .width(1.dp)
+                        .fillMaxHeight()
+                        .background(rc.gold.copy(alpha = 0.22f)),
+                )
+                Leaf(
+                    label = stringResource(R.string.khatma_open_to),
+                    page = to, surah = toSurah, dim = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .clip(RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp))
+                    .background(rc.emeraldFill)
+                    .padding(horizontal = 13.dp, vertical = 4.dp),
+            ) {
+                Text(
+                    stringResource(
+                        R.string.khatma_open_spine,
+                        pages.toString(), juzOfPage(from).toString(),
+                    ).localizedDigits(ar),
+                    style = RafiqType.metaS, color = rc.onEmeraldFill,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(11.dp))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(R.string.khatma_open_verb),
+                style = RafiqType.label, color = rc.gold,
+            )
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                stringResource(
+                    R.string.wird_pages,
+                    from.toString(), to.toString(), minutes.toString(),
+                ).localizedDigits(ar),
+                style = RafiqType.metaS, color = rc.inkLight,
+            )
+        }
+    }
+}
+
+/** ورقةٌ واحدة — رقمُها واسمُ سورتها. والمنتهى أخفتُ من المبتدأ. */
+@Composable
+private fun Leaf(
+    label: String,
+    page: Int,
+    surah: String,
+    dim: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
+    Column(
+        modifier.padding(start = 13.dp, end = 13.dp, top = 11.dp, bottom = 22.dp),
+        horizontalAlignment = if (dim) Alignment.End else Alignment.Start,
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(label, style = RafiqType.metaS, color = rc.inkLight)
+        Text(
+            page.toString().localizedDigits(ar),
+            style = RafiqType.display,
+            color = if (dim) rc.inkLight else rc.ink,
+        )
+        Text(surah, style = RafiqType.dhikr, color = rc.gold, maxLines = 1)
+    }
 }

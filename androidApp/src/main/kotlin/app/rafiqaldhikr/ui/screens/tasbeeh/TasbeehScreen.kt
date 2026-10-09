@@ -12,6 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import app.rafiqaldhikr.ui.components.FirstHint
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.graphicsLayer
 import app.rafiqaldhikr.R
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -57,7 +60,9 @@ import kotlin.math.PI
 /* Colors are now provided by LocalRafiqColors from RafiqPalette.kt */
 
 /* ══════════════════════════════════════════════════════════════
- *  التوقيع: ثلاثٌ وثلاثون حبّةً تدور حول القرص — عددُ حبّات المسبحة المعروف
+ *  التوقيع: الذكرُ نفسُه هو موضعُ اللمس، وحبّةٌ تطير من موضع الإبهام إلى شَرْطها
+ *
+ *  والشَّرْطُ لكلِّ تسبيحةٍ لا شريطٌ مطّاط — فيُعَدُّ الباقي بالعين.
  *
    DHIKR DATA
 ══════════════════════════════════════════════════════════════ */
@@ -99,39 +104,6 @@ private fun DhikrOption.resolveColors(): Pair<Color, Color> {
     }
 }
 
-
-/* ══════════════════════════════════════════════════════════════
-   ARC PROGRESS — Circular Canvas progress indicator
-══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun ArcProgress(
-    value: Int,
-    max: Int,
-    sizeDp: Dp = 200.dp,
-    strokeColor: Color,
-    bgColor: Color = LocalRafiqColors.current.divider,
-    strokeW: Dp = 10.dp,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {},
-) {
-    val pct = (value.toFloat() / max.toFloat().coerceAtLeast(1f)).coerceIn(0f, 1f)
-    val animPct by animateFloatAsState(
-        pct, tween(700, easing = FastOutSlowInEasing), label = "arcPct"
-    )
-
-    Box(modifier.size(sizeDp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val sw = strokeW.toPx()
-            val r = (size.minDimension - sw * 2) / 2f
-            val topLeft = Offset(size.width / 2f - r, size.height / 2f - r)
-            val arcSize = Size(r * 2, r * 2)
-            drawArc(bgColor, 0f, 360f, false, topLeft, arcSize, style = Stroke(sw, cap = StrokeCap.Round))
-            drawArc(strokeColor, -90f, 360f * animPct, false, topLeft, arcSize, style = Stroke(sw, cap = StrokeCap.Round))
-        }
-        content()
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    PILL BUTTON
@@ -237,22 +209,58 @@ fun TasbeehScreen(
     val rc = LocalRafiqColors.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
+    val ar = LocalArabicNumerals.current
+    val ctx = LocalContext.current
+
+    /*  دورةُ دُبُر الصلاة — نصوصُها وأعدادُها من `adhkar_prayer.json`،
+     *  فلا تُكتب في الكود ولا تُعدَّل حرفاً. */
+    val cycle = remember(ctx) { PrayerCycle.steps(ctx) }
+    val hundredth = remember(ctx) { PrayerCycle.hundredth(ctx) }
+    val cycleCounts = remember(cycle) { cycle.map { it.count } }
+    var cycleOn by rememberSaveable { mutableStateOf(false) }
+    var cycleStep by rememberSaveable { mutableStateOf(0) }
+    var threadMode by rememberSaveable { mutableStateOf(false) }
+
+    val step = cycle.getOrNull(cycleStep)
+    val inCycle = cycleOn && step != null
 
     // Find current dhikr option
     val currentDhikr = DHIKR_OPTIONS.find { it.text == state.dhikrText } ?: DHIKR_OPTIONS[0]
     val (primaryColor, pastelColor) = currentDhikr.resolveColors()
+    val accent = if (inCycle) rc.emerald else primaryColor
+    val shownText = step?.text ?: currentDhikr.tashkeel
     var showDhikrPicker by remember { mutableStateOf(false) }
 
-    // Tap animation
-    var isPressed by remember { mutableStateOf(false) }
-    val tapScale by animateFloatAsState(
-        if (isPressed) 0.93f else 1f,
-        spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
-        label = "tapScale"
-    )
+    val cycleDone = inCycle && cycleComplete(cycleStep, state.count, cycleCounts)
 
-    // Pulse animation for glow
-    val pulseAlpha by stillableFloat(0.15f, 0.4f, 2000, FastOutSlowInEasing, RepeatMode.Reverse, label = "pulseAlpha")
+    /*  تمامُ الخطوة ينتقل بعد مَهْلةٍ قصيرةٍ — لتُرى الشَّرْطةُ الأخيرةُ
+     *  تمتلئ قبل أن يتبدّل النصّ. والانتقالُ بـ`setDhikr` لأنّه يحفظ
+     *  الشوطَ أوّلاً: كلُّ ثلاثٍ وثلاثين شوطٌ في السجلّ لا شوطٌ واحدٌ
+     *  من مئة. */
+    LaunchedEffect(inCycle, cycleStep, state.count, state.target) {
+        if (inCycle && state.count >= state.target) {
+            val next = nextCycleStep(cycleStep, cycle.size)
+            if (next != null) {
+                kotlinx.coroutines.delay(430)
+                cycleStep = next
+                viewModel.setDhikr(cycle[next].text)
+                viewModel.setTarget(cycle[next].count)
+            }
+        }
+    }
+
+    fun countOne() {
+        if (inCycle && state.count >= state.target) return
+        val before = state.count
+        viewModel.increment()
+        //  اهتزازٌ ثلاثُ درجات: لمسةٌ · تمامُ ذكرٍ · تمامُ المائة
+        val lastStep = inCycle && nextCycleStep(cycleStep, cycle.size) == null
+        haptic.performHapticFeedback(
+            if (before + 1 >= state.target && lastStep) HapticFeedbackType.LongPress
+            else if (before + 1 >= state.target) HapticFeedbackType.LongPress
+            else HapticFeedbackType.TextHandleMove,
+        )
+    }
 
     val scrollState = rememberScrollState()
 
@@ -267,7 +275,7 @@ fun TasbeehScreen(
                 .padding(bottom = 100.dp)
         ) {
             // ═══ TOP BAR ═══
-            RafiqTopBar(title = "المسبحة") {
+            RafiqTopBar(title = stringResource(R.string.tasbeeh_title)) {
                 RafiqIconButton(
                     onClick = {
                         viewModel.saveSession()
@@ -292,6 +300,33 @@ fun TasbeehScreen(
                     .padding(horizontal = 14.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                //  الدورةُ أوّلَ الصفّ — أشهرُ ما يُعَدّ، ودُبُرَ كلِّ صلاة
+                if (cycle.isNotEmpty()) {
+                    val sel = inCycle
+                    Box(
+                        Modifier
+                            .clip(RafiqShape.card)
+                            .background(if (sel) rc.emeraldPastel else rc.card)
+                            .border(
+                                if (sel) 2.dp else 1.dp,
+                                if (sel) rc.emerald.copy(alpha = 0.5f) else rc.gold.copy(alpha = BorderIdle),
+                                RafiqShape.card,
+                            )
+                            .clickable {
+                                cycleOn = true
+                                cycleStep = 0
+                                viewModel.setDhikr(cycle[0].text)
+                                viewModel.setTarget(cycle[0].count)
+                            }
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.tasbeeh_cycle),
+                            fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                            color = if (sel) rc.emerald else rc.inkDark, style = RafiqType.body,
+                        )
+                    }
+                }
                 DHIKR_OPTIONS.forEach { opt ->
                     val selected = opt.text == state.dhikrText
                     val (optPrimary, optPastel) = opt.resolveColors()
@@ -305,6 +340,7 @@ fun TasbeehScreen(
                                 RafiqShape.card
                             )
                             .clickable {
+                                cycleOn = false
                                 viewModel.setDhikr(opt.text)
                             }
                             .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -318,107 +354,132 @@ fun TasbeehScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ═══ ARC PROGRESS ═══
-            Box(
-                Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                // Glow behind
-                Box(
+            // ═══ مُبدِّلُ النمط — شيءٌ جانبيٌّ فوق الذكر ═══
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                ModeSwitch(threadMode) { threadMode = it }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // ═══ الفعلُ الأوّل — اللمسةُ التي تعدّ ═══
+            if (cycleDone && hundredth != null) {
+                /*  تمامُ المائة — حدثٌ لا سطرٌ عابر. ونصُّه وفضلُه
+                 *  ومصدرُه من الأصل كما هي. */
+                Column(
                     Modifier
-                        .size(220.dp)
-                        .graphicsLayer { alpha = pulseAlpha }
-                        .background(
-                            Brush.radialGradient(
-                                listOf(primaryColor.copy(alpha = 0.18f), Color.Transparent),
-                                radius = 350f
-                            ),
-                            CircleShape
-                        )
-                )
-
-                /*  ثلاثٌ وثلاثون حبّة — لا قوسُ تقدّمٍ مجرَّد.
-                 *
-                 *  المسبحةُ ثلاثٌ وثلاثون حبّةً تُدار، فحلقتُها هي الشيءُ
-                 *  نفسُه لا رسمٌ يمثّله. والمضيئةُ الأخيرةُ أكبرُ وذهبيّة،
-                 *  فتُرى الحركةُ قبل أن يُقرأ الرقم.
-                 *
-                 *  وكانت الشاشةُ دائرتين: حلقةٌ باهتةٌ فيها العدّاد صغيراً،
-                 *  وتحتها دائرةٌ خضراءُ ضخمةٌ مكتوبٌ عليها «اضغط» — فأكبرُ
-                 *  عنصرٍ أمرٌ وأصغرُها الجواب. صارت واحدة: الرقمُ هو البطل،
-                 *  والحلقةُ نفسُها مساحةُ اللمس. */
-                MisbahaRing(
-                    count = state.count,
-                    target = state.target.coerceAtLeast(1),
-                    scale = tapScale,
-                    rc = LocalRafiqColors.current,
-                    onTap = {
-                        isPressed = true
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        viewModel.increment()
-                    },
-                )
-                LaunchedEffect(state.count) {
-                    kotlinx.coroutines.delay(120)
-                    isPressed = false
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            // ═══ DHIKR TEXT WITH TASHKEEL ═══
-            Box(
-                Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    currentDhikr.tashkeel,
-                    style = TextStyle(
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 56.sp,
-                        brush = Brush.linearGradient(
-                            listOf(
-                                primaryColor.copy(alpha = 0.7f),
-                                primaryColor,
-                                primaryColor.copy(alpha = 0.7f),
-                            )
-                        ),
-                    ),
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // ═══ COMPLETION BADGE ═══
-            if (state.isCompleted) {
-                Spacer(Modifier.height(16.dp))
-                Box(
-                    Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .rafiqCard()
+                        .padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Row(
+                    Text(
+                        stringResource(R.string.tasbeeh_hundred),
+                        style = RafiqType.metaS, color = rc.gold,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        hundredth.text,
+                        style = RafiqType.dhikr, color = rc.ink,
+                        textAlign = TextAlign.Center,
+                    )
+                    if (hundredth.virtue != null) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            hundredth.virtue,
+                            style = RafiqType.bodyS, color = rc.inkMed,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "${hundredth.source} · ${hundredth.grade}",
+                        style = RafiqType.metaS, color = rc.inkLight,
+                    )
+                }
+            } else if (threadMode) {
+                ThreadCounter(
+                    done = state.count,
+                    target = state.target.coerceAtLeast(1),
+                    rc = rc,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(horizontal = 16.dp),
+                    onTap = { countOne() },
+                )
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(
+                        stringResource(
+                            R.string.tasbeeh_left_of,
+                            (state.target - state.count).coerceAtLeast(0).localized(ar),
+                            state.target.localized(ar),
+                        ),
+                        style = RafiqType.metaS, color = rc.gold,
+                    )
+                }
+            } else {
+                WordCounter(
+                    tashkeel = shownText,
+                    done = state.count,
+                    target = state.target.coerceAtLeast(1),
+                    accent = accent,
+                    firstTap = state.count == 0,
+                    modifier = Modifier.fillMaxWidth(),
+                    onTap = { countOne() },
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // ═══ تراجع — فلا معنى لسؤال «هل حُسِبت؟» بلا مخرجٍ للغلط ═══
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    val can = state.count > 0
+                    Box(
                         Modifier
-                            .clip(RafiqShape.card)
-                            .background(pastelColor)
-                            .border(1.5.dp, primaryColor.copy(alpha = 0.3f), RafiqShape.card)
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            .clip(RafiqShape.chip)
+                            .border(1.dp, rc.cardBorder, RafiqShape.chip)
+                            .graphicsLayer { alpha = if (can) 1f else 0.38f }
+                            .clickable(enabled = can) {
+                                viewModel.decrement()
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
+                            .padding(horizontal = 16.dp, vertical = 9.dp),
                     ) {
-                        RafiqIcon(RIcon.Check, 16.dp, primaryColor)
-                        Text(stringResource(R.string.tasbeeh_done),
-                            fontWeight = FontWeight.Bold,
-                            color = primaryColor, style = RafiqType.bodyS)
+                        Text(stringResource(R.string.tasbeeh_undo),
+                            style = RafiqType.metaS, color = rc.inkMed)
+                    }
+                    if (inCycle && step != null) {
+                        Text(
+                            stringResource(
+                                R.string.tasbeeh_of_hundred,
+                                cycleTotal(cycleStep, state.count, cycleCounts).localized(ar),
+                                cycleCounts.sum().localized(ar),
+                            ),
+                            style = RafiqType.metaS, color = rc.inkLight,
+                        )
                     }
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            //  مصدرُ النصّ ودرجتُه — لا يُفصل عن النصّ أبداً
+            if (inCycle && step != null) {
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(
+                        "${step.source} · ${step.grade}",
+                        style = RafiqType.metaS, color = rc.inkLight,
+                    )
+                }
+            }
 
-            // ═══ TARGET SELECTOR ═══
-            Column(
+            Spacer(Modifier.height(22.dp))
+
+            // ═══ TARGET SELECTOR — لا في الدورة: أعدادُها من الحديث ═══
+            if (!inCycle) Column(
                 Modifier.fillMaxWidth().padding(horizontal = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -521,95 +582,3 @@ fun TasbeehScreen(
         )
     }
 }
-
-/* ── حلقةُ المسبحة ────────────────────────────────────────────── */
-
-@Composable
-private fun MisbahaRing(
-    count: Int,
-    target: Int,
-    scale: Float,
-    rc: app.rafiqaldhikr.ui.theme.RafiqPalette,
-    onTap: () -> Unit,
-) {
-    val ar = LocalArabicNumerals.current
-    val laps = count / target
-    val cycle = if (count == 0) 0 else (count % target).let { if (it == 0) target else it }
-    val lit = (cycle.toFloat() / target * BEADS).toInt()
-
-    Box(
-        Modifier
-            .size(252.dp)
-            .scale(scale)
-            .clip(CircleShape)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onTap,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(Modifier.fillMaxSize()) {
-            val c = Offset(size.width / 2f, size.height / 2f)
-            val r = size.minDimension / 2f - 12.dp.toPx()
-            for (i in 0 until BEADS) {
-                val a = (i.toFloat() / BEADS) * 2f * PI.toFloat() - PI.toFloat() / 2f
-                val p = Offset(c.x + r * cos(a), c.y + r * sin(a))
-                val on = i < lit
-                val cur = i == lit - 1
-                if (cur) {
-                    drawCircle(rc.goldLight.copy(alpha = 0.22f), 11.dp.toPx(), p)
-                    drawCircle(rc.goldLight, 8.dp.toPx(), p)
-                } else {
-                    drawCircle(if (on) rc.emerald else rc.divider, 5.dp.toPx(), p)
-                }
-            }
-        }
-        /*  حشوةٌ أفقيّةٌ داخل القرص — وإلّا قُصّ السطرُ الأخير.
-         *
-         *  القرصُ يقصّ ما تجاوزه (`clip(CircleShape)`)، وسطرُ «تُعلِّم
-         *  عند ٣٣» يقع حيث تضيق الدائرة — فيُقَصّ طرفاه فيبدو كلمةً
-         *  نصفَ مكتوبة. والوترُ عند ذلك الارتفاع نحو ١٣٠ نقطةً من ١٨٠،
-         *  فستٌّ وعشرون في كلّ جهةٍ تُبقيه داخل القوس.
-         *
-         *  وارتفاعُ سطر الرقم يُضبَط صراحةً: `NumbersStyle` نسبتُه
-         *  ١٫٣ من المقاس، أي ٨٣ نقطةً على ٦٤ — تُزيح ما تحتها إلى حيث
-         *  يضيق القرص. */
-        Column(
-            Modifier
-                .size(180.dp)
-                .clip(CircleShape)
-                .background(rc.card)
-                .border(1.dp, rc.cardBorder, CircleShape)
-                .padding(horizontal = 26.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(stringResource(R.string.tasbeeh_your_count), style = RafiqType.caption, color = rc.gold)
-            // الصفرُ العربيُّ «٠» نقطةٌ صغيرة، فيبدو وحده عطباً لا رقماً
-            Text(
-                if (count == 0) "ابدأ" else count.localized(ar),
-                style = if (count == 0) RafiqType.titleXL else NumbersStyle,
-                fontSize = if (count == 0) 30.sp else 64.sp,
-                lineHeight = if (count == 0) 42.sp else 70.sp,
-                color = rc.ink,
-                maxLines = 1,
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                /*  التصريفُ كان `if (laps == 1) "دورة" else "دورات"` —
-                 *  فيقول «٢ دورات» و«١١ دورات»، وكلاهما خطأٌ في العربية،
-                 *  ولا شيء منه يعمل في الإنجليزية. و`plurals` تعرفهما. */
-                if (laps > 0) pluralStringResource(R.plurals.laps, laps, laps)
-                else stringResource(R.string.tasbeeh_mark_at, target.localized(ar)),
-                style = RafiqType.caption,
-                color = rc.inkMed,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
-
-/** حبّاتُ المسبحة — ثلاثٌ وثلاثون، وهي عددُها المعروف. */
-private const val BEADS = 33
