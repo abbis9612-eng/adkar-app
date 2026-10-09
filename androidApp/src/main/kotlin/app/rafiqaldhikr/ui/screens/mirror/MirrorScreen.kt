@@ -40,6 +40,8 @@ import app.rafiqaldhikr.ui.utils.localizedDigits
 import org.koin.androidx.compose.koinViewModel
 
 /*
+ *  التوقيع: سنةٌ كاملةٌ في شبكةٍ واحدة — يومٌ لكلّ مربّع، لا رقمٌ يُقال
+ *
  * «سنتك» — المرآة
  * ═══════════════
  *

@@ -28,6 +28,7 @@ step "أحكام التجويد"      python3 tools/check_tajweed.py
 step "تطبيع التسميع"      python3 tools/check_tasmee_rules.py
 step "نموذج التسميع"      python3 tools/check_tasmee_model.py
 step "مراسي الجولة"       python3 tools/check_tour_anchors.py
+step "وجوهُ الشاشات"      python3 tools/check_signatures.py
 step "مخطّط القاعدة"       python3 tools/check_schema.py
 step "نصٌّ عربي في الواجهة" python3 tools/check_hardcoded_ui.py
 step "الاستيرادات"        python3 tools/check_imports.py
