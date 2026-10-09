@@ -988,4 +988,5 @@
     <!-- إعادة الجولة من الإعدادات -->
     <string name="settings_replay_tour">أعد الجولة التعريفيّة</string>
     <string name="settings_replay_tour_sub">تُعرَض الجولةُ والتلميحاتُ من جديد. لا يُحذَف شيءٌ من بياناتك.</string>
+    <string name="ayah_mark_short">علامة</string>
 </resources>

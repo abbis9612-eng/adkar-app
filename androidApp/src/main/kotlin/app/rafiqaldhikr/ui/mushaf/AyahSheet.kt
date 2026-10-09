@@ -66,6 +66,10 @@ import app.rafiqaldhikr.ui.theme.QuranFamily
 import app.rafiqaldhikr.ui.theme.RafiqType
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 
 /* ══════════════════════════════════════════════════════════════
    ورقةُ الآية
@@ -150,11 +154,23 @@ fun AyahSheet(
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
     val hair = ink.copy(alpha = 0.16f)
 
-    if (verse != null) {
-        // حاجبٌ يبتلع النقرَ خلف الورقة فلا تُقلَب الصفحةُ تحتها.
+    /*  حاجبٌ يُعتم الصفحةَ ويبتلع النقرَ خلف الورقة.
+     *
+     *  كان شفّافاً تماماً: يمنع قلبَ الصفحة ولا يُرى. فتبدأ الورقةُ
+     *  بحدٍّ صلبٍ على نصٍّ كاملِ الوضوح، ويُقطع السطرُ الذي تحتها نصفين
+     *  — نصفٌ مقروءٌ ونصفٌ مبتور، يُقرأ عطباً في الرسم لا طبقةً فوقه.
+     *
+     *  وبإعتامٍ خفيفٍ يرجع الترتيبُ إلى عينه: صفحةٌ ثمّ شيءٌ فوقها.
+     *  وهو يتلاشى مع الورقة لا يقفز معها. */
+    AnimatedVisibility(
+        visible = verse != null,
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
         Box(
             Modifier
                 .fillMaxSize()
+                .background(rc.scrim.copy(alpha = 0.38f))
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -329,18 +345,34 @@ fun AyahSheet(
                     Spacer(Modifier.height(13.dp))
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                /*  خمسةٌ بالاسم كاملاً — لا «نس» و«ملا» و«مش».
+                 *
+                 *  كانت الخمسةُ صفّاً أفقيّاً: رمزٌ ثمّ اسمٌ بجانبه. وخمسةُ
+                 *  أعمدةٍ على عرض هاتفٍ تترك لكلّ اسمٍ نحوَ خمسٍ وعشرين
+                 *  نقطة — فيُقَصّ «نسخ» إلى «نس» و«ملاحظة» إلى «ملا»
+                 *  و«مشاركة» إلى «مش». و`maxLines = 1` بلا `overflow`
+                 *  تقطع في منتصف الكلمة بلا نقاطٍ تدلّ على القطع، فيقرأ
+                 *  حروفاً لا معنى لها ولا يعرف ما الزرّ.
+                 *
+                 *  فالرمزُ **فوق** الاسم: العرضُ كلُّه للاسم، والخمسةُ
+                 *  تتساوى، ولا يُقَصّ حرف. */
+                Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     SheetAction(
-                        label = if (marked) stringResource(R.string.ayah_bookmarked) else stringResource(R.string.ayah_bookmark),
+                        label = stringResource(
+                            if (marked) R.string.ayah_bookmarked else R.string.ayah_mark_short,
+                        ),
                         icon = if (marked) RIcon.Check else RIcon.Bookmark,
                         filled = marked,
                         ink = ink,
                         hair = hair,
-                        modifier = Modifier.weight(1.3f),
+                        modifier = Modifier.weight(1f),
                     ) {
                         scope.launch { marked = vm.toggleMark(surah, ayah, page) }
                     }
-                    SheetAction(stringResource(R.string.action_copy), RIcon.Copy, false, ink, hair, Modifier.weight(1f)) {
+                    SheetAction(
+                        stringResource(R.string.action_copy), RIcon.Copy, false,
+                        ink, hair, Modifier.weight(1f),
+                    ) {
                         clip.setText(AnnotatedString(shareBody(text, tf, surah, ayah, ctx)))
                     }
                     SheetAction(
@@ -362,9 +394,10 @@ fun AyahSheet(
                             onDismiss()
                         }
                     }
-                    SheetAction(stringResource(R.string.action_share), RIcon.Share, false, ink, hair, Modifier.weight(1f)) {
-                        sharing = true
-                    }
+                    SheetAction(
+                        stringResource(R.string.action_share), RIcon.Share, false,
+                        ink, hair, Modifier.weight(1f),
+                    ) { sharing = true }
                 }
 
                 /*  التسميعُ في صفٍّ لنفسه لا سادساً في الصفّ.
@@ -488,24 +521,27 @@ private fun SheetAction(
     onClick: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    Row(
+    val shape = RoundedCornerShape(13.dp, 13.dp, 13.dp, 20.dp)
+    Column(
         modifier
-            .heightIn(min = 48.dp)
-            .clip(RoundedCornerShape(13.dp))
+            .heightIn(min = 62.dp)
+            //  توقيعُ الزاوية الواحدة الأوسع — كسائر أسطح التطبيق.
+            .clip(shape)
             .background(if (filled) rc.emeraldFill else Color.Transparent)
-            .border(1.dp, if (filled) rc.emeraldFill else hair, RoundedCornerShape(13.dp))
+            .border(1.dp, if (filled) rc.emeraldFill else hair, shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 3.dp, vertical = 9.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        RafiqIcon(icon, 16.dp, if (filled) rc.onEmeraldFill else ink)
-        Spacer(Modifier.width(6.dp))
+        RafiqIcon(icon, 17.dp, if (filled) rc.onEmeraldFill else ink)
+        Spacer(Modifier.height(6.dp))
         Text(
             label,
-            style = RafiqType.label,
-            color = if (filled) rc.onEmeraldFill else ink,
+            style = RafiqType.metaS,
+            color = if (filled) rc.onEmeraldFill else ink.copy(alpha = 0.85f),
             maxLines = 1,
+            textAlign = TextAlign.Center,
         )
     }
 }

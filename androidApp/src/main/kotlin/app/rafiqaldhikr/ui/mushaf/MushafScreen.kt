@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -58,6 +59,9 @@ import app.rafiqaldhikr.ui.theme.NaskhFamily
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.unit.Dp
 
 /* ══════════════════════════════════════════════════════════════
    شاشةُ المصحف — أربعةُ أنماطٍ في مكانٍ واحد
@@ -243,6 +247,10 @@ fun MushafScreen(
     //  وأشرطةُ النظام تُخفى كذلك — الصفحةُ تُرى كاملةً كما تُطبع.
     app.rafiqaldhikr.ui.navigation.FullBleedReading()
 
+    //  ارتفاعُ عنوان الصفحة بالبكسل — يملؤه [PageMargin] عند قياسه،
+    //  ويُزيح به الشريطُ نفسَه فلا يغطّيه.
+    var marginH by remember { mutableIntStateOf(0) }
+
     val immersive = app.rafiqaldhikr.ui.navigation.LocalImmersive.current
     LaunchedEffect(Unit) { immersive.value = true }
     DisposableEffect(Unit) { onDispose { immersive.value = false } }
@@ -289,6 +297,7 @@ fun MushafScreen(
                     juz = data?.juz ?: 0,
                     odd = pageNo % 2 == 1,
                     ink = ink,
+                    onHeight = { marginH = it },
                 )
                 Box(Modifier.weight(1f)) {
                     if (effective.needsFonts && data != null && pf != null) {
@@ -374,8 +383,22 @@ fun MushafScreen(
             }
         }
 
+        /*  الشريطُ **تحت** عنوان الصفحة لا فوقه.
+         *
+         *  كان يُحاذي رأسَ الشاشة فيغطّي «سورةُ البقرة · الجزءُ الأوّل»
+         *  تغطيةً تامّة: فإن لمستَ الورقةَ اختفى العنوانُ وظهر لوحٌ
+         *  بأزرار، وإن لمستَها ثانيةً عاد العنوانُ واختفى اللوح. فتُقرأ
+         *  الشاشةُ الواحدةُ شاشتين لا حالتين لشاشة.
+         *
+         *  والعنوانُ الآن ثابتٌ لا يغيب، والشريطُ يجيء تحته — فاللمسةُ
+         *  تُظهر أدواتٍ حولَ ما أنت فيه ولا تستبدل به شيئاً.
+         *
+         *  وارتفاعُ العنوان **يُقاس** ولا يُقدَّر: نصُّه يكبر مع مقياس
+         *  خطّ المستخدم، ورقمٌ مثبَّتٌ هنا يصحّ على جهازٍ ويُغطّي على
+         *  غيره. */
         ToolBar(
             visible = toolsOn,
+            topInset = with(LocalDensity.current) { marginH.toDp() },
             paper = paper,
             ink = ink,
             accent = if (night) rc.goldLight else rc.gold,
@@ -523,11 +546,14 @@ private fun TextPage(
                             onClick = onTap,
                             onLongClick = { onVerseClick("${a.surah}:${a.ayahNumber}") },
                         )
+                        //  زاويةٌ مستديرةٌ لا مستطيلٌ بعرض الشاشة — وتوقيعُ
+                        //  الزاوية الواحدة الأوسع كسائر أسطح التطبيق.
+                        .clip(RoundedCornerShape(11.dp, 11.dp, 11.dp, 18.dp))
                         .background(
                             if (selectedVerse == "${a.surah}:${a.ayahNumber}")
                                 rc.gold.copy(alpha = 0.10f) else Color.Transparent
                         )
-                        .padding(vertical = 7.dp),
+                        .padding(horizontal = 8.dp, vertical = 7.dp),
                     verticalAlignment = Alignment.Top,
                 ) {
                     Box(
@@ -573,13 +599,7 @@ private fun TextPage(
                          *  في النصّ المركَّب كلِّه — فتُزاح به. وبلا الإزاحة
                          *  تلوّن الآيةُ الثانيةُ حروفَ الأولى. */
                         val base = length
-                        if (key == selectedVerse) {
-                            withStyle(SpanStyle(background = rc.gold.copy(alpha = 0.16f))) {
-                                append(a.textUthmani)
-                            }
-                        } else {
-                            append(a.textUthmani)
-                        }
+                        append(a.textUthmani)
                         if (tajweed) {
                             tj[TajweedStore.key(a.surah, a.ayahNumber)]?.forEach { sp ->
                                 //  حدٌّ على طول الآية: أصلٌ أقدمُ بعد تحديثٍ
@@ -603,6 +623,9 @@ private fun TextPage(
             }
 
             var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+            //  مدى الآية المختارة في النصّ المركَّب — من `ranges` نفسِها
+            //  التي يستعملها الضغطُ المطوّل، فلا يفترق الموضعان.
+            val pickedRange = ranges.firstOrNull { it.third == selectedVerse }
             Text(
                 body,
                 fontFamily = QuranFamily,
@@ -613,6 +636,16 @@ private fun TextPage(
                 onTextLayout = { layout = it },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .drawBehind {
+                        val l = layout ?: return@drawBehind
+                        val r = pickedRange ?: return@drawBehind
+                        val end = r.second.coerceAtMost(l.layoutInput.text.length)
+                        if (r.first >= end) return@drawBehind
+                        drawAyahHighlight(
+                            l.getPathForRange(r.first, end),
+                            rc.gold.copy(alpha = 0.13f),
+                        )
+                    }
                     .pointerInput(ranges.size) {
                         detectTapGestures(
                             onTap = { onTap() },
@@ -687,12 +720,19 @@ private fun SurahOpening(
  */
 
 @Composable
-private fun PageMargin(surah: String, juz: Int, odd: Boolean, ink: Color) {
+private fun PageMargin(
+    surah: String,
+    juz: Int,
+    odd: Boolean,
+    ink: Color,
+    onHeight: (Int) -> Unit = {},
+) {
     val faint = ink.copy(alpha = 0.52f)
     val juzNames = androidx.compose.ui.res.stringArrayResource(R.array.juz_names)
     Row(
         Modifier
             .fillMaxWidth()
+            .onGloballyPositioned { onHeight(it.size.height) }
             .padding(
                 start = if (odd) 16.dp else 28.dp,
                 end = if (odd) 28.dp else 16.dp,
@@ -778,6 +818,7 @@ private fun PageFoot(page: Int, hizb: Int, ar: Boolean, ink: Color, onJump: () -
 @Composable
 private fun ToolBar(
     visible: Boolean,
+    topInset: Dp,
     paper: Color,
     ink: Color,
     accent: Color,
@@ -803,7 +844,12 @@ private fun ToolBar(
          *
          *  ولونُه لونُ الورقة نفسِها، فيتبع الليلَ والنهار ولا يأتي
          *  ببياضِ نظامٍ غريبٍ فوق ورقةٍ داكنة. */
-        Box(Modifier.displayCutoutPadding().padding(horizontal = 12.dp, vertical = 10.dp)) {
+        Box(
+            Modifier
+                .displayCutoutPadding()
+                .padding(top = topInset)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+        ) {
             Row(
                 Modifier
                     .fillMaxWidth()

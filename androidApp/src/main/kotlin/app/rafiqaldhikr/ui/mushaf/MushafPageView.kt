@@ -36,6 +36,12 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /* ══════════════════════════════════════════════════════════════
    الصفحةُ المصحفية
@@ -226,11 +232,31 @@ private fun MushafLine(
                             picked -> accent
                             else -> ink
                         },
-                        background = if (picked) marker.copy(alpha = 0.15f) else Color.Unspecified,
                     ),
                 ) { append(page.glyph(delta)) }
             }
             append(PDF)
+        }
+    }
+
+    /*  مدى الآية المختارة في هذا السطر — بالمحارف لا بالرموز.
+     *
+     *  رموزُ المصحف محرفٌ لكلٍّ منها، و`U+202E` يشغل الموضعَ الأوّل —
+     *  فيُزاح الدليلُ بواحد. ورموزُ الآية الواحدة متجاورةٌ في السطر
+     *  دائماً، فطرفاها يكفيان. */
+    val picked: IntRange? = remember(page, line, start, size, selectedVerse) {
+        if (selectedVerse.isNullOrEmpty()) {
+            null
+        } else {
+            var lo = -1
+            var hi = -1
+            for (i in 0 until size) {
+                if (page.v.getOrNull(start + i) == selectedVerse) {
+                    if (lo < 0) lo = i
+                    hi = i
+                }
+            }
+            if (lo < 0) null else (lo + 1)..(hi + 1)
         }
     }
 
@@ -261,6 +287,15 @@ private fun MushafLine(
         onTextLayout = { layout = it },
         modifier = Modifier
             .fillMaxWidth()
+            .drawBehind {
+                val l = layout ?: return@drawBehind
+                val r = picked ?: return@drawBehind
+                if (r.last >= l.layoutInput.text.length) return@drawBehind
+                drawAyahHighlight(
+                    l.getPathForRange(r.first, r.last + 1),
+                    marker.copy(alpha = 0.13f),
+                )
+            }
             .pointerInput(page, line) {
                 detectTapGestures(
                     onTap = { onTap() },
@@ -295,5 +330,31 @@ private fun SpineShadow(odd: Boolean, modifier: Modifier = Modifier, width: Dp =
                     Brush.horizontalGradient(listOf(dark, Color.Transparent))
                 },
             ),
+    )
+}
+
+
+/**
+ * تظليلُ الآية — أثرُ قلمٍ مارٍّ لا مستطيلٌ مقصوص.
+ *
+ * `SpanStyle(background)` ترسم مستطيلاً قائمَ الزوايا بارتفاع السطر
+ * كلِّه. وعلى الخطّ العثمانيّ — وعلاماتُه تعلو وتنزل — يصطدم بذيول
+ * السطر الذي فوقه ورؤوسِ ما تحته، ويُقطع عند طرفيه قطعاً حادّاً:
+ * فيُقرأ لطخةً مربّعةً على الورق لا تظليلاً لآية.
+ *
+ * فالمسارُ نفسُه يُملأ ثمّ يُحدُّ بقلمٍ عريضٍ مستديرِ الوصلات: يتمدّد
+ * بنصف عرضه في كلّ جهةٍ وتستدير زواياه — فيصير أثرَ قلمِ تظليلٍ مرَّ
+ * على الكلمات، بلا صورةٍ ولا شكلٍ مرسوم.
+ */
+internal fun DrawScope.drawAyahHighlight(path: Path, color: Color, grow: Dp = 5.dp) {
+    drawPath(path, color)
+    drawPath(
+        path,
+        color,
+        style = Stroke(
+            width = grow.toPx(),
+            join = StrokeJoin.Round,
+            cap = StrokeCap.Round,
+        ),
     )
 }

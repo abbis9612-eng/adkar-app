@@ -963,4 +963,5 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <!-- Replaying the tour from Settings -->
     <string name="settings_replay_tour">Replay the guided tour</string>
     <string name="settings_replay_tour_sub">Shows the tour and the first-time hints again. Nothing of your data is deleted.</string>
+    <string name="ayah_mark_short">Bookmark</string>
 </resources>
