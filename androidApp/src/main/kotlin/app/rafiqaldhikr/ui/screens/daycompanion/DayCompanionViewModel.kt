@@ -59,6 +59,15 @@ class DayCompanionViewModel(
         /** اسمٌ من كلمة واحدة لصفّ اليوم في الرئيسية — تسعةٌ منها تتّسع في سطر. */
         @androidx.annotation.StringRes val short: Int,
         @androidx.annotation.StringRes val description: Int,
+        /**
+         * محطّةٌ تمتدّ اليومَ كلَّه لا تقع في لحظة.
+         *
+         *  وقراءةُ الكهف من هذا الباب: مداها من الفجر إلى العشاء، لا
+         *  ساعةَ لها. وكانت الشريحةُ تطبع [startMillis] ساعةً — فيُقرأ
+         *  «الكهف ٤:٣٥ ص» كأنّها صلاةٌ في ذلك الوقت. فهذه تقول إنّ
+         *  وسمَها ([timeLabel]) هو ما يُعرَض لا الساعة.
+         */
+        val spansDay:    Boolean = false,
         val virtue:      String,          // الفضل الوارد بدليله
         /**
          * تخريجُ [virtue] وحده — شارةُ المصدر في بطاقة الميقات.
@@ -332,6 +341,7 @@ class DayCompanionViewModel(
                 title = R.string.st_kahf_t,
                 short = R.string.st_kahf_s,
                 description = R.string.st_kahf_d,
+                spansDay = true,
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",
                 source = "الحاكم والبيهقي · صحيح",
                 timeLabel = R.string.st_kahf_time,

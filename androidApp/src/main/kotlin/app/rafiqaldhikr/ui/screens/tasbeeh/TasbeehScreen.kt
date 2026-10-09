@@ -563,12 +563,23 @@ private fun MisbahaRing(
                 }
             }
         }
+        /*  حشوةٌ أفقيّةٌ داخل القرص — وإلّا قُصّ السطرُ الأخير.
+         *
+         *  القرصُ يقصّ ما تجاوزه (`clip(CircleShape)`)، وسطرُ «تُعلِّم
+         *  عند ٣٣» يقع حيث تضيق الدائرة — فيُقَصّ طرفاه فيبدو كلمةً
+         *  نصفَ مكتوبة. والوترُ عند ذلك الارتفاع نحو ١٣٠ نقطةً من ١٨٠،
+         *  فستٌّ وعشرون في كلّ جهةٍ تُبقيه داخل القوس.
+         *
+         *  وارتفاعُ سطر الرقم يُضبَط صراحةً: `NumbersStyle` نسبتُه
+         *  ١٫٣ من المقاس، أي ٨٣ نقطةً على ٦٤ — تُزيح ما تحتها إلى حيث
+         *  يضيق القرص. */
         Column(
             Modifier
                 .size(180.dp)
                 .clip(CircleShape)
                 .background(rc.card)
-                .border(1.dp, rc.cardBorder, CircleShape),
+                .border(1.dp, rc.cardBorder, CircleShape)
+                .padding(horizontal = 26.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -578,7 +589,9 @@ private fun MisbahaRing(
                 if (count == 0) "ابدأ" else count.localized(ar),
                 style = if (count == 0) RafiqType.titleXL else NumbersStyle,
                 fontSize = if (count == 0) 30.sp else 64.sp,
+                lineHeight = if (count == 0) 42.sp else 70.sp,
                 color = rc.ink,
+                maxLines = 1,
             )
             Spacer(Modifier.height(5.dp))
             Text(
@@ -589,6 +602,8 @@ private fun MisbahaRing(
                 else stringResource(R.string.tasbeeh_mark_at, target.localized(ar)),
                 style = RafiqType.caption,
                 color = rc.inkMed,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
             )
         }
     }

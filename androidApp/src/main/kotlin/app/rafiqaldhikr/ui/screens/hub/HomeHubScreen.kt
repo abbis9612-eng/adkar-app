@@ -996,7 +996,17 @@ private fun DayRow(
                 val st = stations.getOrNull(i)
                 StationChip(
                     name = stringResource(short),
-                    time = st?.startMillis?.let { formatClock(it, ar) },
+                    /*  الممتدّةُ تُعرَض بوسمها لا بساعتها.
+                     *
+                     *  قراءةُ الكهف مداها من الفجر إلى العشاء، لا ساعةَ
+                     *  لها. وكانت الشريحةُ تطبع بدايةَ المدى — «الكهف
+                     *  ٤:٣٥ ص» — فتُقرأ صلاةً في ذلك الوقت. ووسمُها
+                     *  مكتوبٌ في التطبيق منذ البداية ولا يُستعمل. */
+                    time = if (st != null && st.spansDay) {
+                        stringResource(st.timeLabel)
+                    } else {
+                        st?.startMillis?.let { formatClock(it, ar) }
+                    },
                     isNow = isNow,
                     isDone = !waiting && st?.id in doneIds,
                     onClick = onOpen,

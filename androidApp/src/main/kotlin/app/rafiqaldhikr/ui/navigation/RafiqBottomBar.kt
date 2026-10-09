@@ -43,6 +43,21 @@ data class BottomNavItem(
     val route:    RafiqRoute,
     /** مفتاحُ مرساة الجولة التعريفيّة — تُثقَب الشاشةُ فوق هذا التبويب. */
     val tourKey:  String,
+    /**
+     * العنوانُ الذي يُنتقل إليه — وقد يفترق عن [RafiqRoute.route].
+     *
+     * ═══ وهذا عطبٌ أسقط ورقةَ الآية فارغةً ═══
+     *
+     * `RafiqRoute.Mushaf.route` **قالبٌ** لا عنوان:
+     * `"mushaf?page={page}&aya={aya}"`. وإرسالُه كما هو يصل إلى الشاشة
+     * `aya = "{aya}"` — نصّاً غيرَ فارغ — فتُفتح ورقةُ الآية عليه،
+     * وتُفسَّر السورةُ صفراً والآيةُ صفراً: ورقةٌ بلا نصٍّ ولا اسمِ سورة
+     * كلّما لُمس تبويبُ المصحف.
+     *
+     * والتطبيقُ عنده العنوانُ الصحيحُ مكتوبٌ منذ البداية وغيرُ مستعمَل:
+     * `Mushaf.tab` — «بلا صفحة: يُفتح على آخر ما قرأ».
+     */
+    val dest:     String = route.route,
 )
 
 @Composable
@@ -51,7 +66,10 @@ fun RafiqBottomBar(navController: NavHostController) {
         BottomNavItem(R.string.nav_home,    { s, c -> GlyphHouse(s, c) },   RafiqRoute.Home, "nav_home"),
         // تبويبُ المصحف يفتح المصحف نفسَه لا قائمةَ السور: الصفحةُ هي
         // المقصود، والقائمةُ بابٌ داخلَها لمن أراد الانتقالَ بالسورة.
-        BottomNavItem(R.string.nav_quran,   { s, c -> GlyphLines(s, c) },   RafiqRoute.Mushaf, "nav_quran"),
+        BottomNavItem(
+            R.string.nav_quran, { s, c -> GlyphLines(s, c) }, RafiqRoute.Mushaf,
+            "nav_quran", RafiqRoute.Mushaf.tab,
+        ),
         BottomNavItem(R.string.nav_tasbeeh, { s, c -> GlyphDotted(s, c) },  RafiqRoute.AdhkarCategories, "nav_adhkar"),
         BottomNavItem(R.string.nav_dua,     { s, c -> GlyphHeart(s, c) },   RafiqRoute.DuaCategories, "nav_dua"),
         BottomNavItem(R.string.nav_profile, { s, c -> GlyphTrigram(s, c) }, RafiqRoute.Profile, "nav_profile"),
@@ -100,7 +118,7 @@ fun RafiqBottomBar(navController: NavHostController) {
                         item = item,
                         isSelected = isSelected,
                         onClick = {
-                            navController.navigate(item.route.route) {
+                            navController.navigate(item.dest) {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
                                 restoreState    = true

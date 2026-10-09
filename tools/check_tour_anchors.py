@@ -57,7 +57,10 @@ def main() -> int:
         if re.search(r"tourAnchor\(\s*\w+\.tourKey", body):
             #  المرساةُ تُمرَّر حقلاً — فتُجمع قيمُ الحقل من نفس الملفّ
             registered.update(re.findall(r'tourKey\s*=\s*"([^"]+)"', body))
-            registered.update(re.findall(r'RafiqRoute\.\w+,\s*"([^"]+)"\)', body))
+            #  ولا يُشترط قوسٌ بعد المفتاح: قد يليه وسيطٌ آخر في
+            #  النداء نفسِه. واشتراطُه جعل الحارسَ يُسقط البناءَ حين
+            #  أُضيف `dest` إلى `BottomNavItem` — والمرساةُ مكانَها.
+            registered.update(re.findall(r'RafiqRoute\.\w+,\s*"([^"]+)"', body))
 
     missing = [k for k in wanted if k not in registered]
     if missing:

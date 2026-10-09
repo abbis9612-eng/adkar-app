@@ -442,7 +442,7 @@
     <string name="pp_storage_b">• بياناتك كلّها على جهازك: قاعدة SQLite محلّية وملفّ تفضيلات. لا خوادمَ لنا تستقبلها.\n• هذه الملفات غير مشفَّرة، وتحميها عزلةُ التطبيقات في أندرويد: لا يصل إليها تطبيقٌ آخر على جهازٍ غير مروَّت.\n• النسخُ الاحتياطي السحابي معطَّل لهذا التطبيق، فلا تُرفع إلى Google Drive.\n• حذفُ التطبيق يمحوها كلَّها.</string>
 
     <string name="pp_network_t">الاتّصال بالشبكة</string>
-    <string name="pp_network_b">للتطبيق إذنُ الإنترنت لأمرين لا غير:\n\n١ · تنزيلُ خطوط الصفحة المصحفية حين تطلبها أنت صراحةً — ولا يُفتح اتّصالٌ قبل موافقتك، ولا يُرسَل شيءٌ عنك في ذلك الطلب.\n\n٢ · حالةُ الطقس، لتُرسم سماءُ الشاشة الأولى غائمةً أو صافيةً كما هي عندك. ويُرسَل فيه موضعُك **مدوَّراً إلى نحو ١١ كيلومتراً** — لا إحداثيّتُك الدقيقة، ولا معرّفُ جهازك، ولا شيءٌ عن استعمالك. ويُستغنى عنه بإطفاء السماء من الإعدادات.\n\nوكلُّ ما عدا هذين داخل التطبيق: المصحفُ والتفسيرُ والأذكارُ والأدعيةُ والمواقيتُ والقبلة. فهو يعمل كاملاً في وضع الطيران.</string>
+    <string name="pp_network_b">للتطبيق إذنُ الإنترنت لأمرين لا غير:\n\n١) تنزيلُ خطوط الصفحة المصحفية حين تطلبها أنت صراحةً — ولا يُفتح اتّصالٌ قبل موافقتك، ولا يُرسَل شيءٌ عنك في ذلك الطلب.\n\n٢) حالةُ الطقس، لتُرسم سماءُ الشاشة الأولى غائمةً أو صافيةً كما هي عندك. ويُرسَل فيه موضعُك **مدوَّراً إلى نحو ١١ كيلومتراً** — لا إحداثيّتُك الدقيقة، ولا معرّفُ جهازك، ولا شيءٌ عن استعمالك. ويُستغنى عنه بإطفاء السماء من الإعدادات.\n\nوكلُّ ما عدا هذين داخل التطبيق: المصحفُ والتفسيرُ والأذكارُ والأدعيةُ والمواقيتُ والقبلة. فهو يعمل كاملاً في وضع الطيران.</string>
 
     <string name="pp_rights_t">حقوقك</string>
     <string name="pp_rights_b">تستطيع في أي وقت تصديرَ بياناتك أو محوَها كلَّها من: الإعدادات ← تصدير البيانات.</string>
@@ -531,8 +531,8 @@
     <string name="mushaf_font_size">مقاسُ الخطّ</string>
     <string name="mushaf_size_note">الورقةُ المصحفيةُ تضبط مقاسَها بنفسها لتستويَ الأسطر — والمقياسُ لِعرضِ النصّ.</string>
     <string name="mushaf_not_downloaded">%1$s — لم تُنزَّل بعد</string>
-    <string name="mushaf_dl_progress">يُنزَّل %1$s من %2$s · %3$s م.ب</string>
-    <string name="mushaf_dl_ready">جاهزة · %1$s م.ب على جهازك</string>
+    <string name="mushaf_dl_progress">يُنزَّل %1$s من %2$s — %3$s م.ب</string>
+    <string name="mushaf_dl_ready">جاهزة — %1$s م.ب على جهازك</string>
     <string name="mushaf_dl_resume">أكمِلِ التنزيل — %1$s من %2$s</string>
     <string name="mushaf_dl_title">نزِّلْ خطوطَ المصحف</string>
     <string name="mushaf_dl_note">نحو ٩٠ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.</string>
@@ -554,7 +554,7 @@
     <string name="mushaf_mode_night_note">الصفحةُ نفسُها بحبرٍ فاتحٍ على ورقٍ داكن</string>
 
     <!-- ورقةُ الآية -->
-    <string name="ayah_label">%1$s · الآية %2$s</string>
+    <string name="ayah_label">%1$s — الآية %2$s</string>
     <string name="ayah_bookmarked">مُعَلَّمة</string>
     <string name="ayah_bookmark">ضَعْ علامة</string>
     <string name="ayah_note">ملاحظة</string>
@@ -584,7 +584,7 @@
     <string name="wird_title">وِردك من الختمة</string>
     <string name="wird_short">وِردك</string>
     <string name="wird_time">في ميقاته</string>
-    <string name="wird_pages">صفحة %1$s إلى %2$s · نحو %3$s دقيقة</string>
+    <string name="wird_pages">صفحة %1$s إلى %2$s — نحو %3$s دقيقة</string>
     <string name="wird_behind">تأخّرتَ %1$s صفحة — وُزّعت على ما بقي</string>
     <string name="wird_done">أتممتَ وِردك اليوم</string>
     <string name="khatma_title">الختمة</string>
@@ -702,7 +702,7 @@
     <string name="meeqat_next">التالي %1$s</string>
     <string name="meeqat_in">بعد %1$s</string>
     <string name="hub_station_window">نافذةُ %1$s</string>
-    <string name="hub_remaining"> · بقي %1$s</string>
+    <string name="hub_remaining"> — بقي %1$s</string>
 
     <!-- ═══ الميقات والمدن والشهور ═══ -->
     <string name="meeqat_duha">الضحى</string>
@@ -828,13 +828,13 @@
 
     <!-- تابِع القراءة -->
     <string name="continue_reading">تابِع القراءة</string>
-    <string name="continue_reading_at">%1$s · صفحة %2$s</string>
+    <string name="continue_reading_at">%1$s — صفحة %2$s</string>
     <string name="continue_reading_ayat">الآيات %1$s – %2$s</string>
 
     <!-- الاستيراد -->
     <string name="import_action">استيراد</string>
     <string name="import_desc">أعِد بياناتِك من ملفٍّ صدَّرته من قبل. لا يُمحى ما عندك — يُدمج معه.</string>
-    <string name="import_ok">استُورد: %1$d يوماً · %2$d علامة · %3$d جلسة تسبيح</string>
+    <string name="import_ok">استُورد: %1$d يوماً — %2$d علامة — %3$d جلسة تسبيح</string>
     <string name="import_not_json">تعذّرت قراءةُ الملفّ</string>
     <string name="import_not_rafiq">هذا ليس ملفَّ تصديرٍ من رفيق الذكر</string>
     <string name="import_future">الملفُّ من نسخةٍ أحدث — حدِّث التطبيق ثمّ أعِد المحاولة</string>
@@ -885,7 +885,7 @@
     <string name="nida_isha_sub">وِترٌ واحدٌ يكفي.</string>
     <string name="nida_layl">نَمْ على ذِكر، حفظك الله.</string>
     <string name="nida_layl_sub">آيةُ الكرسيّ تكفيك.</string>
-    <string name="nida_partial">من الآية · %1$s</string>
+    <string name="nida_partial">من الآية %1$s</string>
 
     <!-- وسمُ نوع النصّ المرويّ — يُقرأ قبل النصّ لا بعده -->
     <string name="nida_kind_quran">من القرآن الكريم</string>
@@ -925,7 +925,7 @@
     <string name="athar_title">الأثر</string>
     <string name="athar_subtitle">أحاديثُ الذكر والدعاء بأدلّتها</string>
     <string name="athar_absent">لم تُجلب نصوصُ الأثر في هذه النسخة</string>
-    <string name="athar_credit">الناشر: %1$s · إصدارُ %2$s. يُعرَض المتنُ والشرحُ كما نشرهما المصدرُ بلا تعديل.</string>
+    <string name="athar_credit">الناشر: %1$s — إصدارُ %2$s. يُعرَض المتنُ والشرحُ كما نشرهما المصدرُ بلا تعديل.</string>
     <string name="athar_takhrij">التخريج</string>
     <string name="athar_sharh">الشرح</string>
     <string name="athar_ref_id">رقمُه عند المصدر: %1$s</string>
@@ -952,7 +952,7 @@
     <string name="arbaeen_subtitle">اثنان وأربعون حديثاً بتخريجها وشرحها</string>
     <string name="arbaeen_absent">لم تُجلب الأربعون في هذه النسخة</string>
     <string name="arbaeen_progress">قرأتَ %1$s من %2$s</string>
-    <string name="arbaeen_credit">المتنُ والدرجةُ والشرحُ من %1$s · إصدارُ %2$s، بلا تعديل. والترتيبُ على «متن الأربعين النووية» — نسخة دار السلام.</string>
+    <string name="arbaeen_credit">المتنُ والدرجةُ والشرحُ من %1$s — إصدارُ %2$s، بلا تعديل. والترتيبُ على «متن الأربعين النووية» — نسخة دار السلام.</string>
     <string name="arbaeen_mark">علّمْ أنّي قرأتُه</string>
     <string name="arbaeen_read">قرأتُه</string>
     <string name="arbaeen_entry">اثنان وأربعون حديثاً، بتخريجٍ وشرح</string>
