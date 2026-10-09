@@ -476,71 +476,92 @@ fun MushafScreen(
             }
         }
 
-        /*  شريطُ التأكيد — يقول أين ذهب الفاصل، ويحمل «تراجع».
-         *
-         *  كانت رسالةُ نظامٍ عابرة تقول «وقفتُ هنا» ثمّ تختفي: لا تقول
-         *  أين يُوجَد، ومن ضغط سهواً فقد موضعَه القديم بلا رجعة. */
-        androidx.compose.animation.AnimatedVisibility(
-            visible = stopNote != null,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(14.dp),
-            enter = androidx.compose.animation.fadeIn() +
-                androidx.compose.animation.slideInVertically { it / 2 },
-            exit = androidx.compose.animation.fadeOut(),
-        ) {
-            val n = stopNote ?: return@AnimatedVisibility
-            LaunchedEffect(n) {
-                kotlinx.coroutines.delay(6000)
-                stopNote = null
-            }
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .shadow(8.dp, RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp), clip = false)
-                    .clip(RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp))
-                    .background(rc.inkDark.copy(alpha = 0.97f))
-                    .padding(horizontal = 13.dp, vertical = 11.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(9.dp),
+        /*  أسفلُ الشاشة عمودٌ واحد: شريطُ التأكيد، ثمّ شريطُ الموضع،
+         *  ثمّ شريطُ التطبيق السفليّ. فلا يغطّي أحدُهما الآخر، ويظهر
+         *  الثلاثةُ ويغيبون معاً. */
+        Column(Modifier.align(Alignment.BottomCenter)) {
+            /*  شريطُ التأكيد — يقول أين ذهب الفاصل، ويحمل «تراجع».
+             *
+             *  كانت رسالةُ نظامٍ عابرة تقول «وقفتُ هنا» ثمّ تختفي: لا تقول
+             *  أين يُوجَد، ومن ضغط سهواً فقد موضعَه القديم بلا رجعة. */
+            androidx.compose.animation.AnimatedVisibility(
+                visible = stopNote != null,
+                modifier = Modifier.padding(14.dp),
+                enter = androidx.compose.animation.fadeIn() +
+                    androidx.compose.animation.slideInVertically { it / 2 },
+                exit = androidx.compose.animation.fadeOut(),
             ) {
-                Text(
-                    stringResource(
-                        R.string.stop_set_at,
-                        "${SurahNames.of(ctx, n.first)} ${n.second.localized(ar)}",
-                    ),
-                    style = RafiqType.caption,
-                    color = rc.bg,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    stringResource(R.string.stop_undo),
-                    style = RafiqType.label,
-                    color = rc.goldLight,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(9.dp))
-                        .clickable {
-                            scope.launch { positionVm.restoreStop(stopUndo) }
-                            stopNote = null
-                        }
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
-                )
+                val n = stopNote ?: return@AnimatedVisibility
+                LaunchedEffect(n) {
+                    kotlinx.coroutines.delay(6000)
+                    stopNote = null
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .shadow(8.dp, RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp), clip = false)
+                        .clip(RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp))
+                        .background(rc.inkDark.copy(alpha = 0.97f))
+                        .padding(horizontal = 13.dp, vertical = 11.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(9.dp),
+                ) {
+                    Text(
+                        stringResource(
+                            R.string.stop_set_at,
+                            "${SurahNames.of(ctx, n.first)} ${n.second.localized(ar)}",
+                        ),
+                        style = RafiqType.caption,
+                        color = rc.bg,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(R.string.stop_undo),
+                        style = RafiqType.label,
+                        color = rc.goldLight,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(9.dp))
+                            .clickable {
+                                scope.launch { positionVm.restoreStop(stopUndo) }
+                                stopNote = null
+                            }
+                            .padding(horizontal = 9.dp, vertical = 5.dp),
+                    )
+                }
+            }
+            PageRail(
+                visible = toolsOn,
+                page = pager.currentPage + 1,
+                surah = layout?.page(pager.currentPage + 1)
+                    ?.let { SurahNames.of(ctx, it.firstSurah) }.orEmpty(),
+                juz = layout?.page(pager.currentPage + 1)?.juz ?: 0,
+                hizb = layout?.page(pager.currentPage + 1)?.rub ?: 0,
+                paper = paper,
+                ink = ink,
+                accent = if (night) rc.goldLight else rc.gold,
+                ar = ar,
+                onGo = { scope.launch { pager.scrollToPage(it - 1) } },
+                onJump = { jump = true },
+            )
+
+            /*  شريطُ التطبيق السفليُّ يعود — **طافياً** لا مقتطعاً.
+             *
+             *  وكان يظهر مع الأدوات فيطرح الهيكلُ ارتفاعَه من المحتوى،
+             *  والصفحةُ المصحفية تحسب مقاسَ خطّها من الارتفاع المتاح
+             *  لتملأ الورقةَ بخمسةَ عشرَ سطراً — فتُعيد الحسابَ وتصغر
+             *  أمام عينَي القارئ كلّما لمس الشاشة. فأُخفي أصلاً.
+             *
+             *  وهنا يُرسم **فوق** الورقة لا داخلَ الهيكل: الورقةُ تبقى
+             *  بكامل ارتفاعها ولا تُعيد حساباً، والشريطُ يظهر ويغيب مع
+             *  الأدوات كما طلب صاحبُ التطبيق. */
+            AnimatedVisibility(
+                visible = toolsOn,
+                enter = fadeIn() + slideInVertically { it / 3 },
+                exit = fadeOut() + slideOutVertically { it / 3 },
+            ) {
+                app.rafiqaldhikr.ui.navigation.RafiqBottomBar(navController)
             }
         }
-
-        PageRail(
-            visible = toolsOn,
-            page = pager.currentPage + 1,
-            surah = layout?.page(pager.currentPage + 1)
-                ?.let { SurahNames.of(ctx, it.firstSurah) }.orEmpty(),
-            juz = layout?.page(pager.currentPage + 1)?.juz ?: 0,
-            hizb = layout?.page(pager.currentPage + 1)?.rub ?: 0,
-            paper = paper,
-            ink = ink,
-            accent = if (night) rc.goldLight else rc.gold,
-            ar = ar,
-            onGo = { scope.launch { pager.scrollToPage(it - 1) } },
-            onJump = { jump = true },
-            modifier = Modifier.align(Alignment.BottomCenter),
-        )
 
         AyahSheet(
             verse = selected,
