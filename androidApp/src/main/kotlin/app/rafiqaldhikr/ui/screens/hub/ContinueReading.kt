@@ -163,6 +163,8 @@ fun ContinueReading(surah: Int, page: Int, ar: Boolean, onOpen: () -> Unit) {
                         accent = rc.gold,
                         marker = rc.emerald,
                         selectedVerse = null,
+                        //  لمحةٌ في بطاقة — لا فاصلَ عليها.
+                        stopVerse = null,
                         onTap = {},
                         onVerseClick = {},
                     )

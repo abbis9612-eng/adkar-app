@@ -967,4 +967,9 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
 
     <!-- Ayah sheet -->
     <string name="ayah_tafsir_name">Al-Tafsir al-Muyassar</string>
+    <string name="tajweed_not_here">You are on the Mushaf page — it is drawn as word glyphs, not letters, so it cannot be coloured.</string>
+    <string name="tajweed_switch">Switch to fitted page</string>
+    <string name="stop_set_at">Stopped here — %1$s. Find it under Bookmarks.</string>
+    <string name="stop_undo">Undo</string>
+    <string name="stop_resume">Continue from %1$s</string>
 </resources>

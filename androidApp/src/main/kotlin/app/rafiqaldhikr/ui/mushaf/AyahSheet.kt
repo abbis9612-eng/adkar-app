@@ -95,6 +95,13 @@ fun AyahSheet(
     onVerse: (String) -> Unit = {},
     /** يُستدعى بـ«سورة:آية» لفتح التسميع. */
     onTasmee: (String) -> Unit = {},
+    /**
+     * وُضع فاصلٌ جديد — ومعه الفاصلُ الذي كان، ليمكن التراجع.
+     *
+     * والشاشةُ هي التي تُخبر لا الورقة: الورقةُ تُغلق في اللحظة نفسِها،
+     * فرسالةٌ تظهر منها تظهر وتختفي مع شيءٍ انتهى.
+     */
+    onStopSet: (app.rafiq.domain.model.QuranBookmark?) -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
@@ -150,7 +157,6 @@ fun AyahSheet(
     /*  «مشاركة» صارت بابين: نصّاً وصورةً. ويُسأل السؤالُ عند الضغط لا
      *  بزرّين في الصفّ — الصفُّ خمسةُ أفعالٍ أصلاً، والسادسُ يُضيّقها. */
     var sharing by remember(verse) { mutableStateOf(false) }
-    val stopped = stringResource(R.string.ayah_stop_here)
 
     val paper = if (night) Color(0xFF1A1712) else rc.bg
     val ar = LocalArabicNumerals.current
@@ -447,8 +453,10 @@ fun AyahSheet(
                         ink, hair, Modifier.weight(1f),
                     ) {
                         scope.launch {
+                            //  القديمُ يُقرأ قبل أن يُمحى — وعليه يقوم «تراجع».
+                            val was = vm.currentStop()
                             vm.setStop(surah, ayah, page)
-                            Toast.makeText(ctx, stopped, Toast.LENGTH_SHORT).show()
+                            onStopSet(was)
                             onDismiss()
                         }
                     }

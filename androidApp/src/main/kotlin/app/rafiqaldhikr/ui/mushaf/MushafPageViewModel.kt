@@ -45,6 +45,20 @@ class MushafPageViewModel(
     suspend fun setStop(surah: Int, ayah: Int, page: Int) = repo.setStop(surah, ayah, page)
 
     /**
+     * الفاصلُ القائمُ الآن — يُقرأ **قبل** وضع الجديد ليمكن التراجع.
+     *
+     * و`setStop` يمحو القديمَ ويضع مكانَه، فمن ضغط سهواً فقد موضعَه بلا
+     * رجعة. فيُمسَك القديمُ هنا، ويُعيده [restoreStop] كما كان.
+     */
+    suspend fun currentStop(): app.rafiq.domain.model.QuranBookmark? =
+        repo.stopMark().first()
+
+    /** يُرجع الفاصلَ إلى ما كان — أو يمحوه إن لم يكن له قديم. */
+    suspend fun restoreStop(old: app.rafiq.domain.model.QuranBookmark?) {
+        if (old == null) repo.clearStop() else repo.setStop(old.surah, old.ayah, old.page)
+    }
+
+    /**
      * يضع العلامةَ أو يرفعها — ويُرجع حالَها بعد الفعل.
      *
      * وهذا أوّلُ طريقٍ في التطبيق لإنشاء علامة: كانت شاشةُ العلامات

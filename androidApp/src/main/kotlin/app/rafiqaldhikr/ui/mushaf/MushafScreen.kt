@@ -62,6 +62,7 @@ import kotlinx.coroutines.Dispatchers
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /* ══════════════════════════════════════════════════════════════
    شاشةُ المصحف — أربعةُ أنماطٍ في مكانٍ واحد
@@ -226,7 +227,26 @@ fun MushafScreen(
         ليس في المصحف الورقيّ شريطٌ علويٌّ ولا سفليّ — واسمُ السورة
         والجزءُ ورقمُ الصفحة في الهامش حيث موضعُها. فالشاشةُ ورقةٌ
         خالصة، ولمسةٌ واحدةٌ في متنها تُظهر الأدواتِ وتُخفيها.  */
-    var toolsOn by remember { mutableStateOf(false) }
+    /*  الأدواتُ تظهر عند الفتح ثمّ تنزوي وحدَها.
+     *
+     *  كانت تبدأ مخفيّةً — فمن دخل أوّلَ مرّةٍ رأى ورقةً خالية، ولا سهمَ
+     *  رجوعٍ ولا شيء، فلا يعرف أنّ لمسةَ الوسط تُظهرها. وشكا صاحبُ
+     *  التطبيق أنّه لا يستطيع الخروجَ إلّا بأزرار الهاتف.
+     *
+     *  والشريطُ الدائمُ فوق القرآن ليس جواباً: ثلاثُ ثوانٍ تكفي ليرى
+     *  الزرَّ ويتعلّم موضعَه، ثمّ تخلو الورقةُ كما ينبغي. */
+    var toolsOn by remember { mutableStateOf(true) }
+    var toolsPinned by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(3000)
+        //  ولا تنزوي إن لمسها في أثناء ذلك — فاللمسةُ قصدٌ لا سهو.
+        if (!toolsPinned) toolsOn = false
+    }
+
+    /*  الفاصلُ: ما وُضع للتوّ (ومعه القديمُ للتراجع)، وما هو قائمٌ الآن. */
+    var stopNote by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var stopUndo by remember { mutableStateOf<app.rafiq.domain.model.QuranBookmark?>(null) }
+    val stop by positionVm.stopMark().collectAsStateWithLifecycle(null)
     var hint by remember { mutableStateOf(!prefs.hintSeen) }
     var jump by remember { mutableStateOf(false) }
 
@@ -290,7 +310,7 @@ fun MushafScreen(
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                    ) { toolsOn = !toolsOn },
+                    ) { toolsPinned = true; toolsOn = !toolsOn },
             ) {
                 PageMargin(
                     surah = data?.let { SurahNames.of(ctx, it.firstSurah) }.orEmpty(),
@@ -308,7 +328,11 @@ fun MushafScreen(
                             accent = if (night) rc.goldLight else rc.gold,
                             marker = if (night) rc.goldLight else rc.goldLight,
                             selectedVerse = selected,
-                            onTap = { toolsOn = !toolsOn },
+                            //  الفاصلُ يُرسم على صفحته وحدَها.
+                            stopVerse = stop
+                                ?.takeIf { it.page == pageNo }
+                                ?.let { "${'$'}{it.surah}:${'$'}{it.ayah}" },
+                            onTap = { toolsPinned = true; toolsOn = !toolsOn },
                             onVerseClick = { selected = if (selected == it) null else it },
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -321,7 +345,7 @@ fun MushafScreen(
                             selectedVerse = selected,
                             tajweed = tajweed,
                             night = night,
-                            onTap = { toolsOn = !toolsOn },
+                            onTap = { toolsPinned = true; toolsOn = !toolsOn },
                             onVerseClick = { selected = if (selected == it) null else it },
                         )
                     }
@@ -415,6 +439,93 @@ fun MushafScreen(
          *  السورةُ والجزءُ والحزبُ هي ما يعرف به القارئُ مكانَه في
          *  المصحف، فهي ما يُعرض. والمنزلقُ علامتُه ۞ — رمزُ ربع الحزب
          *  في المصحف المطبوع، لا نقطةً عامّة. */
+        /*  شريحةُ العودة إلى الفاصل — مع الأدوات لا دونَها.
+         *
+         *  ولا تظهر إن كان الفاصلُ في الصفحة التي أنت فيها: شريحةٌ تقول
+         *  «تابعْ من هنا» وأنت هنا عبثٌ يُلمَس ولا يفعل. */
+        val away = stop?.takeIf { it.page != pager.currentPage + 1 }
+        androidx.compose.animation.AnimatedVisibility(
+            visible = toolsOn && away != null,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = with(LocalDensity.current) { marginH.toDp() } + 62.dp),
+            enter = androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.fadeOut(),
+        ) {
+            val b = away ?: return@AnimatedVisibility
+            Row(
+                Modifier
+                    .shadow(4.dp, CircleShape, clip = false)
+                    .clip(CircleShape)
+                    .background(paper)
+                    .border(1.dp, rc.gold.copy(alpha = 0.40f), CircleShape)
+                    .clickable { scope.launch { pager.scrollToPage(b.page - 1) } }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                IcStop(15.dp, rc.gold, rc.gold)
+                Text(
+                    stringResource(
+                        R.string.stop_resume,
+                        "${SurahNames.of(ctx, b.surah)} ${b.ayah.localized(ar)}",
+                    ),
+                    style = RafiqType.caption,
+                    color = rc.gold,
+                )
+            }
+        }
+
+        /*  شريطُ التأكيد — يقول أين ذهب الفاصل، ويحمل «تراجع».
+         *
+         *  كانت رسالةُ نظامٍ عابرة تقول «وقفتُ هنا» ثمّ تختفي: لا تقول
+         *  أين يُوجَد، ومن ضغط سهواً فقد موضعَه القديم بلا رجعة. */
+        androidx.compose.animation.AnimatedVisibility(
+            visible = stopNote != null,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(14.dp),
+            enter = androidx.compose.animation.fadeIn() +
+                androidx.compose.animation.slideInVertically { it / 2 },
+            exit = androidx.compose.animation.fadeOut(),
+        ) {
+            val n = stopNote ?: return@AnimatedVisibility
+            LaunchedEffect(n) {
+                kotlinx.coroutines.delay(6000)
+                stopNote = null
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .shadow(8.dp, RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp), clip = false)
+                    .clip(RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp))
+                    .background(rc.inkDark.copy(alpha = 0.97f))
+                    .padding(horizontal = 13.dp, vertical = 11.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                Text(
+                    stringResource(
+                        R.string.stop_set_at,
+                        "${SurahNames.of(ctx, n.first)} ${n.second.localized(ar)}",
+                    ),
+                    style = RafiqType.caption,
+                    color = rc.bg,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    stringResource(R.string.stop_undo),
+                    style = RafiqType.label,
+                    color = rc.goldLight,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(9.dp))
+                        .clickable {
+                            scope.launch { positionVm.restoreStop(stopUndo) }
+                            stopNote = null
+                        }
+                        .padding(horizontal = 9.dp, vertical = 5.dp),
+                )
+            }
+        }
+
         PageRail(
             visible = toolsOn,
             page = pager.currentPage + 1,
@@ -442,6 +553,13 @@ fun MushafScreen(
                 val s = v.substringBefore(':').toIntOrNull() ?: 1
                 val a = v.substringAfter(':').toIntOrNull() ?: 1
                 navController.navigate(RafiqRoute.Tasmee.of(s, a))
+            },
+            onStopSet = { was ->
+                stopUndo = was
+                selected?.let { v ->
+                    stopNote = (v.substringBefore(':').toIntOrNull() ?: 1) to
+                        (v.substringAfter(':').toIntOrNull() ?: 1)
+                }
             },
             onDismiss = { selected = null },
         )
@@ -997,6 +1115,63 @@ private fun SettingsSheet(
                     }
                 }
             }
+            /*  ولماذا لا يُلوَّن التجويدُ في الصفحة المصحفية.
+             *
+             *  تلك الصفحةُ تُرسم **رموزاً من خطّ المصحف، كلُّ رمزٍ كلمة**،
+             *  وأحكامُ التجويد في `tajweed.txt` **مدَياتُ حروف**
+             *  (`7,8,15` = من الحرف السابع إلى الثامن). فلا سبيلَ لمطابقة
+             *  حرفٍ برمزٍ يساوي كلمة.
+             *
+             *  والحلُّ السهلُ مرفوض: أن تُلوَّن الكلمةُ كلُّها بحكمٍ يقع على
+             *  حرفين منها. ذاك يقول للقارئ إنّ الحكمَ على الكلمة وهو على
+             *  حرفٍ فيها — وهو **كذبٌ في تعليم تجويد**.
+             *
+             *  فيُقال له في موضعه: كان السببُ مكتوباً سطرَ وصفٍ تحت الزرّ،
+             *  وهو لا يُقرأ وقتَ الحاجة. وهنا تنبيهٌ يظهر **حين يقع
+             *  الشرطُ وحدَه**، ومعه الطريقُ بلمسة. */
+            if (tajweed && mode.needsFonts) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 11.dp)
+                        .clip(RoundedCornerShape(12.dp, 12.dp, 12.dp, 18.dp))
+                        .background(rc.gold.copy(alpha = 0.09f))
+                        .border(
+                            1.dp,
+                            rc.gold.copy(alpha = 0.30f),
+                            RoundedCornerShape(12.dp, 12.dp, 12.dp, 18.dp),
+                        )
+                        .padding(horizontal = 11.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.tajweed_not_here),
+                        style = RafiqType.caption,
+                        color = rc.gold,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(9.dp, 9.dp, 9.dp, 14.dp))
+                            .background(rc.emeraldFill)
+                            .clickable {
+                                //  يُبدّل ويُغلق الورقة — فيرى الألوانَ في الحال
+                                //  لا بعد أن يبحث عن زرّ الإغلاق.
+                                onMode(MushafMode.PAGE)
+                                onDismiss()
+                            }
+                            .padding(horizontal = 11.dp, vertical = 8.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.tajweed_switch),
+                            style = RafiqType.caption,
+                            color = rc.onEmeraldFill,
+                        )
+                    }
+                }
+            }
+
             Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
             Spacer(Modifier.height(14.dp))
 

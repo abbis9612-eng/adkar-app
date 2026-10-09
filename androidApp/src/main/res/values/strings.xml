@@ -992,4 +992,9 @@
 
     <!-- ورقة الآية -->
     <string name="ayah_tafsir_name">التفسير الميسَّر</string>
+    <string name="tajweed_not_here">أنت في «الصفحة المصحفية» — وهي تُرسم رموزاً لا حروفاً، فلا تُلوَّن.</string>
+    <string name="tajweed_switch">بدّل إلى صفحة مضبوطة</string>
+    <string name="stop_set_at">وقفتُ هنا — %1$s. تجده في العلامات.</string>
+    <string name="stop_undo">تراجع</string>
+    <string name="stop_resume">تابعْ من %1$s</string>
 </resources>

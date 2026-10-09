@@ -42,6 +42,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.layout.onGloballyPositioned
 
 /* ══════════════════════════════════════════════════════════════
    الصفحةُ المصحفية
@@ -116,6 +121,8 @@ fun MushafPageView(
     accent: Color,
     marker: Color,
     selectedVerse: String?,
+    /** موضعُ الوقوف — يُرسم شريطاً ذهبيّاً في هامش سطره. */
+    stopVerse: String?,
     /** نقرةٌ قصيرة — تُظهر الأدواتِ وتُخفيها. */
     onTap: () -> Unit,
     /** ضغطةٌ مطوّلة — تفتح الآية. */
@@ -147,7 +154,19 @@ fun MushafPageView(
         PaddingValues(start = MARGIN_OUTER, end = MARGIN_INNER)
     }
 
-    Box(modifier.fillMaxSize()) {
+    /*  الفاصلُ يُرسم في **الهامش** لا بين الحروف.
+     *
+     *  والأسطرُ داخلَ حشوةِ الهامش، فلا تستطيع واحدةٌ منها أن ترسم
+     *  خارجَها. فيُقاس موضعُ السطر الذي يحمل الوقوفَ ويُرفع إلى هنا،
+     *  ويُرسم الشريطُ في الهامش بإزائه. */
+    var stopY by remember(page, stopVerse) { mutableStateOf<Float?>(null) }
+    var boxY by remember { mutableStateOf(0f) }
+
+    Box(
+        modifier
+            .fillMaxSize()
+            .onGloballyPositioned { boxY = it.positionInWindow().y },
+    ) {
         BoxWithConstraints(Modifier.fillMaxSize().padding(pad)) {
             val availW = maxWidth.value
             val availH = maxHeight.value
@@ -184,6 +203,10 @@ fun MushafPageView(
                         accent = accent,
                         marker = marker,
                         selectedVerse = selectedVerse,
+                        carriesStop = stopVerse != null &&
+                            (starts[li] until starts[li] + row.size)
+                                .any { g -> page.v.getOrNull(g) == stopVerse },
+                        onStopY = { stopY = it - boxY },
                         onTap = onTap,
                         onVerseClick = onVerseClick,
                     )
@@ -196,6 +219,31 @@ fun MushafPageView(
             odd = odd,
             modifier = Modifier.align(if (odd) Alignment.CenterStart else Alignment.CenterEnd),
         )
+
+        /*  شريطُ الفاصل — في الهامش الخارجيّ، لا الداخليّ.
+         *
+         *  الداخليُّ هو كعبُ المصحف، والفاصلُ في الورق يُدَسّ من الطرف
+         *  المفتوح. فهو حيث [MARGIN_OUTER]، وذيلُه مشقوقٌ كالفواصل. */
+        stopY?.let { y ->
+            Box(
+                Modifier
+                    .align(if (odd) Alignment.TopEnd else Alignment.TopStart)
+                    .offset { IntOffset(0, (y + 2.dp.toPx()).toInt()) }
+                    .padding(horizontal = 5.dp)
+                    .size(width = 11.dp, height = 26.dp)
+                    .drawBehind {
+                        val w = size.width
+                        val h = size.height
+                        drawPath(
+                            Path().apply {
+                                moveTo(0f, 0f); lineTo(w, 0f); lineTo(w, h)
+                                lineTo(w / 2f, h * 0.78f); lineTo(0f, h); close()
+                            },
+                            marker.copy(alpha = 0.85f),
+                        )
+                    },
+            )
+        }
     }
 }
 
@@ -213,6 +261,8 @@ private fun MushafLine(
     accent: Color,
     marker: Color,
     selectedVerse: String?,
+    carriesStop: Boolean,
+    onStopY: (Float) -> Unit,
     onTap: () -> Unit,
     onVerseClick: (String) -> Unit,
 ) {
@@ -287,6 +337,7 @@ private fun MushafLine(
         onTextLayout = { layout = it },
         modifier = Modifier
             .fillMaxWidth()
+            .onGloballyPositioned { if (carriesStop) onStopY(it.positionInWindow().y) }
             .drawBehind {
                 val l = layout ?: return@drawBehind
                 val r = picked ?: return@drawBehind
