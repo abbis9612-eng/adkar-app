@@ -70,6 +70,17 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.style.TextOverflow
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.rotate
+import app.rafiqaldhikr.ui.theme.tapSpec
 
 /* ══════════════════════════════════════════════════════════════
    ورقةُ الآية
@@ -151,6 +162,7 @@ fun AyahSheet(
     val stopped = stringResource(R.string.ayah_stop_here)
 
     val paper = if (night) Color(0xFF1A1712) else rc.bg
+    val ar = LocalArabicNumerals.current
     val ink = if (night) Color(0xFFE8E1CF) else rc.ink
     val hair = ink.copy(alpha = 0.16f)
 
@@ -193,6 +205,11 @@ fun AyahSheet(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ) { /* تبتلع النقرَ فلا يصل إلى الحاجب */ }
+                    //  سقفٌ على ارتفاعها وتمريرٌ **واحد**: كان التفسيرُ
+                    //  يتمرّر داخلَ ورقةٍ لا تتمرّر، فيقع تمريرٌ في تمرير
+                    //  ويخرج ما تحته عن الشاشة بلا سبيلٍ إليه.
+                    .heightIn(max = 620.dp)
+                    .verticalScroll(rememberScrollState())
                     .navigationBarsPadding()
                     .padding(horizontal = 18.dp)
                     .padding(top = 12.dp, bottom = 18.dp),
@@ -205,35 +222,30 @@ fun AyahSheet(
                         .clip(RoundedCornerShape(2.dp))
                         .background(hair),
                 )
-                Spacer(Modifier.height(13.dp))
+                Spacer(Modifier.height(15.dp))
 
-                /*  سطرُ التنقّل: ⌃ «البقرة · الآية ١٣» ⌄
+                /*  ═══ رأسُ الورقة: وردةُ الآية واسمُ السورة ═══
                  *
-                 *  قراءةُ تفسيرِ صفحةٍ كاملةٍ كانت تكلّف إحدى وعشرين ضغطة
-                 *  (إغلاقٌ وبحثٌ وضغطٌ مطوّلٌ لكلّ آية). وصارت سبعاً. */
+                 *  رقمُ الآية في **وردةٍ** لا في سطرِ نصّ. وهي علامةُ آخرِ
+                 *  الآية في المصحف المطبوع نفسِها — فالقارئُ يعرفها قبل
+                 *  أن يُشرح له، ولا تحتاج عنواناً يقول «الآية». */
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(11.dp),
                 ) {
-                    StepDot(RIcon.ChevronRight, prev != null, ink) {
-                        prev?.let { onVerse("${it.surah}:${it.ayahNumber}") }
-                    }
+                    AyahRosette(ayah, rc.gold, ink)
+                    //  اسمُ السورة وحدَه: رقمُ الصفحة مكتوبٌ على الصفحة
+                    //  التي تحت الورقة، وإعادتُه هنا سطرٌ يُقرأ ولا يفيد.
                     Text(
-                        stringResource(
-                            R.string.ayah_label,
-                            SurahNames.of(ctx, surah),
-                            ayah.toString(),
-                        ),
-                        fontFamily = NaskhFamily,
-                        fontSize = 13.sp,
-                        color = ink.copy(alpha = 0.55f),
+                        SurahNames.of(ctx, surah),
+                        style = RafiqType.titleM,
+                        color = ink,
+                        modifier = Modifier.weight(1f),
                     )
-                    StepDot(RIcon.ChevronLeft, next != null, ink) {
-                        next?.let { onVerse("${it.surah}:${it.ayahNumber}") }
-                    }
                 }
-                Spacer(Modifier.height(9.dp))
+
+                Spacer(Modifier.height(14.dp))
 
                 Text(
                     text.ifBlank { if (loading) "…" else "" },
@@ -244,37 +256,104 @@ fun AyahSheet(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Spacer(Modifier.height(13.dp))
 
-                val tf = tafsir
-                if (!tf.isNullOrBlank()) {
-                    Text(
-                        tf,
-                        fontFamily = NaskhFamily,
-                        fontSize = 14.sp,
-                        lineHeight = 27.sp,
-                        color = ink.copy(alpha = 0.82f),
-                        modifier = Modifier
-                            .heightIn(max = 190.dp)
-                            .verticalScroll(rememberScrollState()),
-                    )
-                    Spacer(Modifier.height(15.dp))
+                /*  ═══ القسمُ الأوّل: ما تصنع بها ═══
+                 *
+                 *  ستُّ خاناتٍ في صفّين لا ستٌّ في صفّ: الخانةُ تتّسع
+                 *  فيُكتب الاسمُ كاملاً بخطّ الواجهة لا بأصغرِ ما عندنا.
+                 *
+                 *  ولونُ الحدّ يحمل معنًى لا زينة:
+                 *    · حدٌّ رماديّ  → فعلٌ يقع هنا وتبقى في الورقة
+                 *    · ممتلئٌ زمرديّ → حالةٌ قائمة (الآيةُ معلَّمة)
+                 *    · حدٌّ ذهبيّ   → يخرج بك من الورقة إلى شاشة (التسميع)
+                 *
+                 *  فالتسميعُ كان زرّاً بعرض الورقة لأنّه «يفتح شاشة»،
+                 *  والفرقُ صحيحٌ لكنّه لا يحتاج شكلاً مختلفاً — يحتاج
+                 *  لوناً. والشبكةُ تبقى شبكةً بلا يتيمٍ في آخرها. */
+                SectionRule(stringResource(R.string.ayah_sec_do), hair, ink)
+
+                Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    SheetAction(
+                        label = stringResource(
+                            if (marked) R.string.ayah_bookmarked else R.string.ayah_mark_short,
+                        ),
+                        icon = if (marked) RIcon.Check else RIcon.Bookmark,
+                        tone = if (marked) ActionTone.On else ActionTone.Here,
+                        ink = ink,
+                        hair = hair,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        scope.launch { marked = vm.toggleMark(surah, ayah, page) }
+                    }
+                    SheetAction(
+                        stringResource(R.string.ayah_stop), RIcon.Pin, ActionTone.Here,
+                        ink, hair, Modifier.weight(1f),
+                    ) {
+                        scope.launch {
+                            vm.setStop(surah, ayah, page)
+                            Toast.makeText(ctx, stopped, Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        }
+                    }
+                    SheetAction(
+                        stringResource(R.string.action_copy), RIcon.Copy, ActionTone.Here,
+                        ink, hair, Modifier.weight(1f),
+                    ) {
+                        clip.setText(AnnotatedString(shareBody(text, tafsir, surah, ayah, ctx)))
+                    }
+                }
+                Spacer(Modifier.height(9.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    SheetAction(
+                        stringResource(R.string.action_share), RIcon.Share, ActionTone.Here,
+                        ink, hair, Modifier.weight(1f),
+                    ) { sharing = true }
+                    SheetAction(
+                        stringResource(R.string.ayah_note), RIcon.Edit, ActionTone.Here,
+                        ink, hair, Modifier.weight(1f),
+                    ) { draft = note.orEmpty(); editing = true }
+                    SheetAction(
+                        stringResource(R.string.action_tasmee_short), RIcon.Mic, ActionTone.Away,
+                        ink, hair, Modifier.weight(1f),
+                    ) {
+                        onDismiss()
+                        onTasmee("$surah:$ayah")
+                    }
                 }
 
-                /*  الملاحظةُ المحفوظة تُعرض فوق الأفعال لا تحتها:
-                 *  هي **كلامُ المستخدم** لا فعلاً يفعله، وموضعُها مع
-                 *  النصّ والتفسير لا مع الأزرار. */
+                /*  ═══ القسمُ الثاني: تدبُّرها ═══
+                 *
+                 *  التفسيرُ كان جداراً مفتوحاً دائماً بارتفاعٍ أقصاه ١٩٠
+                 *  نقطةً **وتمريرٌ داخلَه**: فتُدفَع الأفعالُ خارجَ الشاشة،
+                 *  ويقع تمريرٌ داخل تمرير. وأكثرُ من يفتح الورقةَ يريد
+                 *  فعلاً سريعاً لا قراءةَ تفسير.
+                 *
+                 *  فصار بطاقةً تُفتح: سطران يُقرآن بلا لمسة، والبقيّةُ
+                 *  بلمسة. ولا يُقتطع النصُّ بثلاث نقاطٍ عند الفتح — يُعرض
+                 *  كاملاً، والورقةُ كلُّها تتمرّر مرّةً واحدة. */
+                val tf2 = tafsir
                 val n = note
+                if (!tf2.isNullOrBlank() || !n.isNullOrBlank() || editing) {
+                    SectionRule(stringResource(R.string.ayah_sec_ponder), hair, ink)
+                }
+
+                if (!tf2.isNullOrBlank()) {
+                    TafsirCard(tf2, ink, hair, rc.gold)
+                    Spacer(Modifier.height(9.dp))
+                }
+
+                /*  الملاحظةُ كلامُ صاحبِ المصحف لا كلامَ العلماء — فلها
+                 *  خيطٌ ذهبيٌّ على حافّتها يفصل صوتَه عن صوتهم. */
                 if (!editing && !n.isNullOrBlank()) {
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(11.dp))
+                            .clip(RoundedCornerShape(13.dp, 13.dp, 13.dp, 20.dp))
                             .background(ink.copy(alpha = 0.05f))
                             .clickable { editing = true; draft = n }
-                            .padding(horizontal = 11.dp, vertical = 9.dp)
+                            .padding(horizontal = 12.dp, vertical = 11.dp)
                             .height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(9.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         Box(
                             Modifier
@@ -287,12 +366,12 @@ fun AyahSheet(
                         Text(
                             n,
                             fontFamily = NaskhFamily,
-                            fontSize = 13.sp,
-                            lineHeight = 24.sp,
+                            fontSize = 14.sp,
+                            lineHeight = 26.sp,
                             color = ink.copy(alpha = 0.88f),
                         )
                     }
-                    Spacer(Modifier.height(13.dp))
+                    Spacer(Modifier.height(9.dp))
                 }
 
                 if (editing) {
@@ -302,17 +381,11 @@ fun AyahSheet(
                         placeholder = {
                             Text(
                                 stringResource(R.string.ayah_note_hint),
-                                fontFamily = NaskhFamily,
-                                fontSize = 13.sp,
-                                color = ink.copy(alpha = 0.45f),
+                                style = RafiqType.bodyS,
+                                color = ink.copy(alpha = 0.40f),
                             )
                         },
-                        textStyle = LocalTextStyle.current.copy(
-                            fontFamily = NaskhFamily,
-                            fontSize = 14.sp,
-                            lineHeight = 26.sp,
-                            color = ink,
-                        ),
+                        textStyle = RafiqType.bodyS.copy(color = ink),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = rc.gold,
                             unfocusedBorderColor = hair,
@@ -326,9 +399,9 @@ fun AyahSheet(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Spacer(Modifier.height(9.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                         SheetAction(
-                            stringResource(R.string.action_save), RIcon.Check, true,
+                            stringResource(R.string.action_save), RIcon.Check, ActionTone.On,
                             ink, hair, Modifier.weight(1f),
                         ) {
                             scope.launch {
@@ -338,96 +411,45 @@ fun AyahSheet(
                             }
                         }
                         SheetAction(
-                            stringResource(R.string.action_close), RIcon.Close, false,
+                            stringResource(R.string.action_close), RIcon.Close, ActionTone.Here,
                             ink, hair, Modifier.weight(1f),
                         ) { draft = note.orEmpty(); editing = false }
                     }
-                    Spacer(Modifier.height(13.dp))
+                    Spacer(Modifier.height(9.dp))
                 }
 
-                /*  خمسةٌ بالاسم كاملاً — لا «نس» و«ملا» و«مش».
+                /*  ═══ التنقّلُ أسفلَ الورقة ═══
                  *
-                 *  كانت الخمسةُ صفّاً أفقيّاً: رمزٌ ثمّ اسمٌ بجانبه. وخمسةُ
-                 *  أعمدةٍ على عرض هاتفٍ تترك لكلّ اسمٍ نحوَ خمسٍ وعشرين
-                 *  نقطة — فيُقَصّ «نسخ» إلى «نس» و«ملاحظة» إلى «ملا»
-                 *  و«مشاركة» إلى «مش». و`maxLines = 1` بلا `overflow`
-                 *  تقطع في منتصف الكلمة بلا نقاطٍ تدلّ على القطع، فيقرأ
-                 *  حروفاً لا معنى لها ولا يعرف ما الزرّ.
+                 *  كان في رأسها، وهو أبعدُ ما يكون عن الإبهام على هاتفٍ
+                 *  يُمسك بيدٍ واحدة. وقراءةُ تفسير صفحةٍ كاملةٍ تمرُّ على
+                 *  هذا الزرّ خمسَ عشرةَ مرّة — فموضعُه ليس تفصيلاً.
                  *
-                 *  فالرمزُ **فوق** الاسم: العرضُ كلُّه للاسم، والخمسةُ
-                 *  تتساوى، ولا يُقَصّ حرف. */
-                Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    SheetAction(
-                        label = stringResource(
-                            if (marked) R.string.ayah_bookmarked else R.string.ayah_mark_short,
-                        ),
-                        icon = if (marked) RIcon.Check else RIcon.Bookmark,
-                        filled = marked,
-                        ink = ink,
-                        hair = hair,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        scope.launch { marked = vm.toggleMark(surah, ayah, page) }
-                    }
-                    SheetAction(
-                        stringResource(R.string.action_copy), RIcon.Copy, false,
-                        ink, hair, Modifier.weight(1f),
-                    ) {
-                        clip.setText(AnnotatedString(shareBody(text, tf, surah, ayah, ctx)))
-                    }
-                    SheetAction(
-                        stringResource(R.string.ayah_note), RIcon.Edit, false,
-                        ink, hair, Modifier.weight(1f),
-                    ) { draft = note.orEmpty(); editing = true }
-                    /*  «فاصل» ≠ «علامة».
-                     *
-                     *  العلامةُ تبقى، والفاصلُ موضعُ وقوفٍ **واحدٌ** يتبدّل
-                     *  كلَّ يوم. وكانا زرّاً واحداً، فتمتلئ قائمةُ العلامات
-                     *  بمواضعَ قديمةٍ لا معنى لها فتضيع المقصودةُ بينها. */
-                    SheetAction(
-                        stringResource(R.string.ayah_stop), RIcon.Pin, false,
-                        ink, hair, Modifier.weight(1f),
-                    ) {
-                        scope.launch {
-                            vm.setStop(surah, ayah, page)
-                            Toast.makeText(ctx, stopped, Toast.LENGTH_SHORT).show()
-                            onDismiss()
-                        }
-                    }
-                    SheetAction(
-                        stringResource(R.string.action_share), RIcon.Share, false,
-                        ink, hair, Modifier.weight(1f),
-                    ) { sharing = true }
-                }
-
-                /*  التسميعُ في صفٍّ لنفسه لا سادساً في الصفّ.
-                 *
-                 *  فالخمسةُ أفعالٌ صغيرةٌ على الآية (علامةٌ · نسخٌ · حاشيةٌ
-                 *  · وقوفٌ · مشاركة)، والتسميعُ **عملٌ يفتح شاشة**. وسادسٌ
-                 *  في الصفّ يُضيّق الخمسةَ ويُخفي الفرق. */
-                Spacer(Modifier.height(9.dp))
-                Box(
+                 *  والمعطَّلُ يبقى ظاهراً عند طرف الصفحة: اختفاؤه كان
+                 *  يُزحزح العنوانَ مع كلّ آية فيرقص السطر. */
+                Spacer(Modifier.height(5.dp))
+                Row(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(13.dp, 13.dp, 13.dp, 22.dp))
-                        .background(ink.copy(alpha = 0.06f))
-                        .clickable {
-                            onDismiss()
-                            onTasmee("$surah:$ayah")
-                        }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center,
+                        .clip(RoundedCornerShape(15.dp, 15.dp, 15.dp, 24.dp))
+                        .background(ink.copy(alpha = 0.045f))
+                        .padding(horizontal = 6.dp, vertical = 5.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RafiqIcon(RIcon.Mic, 18.dp, ink.copy(alpha = 0.78f))
-                        Text(
-                            stringResource(R.string.action_tasmee),
-                            style = RafiqType.label,
-                            color = ink.copy(alpha = 0.9f),
-                        )
+                    StepDot(RIcon.ChevronRight, prev != null, ink) {
+                        prev?.let { onVerse("${it.surah}:${it.ayahNumber}") }
+                    }
+                    Text(
+                        stringResource(
+                            R.string.ayah_label,
+                            SurahNames.of(ctx, surah),
+                            ayah.localized(ar),
+                        ),
+                        style = RafiqType.label,
+                        color = ink.copy(alpha = 0.72f),
+                    )
+                    StepDot(RIcon.ChevronLeft, next != null, ink) {
+                        next?.let { onVerse("${it.surah}:${it.ayahNumber}") }
                     }
                 }
 
@@ -435,18 +457,18 @@ fun AyahSheet(
                     Spacer(Modifier.height(9.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         SheetAction(
-                            stringResource(R.string.share_as_text), RIcon.Copy, false,
+                            stringResource(R.string.share_as_text), RIcon.Copy, ActionTone.Here,
                             ink, hair, Modifier.weight(1f),
                         ) {
                             sharing = false
                             val i = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, shareBody(text, tf, surah, ayah, ctx))
+                                putExtra(Intent.EXTRA_TEXT, shareBody(text, tafsir, surah, ayah, ctx))
                             }
                             ctx.startActivity(Intent.createChooser(i, shareTitle))
                         }
                         SheetAction(
-                            stringResource(R.string.share_as_image), RIcon.Share, true,
+                            stringResource(R.string.share_as_image), RIcon.Share, ActionTone.On,
                             ink, hair, Modifier.weight(1f),
                         ) {
                             sharing = false
@@ -510,38 +532,183 @@ private fun shareBody(ayah: String, tafsir: String?, s: Int, a: Int, ctx: androi
     }
 }
 
+/**
+ * نبرةُ الخانة — لونُ حدِّها يقول ماذا تفعل، لا يزيّنها.
+ *
+ * [Here] فعلٌ يقع في الورقة وتبقى فيها · [On] حالةٌ قائمةٌ الآن ·
+ * [Away] يخرج بك من الورقة إلى شاشةٍ أخرى.
+ */
+private enum class ActionTone { Here, On, Away }
+
+/** خانةُ فعلٍ في الشبكة — رمزٌ فوق اسمٍ كامل. */
 @Composable
 private fun SheetAction(
     label: String,
     icon: RIcon,
-    filled: Boolean,
+    tone: ActionTone,
     ink: Color,
     hair: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    val shape = RoundedCornerShape(13.dp, 13.dp, 13.dp, 20.dp)
+    val shape = RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp)
+    val border = when (tone) {
+        ActionTone.Here -> hair
+        ActionTone.On -> rc.emeraldFill
+        ActionTone.Away -> rc.gold.copy(alpha = 0.45f)
+    }
+    val content = when (tone) {
+        ActionTone.Here -> ink
+        ActionTone.On -> rc.onEmeraldFill
+        ActionTone.Away -> rc.gold
+    }
     Column(
         modifier
-            .heightIn(min = 62.dp)
+            .heightIn(min = 74.dp)
             //  توقيعُ الزاوية الواحدة الأوسع — كسائر أسطح التطبيق.
             .clip(shape)
-            .background(if (filled) rc.emeraldFill else Color.Transparent)
-            .border(1.dp, if (filled) rc.emeraldFill else hair, shape)
+            .background(if (tone == ActionTone.On) rc.emeraldFill else Color.Transparent)
+            .border(1.dp, border, shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 3.dp, vertical = 9.dp),
+            .padding(horizontal = 4.dp, vertical = 11.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        RafiqIcon(icon, 17.dp, if (filled) rc.onEmeraldFill else ink)
-        Spacer(Modifier.height(6.dp))
+        RafiqIcon(icon, 19.dp, content)
+        Spacer(Modifier.height(7.dp))
         Text(
             label,
-            style = RafiqType.metaS,
-            color = if (filled) rc.onEmeraldFill else ink.copy(alpha = 0.85f),
+            style = RafiqType.label,
+            color = if (tone == ActionTone.Here) ink.copy(alpha = 0.88f) else content,
             maxLines = 1,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+/**
+ * وردةُ الآية — علامةُ آخرِ الآية في المصحف المطبوع، تحمل رقمَها.
+ *
+ * ═══ ولماذا هي وليست رقماً في سطر ═══
+ *
+ * «الآية ٢١» سطرُ بياناتٍ يصلح لأيّ تطبيق. والوردةُ **من المصحف نفسِه**:
+ * القارئُ يراها آخرَ كلّ آيةٍ على الورقة التي تحته الآن، فيعرف ما تعنيه
+ * قبل أن يُشرح له، ويعرف أنّ هذه الورقةَ تتكلّم عن آيةٍ واحدةٍ بعينها.
+ *
+ * وهي الجرأةُ الوحيدةُ في هذه الشاشة — وما عداها حدودٌ رفيعةٌ ومسافاتٌ
+ * منضبطة.
+ */
+@Composable
+private fun AyahRosette(n: Int, gold: Color, ink: Color) {
+    val ar = LocalArabicNumerals.current
+    Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(46.dp)) {
+            val w = size.width
+            val c = Offset(w / 2f, w / 2f)
+            //  اثنتا عشرة ورقةً حول القرص — عددُ ما يُرسم في المصاحف
+            //  المطبوعة، ونصفُ القطر يتناوب فتُقرأ وردةً لا تِرساً.
+            for (i in 0 until 12) {
+                val a = (i * 30f) * PI.toFloat() / 180f
+                val r = if (i % 2 == 0) w * 0.47f else w * 0.41f
+                drawCircle(
+                    gold.copy(alpha = if (i % 2 == 0) 0.55f else 0.30f),
+                    radius = w * 0.045f,
+                    center = Offset(c.x + r * cos(a), c.y + r * sin(a)),
+                )
+            }
+            drawCircle(gold.copy(alpha = 0.55f), w * 0.34f, c, style = Stroke(1.1f))
+            drawCircle(gold.copy(alpha = 0.07f), w * 0.34f, c)
+        }
+        Text(
+            n.localized(ar),
+            style = RafiqType.label,
+            color = ink.copy(alpha = 0.80f),
+        )
+    }
+}
+
+/**
+ * فاصلٌ يحمل اسمَ قسمه — خطٌّ ينقطع عند الاسم ويُستأنف بعده.
+ *
+ * والاسمُ بالخطّ الكوفيّ: قاعدةُ التطبيق أنّ الكوفيَّ لما **ليس كلاماً**
+ * — وسومُ الأقسام وأسماءُ الحقول — فلا يلتبس بصوتٍ يُقرأ.
+ */
+@Composable
+private fun SectionRule(label: String, hair: Color, ink: Color) {
+    Spacer(Modifier.height(18.dp))
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(label, style = RafiqType.meta, color = ink.copy(alpha = 0.55f))
+        Box(Modifier.weight(1f).height(1.dp).background(hair))
+    }
+    Spacer(Modifier.height(11.dp))
+}
+
+/**
+ * بطاقةُ التفسير — سطران بلا لمسة، وبقيّتُه بلمسة.
+ *
+ * ولا يُقتطع النصُّ عند الفتح: يُعرض كاملاً وتتمرّر الورقةُ كلُّها.
+ * والاقتطاعُ في الحال المطويّة وحدَها، ومعه ما يقول إنّ وراءه بقيّة.
+ */
+@Composable
+private fun TafsirCard(body: String, ink: Color, hair: Color, gold: Color) {
+    var open by remember(body) { mutableStateOf(false) }
+    val shape = RoundedCornerShape(14.dp, 14.dp, 14.dp, 22.dp)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .border(1.dp, hair, shape)
+            .clickable { open = !open }
+            .padding(horizontal = 13.dp, vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RafiqIcon(RIcon.Book, 16.dp, gold)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.ayah_tafsir_name),
+                style = RafiqType.label,
+                color = ink.copy(alpha = 0.9f),
+                modifier = Modifier.weight(1f),
+            )
+            /*  سهمٌ يدور لا سهمان يتبادلان.
+             *
+             *  `ChevronLeft/Right` تدلّ على **جهة** لا على فتحٍ وطيّ —
+             *  وفي واجهةٍ من اليمين إلى اليسار تصير أكذبَ: اليسارُ فيها
+             *  «إلى الأمام». فالسهمُ واحدٌ يُدار ربعَ دورة، وهي الحركةُ
+             *  التي يعرفها كلُّ قارئٍ لمعنى «افتح».
+             *
+             *  و`tapSpec` ترجع `snap()` عند تقليل الحركة. */
+            val turn by animateFloatAsState(
+                if (open) 90f else -90f,
+                tapSpec(),
+                label = "tafsirTurn",
+            )
+            Box(Modifier.rotate(turn)) {
+                RafiqIcon(RIcon.ChevronLeft, 15.dp, ink.copy(alpha = 0.40f))
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            body,
+            fontFamily = NaskhFamily,
+            fontSize = 14.sp,
+            lineHeight = 27.sp,
+            color = ink.copy(alpha = 0.82f),
+            maxLines = if (open) Int.MAX_VALUE else 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (!open) {
+            Spacer(Modifier.height(7.dp))
+            Text(
+                stringResource(R.string.ayah_tafsir_more),
+                style = RafiqType.caption,
+                color = gold,
+            )
+        }
     }
 }

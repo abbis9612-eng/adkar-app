@@ -989,4 +989,11 @@
     <string name="settings_replay_tour">أعد الجولة التعريفيّة</string>
     <string name="settings_replay_tour_sub">تُعرَض الجولةُ والتلميحاتُ من جديد. لا يُحذَف شيءٌ من بياناتك.</string>
     <string name="ayah_mark_short">علامة</string>
+
+    <!-- ورقة الآية -->
+    <string name="ayah_sec_do">ما تصنع بها</string>
+    <string name="ayah_sec_ponder">تدبُّرها</string>
+    <string name="ayah_tafsir_name">التفسير الميسَّر</string>
+    <string name="ayah_tafsir_more">اقرأه كاملاً</string>
+    <string name="action_tasmee_short">تسميع</string>
 </resources>
