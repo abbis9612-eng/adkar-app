@@ -966,9 +966,5 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="ayah_mark_short">Bookmark</string>
 
     <!-- Ayah sheet -->
-    <string name="ayah_sec_do">What you do with it</string>
-    <string name="ayah_sec_ponder">Reflect on it</string>
     <string name="ayah_tafsir_name">Al-Tafsir al-Muyassar</string>
-    <string name="ayah_tafsir_more">Read it in full</string>
-    <string name="action_tasmee_short">Recite</string>
 </resources>
