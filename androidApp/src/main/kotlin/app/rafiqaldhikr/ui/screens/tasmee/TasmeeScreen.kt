@@ -58,6 +58,8 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
 import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.theme.QuranFamily
+import androidx.compose.ui.unit.sp
 
 /*
  * شاشةُ التسميع
@@ -196,9 +198,25 @@ private fun AyahBody(ayah: String, marks: List<WordMark>?) {
             }
         }
     }
+    /*  بخطّ المصحف لا بخطّ الحديث.
+     *
+     *  كان `RafiqType.ayah` — وهو أميريٌّ بنسبة ١٫٦٢. وفي التطبيق خطّان:
+     *  `QuranFamily` (شهرزاد) للقرآن، و`AmiriFamily` للحديث والأثر.
+     *  والمصحفُ وورقةُ الآية يستعملان الأوّل، وهذه الشاشةُ وحدَها كانت
+     *  تستعمل الثاني — وهي تعرض **نصّاً عثمانيّاً** مثلَهما.
+     *
+     *  وأميري Regular ليس خطّاً قرآنيّاً (لأميري نسخةٌ قرآنيّةٌ منفصلة):
+     *  جدولُ محارفه يغطّي الـ٦٩ محرفاً المستعملةَ في المصحف كاملةً —
+     *  فحصتُه — لكنّ **تركيبَ العلامات** فيه ليس للعثمانيّ، فتسقط
+     *  علاماتٌ عند تراكبها.
+     *
+     *  والنسبةُ ١٫٦٢ تقصّ ما يعلو ويسفل من العلامات. فصارت ٢٥ على ٤٨
+     *  كورقة الآية بالضبط — نصٌّ واحدٌ يُرسم رسماً واحداً في الشاشتين. */
     Text(
         text,
-        style = RafiqType.ayah,
+        fontFamily = QuranFamily,
+        fontSize = 25.sp,
+        lineHeight = 48.sp,
         color = rc.ink,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth(),
