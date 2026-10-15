@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.font.FontWeight
@@ -25,12 +24,6 @@ import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import kotlin.math.*
-import app.rafiqaldhikr.ui.components.IcoMoon
-import app.rafiqaldhikr.ui.components.OrnamentMedallion
-import app.rafiqaldhikr.ui.components.IcoMosque
-import app.rafiqaldhikr.ui.components.IcoStar
-import app.rafiqaldhikr.ui.components.IcoSun
-import app.rafiqaldhikr.ui.components.IcoSunset
 import app.rafiqaldhikr.ui.components.RafiqBackButton
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
@@ -40,6 +33,37 @@ import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
 import app.rafiqaldhikr.ui.components.MisbahaIcon
+import app.rafiqaldhikr.ui.components.DhikrTile
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import app.rafiqaldhikr.ui.utils.localized
+import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  التوقيع: بابُ كلِّ ذكرٍ بَلاطةٌ لونُها سماءُ وقتِه، والحاضرُ منها يتّسع
+ *
+ *  كانت الأبوابُ خمسةَ صفوفٍ متطابقة، في كلٍّ منها دائرةٌ خضراءُ واحدةٌ
+ *  بعينها ([CategoryBadge] بتدرُّجٍ مكتوبٍ في الكود) ورسمٌ صغيرٌ داخلها.
+ *  فالشاشةُ تُقرأ صفّاً مكرّراً خمسَ مرّات، ولا يُعرف بابٌ من بابٍ إلّا
+ *  بقراءة اسمه — والأيقونةُ لم تكن تقول شيئاً.
+ *
+ *  والآن اللونُ معلومة: تدرُّجُ كلِّ بَلاطةٍ من `skyColors` — سلّمِ السماء
+ *  نفسِه الذي تعلو به الرئيسيةُ وتُمسي. فبابُ الصباح سماءُ صباحٍ وبابُ
+ *  النوم سماءُ ليل، تُعرَف قبل أن يُقرأ حرف.
+ *
+ *  والفعلُ الأوّلُ صُمِّم قبل الزينة: بابُ الساعةِ يتّسع فيصير بطاقةً
+ *  تحمل أوّلَ ذكرِه ومصدرَه وزرَّه، فيُفتَح بلمسةٍ واحدةٍ لا بثلاث.
+ *  وبقيّةُ الأبواب شبكةٌ هادئةٌ تحته.
+ *
+ *  وشريطُ المواظبة فوقهما ليس زينةً: هو ما يُجمع عليه قُرّاءُ هذه
+ *  الفئة — يرون السلسلةَ فلا يكسرونها.
+ * ═══════════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -52,31 +76,6 @@ import app.rafiqaldhikr.ui.components.MisbahaIcon
 /* ══════════════════════════════════════════════════════════════
    CANVAS ICONS
 ══════════════════════════════════════════════════════════════ */
-
-@Composable
-private fun IconArrow(size: Dp = 14.dp, color: Color = LocalRafiqColors.current.inkLight) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width; val h = this.size.height
-        drawPath(Path().apply {
-            moveTo(w * 0.65f, h * 0.15f)
-            lineTo(w * 0.30f, h * 0.50f)
-            lineTo(w * 0.65f, h * 0.85f)
-        }, color, style = Stroke(w * 0.10f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
-
-// Category-specific icons
-@Composable
-private fun AdhkarCategoryIcon(key: String, color: Color, size: Dp = 28.dp) {
-    when (key) {
-        "morning"   -> IcoSun(size, color)      // شمس — أذكار الصباح
-        "evening"   -> IcoSunset(size, color)   // غروب — أذكار المساء
-        "sleep"     -> IcoMoon(size, color)     // هلال — أذكار النوم
-        "misc"      -> IcoStar(size, color)     // نجمة — أذكار متنوعة
-        "prayer"    -> IcoMosque(size, color)   // مسجد — أذكار الصلاة
-        else        -> IcoStar(size, color)
-    }
-}
 
 /* ══════════════════════════════════════════════════════════════
    GEOMETRIC DECORATION
@@ -196,11 +195,19 @@ private fun AtharEntry(nav: NavHostController) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   CATEGORY DATA
+   الزاويةُ الواحدةُ الأوسع — توقيعُ الأسطح، بنسب الرئيسية نفسِها
 ══════════════════════════════════════════════════════════════ */
 
-/** تمييز القسم من سلّم الضوء — لا لون مخترَعاً لكل قسم. */
-private enum class AdhkarAccent { GOLD, NIGHT, GREEN }
+private val DoorCardShape = RoundedCornerShape(
+    topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 32.dp,
+)
+private val DoorButtonShape = RoundedCornerShape(
+    topStart = 15.dp, topEnd = 15.dp, bottomEnd = 15.dp, bottomStart = 26.dp,
+)
+
+/* ══════════════════════════════════════════════════════════════
+   CATEGORY DATA
+══════════════════════════════════════════════════════════════ */
 
 private data class AdhkarCatDef(
     val key: String,
@@ -208,19 +215,7 @@ private data class AdhkarCatDef(
     // @Composable، فلا سياق عندها لتحلّ stringResource.
     @StringRes val label: Int,
     @StringRes val description: Int,
-    val accent: AdhkarAccent,
-    val iconType: Int,
 )
-
-@Composable
-private fun AdhkarAccent.colors(): Pair<Color, Color> {
-    val rc = LocalRafiqColors.current
-    return when (this) {
-        AdhkarAccent.GOLD  -> rc.tintGold      to rc.gold
-        AdhkarAccent.NIGHT -> rc.tintNight     to rc.lightNight
-        AdhkarAccent.GREEN -> rc.emeraldPastel to rc.emerald
-    }
-}
 
 /**
  * الأقسام المعروضة = الأقسام التي يبذرها DatabaseSeeder بالضبط، لا أكثر.
@@ -231,11 +226,11 @@ private fun AdhkarAccent.colors(): Pair<Color, Color> {
  * بتسميات مختلفة، وتعليقٌ يقول إنها «من قاعدة البيانات» وهي ليست كذلك.
  */
 private val ADHKAR_CATS = listOf(
-    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc, AdhkarAccent.GOLD,  0),
-    AdhkarCatDef("evening", R.string.cat_evening, R.string.cat_evening_desc, AdhkarAccent.NIGHT, 1),
-    AdhkarCatDef("sleep",   R.string.cat_sleep,   R.string.cat_sleep_desc,   AdhkarAccent.NIGHT, 2),
-    AdhkarCatDef("prayer",  R.string.cat_prayer,  R.string.cat_prayer_desc,  AdhkarAccent.GREEN, 3),
-    AdhkarCatDef("misc",    R.string.cat_misc,    R.string.cat_misc_desc,    AdhkarAccent.GREEN, 4),
+    AdhkarCatDef("morning", R.string.cat_morning, R.string.cat_morning_desc),
+    AdhkarCatDef("evening", R.string.cat_evening, R.string.cat_evening_desc),
+    AdhkarCatDef("sleep", R.string.cat_sleep, R.string.cat_sleep_desc),
+    AdhkarCatDef("prayer", R.string.cat_prayer, R.string.cat_prayer_desc),
+    AdhkarCatDef("misc", R.string.cat_misc, R.string.cat_misc_desc),
 )
 
 /* ══════════════════════════════════════════════════════════════
@@ -245,8 +240,21 @@ private val ADHKAR_CATS = listOf(
 @Composable
 fun AdhkarCategoriesScreen(
     navController: NavHostController,
+    vm: AdhkarCategoriesViewModel = koinViewModel(),
 ) {
-    val rc = LocalRafiqColors.current
+    val rc  = LocalRafiqColors.current
+    val ui  by vm.uiState.collectAsStateWithLifecycle()
+    val ctx = LocalContext.current
+
+    /*  ساعةُ الجهاز تُقرأ مرّةً عند التركيب: البابُ الحاضرُ لا يتبدّل
+     *  وأنت تنظر إليه، والشاشةُ تُعاد عند كلِّ عودةٍ إليها. */
+    val nowKey = remember {
+        AdhkarCategoriesViewModel.nowKey(
+            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour,
+        )
+    }
+    val live = remember(nowKey) { ADHKAR_CATS.firstOrNull { it.key == nowKey } ?: ADHKAR_CATS.first() }
+    val rest = remember(live) { ADHKAR_CATS.filter { it.key != live.key } }
 
     Box(
         Modifier
@@ -275,6 +283,45 @@ fun AdhkarCategoriesScreen(
                 title    = stringResource(R.string.dhikr_word),
                 subtitle = stringResource(R.string.adhkar_subtitle),
             )
+
+            StreakRow(streak = ui.streak, week = ui.week)
+
+            // ═══ بابُ الساعة — الفعلُ الأوّل ═══
+            LiveDoorCard(
+                cat   = live,
+                peek  = remember(live.key) { CategoryPeek.of(ctx, live.key) },
+                onOpen = { navController.navigate(RafiqRoute.DhikrReading.withCategory(live.key)) },
+            )
+
+            Text(
+                stringResource(R.string.adhkar_other_doors),
+                style = RafiqType.meta,
+                color = rc.inkLight,
+                modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 8.dp),
+            )
+
+            // ═══ بقيّةُ الأبواب — شبكةٌ هادئة ═══
+            rest.chunked(2).forEach { pair ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    pair.forEach { cat ->
+                        DoorCell(
+                            cat  = cat,
+                            done = cat.key in ui.doneToday,
+                            onClick = { navController.navigate(RafiqRoute.DhikrReading.withCategory(cat.key)) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                }
+                Spacer(Modifier.height(10.dp))
+            }
+
+            Spacer(Modifier.height(14.dp))
 
             // المسبحة كانت تبويباً منفصلاً، والفعل واحد — فجُمعت هنا.
             MisbahaEntry(navController)
@@ -333,65 +380,181 @@ fun AdhkarCategoriesScreen(
             }
 
             Spacer(Modifier.height(24.dp))
-
-            // ═══ CATEGORY CARDS ═══
-            val catsToShow = ADHKAR_CATS
-
-            catsToShow.forEach { cat ->
-                AdhkarCategoryCard(
-                    cat = cat,
-                    onClick = { navController.navigate(RafiqRoute.DhikrReading.withCategory(cat.key)) }
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
 /* ══════════════════════════════════════════════════════════════
-   CATEGORY CARD
+   شريطُ المواظبة
+══════════════════════════════════════════════════════════════ */
+
+/**
+ * السلسلةُ وسبعُ حبّات.
+ *
+ * ولا يُعرض رقمٌ لا سلسلةَ له: من لم يبدأ بعدُ يُدعى لا يُواجَه بصفرٍ
+ * كبير.
+ */
+@Composable
+private fun StreakRow(streak: Long, week: List<Boolean>) {
+    val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .rafiqCard()
+            .padding(horizontal = 14.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        if (streak > 0) {
+            Text(
+                streak.localized(ar),
+                style = RafiqType.display,
+                color = rc.emerald,
+            )
+        }
+        Column(Modifier.weight(1f)) {
+            Text(
+                if (streak > 0) {
+                    stringResource(R.string.adhkar_streak_title, streak.localized(ar))
+                } else {
+                    stringResource(R.string.adhkar_streak_none)
+                },
+                style = RafiqType.label,
+                fontWeight = FontWeight.Bold,
+                color = rc.ink,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(
+                    if (streak > 0) R.string.adhkar_streak_hint else R.string.adhkar_streak_invite,
+                ),
+                style = RafiqType.meta,
+                color = rc.inkLight,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            week.forEach { on ->
+                Box(
+                    Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(if (on) rc.emeraldFill else rc.divider)
+                )
+            }
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   بابُ الساعة — بطاقةٌ تُفتَح بلمسة
 ══════════════════════════════════════════════════════════════ */
 
 @Composable
-private fun AdhkarCategoryCard(
+private fun LiveDoorCard(
     cat: AdhkarCatDef,
-    onClick: () -> Unit,
+    peek: CatPeek?,
+    onOpen: () -> Unit,
 ) {
     val rc = LocalRafiqColors.current
-    val (catBg, catClr) = cat.accent.colors()
-    Box(
+    val ar = LocalArabicNumerals.current
+    Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp)
-            .rafiqCard()
-            .clickable(onClick = onClick)
-            .padding(16.dp)
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .rafiqCard(active = true, shape = DoorCardShape)
+            .clickable(onClick = onOpen)
+            .padding(14.dp),
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // شارة تصنيف احترافية نظيفة
-            app.rafiqaldhikr.ui.components.CategoryBadge(
-                app.rafiqaldhikr.ui.components.adhkarCatDrawable(cat.key), 54.dp)
-
-            Spacer(Modifier.width(14.dp))
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            DhikrTile(cat.key, 48.dp)
+            Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(cat.label),
-                    fontWeight = FontWeight.Bold,
-                    color = LocalRafiqColors.current.ink, style = RafiqType.body)
-                Spacer(Modifier.height(3.dp))
+                Text(stringResource(cat.label), style = RafiqType.titleM, color = rc.ink)
+                Spacer(Modifier.height(2.dp))
                 Text(
-                    stringResource(cat.description),
-                    fontSize = 13.sp,
-                    color = LocalRafiqColors.current.inkMed,
+                    peek?.let {
+                        stringResource(R.string.adhkar_door_count, it.total.localized(ar))
+                    } ?: stringResource(cat.description),
+                    style = RafiqType.meta,
+                    color = rc.inkLight,
                 )
             }
+            Text(
+                stringResource(R.string.adhkar_now),
+                style = RafiqType.metaS,
+                color = rc.onEmeraldFill,
+                modifier = Modifier
+                    .clip(RafiqShape.chip)
+                    .background(rc.emeraldFill)
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
+            )
+        }
 
-            RafiqIcon(RIcon.ChevronLeft, 16.dp, LocalRafiqColors.current.inkLight)
+        if (peek != null) {
+            Spacer(Modifier.height(12.dp))
+            Text(peek.firstText, style = RafiqType.dhikr, color = rc.ink)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.adhkar_first_of_door, peek.source, peek.grade),
+                style = RafiqType.meta,
+                color = rc.gold,
+            )
+        }
+
+        Spacer(Modifier.height(13.dp))
+        Text(
+            peek?.let {
+                stringResource(R.string.adhkar_read_count, it.total.localized(ar))
+            } ?: stringResource(R.string.action_start),
+            style = RafiqType.titleM,
+            color = rc.onEmeraldFill,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(DoorButtonShape)
+                .background(rc.emeraldFill)
+                .padding(vertical = 13.dp),
+        )
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   خليّةُ بابٍ في الشبكة
+══════════════════════════════════════════════════════════════ */
+
+@Composable
+private fun DoorCell(
+    cat: AdhkarCatDef,
+    done: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val rc = LocalRafiqColors.current
+    Row(
+        modifier
+            .rafiqCard()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 11.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        /*  الباهتُ للمُسجَّل لا للمُغلَق: البابُ يُفتح دائماً، والشحوبُ
+         *  يقول «سُجِّل اليومَ» لا «لا تدخل». */
+        Box(Modifier.graphicsLayer { alpha = if (done) 0.55f else 1f }) {
+            DhikrTile(cat.key, 38.dp)
+        }
+        Text(
+            stringResource(cat.label),
+            style = RafiqType.label,
+            fontWeight = FontWeight.Bold,
+            color = if (done) rc.inkLight else rc.ink,
+            maxLines = 2,
+            modifier = Modifier.weight(1f),
+        )
+        if (done) {
+            RafiqIcon(RIcon.Check, 14.dp, rc.emerald)
         }
     }
 }

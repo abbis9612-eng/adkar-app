@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.di
 
+import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesViewModel
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingViewModel
 import app.rafiqaldhikr.ui.screens.dua.DuaViewModel
 import app.rafiqaldhikr.ui.screens.home.HomeViewModel
@@ -35,6 +36,7 @@ val viewModelModule = module {
     viewModelOf(::LocationRequestViewModel)
     viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::AdhkarCategoriesViewModel)
     /*  صريحٌ لا `viewModelOf`.
      *
      *  `startKoin { androidContext(app) }` يُسجّل `Context` فعلاً، فـ
