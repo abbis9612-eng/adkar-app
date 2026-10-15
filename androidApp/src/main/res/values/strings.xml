@@ -1017,7 +1017,7 @@
     <string name="adhkar_other_doors">بقيّةُ الأبواب</string>
     <string name="adhkar_door_count">%1$s ذكراً</string>
     <string name="adhkar_read_count">اقرأ %1$s ذكراً</string>
-    <string name="adhkar_first_of_door">أوّلُ الباب · %1$s · %2$s</string>
+    <string name="adhkar_first_of_door">أوّلُ الباب · %1$s</string>
     <string name="adhkar_streak_title">%1$s يوماً متتابعاً</string>
     <string name="adhkar_streak_hint">لا تكسر السلسلة</string>
     <string name="adhkar_streak_none">ابدأ سلسلتك اليوم</string>

@@ -14,6 +14,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -305,7 +307,11 @@ fun AdhkarCategoriesScreen(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp),
+                        .padding(horizontal = 14.dp)
+                        /*  ارتفاعٌ واحدٌ للخليّتين: «أذكار الصباح» تلتفّ
+                         *  سطرين في عمودٍ بهذا العرض و«أذكار النوم» لا
+                         *  تلتفّ — فيخرج الصفُّ درجتين بلا هذا. */
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     pair.forEach { cat ->
@@ -313,7 +319,7 @@ fun AdhkarCategoriesScreen(
                             cat  = cat,
                             done = cat.key in ui.doneToday,
                             onClick = { navController.navigate(RafiqRoute.DhikrReading.withCategory(cat.key)) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
                         )
                     }
                     if (pair.size == 1) Spacer(Modifier.weight(1f))
@@ -496,11 +502,29 @@ private fun LiveDoorCard(
             Spacer(Modifier.height(12.dp))
             Text(peek.firstText, style = RafiqType.dhikr, color = rc.ink)
             Spacer(Modifier.height(8.dp))
-            Text(
-                stringResource(R.string.adhkar_first_of_door, peek.source, peek.grade),
-                style = RafiqType.meta,
-                color = rc.gold,
-            )
+            /*  الدرجةُ ثمّ المصدرُ مقصوصاً — نمطُ `DhikrReadingScreen`
+             *  نفسُه، لا اختراعاً هنا.
+             *
+             *  وكتبتُهما أوّلاً سطراً واحداً بلا حدّ، فظهر أنّ `source`
+             *  في الصباح والمساء ليس تخريجاً قصيراً بل روايةٌ كاملةٌ من
+             *  ٢٨٤ حرفاً — فتنتفخ البطاقةُ ويغرق الذكرُ تحتها. */
+            if (peek.grade.isNotBlank()) {
+                Text(
+                    stringResource(R.string.adhkar_first_of_door, peek.grade),
+                    style = RafiqType.meta,
+                    color = rc.gold,
+                )
+            }
+            if (peek.source.isNotBlank()) {
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    peek.source,
+                    style = RafiqType.metaS,
+                    color = rc.inkLight,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
 
         Spacer(Modifier.height(13.dp))
@@ -532,29 +556,47 @@ private fun DoorCell(
     modifier: Modifier = Modifier,
 ) {
     val rc = LocalRafiqColors.current
-    Row(
+    /*  عموديّةٌ لا أفقيّة: كانت صفّاً [بَلاطة · اسم · ✓]، فتزاحم العلامةُ
+     *  الاسمَ في عمودٍ عرضُه ١٣٩ نقطة — فينكسر «أذكار الصباح» سطرين
+     *  وجارتُه «أذكار النوم» في سطر، فيُقرأ الصفُّ مائلاً. والعموديّةُ
+     *  تُعطي الاسمَ عرضَ الخليّة كلَّه، والعلامةُ تجلس على البَلاطة. */
+    Box(
         modifier
             .rafiqCard()
             .clickable(onClick = onClick)
-            .padding(horizontal = 11.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+            .padding(horizontal = 8.dp, vertical = 12.dp),
     ) {
-        /*  الباهتُ للمُسجَّل لا للمُغلَق: البابُ يُفتح دائماً، والشحوبُ
-         *  يقول «سُجِّل اليومَ» لا «لا تدخل». */
-        Box(Modifier.graphicsLayer { alpha = if (done) 0.55f else 1f }) {
-            DhikrTile(cat.key, 38.dp)
-        }
-        Text(
-            stringResource(cat.label),
-            style = RafiqType.label,
-            fontWeight = FontWeight.Bold,
-            color = if (done) rc.inkLight else rc.ink,
-            maxLines = 2,
-            modifier = Modifier.weight(1f),
-        )
-        if (done) {
-            RafiqIcon(RIcon.Check, 14.dp, rc.emerald)
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box {
+                Box(Modifier.graphicsLayer { alpha = if (done) 0.5f else 1f }) {
+                    DhikrTile(cat.key, 42.dp)
+                }
+                if (done) {
+                    Box(
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .offset(x = (-5).dp, y = (-5).dp)
+                            .size(17.dp)
+                            .clip(CircleShape)
+                            .background(rc.emeraldFill),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        RafiqIcon(RIcon.Check, 10.dp, rc.onEmeraldFill)
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(cat.label),
+                style = RafiqType.label,
+                fontWeight = FontWeight.Bold,
+                color = if (done) rc.inkLight else rc.ink,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
         }
     }
 }
