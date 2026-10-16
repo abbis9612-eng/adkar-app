@@ -1040,4 +1040,14 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="st_prayer_hint">Circled on the page</string>
     <string name="dur_hm">%1$dh %2$dm</string>
     <string name="dur_m">%1$dm</string>
+
+    <!-- عزمُ اليوم -->
+    <string name="intent_q">What do you intend today, beside the obligatory prayers?</string>
+    <string name="intent_go">I have resolved — and Allah is the One whose help is sought</string>
+    <string name="intent_none">Not today — the obligatory prayers suffice</string>
+    <string name="intent_line">Today I intend:</string>
+    <string name="intent_duha">Duha</string>
+    <string name="intent_witr">Witr</string>
+    <string name="intent_kahf">al-Kahf</string>
+    <string name="intent_wird">Wird</string>
 </resources>

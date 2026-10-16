@@ -22,4 +22,5 @@ interface PrefsRepository {
     suspend fun updateElevation(elevation: Double)
     suspend fun updateMadhab(madhab: String)
     suspend fun updateNumerals(numerals: String)
+    suspend fun updateEndReminder(enabled: Boolean)
 }

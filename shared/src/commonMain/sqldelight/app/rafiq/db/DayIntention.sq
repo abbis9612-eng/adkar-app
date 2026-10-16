@@ -1,0 +1,21 @@
+-- عزمُ اليوم — ما نواه بعد الفجر مع فرائضه: duha · witr · kahf · wird.
+-- صفٌّ لكلّ نيّة، فـ«نويتُ الضحى والوتر» صفّان. ولا يُمحى بانقضاء اليوم:
+-- هو سجلُّه، والتاريخُ مفتاحُه.
+CREATE TABLE DayIntention (
+    date       TEXT    NOT NULL,
+    item       TEXT    NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (date, item)
+);
+
+getByDate:
+SELECT item FROM DayIntention WHERE date = :date;
+
+add:
+INSERT OR IGNORE INTO DayIntention(date, item, created_at) VALUES (:date, :item, :created_at);
+
+clearDate:
+DELETE FROM DayIntention WHERE date = :date;
+
+deleteAll:
+DELETE FROM DayIntention;

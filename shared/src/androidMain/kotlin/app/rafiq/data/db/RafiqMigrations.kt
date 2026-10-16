@@ -181,6 +181,21 @@ internal object RafiqMigrations {
                    pinned_at INTEGER NOT NULL
                )""",
         ),
+
+        // ═══ ٦ — عزمُ اليوم، وتذكيرُ خروج الوقت ═══
+        //
+        // إضافةٌ محضة: جدولٌ بـIF NOT EXISTS، وعمودٌ بافتراضيّ — فنسخةٌ
+        // أقدمُ من التطبيق تتجاهلهما ولا تسقط، والرجوعُ آمن. ولا يُنقل
+        // شيءٌ ولا يُحذف.
+        listOf(
+            """CREATE TABLE IF NOT EXISTS DayIntention (
+                   date       TEXT    NOT NULL,
+                   item       TEXT    NOT NULL,
+                   created_at INTEGER NOT NULL,
+                   PRIMARY KEY (date, item)
+               )""",
+            "ALTER TABLE UserPrefs ADD COLUMN end_reminder INTEGER NOT NULL DEFAULT 1",
+        ),
     )
 
     /** رقمُ آخرِ ترحيلٍ معروف. يُقارَن بجدول `RafiqMigration`. */

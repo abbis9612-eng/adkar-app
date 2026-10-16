@@ -114,6 +114,11 @@ class PrefsRepositoryImpl(private val db: RafiqDatabase) : PrefsRepository {
             db.userPrefsQueries.updateNumerals(numerals)
         }
 
+    override suspend fun updateEndReminder(enabled: Boolean) =
+        withContext(Dispatchers.IO) {
+            db.userPrefsQueries.updateEndReminder(if (enabled) 1L else 0L)
+        }
+
     override suspend fun updateMadhab(madhab: String) =
         withContext(Dispatchers.IO) {
             db.userPrefsQueries.updateMadhab(madhab)

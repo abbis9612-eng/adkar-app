@@ -39,6 +39,8 @@ class LeafViewModel(
         val morning:   Boolean           = false,
         val evening:   Boolean           = false,
         val week:      List<WeekDay>     = emptyList(),
+        /** عزمُ اليوم، أو `null` ما لم يُعزَم بعد — فالسؤالُ يظهر. */
+        val intentions: Set<String>?     = null,
     )
 
     private val today: LocalDate =
@@ -55,7 +57,8 @@ class LeafViewModel(
                 prayerRepo.getRange(days.first().toString(), todayKey),
                 companionRepo.getCompletedStations(todayKey),
                 progressRepo.getByDate(todayKey),
-            ) { logs, completed, progress ->
+                companionRepo.getIntentions(todayKey),
+            ) { logs, completed, progress, intents ->
                 val prayedByDay = logs.filter { it.prayed }.groupBy { it.date }
                 UiState(
                     prayed    = prayedByDay[todayKey].orEmpty().map { it.prayerName }.toSet(),
@@ -65,6 +68,7 @@ class LeafViewModel(
                     week      = days.map { d ->
                         WeekDay(d, prayedByDay[d.toString()].orEmpty().map { it.prayerName }.toSet().size)
                     },
+                    intentions = intents.takeIf { it.isNotEmpty() },
                 )
             }.collect { _ui.value = it }
         }
@@ -106,7 +110,23 @@ class LeafViewModel(
         }
     }
 
+    /**
+     * «عزمتُ» — يُحفظ ما اختاره. ومن لم يختر شيئاً حُفظ له [NONE]: أجاب
+     * السؤالَ فلا يُعاد عليه اليوم، ولا يُكتب له عزمٌ لم يعزمه.
+     */
+    fun setIntentions(items: Set<String>) {
+        viewModelScope.launch { companionRepo.setIntentions(todayKey, items.ifEmpty { setOf(NONE) }) }
+    }
+
     companion object {
+        const val NONE = "none"
+        /** النوافلُ التي يُعزم عليها، ومهمّةُ كلٍّ في المحطّات — بها يُعلَّم العزمُ تامّاً. */
+        val INTENT_TASK = linkedMapOf(
+            "duha" to "duha.pray",
+            "witr" to "isha.witr",
+            "kahf" to "friday_kahf.read",
+            "wird" to "wird.read",
+        )
         const val WEEK = 7
         val PRAYERS = listOf("fajr", "dhuhr", "asr", "maghrib", "isha")
     }

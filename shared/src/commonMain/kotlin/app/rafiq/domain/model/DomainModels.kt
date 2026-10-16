@@ -120,7 +120,9 @@ data class UserPrefsInfo(
     val ishaOffset:           Int,
     val elevation:            Double,
     val madhab:               String,
-    val numerals:             String
+    val numerals:             String,
+    /** تذكيرٌ قبل خروج الوقت — افتراضيُّه مفعَّل كعمودِه. */
+    val endReminder:          Boolean = true,
 )
 
 data class LastReadPosition(
@@ -244,7 +246,8 @@ fun UserPrefsEntity.toDomain() = UserPrefsInfo(
     ishaOffset           = isha_offset.toInt(),
     elevation            = elevation,
     madhab               = madhab,
-    numerals             = numerals
+    numerals             = numerals,
+    endReminder          = end_reminder == 1L,
 )
 
 fun QuranLastReadEntity.toDomain() = LastReadPosition(

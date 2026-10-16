@@ -1065,4 +1065,14 @@
     <string name="st_prayer_hint">تُحاط في الورقة</string>
     <string name="dur_hm">%1$dس %2$dد</string>
     <string name="dur_m">%1$dد</string>
+
+    <!-- عزمُ اليوم -->
+    <string name="intent_q">ما تنوي اليومَ مع فرائضك؟</string>
+    <string name="intent_go">عزمتُ، والله المستعان</string>
+    <string name="intent_none">ليس اليوم — الفرائضُ تكفيني</string>
+    <string name="intent_line">نويتُ اليوم:</string>
+    <string name="intent_duha">الضحى</string>
+    <string name="intent_witr">الوتر</string>
+    <string name="intent_kahf">الكهف</string>
+    <string name="intent_wird">الوِرد</string>
 </resources>

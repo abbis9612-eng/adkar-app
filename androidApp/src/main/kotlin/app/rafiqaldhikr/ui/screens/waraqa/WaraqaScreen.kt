@@ -121,6 +121,16 @@ fun WaraqaScreen(
             flipped = flipped,
             onFlip = { flipped = !flipped },
             front = {
+                //  السؤالُ بعد دخول الفجر — قبله لم يبدأ اليومُ الذي يُعزَم فيه.
+                //  وبلا مدينةٍ لا يُدرى متى الفجر، فيُسأل.
+                val fajr = home.prayers.firstOrNull { it.en == "Fajr" }?.timeMillis ?: 0L
+                IntentionBlock(
+                    intentions = leaf.intentions,
+                    ask = fajr == 0L || fajr <= System.currentTimeMillis(),
+                    friday = day.isFriday,
+                    completed = leaf.completed,
+                    onCommit = leafVm::setIntentions,
+                )
                 LeafWord(day, wisdom)
                 Text(
                     stringResource(R.string.leaf_flip_back),
