@@ -988,11 +988,6 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="stop_resume">Continue from %1$s</string>
 
     <!-- Dhikr doors screen -->
-    <string name="adhkar_now">Now</string>
-    <string name="adhkar_other_doors">Other doors</string>
-    <string name="adhkar_door_count">%1$s adhkar</string>
-    <string name="adhkar_read_count">Read %1$s adhkar</string>
-    <string name="adhkar_first_of_door">First of the door · %1$s</string>
     <string name="adhkar_streak_title">%1$s days in a row</string>
     <string name="adhkar_streak_hint">Keep the streak</string>
     <string name="adhkar_streak_none">Start your streak today</string>

@@ -16,7 +16,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 
 /**
- * حالُ شاشة أبواب الذِّكر — البابُ الحاضر، وما أُتِمّ، والمواظبة.
+ * حالُ شاشة أبواب الذِّكر — ما أُتِمّ اليوم، والمواظبة.
  */
 class AdhkarCategoriesViewModel(
     private val streakRepo:   StreakRepository,
@@ -71,20 +71,5 @@ class AdhkarCategoriesViewModel(
     companion object {
         /** عددُ حبّاتِ المواظبة — أسبوعٌ يُرى في سطر. */
         const val DOTS = 7
-
-        /**
-         * البابُ الحاضرُ من ساعةِ المكان.
-         *
-         * وهو **ساعةُ الجهاز لا الشمس**: هذه الشاشةُ لا تملك إحداثيّاتٍ
-         * ولا تطلبها، ولا يصحّ أن يصير بابُ الذِّكر رهنَ إذنِ موقعٍ قد
-         * يُرفَض. والحدودُ تقريبٌ معلَن: من رآها لا تطابق أذانَه فتح
-         * البابَ الذي يريد — فكلُّها مفتوحةٌ دائماً، و«الآن» ترشيحٌ لا قفل.
-         */
-        fun nowKey(hour: Int): String = when (hour) {
-            in 4..10  -> "morning"   // من الفجر إلى الضحى
-            in 11..14 -> "prayer"    // الظهرُ والعصرُ ودُبُرُهما
-            in 15..20 -> "evening"   // من العصر إلى العشاء
-            else      -> "sleep"     // ما بعد العشاء إلى السَّحَر
-        }
     }
 }
