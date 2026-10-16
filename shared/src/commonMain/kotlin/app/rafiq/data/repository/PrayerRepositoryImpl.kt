@@ -20,6 +20,12 @@ class PrayerRepositoryImpl(private val db: RafiqDatabase) : PrayerRepository {
             .mapToList(Dispatchers.IO)
             .map { it.map { p -> p.toDomain() } }
 
+    override fun getRange(start: String, end: String): Flow<List<PrayerEntry>> =
+        db.prayerLogQueries.getRange(start, end)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { it.map { p -> p.toDomain() } }
+
     override suspend fun logPrayer(date: String, prayerName: String, prayed: Boolean) =
         withContext(Dispatchers.IO) {
             val now = Clock.System.now().toEpochMilliseconds()

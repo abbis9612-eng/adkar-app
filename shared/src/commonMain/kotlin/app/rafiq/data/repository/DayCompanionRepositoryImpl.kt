@@ -28,4 +28,9 @@ class DayCompanionRepositoryImpl(private val db: RafiqDatabase) : DayCompanionRe
         withContext(Dispatchers.IO) {
             db.dayStationLogQueries.complete(date, station, Clock.System.now().toEpochMilliseconds())
         }
+
+    override suspend fun uncompleteStation(date: String, station: String) =
+        withContext(Dispatchers.IO) {
+            db.dayStationLogQueries.uncomplete(date, station)
+        }
 }

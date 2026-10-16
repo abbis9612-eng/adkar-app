@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface PrayerRepository {
     fun getByDate(date: String): Flow<List<PrayerEntry>>
+    /** صلواتُ مدىً من الأيّام، [start] و[end] شاملين — أسبوعُ المحاسبة. */
+    fun getRange(start: String, end: String): Flow<List<PrayerEntry>>
     suspend fun logPrayer(date: String, prayerName: String, prayed: Boolean)
     suspend fun updateSunnah(date: String, prayerName: String, done: Boolean)
     suspend fun getPrayedCount(start: String, end: String): Long

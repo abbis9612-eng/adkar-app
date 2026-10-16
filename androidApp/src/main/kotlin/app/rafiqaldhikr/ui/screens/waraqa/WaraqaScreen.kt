@@ -1,55 +1,41 @@
 package app.rafiqaldhikr.ui.screens.waraqa
 
-import androidx.compose.ui.res.stringResource
-import app.rafiqaldhikr.R
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import app.rafiqaldhikr.ui.components.FirstHint
-import app.rafiqaldhikr.ui.components.RisalaCard
-import app.rafiqaldhikr.ui.components.pickRisala
-import app.rafiqaldhikr.ui.theme.LocalMeeqat
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import app.rafiqaldhikr.ui.components.RafiqIconButton
+import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.components.FirstHint
+import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.RafiqIconButton
+import app.rafiqaldhikr.ui.components.RisalaCard
+import app.rafiqaldhikr.ui.components.pickRisala
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel
 import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationStatus
-import app.rafiqaldhikr.ui.screens.daycompanion.DayCompanionViewModel.StationUi
-import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.screens.home.HomeViewModel
-import app.rafiqaldhikr.ui.theme.*
+import app.rafiqaldhikr.ui.theme.LocalMeeqat
+import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
+import app.rafiqaldhikr.ui.utils.localized
 import app.rafiqaldhikr.ui.utils.localizedDigits
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
-import app.rafiqaldhikr.ui.utils.formatClock
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -57,25 +43,19 @@ import java.util.Locale
 /* ═══════════════════════════════════════════════════════════════════
    ورقة اليوم — الصفحة الرئيسية
 
-   كانت الرئيسية رفَّ بطاقات: تحية، ثم «الآن»، ثم رحلة اليوم، ثم
-   الصلاة القادمة، ثم الورد، ثم شبكة الفئات، ثم قائمة المواقيت. سبع
-   بطاقات مكدّسة — وهي بنية كل تطبيق إسلامي على المتجر، ولا لوحة
-   معلومات أحسّها أحد يوماً «خاصّة به».
+ *  التوقيع: ورقةُ تقويمٍ تُحاط صلواتُها بقلم
 
-   الورقة تقلب ذلك: صفحة واحدة متّصلة هي يومك، من الفجر أعلاها إلى
-   العشاء أسفلها، تُفتح عند موضعك منه.
+   ورقةُ تقويمٍ معلَّقة: ثقبا التعليق، والأوراقُ الباقيةُ تحتها، واليومُ
+   الهجريُّ رقماً كبيراً — ثمّ الصلواتُ الخمس بأوقاتها. ومن صلّى ضغط
+   الوقتَ فدار حوله قلمٌ كما يُدار على ورقةٍ حقيقيّة.
 
-   والحبر هو ما يشفّر الوقت — لا لون ولا أيقونة:
-     • ما مضى  → حبر كامل، والعنوان بوزن عادي (فُرِغ منه)
-     • ما أنت فيه → أكبر، وحده مفتوح، وحده يحمل الفعل
-     • ما لم يأتِ → باهت لم يُخطّ بعد
+   والتوقيعُ هو الأداةُ نفسُها لا زينةٌ فوقها: الدائرةُ تعني «صلّيتُ»،
+   وتُكتب في `PrayerLog` — الجدولِ الذي تقرأ منه الإحصاءاتُ والتقرير.
+   وخمسُ دوائرَ تختم الورقة: «اكتملت ورقتك».
 
-   الجرأة كلّها مصروفة هنا. كل ما حولها هادئ: لا تدرّجات، ولا ظلال،
-   ولا أيقونات ملوّنة، ولا خلفية.
+   وتحتها بطاقاتُ المحطّات تُقلَّب — «ماذا أفعل الآن؟» — وبعد العشاء
+   تنقلب الورقةُ إلى ظهرها: محاسبةُ اليوم وأسبوعُك.
 ═══════════════════════════════════════════════════════════════════ */
-
-private const val PastInk   = 1f
-private const val FutureInk = 0.38f
 
 @Composable
 fun WaraqaScreen(
@@ -83,9 +63,11 @@ fun WaraqaScreen(
     dayVm:  DayCompanionViewModel = koinViewModel(),
     homeVm: HomeViewModel         = koinViewModel(),
     wisdomVm: WisdomViewModel     = koinViewModel(),
+    leafVm: LeafViewModel         = koinViewModel(),
 ) {
     val day  by dayVm.uiState.collectAsStateWithLifecycle()
     val home by homeVm.uiState.collectAsStateWithLifecycle()
+    val leaf by leafVm.ui.collectAsStateWithLifecycle()
     val wisdom by wisdomVm.wisdom.collectAsStateWithLifecycle()
     val duas by wisdomVm.duas.collectAsStateWithLifecycle()
     val meeqat = LocalMeeqat.current
@@ -99,8 +81,14 @@ fun WaraqaScreen(
                 .getLong("opened_day", -1L) == wisdomVm.today,
         )
     }
-    val rc   = LocalRafiqColors.current
-    val ar   = LocalArabicNumerals.current
+    val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
+
+    /*  بعد العشاء تنقلب الورقةُ وحدَها إلى المحاسبة — ويقلبها صاحبُها
+     *  متى شاء. والمفتاحُ المحطّةُ الحاضرة: إذا دخل وقتُ النوم انقلبت
+     *  مرّةً، ثمّ يبقى ما اختاره. */
+    val night = day.nowStation?.id == "sleep"
+    var flipped by rememberSaveable(night) { mutableStateOf(night) }
 
     Column(
         Modifier
@@ -113,34 +101,81 @@ fun WaraqaScreen(
             .padding(bottom = 96.dp)
     ) {
         Header(
-            hijri = home.hijriDate,
             onSettings = { navController.navigate(RafiqRoute.Settings.route) },
             onBell     = { navController.navigate(RafiqRoute.NotificationSettings.route) },
         )
 
-        /*  الورقةُ تظهر دائماً — بمدينةٍ وبغيرها.
-         *
-         *  كانت بلا مدينةٍ تُخفى كلُّها ويبقى طلبُ الموقع وحدَه، فمن فتح
-         *  التطبيقَ أوّلَ مرّةٍ لم يرَ «الرفيقَ» أصلاً. والآن تُعرض
-         *  المحطّاتُ بترتيبها بلا ساعات، وطلبُ المدينة تحتها: الترتيبُ
-         *  صادقٌ في كلّ مدينة، والساعةُ وحدَها تنتظر — فلا يُكذَب بوقتِ
-         *  مدينةٍ ليست مدينتَه، ولا يُحجَب عنه يومُه. */
-        StateLine(day.nowStation, timed = day.timed)
-
-        Sheet(day.stations, day.nowStation, day.timed, navController)
-
-        if (!day.timed) {
-            NeedsLocation(
-                message = stringResource(R.string.waraqa_needs_location)
+        val prayers = leafPrayers(home, leaf.prayed, day.timed)
+        val stationsDone = day.stations.count { st ->
+            st.status == StationStatus.DONE || StationTasks.isStationDone(
+                st.id, StationTasks.of(st.id, st.route), leaf.prayed, leaf.completed, leaf.morning, leaf.evening,
             )
-        } else if (day.stations.isNotEmpty()) {
-            Footer(day.doneCount, day.stations.size, ar)
         }
 
-        /*  رسالةُ اليوم — **فوق** كلمة اليوم.
-         *
-         *  هي فعلٌ يُفعل (يُفتح فيُقرأ دعاء)، وتلك خبرٌ يُقرأ. والفعلُ
-         *  يسبق الخبر. */
+        DayLeaf(
+            hijriDay = home.hijriDay,
+            hijriMonthYear = home.hijriMonthYear,
+            dateLine = gregorianLine(home.city),
+            prayers = prayers,
+            onPrayer = leafVm::setPrayed,
+            flipped = flipped,
+            onFlip = { flipped = !flipped },
+            front = {
+                LeafWord(day, wisdom)
+                Text(
+                    stringResource(R.string.leaf_flip_back),
+                    style = RafiqType.label, fontWeight = FontWeight.Bold, color = rc.gold,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 6.dp)
+                        .heightIn(min = 48.dp)
+                        .clickable { flipped = true }
+                        .wrapContentHeight(Alignment.CenterVertically),
+                )
+            },
+            accountRows = listOf(
+                AccountRow(
+                    stringResource(R.string.leaf_row_prayers),
+                    stringResource(R.string.st_of, leaf.prayed.size.localized(ar), 5.localized(ar)),
+                    leaf.prayed.size == 5,
+                ),
+                AccountRow(
+                    stringResource(R.string.leaf_row_stations),
+                    stringResource(R.string.st_of, stationsDone.localized(ar), day.stations.size.localized(ar)),
+                    day.stations.isNotEmpty() && stationsDone == day.stations.size,
+                ),
+                AccountRow(
+                    stringResource(R.string.task_morning),
+                    stringResource(if (leaf.morning) R.string.leaf_row_done else R.string.leaf_row_open),
+                    leaf.morning,
+                ),
+                AccountRow(
+                    stringResource(R.string.task_evening),
+                    stringResource(if (leaf.evening) R.string.leaf_row_done else R.string.leaf_row_open),
+                    leaf.evening,
+                ),
+            ),
+            week = leaf.week,
+            modifier = Modifier.padding(top = 12.dp),
+        )
+
+        /*  المحطّاتُ تظهر دائماً — بمدينةٍ وبغيرها: الترتيبُ صادقٌ في كلّ
+         *  مدينة، والساعةُ وحدَها تنتظر. */
+        StationPager(
+            stations = day.stations,
+            nowId = day.nowStation?.id,
+            timed = day.timed,
+            leaf = leaf,
+            onTask = leafVm::setTask,
+            onDone = { st, tasks -> leafVm.completeStation(st.id, tasks) },
+            onUndo = { st, tasks -> leafVm.undoStation(st.id, tasks) },
+            onOpen = { navController.navigate(it) },
+        )
+
+        if (!day.timed) {
+            NeedsLocation(message = stringResource(R.string.waraqa_needs_location))
+        }
+
         FirstHint(
             "waraqa", R.string.hint_waraqa,
             Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
@@ -154,24 +189,15 @@ fun WaraqaScreen(
                 ctx.getSharedPreferences("risala", android.content.Context.MODE_PRIVATE)
                     .edit().putLong("opened_day", wisdomVm.today).apply()
             },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         )
-
-        /*  كلمةُ اليوم — نزلت من الرئيسية إلى هنا. انظر
-         *  `ui/components/WordOfDay.kt` للسبب: «كراهةَ السآمة». */
-        wisdom?.let {
-            app.rafiqaldhikr.ui.components.WordOfDay(
-                it,
-                Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            )
-        }
     }
 }
 
-/* ── الرأس: أقلّ ما يمكن ───────────────────────────────────────── */
+/* ── الرأس: أقلّ ما يمكن — التاريخُ صار في الورقة ────────────────── */
 
 @Composable
-private fun Header(hijri: String, onSettings: () -> Unit, onBell: () -> Unit) {
+private fun Header(onSettings: () -> Unit, onBell: () -> Unit) {
     val rc = LocalRafiqColors.current
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 8.dp),
@@ -181,261 +207,79 @@ private fun Header(hijri: String, onSettings: () -> Unit, onBell: () -> Unit) {
         RafiqIconButton(onClick = onBell, label = stringResource(R.string.nav_alerts)) {
             RafiqIcon(RIcon.Bell, 18.dp, rc.emerald)
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = rc.emerald)
-            Text(
-                hijri.ifEmpty { stringResource(R.string.hijri_suffix) }.localizedDigits(LocalArabicNumerals.current),
-                style = RafiqType.caption, color = rc.inkMed,
-            )
-        }
+        Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = rc.emerald)
         RafiqIconButton(onClick = onSettings, label = stringResource(R.string.settings)) {
             RafiqIcon(RIcon.Settings, 18.dp, rc.emerald)
         }
     }
 }
 
-/* ── سطر الحال: الجملة الوحيدة أعلى الورقة ────────────────────── */
+/* ── كلمةُ الورقة: فضلُ الكهف يومَ الجمعة، وكلمةُ اليوم في غيره ───── */
 
 @Composable
-private fun StateLine(now: StationUi?, timed: Boolean) {
+private fun LeafWord(day: DayCompanionViewModel.UiState, wisdom: app.rafiq.domain.model.Wisdom?) {
     val rc = LocalRafiqColors.current
-    Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 4.dp)) {
-        if (now == null) {
-            //  عنوانُ الورقة وسطرُ حالها كلامُنا — بخطّ الواجهة.
-            Text(stringResource(R.string.waraqa_title), style = RafiqType.titleXL, color = rc.ink)
-            Text(
-                stringResource(if (timed) R.string.waraqa_opens_first else R.string.waraqa_untimed),
-                style = RafiqType.bodyS, color = rc.inkMed,
-            )
-        } else {
-            Text(
-                stringResource(R.string.waraqa_you_are_in, stringResource(now.title)),
-                style = RafiqType.titleXL, color = rc.ink,
-            )
-            Text(stringResource(now.timeLabel), style = RafiqType.bodyS, color = rc.inkMed)
-        }
+    val kahf = if (day.isFriday) day.stations.firstOrNull { it.id == "friday_kahf" } else null
+    val (text, source) = when {
+        kahf != null && kahf.virtue.isNotBlank() -> kahf.virtue to kahf.source
+        wisdom != null -> wisdom.text to listOf(wisdom.author, wisdom.source).filter { it.isNotBlank() }.joinToString(" · ")
+        else -> return
+    }
+    Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp)) {
+        Text(stringResource(R.string.leaf_word), style = RafiqType.metaS, fontWeight = FontWeight.Bold, color = rc.gold)
+        //  نصٌّ منقولٌ بمصدره — يُعرض كما هو، لا يُختصر.
+        Text(text, style = RafiqType.dhikr.copy(fontSize = RafiqType.body.fontSize), color = rc.ink,
+            modifier = Modifier.padding(top = 4.dp))
+        if (source.isNotBlank()) Text(source, style = RafiqType.metaS, color = rc.inkMed, modifier = Modifier.padding(top = 2.dp))
     }
 }
 
-/* ── الورقة: عمود الحبر والمحطات ──────────────────────────────── */
+/* ── صلواتُ الورقة من مواقيت الرئيسية ──────────────────────────── */
 
-private val GutterWidth = 44.dp
+private val PrayerNames = mapOf(
+    "fajr" to R.string.fajr, "dhuhr" to R.string.dhuhr, "asr" to R.string.asr,
+    "maghrib" to R.string.maghrib, "isha" to R.string.isha,
+)
 
+/**
+ * الخمسُ بأوقاتها، والحاضرةُ والقادمةُ موسومتان.
+ *
+ * الحاضرةُ آخرُ صلاةٍ دخل وقتُها، والقادمةُ أوّلُ ما لم يدخل — والشروقُ
+ * يُعدّ في الحساب ولا يُعرض: بعده لا «حاضرة» حتى الظهر.
+ */
 @Composable
-private fun Sheet(
-    stations: List<StationUi>,
-    now: StationUi?,
-    timed: Boolean,
-    nav: NavHostController,
-) {
-    if (stations.isEmpty()) return
-    val rc = LocalRafiqColors.current
-    val meeqat = LocalMeeqat.current
-
-    // امتلاء العمود من طبقة الميقات نفسها — لا حساب ثانٍ للوقت
-    val fill by animateFloatAsState(
-        targetValue = if (meeqat.resolved) meeqat.dayProgress
-                      else stations.count { it.status == StationStatus.DONE ||
-                                            it.status == StationStatus.PASSED }
-                           .toFloat() / stations.size,
-        animationSpec = progressSpec(900),
-        label = "sheetFill",
-    )
-
-    Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        // العمود يُرسم بحجم الورقة نفسها — matchParentSize لأن الارتفاع
-        // داخل التمرير الرأسي غير محدود، فلا يصلح fillMaxHeight.
-        Canvas(Modifier.matchParentSize()) {
-            val x = size.width - (GutterWidth.toPx() / 2f)
-            val w = 2.dp.toPx()
-            drawRoundRect(
-                color = rc.divider,
-                topLeft = Offset(x - w / 2f, 0f),
-                size = Size(w, size.height),
-                cornerRadius = CornerRadius(w, w),
-            )
-            val inked = size.height * fill
-            if (inked > 1f) {
-                drawRoundRect(
-                    brush = Brush.verticalGradient(
-                        listOf(rc.gold, rc.goldLight), startY = 0f, endY = inked,
-                    ),
-                    topLeft = Offset(x - w / 2f, 0f),
-                    size = Size(w, inked),
-                    cornerRadius = CornerRadius(w, w),
-                )
-            }
-        }
-        Column(Modifier.fillMaxWidth()) {
-            stations.forEach { st ->
-                Station(st, st.id == now?.id, timed, nav)
-            }
-        }
-    }
-}
-
-@Composable
-private fun Station(st: StationUi, isNow: Boolean, timed: Boolean, nav: NavHostController) {
-    val rc = LocalRafiqColors.current
-    val done   = st.status == StationStatus.DONE
-    val passed = st.status == StationStatus.PASSED
-    // بلا ساعاتٍ لا قادمَ ولا ماضيَ يُدرى — فلا تُبهَت محطّةٌ على ظنّ
-    val future = timed && st.status == StationStatus.UPCOMING && !isNow
-
-    val ink by animateColorAsState(
-        targetValue = when {
-            isNow  -> rc.ink
-            future -> rc.ink.copy(alpha = FutureInk)
-            !timed && !done -> rc.ink
-            else   -> rc.ink.copy(alpha = PastInk)
-        },
-        animationSpec = progressSpec(),
-        label = "stationInk",
-    )
-    val soft = if (future) rc.inkMed.copy(alpha = FutureInk) else rc.inkMed
-
-    val route = st.route
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RafiqShape.item)
-            /*  كلُّ محطّةٍ تُفتح — ما مضى وقتُه أيضاً.
-             *
-             *  كان الضغطُ للحاضرة والقادمة وحدهما، فمن فاته وقتُ الصباح
-             *  لم يجد أذكارَه في ورقة يومه، وهي قلبُ التطبيق. ووسمُ
-             *  «مضى وقتُها» يبقى ظاهراً بجانبها: يُخبره ولا يمنعه. */
-            .then(
-                if (route != null) Modifier.clickable { nav.navigate(route) } else Modifier
-            )
-            .padding(vertical = 9.dp),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Box(Modifier.width(GutterWidth), contentAlignment = Alignment.TopCenter) {
-            Dot(done = done || passed, now = isNow, faint = future)
-        }
-        Column(Modifier.weight(1f).padding(end = 2.dp)) {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    stringResource(st.title),
-                    //  أسماءُ المحطّات تسمياتُنا لا نصٌّ مَرويّ.
-                    style = if (isNow) RafiqType.titleL
-                            else RafiqType.titleM.copy(
-                                fontWeight = if (passed || done) FontWeight.Normal else FontWeight.Bold
-                            ),
-                    color = ink,
-                )
-                if (timed) {
-                    Text(clockOf(st.startMillis, LocalArabicNumerals.current),
-                        style = RafiqType.caption, color = soft)
-                }
-                if (passed) {
-                    Text(stringResource(R.string.prayer_time_passed),
-                        style = RafiqType.caption, color = soft)
-                }
-            }
-            Text(stringResource(st.description), style = RafiqType.bodyS, color = soft,
-                modifier = Modifier.padding(top = 2.dp))
-
-            if (isNow) OpenStation(st, nav)
-        }
-    }
-}
-
-@Composable
-private fun Dot(done: Boolean, now: Boolean, faint: Boolean) {
-    val rc = LocalRafiqColors.current
-    Box(Modifier.padding(top = 7.dp).size(if (now) 14.dp else 12.dp), contentAlignment = Alignment.Center) {
-        if (now) {
-            Box(Modifier.size(14.dp).clip(CircleShape).background(rc.gold))
-        } else {
-            Box(
-                Modifier.size(12.dp).clip(CircleShape)
-                    .background(if (done) rc.gold else rc.bg)
-                    .border(2.dp, if (done) rc.gold
-                                  else rc.divider.copy(alpha = if (faint) 0.6f else 1f), CircleShape)
-            )
-        }
-    }
-}
-
-/** البطاقة المفتوحة — واحدة في الورقة، للمحطة الحاضرة وحدها. */
-@Composable
-private fun OpenStation(st: StationUi, nav: NavHostController) {
-    val rc = LocalRafiqColors.current
+private fun leafPrayers(home: HomeViewModel.UiState, prayed: Set<String>, timed: Boolean): List<LeafPrayer> {
     val ar = LocalArabicNumerals.current
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { delay(30_000); now = System.currentTimeMillis() } }
 
-    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(st.id) {
-        while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
-    }
-    val span = (st.endMillis - st.startMillis).coerceAtLeast(1L)
-    val pct  = ((nowMs - st.startMillis).toFloat() / span).coerceIn(0f, 1f)
-    val left = (st.endMillis - nowMs).coerceAtLeast(0L)
-    val hh = left / 3_600_000L
-    val mm = (left % 3_600_000L) / 60_000L
-
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(top = 11.dp)
-            .clip(RafiqShape.card)
-            .background(rc.card)
-            .border(1.dp, rc.divider, RafiqShape.card)
-            .padding(15.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
-    ) {
-        if (st.virtue.isNotBlank()) {
-            Text(st.virtue, style = RafiqType.dhikr.copy(fontSize = RafiqType.body.fontSize),
-                color = rc.ink)
+    val byKey = home.prayers.associateBy { it.en.lowercase() }
+    val started = home.prayers.lastOrNull { it.timeMillis in 1..now }?.en?.lowercase()
+    val next = home.prayers.firstOrNull { it.timeMillis > now && it.en != "Sunrise" }?.en?.lowercase()
+    return LeafViewModel.PRAYERS.map { key ->
+        val p = byKey[key]
+        val slot = when {
+            !timed -> PrayerSlot.NONE
+            key == started -> PrayerSlot.NOW
+            key == next -> PrayerSlot.NEXT
+            else -> PrayerSlot.NONE
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            Box(
-                Modifier.weight(1f).height(4.dp).clip(RafiqShape.chip)
-                    .background(rc.bg)
-            ) {
-                Box(Modifier.fillMaxWidth(pct).fillMaxHeight()
-                    .clip(RafiqShape.chip).background(rc.gold))
-            }
-            Text(
-                (if (hh > 0) "يبقى ${hh}س ${mm}د" else "يبقى ${mm}د").localizedDigits(ar),
-                style = RafiqType.caption, color = rc.inkMed,
-            )
-        }
-        val route = st.route
-        if (route != null) {
-            Box(
-                Modifier.fillMaxWidth().height(48.dp)
-                    .clip(RafiqShape.item).background(rc.ink)
-                    .clickable { nav.navigate(route) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(R.string.waraqa_start_station, stringResource(st.title)), style = RafiqType.label,
-                    fontWeight = FontWeight.Bold, color = rc.bg)
-            }
-        }
+        LeafPrayer(
+            key = key,
+            name = PrayerNames.getValue(key),
+            time = if (timed) p?.time else null,
+            prayed = key in prayed,
+            slot = slot,
+            hint = if (slot == PrayerSlot.NEXT && p != null)
+                stringResource(R.string.leaf_in, durationLabel(p.timeMillis - now, ar)) else null,
+        )
     }
 }
 
-/* ── ذيل الورقة ───────────────────────────────────────────────── */
-
+/** «الجمعة ١٦ أكتوبر · بغداد» — بلغة الجهاز، والمدينةُ إن عُرفت. */
 @Composable
-private fun Footer(done: Int, total: Int, arabic: Boolean) {
-    val rc = LocalRafiqColors.current
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 20.dp)) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(rc.divider))
-        Row(
-            Modifier.fillMaxWidth().padding(top = 13.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(stringResource(R.string.waraqa_footer), style = RafiqType.bodyS, color = rc.inkMed)
-            Text(
-                "$done من $total محطات".localizedDigits(arabic),
-                style = NumbersStyle, fontSize = RafiqType.label.fontSize, color = rc.gold,
-            )
-        }
-    }
+private fun gregorianLine(city: String): String {
+    val locale = Locale.getDefault()
+    val date = remember(locale) { SimpleDateFormat("EEEE d MMMM", locale).format(Date()) }
+    return if (city.isBlank()) date else "$date · $city"
 }
-
-/*  كانت بلا علامة صباحٍ ولا مساء — انظر [formatClock]. */
-private fun clockOf(millis: Long, arabic: Boolean): String = formatClock(millis, arabic)

@@ -20,3 +20,8 @@ INSERT OR IGNORE INTO DayStationLog(date, station, completed_at) VALUES (:date, 
 
 deleteAll:
 DELETE FROM DayStationLog;
+
+-- «فعلتُها» تُلغى إن ضُغطت خطأً. استعلامٌ جديدٌ على الجدول نفسِه —
+-- لا تغيير في البنية، فلا ترحيل.
+uncomplete:
+DELETE FROM DayStationLog WHERE date = :date AND station = :station;

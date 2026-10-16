@@ -28,6 +28,7 @@ import app.rafiqaldhikr.ui.screens.athar.AtharViewModel
 import app.rafiqaldhikr.ui.screens.isnad.IsnadViewModel
 import app.rafiqaldhikr.ui.screens.tasmee.TasmeeViewModel
 import app.rafiqaldhikr.ui.screens.waraqa.WisdomViewModel
+import app.rafiqaldhikr.ui.screens.waraqa.LeafViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
@@ -49,6 +50,7 @@ val viewModelModule = module {
     }
     viewModelOf(::HomeHubViewModel)
     viewModelOf(::WisdomViewModel)
+    viewModelOf(::LeafViewModel)
     viewModelOf(::KhatmaViewModel)
     viewModelOf(::MirrorViewModel)
 

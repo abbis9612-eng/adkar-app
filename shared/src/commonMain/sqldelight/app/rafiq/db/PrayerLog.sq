@@ -46,3 +46,8 @@ SELECT * FROM PrayerLog ORDER BY date;
 
 deleteAll:
 DELETE FROM PrayerLog;
+
+-- أسبوعُ «محاسبة اليوم»: صلواتُ مدىً من الأيّام في استعلامٍ واحد.
+-- استعلامٌ جديدٌ على الجدول نفسِه — لا تغيير في البنية، فلا ترحيل.
+getRange:
+SELECT * FROM PrayerLog WHERE date BETWEEN :start AND :end ORDER BY date;

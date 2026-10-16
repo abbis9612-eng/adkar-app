@@ -56,6 +56,15 @@ class HomeViewModel(
     data class UiState(
         val greeting:        String            = "",
         val hijriDate:       String            = "",
+        /**
+         * اليومُ الهجريُّ وحدَه، ثمّ الشهرُ والسنة — لورقة اليوم: رقمٌ
+         * كبيرٌ واسمُ شهرٍ تحته. من حسابِ [hijriDate] نفسِه لا حسابٍ ثانٍ،
+         * فلا يختلف تاريخان في شاشةٍ واحدة. وصفرٌ = تعذّر الحساب.
+         */
+        val hijriDay:        Int               = 0,
+        val hijriMonthYear:  String            = "",
+        /** المدينةُ المحفوظة — فارغةٌ إن حُفظت إحداثيّاتٌ بلا اسم. */
+        val city:            String            = "",
         val streak:          StreakInfo         = StreakInfo(0L, 0L, ""),
         val todayProgress:   DailyProgressInfo? = null,
         val prayerMethod:    String            = "mwl",
@@ -163,6 +172,11 @@ class HomeViewModel(
                 UiState(
                     greeting        = buildGreeting(),
                     hijriDate       = calculateHijriDate(prefs.hijriOffset),
+                    hijriDay        = hijriParts(prefs.hijriOffset)?.first ?: 0,
+                    hijriMonthYear  = hijriParts(prefs.hijriOffset)?.let { (_, m, y) ->
+                        "${context.resources.getStringArray(R.array.hijri_months)[m]} $y"
+                    }.orEmpty(),
+                    city            = prefs.lastKnownCity,
                     streak          = streak,
                     todayProgress   = progress,
                     prayerMethod    = prefs.prayerMethod,
@@ -281,17 +295,30 @@ class HomeViewModel(
     }
 
     // ═══ التاريخ الهجري (أم القرى عبر ICU — دقيق) ═══
+    /**
+     * (اليوم، فهرسُ الشهر من صفر، السنة) بتقويم أمّ القرى — أو `null` على
+     * أجهزةٍ أقدمَ من API 24 حيث لا تقويمَ هجريّاً في النظام.
+     */
+    private fun hijriParts(offset: Long): Triple<Int, Int, Int>? = try {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            val cal = android.icu.util.IslamicCalendar().apply {
+                calculationType = android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA
+                timeInMillis = System.currentTimeMillis() + offset * 86_400_000L
+            }
+            Triple(
+                cal.get(android.icu.util.IslamicCalendar.DAY_OF_MONTH),
+                cal.get(android.icu.util.IslamicCalendar.MONTH),
+                cal.get(android.icu.util.IslamicCalendar.YEAR),
+            )
+        } else null
+    } catch (_: Exception) { null }
+
     private fun calculateHijriDate(offset: Long): String {
         val monthNames = context.resources.getStringArray(R.array.hijri_months).toList()
         return try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                val cal = android.icu.util.IslamicCalendar().apply {
-                    calculationType = android.icu.util.IslamicCalendar.CalculationType.ISLAMIC_UMALQURA
-                    timeInMillis = System.currentTimeMillis() + offset * 86_400_000L
-                }
-                val day   = cal.get(android.icu.util.IslamicCalendar.DAY_OF_MONTH)
-                val month = cal.get(android.icu.util.IslamicCalendar.MONTH)
-                val year  = cal.get(android.icu.util.IslamicCalendar.YEAR)
+            val parts = hijriParts(offset)
+            if (parts != null) {
+                val (day, month, year) = parts
                 context.getString(R.string.hijri_date, day.toString(), monthNames[month], year.toString())
             } else {
                 // أجهزة API 23: تقدير حسابي تقريبي
