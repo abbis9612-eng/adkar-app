@@ -1050,4 +1050,13 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="intent_witr">Witr</string>
     <string name="intent_kahf">al-Kahf</string>
     <string name="intent_wird">Wird</string>
+
+    <!-- تذكيرُ خروج الوقت -->
+    <string name="notif_channel_end">Before the prayer time ends</string>
+    <string name="notif_end_title">%1$s time ends in %2$dm</string>
+    <string name="notif_end_body">Not logged on your page yet.</string>
+    <string name="notif_end_prayed">I prayed %1$s</string>
+    <string name="notif_end_snooze">Remind me in 10m</string>
+    <string name="notif_end_row">Before the time ends</string>
+    <string name="notif_end_desc">20 minutes before a prayer\'s time ends, if not logged — except Isha, whose end time scholars differ on</string>
 </resources>

@@ -75,6 +75,10 @@ class SettingsViewModel(
         .map { it?.notifyPrayers ?: true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
+    val endReminder: StateFlow<Boolean> = _prefs
+        .map { it?.endReminder ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     /** كان يُحفظ في القاعدة ولا يقرؤه أحد — فالمفتاحُ في شاشة الإتاحة يكذب. */
     val highContrast: StateFlow<Boolean> = _prefs
         .map { it?.highContrast ?: false }
@@ -107,6 +111,12 @@ class SettingsViewModel(
         }
     }
 
+    fun setEndReminder(enabled: Boolean) {
+        viewModelScope.launch {
+            prefsRepo.updateEndReminder(enabled)
+            runCatching { rescheduler.reschedule() }
+        }
+    }
     fun setGamification(visible: Boolean) {
         viewModelScope.launch { prefsRepo.updateGamification(visible) }
     }

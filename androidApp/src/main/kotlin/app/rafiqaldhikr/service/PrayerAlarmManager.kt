@@ -32,6 +32,53 @@ class PrayerAlarmManager(private val context: Context) {
          *  الثابت: يُلغى ويُعاد جدولتُه بلا أن يدهس تذكيرَ غيره. ولو
          *  استُعمل عدّادٌ متسلسلٌ لاختلطت التذكيراتُ عند حذف واحدٍ منها.  */
         const val PIN_ID_BASE = 300
+
+        /*  تذكيرُ خروج الوقت — قبل آخر الوقت بعشرين دقيقة، لأربعٍ لا خمس.
+         *
+         *  والعشاءُ ليست بينها عمداً: آخرُ وقتها مختلَفٌ فيه — ثلثُ الليل،
+         *  أو نصفُه، أو الفجر — فأيُّ ساعةٍ نختارها تُلزم صاحبَها بقولٍ لم
+         *  يختره. والأربعُ نهاياتُها محسوبةٌ بلا خلاف: الفجرُ بالشروق،
+         *  والظهرُ بالعصر، والعصرُ بالمغرب، والمغربُ بالعشاء.  */
+        const val END_FAJR_ID    = 110
+        const val END_DHUHR_ID   = 111
+        const val END_ASR_ID     = 112
+        const val END_MAGHRIB_ID = 113
+        const val END_LEAD_MS    = 20 * 60_000L
+        const val SNOOZE_MS      = 10 * 60_000L
+        const val END_PREFIX     = "end:"
+
+        fun endIdOf(prayer: String): Int? = when (prayer) {
+            "fajr"    -> END_FAJR_ID
+            "dhuhr"   -> END_DHUHR_ID
+            "asr"     -> END_ASR_ID
+            "maghrib" -> END_MAGHRIB_ID
+            else      -> null
+        }
+    }
+
+    /**
+     * يجدول تذكيرَ خروج الوقت للأربع.
+     *
+     * @param ends آخرُ وقتِ كلِّ صلاة: fajr ← الشروق، dhuhr ← العصر، …
+     */
+    fun scheduleEndReminders(ends: Map<String, Long>, enabled: Boolean) {
+        listOf("fajr", "dhuhr", "asr", "maghrib").forEach { p ->
+            val id = endIdOf(p) ?: return@forEach
+            val end = ends[p]
+            if (!enabled || end == null) cancelOne(id)
+            else schedulePrayer(END_PREFIX + p, end - END_LEAD_MS, id)
+        }
+    }
+
+    /**
+     * «ذكّرني بعد ١٠د» — ما لم يكن ذلك بعد خروج الوقت: تذكيرٌ بصلاةٍ خرج
+     * وقتُها لا يُدرك به شيء.
+     */
+    fun snoozeEnd(prayer: String, end: Long) {
+        val id = endIdOf(prayer) ?: return
+        val at = System.currentTimeMillis() + SNOOZE_MS
+        if (end > 0 && at >= end) return
+        schedulePrayer(END_PREFIX + prayer, at, id, end)
     }
 
     /**
@@ -110,12 +157,14 @@ class PrayerAlarmManager(private val context: Context) {
     fun canScheduleExact(): Boolean =
         Build.VERSION.SDK_INT < 31 || alarmManager.canScheduleExactAlarms()
 
-    private fun schedulePrayer(prayerName: String, triggerAtMillis: Long, notifId: Int) {
+    private fun schedulePrayer(prayerName: String, triggerAtMillis: Long, notifId: Int, endAt: Long = 0L) {
         if (triggerAtMillis <= System.currentTimeMillis()) return
 
         val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
             putExtra("prayer_name", prayerName)
             putExtra("notif_id",    notifId)
+            // آخرُ الوقت لتذكير الخروج — ليُعرف أيصحّ «ذكّرني بعد ١٠د»
+            putExtra("end_at", if (endAt > 0) endAt else triggerAtMillis + END_LEAD_MS)
         }
         val pending = PendingIntent.getBroadcast(
             context, notifId, intent,
@@ -176,7 +225,8 @@ class PrayerAlarmManager(private val context: Context) {
         (
             listOf(
                 FAJR_ID, DHUHR_ID, ASR_ID, MAGHRIB_ID, ISHA_ID,
-                ADHKAR_MORNING_ID, ADHKAR_EVENING_ID, ADHKAR_SLEEP_ID
+                ADHKAR_MORNING_ID, ADHKAR_EVENING_ID, ADHKAR_SLEEP_ID,
+                END_FAJR_ID, END_DHUHR_ID, END_ASR_ID, END_MAGHRIB_ID,
             ) + pinIds.map { (PIN_ID_BASE + it).toInt() }
         ).forEach { id ->
             val intent  = Intent(context, PrayerAlarmReceiver::class.java)

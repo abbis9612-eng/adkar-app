@@ -70,6 +70,7 @@ fun NotificationSettingsScreen(
             val morning by vm.notifyMorning.collectAsStateWithLifecycle()
             val evening by vm.notifyEvening.collectAsStateWithLifecycle()
             val prayers by vm.notifyPrayers.collectAsStateWithLifecycle()
+            val endRem by vm.endReminder.collectAsStateWithLifecycle()
 
             Column(Modifier.padding(horizontal = 16.dp)) {
                 Spacer(Modifier.height(16.dp))
@@ -133,6 +134,7 @@ fun NotificationSettingsScreen(
                         Triple(R.string.cat_morning, R.string.notif_morning_desc, morning),
                         Triple(R.string.cat_evening, R.string.notif_evening_desc, evening),
                         Triple(R.string.nav_prayer,  R.string.notif_prayer_desc,  prayers),
+                        Triple(R.string.notif_end_row, R.string.notif_end_desc,    endRem),
                     ).forEachIndexed { index, (titleRes, descRes, checked) ->
                         Row(
                             Modifier
@@ -160,7 +162,8 @@ fun NotificationSettingsScreen(
                                     when (index) {
                                         0 -> vm.setNotifyKinds(v, evening, prayers)
                                         1 -> vm.setNotifyKinds(morning, v, prayers)
-                                        else -> vm.setNotifyKinds(morning, evening, v)
+                                        2 -> vm.setNotifyKinds(morning, evening, v)
+                                        else -> vm.setEndReminder(v)
                                     }
                                 },
                                 colors = SwitchDefaults.colors(

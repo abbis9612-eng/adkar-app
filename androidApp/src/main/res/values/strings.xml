@@ -1075,4 +1075,13 @@
     <string name="intent_witr">الوتر</string>
     <string name="intent_kahf">الكهف</string>
     <string name="intent_wird">الوِرد</string>
+
+    <!-- تذكيرُ خروج الوقت -->
+    <string name="notif_channel_end">قبل خروج الوقت</string>
+    <string name="notif_end_title">يبقى من وقت %1$s: %2$dد</string>
+    <string name="notif_end_body">لم تُسجَّل في ورقتك بعد.</string>
+    <string name="notif_end_prayed">صلّيتُ %1$s</string>
+    <string name="notif_end_snooze">ذكّرني بعد ١٠د</string>
+    <string name="notif_end_row">قبل خروج الوقت</string>
+    <string name="notif_end_desc">قبل آخر الوقت بعشرين دقيقة إن لم تُسجَّل الصلاة — عدا العشاء، لاختلاف العلماء في آخر وقتها</string>
 </resources>

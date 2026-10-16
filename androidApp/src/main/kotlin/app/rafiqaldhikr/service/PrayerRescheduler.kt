@@ -102,6 +102,17 @@ class PrayerRescheduler(
             evening     = prefs.notify_evening == 1L,
         )
 
+        //  تذكيرُ خروج الوقت — آخرُ كلِّ وقتٍ أوّلُ الذي يليه
+        alarmManager.scheduleEndReminders(
+            ends = mapOf(
+                "fajr"    to times.sunrise,
+                "dhuhr"   to times.asr,
+                "asr"     to times.maghrib,
+                "maghrib" to times.isha,
+            ),
+            enabled = prefs.end_reminder == 1L,
+        )
+
         /*  تذكيراتُ الأذكار المثبَّتة — تُجدوَل مع مواقيت اليوم نفسِها.
          *
          *  وموضعُها هنا لا في شاشةٍ: هذا هو الموضعُ الذي يُنادى عند
