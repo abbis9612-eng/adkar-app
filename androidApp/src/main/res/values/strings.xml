@@ -142,6 +142,7 @@
     <string name="hijri_suffix">— هـ</string>
     <string name="waraqa_title">ورقة يومك</string>
     <string name="waraqa_opens_first">تُفتح مع أول ميقات</string>
+    <string name="waraqa_untimed">تظهر الأوقاتُ حين تختار مدينتك</string>
     <string name="waraqa_footer">خُطّ من يومك</string>
     <string name="quran_search_hint">ابحث عن سورة...</string>
     <string name="revelation_makki">مكية</string>

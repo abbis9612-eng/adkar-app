@@ -118,20 +118,23 @@ fun WaraqaScreen(
             onBell     = { navController.navigate(RafiqRoute.NotificationSettings.route) },
         )
 
-        // محطّات اليوم موقوتة كلّها بأوقات الصلاة. بلا موقع لا ورقة —
-        // والطلب هنا صريح بدل جدولٍ محسوب على مدينةٍ ليست مدينته.
-        if (day.needsLocation) {
+        /*  الورقةُ تظهر دائماً — بمدينةٍ وبغيرها.
+         *
+         *  كانت بلا مدينةٍ تُخفى كلُّها ويبقى طلبُ الموقع وحدَه، فمن فتح
+         *  التطبيقَ أوّلَ مرّةٍ لم يرَ «الرفيقَ» أصلاً. والآن تُعرض
+         *  المحطّاتُ بترتيبها بلا ساعات، وطلبُ المدينة تحتها: الترتيبُ
+         *  صادقٌ في كلّ مدينة، والساعةُ وحدَها تنتظر — فلا يُكذَب بوقتِ
+         *  مدينةٍ ليست مدينتَه، ولا يُحجَب عنه يومُه. */
+        StateLine(day.nowStation, timed = day.timed)
+
+        Sheet(day.stations, day.nowStation, day.timed, navController)
+
+        if (!day.timed) {
             NeedsLocation(
                 message = stringResource(R.string.waraqa_needs_location)
             )
-        } else {
-            StateLine(day.nowStation)
-
-            Sheet(day.stations, day.nowStation, navController)
-
-            if (day.stations.isNotEmpty()) {
-                Footer(day.doneCount, day.stations.size, ar)
-            }
+        } else if (day.stations.isNotEmpty()) {
+            Footer(day.doneCount, day.stations.size, ar)
         }
 
         /*  رسالةُ اليوم — **فوق** كلمة اليوم.
@@ -194,13 +197,16 @@ private fun Header(hijri: String, onSettings: () -> Unit, onBell: () -> Unit) {
 /* ── سطر الحال: الجملة الوحيدة أعلى الورقة ────────────────────── */
 
 @Composable
-private fun StateLine(now: StationUi?) {
+private fun StateLine(now: StationUi?, timed: Boolean) {
     val rc = LocalRafiqColors.current
     Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 4.dp)) {
         if (now == null) {
             //  عنوانُ الورقة وسطرُ حالها كلامُنا — بخطّ الواجهة.
             Text(stringResource(R.string.waraqa_title), style = RafiqType.titleXL, color = rc.ink)
-            Text(stringResource(R.string.waraqa_opens_first), style = RafiqType.bodyS, color = rc.inkMed)
+            Text(
+                stringResource(if (timed) R.string.waraqa_opens_first else R.string.waraqa_untimed),
+                style = RafiqType.bodyS, color = rc.inkMed,
+            )
         } else {
             Text(
                 stringResource(R.string.waraqa_you_are_in, stringResource(now.title)),
@@ -219,6 +225,7 @@ private val GutterWidth = 44.dp
 private fun Sheet(
     stations: List<StationUi>,
     now: StationUi?,
+    timed: Boolean,
     nav: NavHostController,
 ) {
     if (stations.isEmpty()) return
@@ -261,23 +268,25 @@ private fun Sheet(
         }
         Column(Modifier.fillMaxWidth()) {
             stations.forEach { st ->
-                Station(st, st.id == now?.id, nav)
+                Station(st, st.id == now?.id, timed, nav)
             }
         }
     }
 }
 
 @Composable
-private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
+private fun Station(st: StationUi, isNow: Boolean, timed: Boolean, nav: NavHostController) {
     val rc = LocalRafiqColors.current
     val done   = st.status == StationStatus.DONE
     val passed = st.status == StationStatus.PASSED
-    val future = st.status == StationStatus.UPCOMING && !isNow
+    // بلا ساعاتٍ لا قادمَ ولا ماضيَ يُدرى — فلا تُبهَت محطّةٌ على ظنّ
+    val future = timed && st.status == StationStatus.UPCOMING && !isNow
 
     val ink by animateColorAsState(
         targetValue = when {
             isNow  -> rc.ink
             future -> rc.ink.copy(alpha = FutureInk)
+            !timed && !done -> rc.ink
             else   -> rc.ink.copy(alpha = PastInk)
         },
         animationSpec = progressSpec(),
@@ -290,9 +299,13 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
         Modifier
             .fillMaxWidth()
             .clip(RafiqShape.item)
+            /*  كلُّ محطّةٍ تُفتح — ما مضى وقتُه أيضاً.
+             *
+             *  كان الضغطُ للحاضرة والقادمة وحدهما، فمن فاته وقتُ الصباح
+             *  لم يجد أذكارَه في ورقة يومه، وهي قلبُ التطبيق. ووسمُ
+             *  «مضى وقتُها» يبقى ظاهراً بجانبها: يُخبره ولا يمنعه. */
             .then(
-                if (route != null && (isNow || future))
-                    Modifier.clickable { nav.navigate(route) } else Modifier
+                if (route != null) Modifier.clickable { nav.navigate(route) } else Modifier
             )
             .padding(vertical = 9.dp),
         verticalAlignment = Alignment.Top,
@@ -311,8 +324,14 @@ private fun Station(st: StationUi, isNow: Boolean, nav: NavHostController) {
                             ),
                     color = ink,
                 )
-                Text(clockOf(st.startMillis, LocalArabicNumerals.current),
-                    style = RafiqType.caption, color = soft)
+                if (timed) {
+                    Text(clockOf(st.startMillis, LocalArabicNumerals.current),
+                        style = RafiqType.caption, color = soft)
+                }
+                if (passed) {
+                    Text(stringResource(R.string.prayer_time_passed),
+                        style = RafiqType.caption, color = soft)
+                }
             }
             Text(stringResource(st.description), style = RafiqType.bodyS, color = soft,
                 modifier = Modifier.padding(top = 2.dp))

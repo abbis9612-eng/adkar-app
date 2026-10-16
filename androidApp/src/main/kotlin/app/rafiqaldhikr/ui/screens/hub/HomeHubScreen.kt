@@ -455,6 +455,7 @@ fun HomeHubScreen(
                     stations   = day.stations,
                     nowId      = day.nowStation?.id,
                     doneIds    = day.completedIds,
+                    timed      = day.timed,
                     ar         = ar,
                     onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
                 )
@@ -939,6 +940,8 @@ private fun DayRow(
     stations: List<DayCompanionViewModel.StationUi>,
     nowId:      String?,
     doneIds:    Set<String> = emptySet(),
+    /** بلا مدينةٍ تُعرض المحطّاتُ بترتيبها، وساعاتُها ترتيبٌ لا وقت — فلا تُطبع. */
+    timed:      Boolean = true,
     ar:         Boolean,
     onOpen:     () -> Unit,
 ) {
@@ -1006,6 +1009,8 @@ private fun DayRow(
                      *  مكتوبٌ في التطبيق منذ البداية ولا يُستعمل. */
                     time = if (st != null && st.spansDay) {
                         stringResource(st.timeLabel)
+                    } else if (!timed) {
+                        null
                     } else {
                         st?.startMillis?.let { formatClock(it, ar) }
                     },

@@ -41,6 +41,21 @@ class DayCompanionViewModel(
     private companion object {
         /** أوّلُ صفحاتِ الكهف في المصحف المدنيّ — مرساةُ محطّة الجمعة. */
         const val KAHF_PAGE = 293
+
+        private const val H = 3_600_000L
+        private const val M = 60_000L
+
+        /**
+         * أوقاتٌ للترتيب وحدَه — لا تُعرض ساعةٌ منها أبداً.
+         *
+         * بلا مدينةٍ تُبنى المحطّاتُ بها لتُرتَّب كما تُرتَّب في كلّ مدينة،
+         * ثمّ تُخفى ساعاتُها في الواجهة ([UiState.timed]). والقيمُ يومُ
+         * اعتدالٍ تقريبيّ؛ ولا يهمّ منها إلّا أنّ كلَّ وقتٍ بعد الذي قبله.
+         */
+        private val ORDER_ONLY = app.rafiq.domain.model.PrayerTimesResult(
+            fajr = 5 * H, sunrise = 6 * H + 30 * M, dhuhr = 12 * H,
+            asr = 15 * H + 30 * M, maghrib = 18 * H, isha = 19 * H + 30 * M,
+        )
     }
 
     enum class StationStatus { UPCOMING, ACTIVE, DONE, PASSED }
@@ -101,6 +116,16 @@ class DayCompanionViewModel(
          * في أخصِّ ما عنده. فما مضى يُكتب «مضت»، و«تمّت» لهؤلاء وحدهم.
          */
         val completedIds: Set<String>   = emptySet(),
+        /**
+         * هل للمحطّات أوقاتٌ حقيقيّة؟
+         *
+         * بلا مدينةٍ مختارةٍ كانت الورقةُ تختفي كلُّها، فلا يرى من فتح
+         * التطبيقَ أوّلَ مرّةٍ «الرفيقَ» أصلاً — وهو اسمُ التطبيق. فصارت
+         * تُعرَض بترتيبها **بلا ساعات**: الترتيبُ صادقٌ في كلّ مدينة
+         * (الاستيقاظُ قبل الفجر، والضحى بعد الشروق)، والساعةُ وحدَها
+         * تحتاج المدينة. فلا تكذب في وقتٍ ولا تختفي.
+         */
+        val timed: Boolean               = true,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -135,20 +160,24 @@ class DayCompanionViewModel(
                 khatmaRepo.active(),
                 refreshTrigger,
             ) { prefs, progress, completed, khatma, _ ->
-                // محطّات اليوم كلّها موقوتة بأوقات الصلاة. بلا موقع لا محطّات —
-                // والورقة تطلب الموقع بدل أن تعرض جدول مدينةٍ ليست مدينته.
+                // محطّات اليوم موقوتة بأوقات الصلاة، وهي تُحسب من المدينة.
+                // وبلا مدينةٍ لا تُخترع أوقاتُ مدينةٍ أخرى — بل تُعرض
+                // المحطّاتُ بترتيبها وحدَه، انظر [UiState.timed].
                 val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
-                    ?: return@combine UiState(isLoading = false, needsLocation = true)
-                val times = when (val r = getPrayerTimes(
-                    here.lat, here.lng, prefs.prayerMethod,
-                    elevation = prefs.elevation, madhab = prefs.madhab,
-                    fajrOffset = prefs.fajrOffset, dhuhrOffset = prefs.dhuhrOffset,
-                    asrOffset = prefs.asrOffset, maghribOffset = prefs.maghribOffset,
-                    ishaOffset = prefs.ishaOffset
-                )) {
-                    is RafiqResult.Success -> r.data
-                    else -> null
-                } ?: return@combine UiState(isLoading = true)
+                val real = here?.let { h ->
+                    when (val r = getPrayerTimes(
+                        h.lat, h.lng, prefs.prayerMethod,
+                        elevation = prefs.elevation, madhab = prefs.madhab,
+                        fajrOffset = prefs.fajrOffset, dhuhrOffset = prefs.dhuhrOffset,
+                        asrOffset = prefs.asrOffset, maghribOffset = prefs.maghribOffset,
+                        ishaOffset = prefs.ishaOffset
+                    )) {
+                        is RafiqResult.Success -> r.data
+                        else -> null
+                    } ?: return@combine UiState(isLoading = true)
+                }
+                val timed = real != null
+                val times = real ?: ORDER_ONLY
 
                 val now = System.currentTimeMillis()
                 val todayDate = Clock.System.now()
@@ -181,6 +210,8 @@ class DayCompanionViewModel(
                     .map { st ->
                     val status = when {
                         st.id in allDone                      -> StationStatus.DONE
+                        // بلا ساعاتٍ لا «الآن» ولا «مضى» — لا يُدرى أيٌّ منهما
+                        !timed                                -> StationStatus.UPCOMING
                         now in st.startMillis..st.endMillis   -> StationStatus.ACTIVE
                         now > st.endMillis                    -> StationStatus.PASSED
                         else                                  -> StationStatus.UPCOMING
@@ -191,11 +222,14 @@ class DayCompanionViewModel(
                 UiState(
                     completedIds = allDone,
                     stations   = stations,
-                    nowStation = stations.firstOrNull { it.status == StationStatus.ACTIVE }
-                        ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
+                    nowStation = if (!timed) null
+                        else stations.firstOrNull { it.status == StationStatus.ACTIVE }
+                            ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
                     isFriday   = todayDate.isFriday(),
                     doneCount  = stations.count { it.status == StationStatus.DONE },
                     isLoading  = false,
+                    needsLocation = !timed,
+                    timed      = timed,
                 )
             }.collect { _uiState.value = it }
         }

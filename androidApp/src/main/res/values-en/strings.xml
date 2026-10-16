@@ -152,6 +152,7 @@
     <string name="hijri_suffix">— AH</string>
     <string name="waraqa_title">Your Day</string>
     <string name="waraqa_opens_first">Opens at the first prayer</string>
+    <string name="waraqa_untimed">Times appear once you choose your city</string>
     <string name="waraqa_footer">Marked from your day</string>
     <string name="quran_search_hint">Search for a surah…</string>
     <string name="revelation_makki">Meccan</string>
