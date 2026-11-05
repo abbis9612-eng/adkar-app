@@ -49,10 +49,27 @@ UI = ROOT / "androidApp/src/main/kotlin/app/rafiqaldhikr/ui"
 #  شاشة الأذكار (بَلاطاتٍ بلون سماء الوقت) على هاتفه فرفضه لأنّه لا
 #  يناسب أيقونات التطبيق، فحُذف. والاستثناءُ له لا لغيره.
 #  ثمّ عاد إلى ٣٦ بتوقيع «ورقة اليوم».
-CEILING = 36
+#  ثمّ نزل إلى ٢٣ حين فُصلت الشاشاتُ الهادئةُ عمداً (QUIET أدناه).
+CEILING = 23
 
 #  ما ليس شاشةً وإن انتهى اسمُه بـScreen: شاشاتُ النظام والحالات.
 SKIP = {"CrashReportScreen.kt"}
+
+#  شاشاتٌ هادئةٌ عمداً — بقرارٍ صريحٍ من صاحب التطبيق.
+#
+#  تُفتح مرّةً ويُخرَج منها: إعدادٌ يُضبط، أو نصٌّ قانونيٌّ يُقرأ. ووجهٌ
+#  جريءٌ فيها ثِقَلٌ على من جاء ليُطفئ مفتاحاً ويمضي — والجرأةُ تُصرف
+#  حيث يُرجَع كلَّ يوم. فلا تُعدّ «بلا وجه»، ولا يُمنع أن تُعطى وجهاً.
+#  ومن أضاف إليها شاشةً يُضيف معها سببَها.
+QUIET = {
+    # الإعدادات وفروعها
+    "SettingsScreen.kt", "AccessibilitySettingsScreen.kt", "FontSettingsScreen.kt",
+    "NotificationSettingsScreen.kt", "ThemeSettingsScreen.kt", "LanguageScreen.kt",
+    "PrayerMethodScreen.kt", "ExportDataScreen.kt",
+    # نصوصٌ ثابتةٌ تُقرأ مرّة
+    "AboutScreen.kt", "HelpScreen.kt", "ContactScreen.kt",
+    "PrivacyPolicyScreen.kt", "TermsScreen.kt",
+}
 
 
 def screens() -> list[pathlib.Path]:
@@ -87,10 +104,18 @@ def main() -> int:
         sig = signature_of(f.read_text(encoding="utf-8"))
         if sig:
             signed.setdefault(sig, []).append(f.name)
-        else:
+        elif f.name not in QUIET:
             missing.append(f.name)
 
     fail = False
+
+    #  اسمٌ في QUIET لا شاشةَ له = خطأٌ إملائيّ أو شاشةٌ حُذفت، فيبقى
+    #  الاستثناءُ معلَّقاً على لا شيء.
+    names = {f.name for f in files}
+    stale = sorted(QUIET - names)
+    if stale:
+        fail = True
+        print("  ✗ في QUIET أسماءٌ لا شاشةَ لها: " + "، ".join(stale))
 
     dupes = {s: n for s, n in signed.items() if len(n) > 1}
     if dupes:
