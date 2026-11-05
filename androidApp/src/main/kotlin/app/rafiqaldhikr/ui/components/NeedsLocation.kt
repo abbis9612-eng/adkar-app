@@ -14,6 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -74,7 +76,7 @@ class LocationRequestViewModel(
 
 @Composable
 fun NeedsLocation(
-    message: String = "المواقيت تُحسب من موقعك، ولا يمكن حسابها بدونه.",
+    message: String = stringResource(R.string.loc_needed_body),
     modifier: Modifier = Modifier,
     vm: LocationRequestViewModel = koinViewModel(),
 ) {
@@ -121,14 +123,14 @@ fun NeedsLocation(
     ) {
         IcoPin(72.dp, rc.gold, off = true)
         Spacer(Modifier.height(20.dp))
-        Text("حدّد موقعك", style = RafiqType.titleL, color = rc.ink)
+        Text(stringResource(R.string.widget_needs_location), style = RafiqType.titleL, color = rc.ink)
         Spacer(Modifier.height(10.dp))
         Text(message, textAlign = TextAlign.Center, style = RafiqType.body, color = rc.inkMed)
 
         Spacer(Modifier.height(24.dp))
 
         Text(
-            text = if (asking) "جارٍ تحديد الموقع…" else "تفعيل الموقع",
+            text = if (asking) stringResource(R.string.loc_finding) else stringResource(R.string.loc_enable),
             style = RafiqType.label,
             color = rc.onEmeraldFill,
             modifier = Modifier
@@ -159,7 +161,7 @@ fun NeedsLocation(
         // مدينته بنفسه. بدون هذا كان حذف الاحتياطيّ يترك التطبيق بلا
         // مواقيت ولا قبلة ولا ورقة لمن لا يمنح الموقع.
         Text(
-            "أو اختر مدينتك يدوياً",
+            stringResource(R.string.loc_pick_city),
             style = RafiqType.label,
             color = rc.emerald,
             modifier = Modifier
@@ -178,8 +180,7 @@ fun NeedsLocation(
         if (denied) {
             Spacer(Modifier.height(14.dp))
             Text(
-                "تعذّر الحصول على الموقع. تأكّد من تفعيل خدمة الموقع في جهازك، " +
-                    "أو امنح الإذن من إعدادات النظام، أو اختر مدينتك يدوياً.",
+                stringResource(R.string.loc_failed),
                 textAlign = TextAlign.Center,
                 style = RafiqType.bodyS,
                 color = rc.inkMed,

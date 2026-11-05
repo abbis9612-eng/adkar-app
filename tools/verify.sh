@@ -14,14 +14,41 @@ step() {
     if "$@"; then :; else echo "  ✗ فشل"; fail=1; fi
 }
 
+step "خطوط المصحف"     python3 tools/check_mushaf_fonts.py
 step "المسارات اليتيمة"   python3 tools/check_orphan_routes.py
+step "وثائقُ الشاشات"     python3 tools/check_docs_screens.py
+step "السياق البصريّ"    python3 tools/check_visual_context.py
+step "نسخةُ المخطّط"      python3 tools/check_user_version.py
 step "ملفات النصوص"       python3 tools/check_strings.py
 step "المصادر الدينية"     python3 tools/check_religious_sources.py
 step "نصّ ديني في الكود"   python3 tools/check_devotional_in_code.py
 step "إحداثيات المدن"      python3 tools/check_cities.py
+step "بيانات القرآن"       python3 tools/check_quran_data.py
+step "أحكام التجويد"      python3 tools/check_tajweed.py
+step "تطبيع التسميع"      python3 tools/check_tasmee_rules.py
+step "نموذج التسميع"      python3 tools/check_tasmee_model.py
+step "مراسي الجولة"       python3 tools/check_tour_anchors.py
+step "وجوهُ الشاشات"      python3 tools/check_signatures.py
+step "مخطّط القاعدة"       python3 tools/check_schema.py
+step "نصٌّ عربي في الواجهة" python3 tools/check_hardcoded_ui.py
 step "الاستيرادات"        python3 tools/check_imports.py
 step "الترجمة"            ./gradlew :androidApp:compileDebugKotlin -q
 step "الاختبارات"          ./gradlew :shared:testDebugUnitTest :androidApp:testDebugUnitTest -q
+
+#  ولماذا lint هنا وهو بطيء
+#  ═══════════════════════
+#
+#  لأنّه الفحصُ الوحيدُ الذي يرى ما لا تراه الترجمةُ ولا الاختبارات:
+#  نداءً إلى واجهةٍ لا توجد على الحدّ الأدنى. `Optional` من أندرويد ٢٤
+#  والحدُّ ٢٣ — فالكودُ يُترجَم ويُختبَر ويُبنى ويُنشر، ثمّ يسقط **على
+#  جهازِ من معه أندرويد ٦** وحدَه.
+#
+#  وقد حدث: بقي lint أحمرَ سبعةَ بناءاتٍ في CI وهذا الملفُّ يقول
+#  «كل الفحوص خضراء — آمن للدفع». فحارسٌ لا يرى عطبَ الإصدار ليس حارساً.
+#
+#  وهو في CI وظيفةٌ منفصلةٌ لا تحجز الـAPK (عمداً — راجع build-apk.yml)،
+#  وهنا آخرُ خطوةٍ: ما قبله يُنهي سريعاً، وهو يأخذ دقيقتين.
+step "lint"               ./gradlew :androidApp:lintDebug -q
 
 if [ "$fail" -eq 0 ]; then
     printf '\n\033[32mكل الفحوص خضراء — آمن للدفع.\033[0m\n'

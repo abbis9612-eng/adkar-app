@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -60,14 +62,14 @@ fun ColorsScreen(navController: NavHostController) {
                 .padding(bottom = 32.dp),
         ) {
             RafiqTopBar(
-                title    = "الألوان",
-                subtitle = "لونان تختارهما، والباقي يُحسب ليبقى مقروءاً",
+                title    = stringResource(R.string.colors_title),
+                subtitle = stringResource(R.string.colors_sub),
                 onBack   = { navController.popBackStack() },
             )
 
             Preview()
 
-            SectionTitle("تركيبات جاهزة")
+            SectionTitle(stringResource(R.string.colors_presets))
             ColorPresets.chunked(3).forEach { row ->
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -84,13 +86,13 @@ fun ColorsScreen(navController: NavHostController) {
                 }
             }
 
-            SectionTitle("الورق")
+            SectionTitle(stringResource(R.string.colors_paper))
             Swatches(PaperSwatches, paper) { save(it, accent) }
 
-            SectionTitle("اللهجة")
+            SectionTitle(stringResource(R.string.colors_accent))
             Swatches(AccentSwatches, accent) { save(paper, it) }
 
-            SectionTitle("القياس")
+            SectionTitle(stringResource(R.string.colors_measure))
             Measures(rc)
 
             Box(
@@ -103,7 +105,7 @@ fun ColorsScreen(navController: NavHostController) {
                     .clickable { save(null, null) },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("إرجاع الألوان الأصلية", style = RafiqType.titleM, color = rc.ink)
+                Text(stringResource(R.string.colors_reset), style = RafiqType.titleM, color = rc.ink)
             }
         }
     }
@@ -142,8 +144,8 @@ private fun Preview() {
             )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("رفيق الذِّكر", style = RafiqType.titleM, color = rc.emerald)
-                Text("رفيقُك في يومك", style = RafiqType.bodyS, color = rc.inkMed)
+                Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = rc.emerald)
+                Text(stringResource(R.string.hub_companion), style = RafiqType.bodyS, color = rc.inkMed)
             }
         }
         Spacer(Modifier.height(14.dp))
@@ -157,7 +159,7 @@ private fun Preview() {
                     .clip(CircleShape)
                     .background(rc.emeraldFill)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
-            ) { Text("ابدأ", style = RafiqType.titleM, color = rc.onEmeraldFill) }
+            ) { Text(stringResource(R.string.action_start), style = RafiqType.titleM, color = rc.onEmeraldFill) }
             Spacer(Modifier.width(10.dp))
             Box(
                 Modifier
@@ -167,7 +169,7 @@ private fun Preview() {
                     .background(rc.card)
                     .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.CenterStart,
-            ) { Text("بطاقة", style = RafiqType.bodyS, color = rc.inkMed) }
+            ) { Text(stringResource(R.string.colors_card), style = RafiqType.bodyS, color = rc.inkMed) }
         }
     }
 }
@@ -198,7 +200,7 @@ private fun PresetChip(
             Box(Modifier.size(22.dp).clip(CircleShape).background(preset.accent))
         }
         Spacer(Modifier.height(7.dp))
-        Text(preset.name, style = RafiqType.bodyS, color = rc.ink, maxLines = 1)
+        Text(stringResource(preset.name), style = RafiqType.bodyS, color = rc.ink, maxLines = 1)
     }
 }
 
@@ -235,12 +237,12 @@ private fun Swatches(colors: List<Color>, selected: Color?, onPick: (Color) -> U
 @Composable
 private fun Measures(p: RafiqPalette) {
     val rows = listOf(
-        Triple("النصّ على الورق",      contrast(p.ink, p.bg),                 4.5f),
-        Triple("الثانوي على البطاقة",  contrast(p.inkMed, p.card),            4.5f),
-        Triple("لون اللهجة نصّاً",      contrast(p.emerald, p.card),           4.5f),
-        Triple("نصّ الزرّ",             contrast(p.onEmeraldFill, p.emeraldFill), 4.5f),
-        Triple("الأيقونات",            contrast(p.inkLight, p.card),          3.0f),
-        Triple("نبرة البطاقة",         contrast(p.card, p.bg),                1.2f),
+        Triple(stringResource(R.string.colors_m_ink_paper),      contrast(p.ink, p.bg),                 4.5f),
+        Triple(stringResource(R.string.colors_m_second_card),  contrast(p.inkMed, p.card),            4.5f),
+        Triple(stringResource(R.string.colors_m_accent_text),      contrast(p.emerald, p.card),           4.5f),
+        Triple(stringResource(R.string.colors_m_button_text),             contrast(p.onEmeraldFill, p.emeraldFill), 4.5f),
+        Triple(stringResource(R.string.colors_m_icons),            contrast(p.inkLight, p.card),          3.0f),
+        Triple(stringResource(R.string.colors_m_card_tone),         contrast(p.card, p.bg),                1.2f),
     )
     rows.forEach { (label, value, min) ->
         Row(

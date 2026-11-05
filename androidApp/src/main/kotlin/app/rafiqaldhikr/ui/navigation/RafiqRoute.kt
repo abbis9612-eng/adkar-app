@@ -22,6 +22,8 @@ sealed class RafiqRoute(val route: String) {
 
     // ═══ M1 — Tasbeeh ═══
     data object Tasbeeh           : RafiqRoute("tasbeeh")
+    data object Khatma            : RafiqRoute("khatma")
+    data object Mirror            : RafiqRoute("mirror")
 
     // ═══ M1 — Quran ═══
     data object QuranList         : RafiqRoute("quran_list")
@@ -49,6 +51,20 @@ sealed class RafiqRoute(val route: String) {
     data object QuranSearch       : RafiqRoute("quran_search")
     data object QuranBookmarks    : RafiqRoute("quran_bookmarks")
 
+    /** جَرْدُ الإسناد — تُفتح من الإعدادات. */
+    data object Isnad             : RafiqRoute("isnad")
+
+    /** الأثر — أحاديثُ الذكر بأدلّتها. تُفتح من أبواب الأذكار. */
+    data object Athar             : RafiqRoute("athar")
+
+    /** الأربعون النوويّة — تُفتح من أبواب الأذكار. */
+    data object Arbaeen           : RafiqRoute("arbaeen")
+
+    /** تسميعُ آيةٍ بعينها — تُفتح من ورقة الآية في المصحف. */
+    data object Tasmee            : RafiqRoute("tasmee/{surah}/{ayah}") {
+        fun of(surah: Int, ayah: Int) = "tasmee/$surah/$ayah"
+    }
+
     // ═══ M1 — Prayer ═══
     data object PrayerTimes       : RafiqRoute("prayer_times")
     data object PrayerMethod      : RafiqRoute("prayer_method")
@@ -59,7 +75,6 @@ sealed class RafiqRoute(val route: String) {
     data object DuaList           : RafiqRoute("dua_list/{category}") {
         fun withCategory(category: String) = "dua_list/$category"
     }
-    @HiddenInV1 data object EmotionalDua      : RafiqRoute("emotional_dua")
 
     // ═══ M1 — Others ═══
     /** ورقة اليوم — كانت الشاشة الأولى، وصارت باباً في الرئيسية. */
@@ -78,17 +93,15 @@ sealed class RafiqRoute(val route: String) {
     data object Help              : RafiqRoute("help")
 
     // ═══ M2 — New Features ═══
-    @HiddenInV1 data object Breathing         : RafiqRoute("breathing")
-    @HiddenInV1 data object Garden            : RafiqRoute("garden")
+    data object Breathing         : RafiqRoute("breathing")
+    data object Garden            : RafiqRoute("garden")
     data object Achievements      : RafiqRoute("achievements")
-    @HiddenInV1 data object ShareCard         : RafiqRoute("share_card")
-    @HiddenInV1 data object RamadanHome       : RafiqRoute("ramadan")
-    @HiddenInV1 data object WeeklyReport      : RafiqRoute("weekly_report")
+    data object ShareCard         : RafiqRoute("share_card")
+    data object WeeklyReport      : RafiqRoute("weekly_report")
     data object PrivacyPolicy     : RafiqRoute("privacy_policy")
     data object Terms             : RafiqRoute("terms")
     data object Contact           : RafiqRoute("contact")
     data object ExportData        : RafiqRoute("export_data")
-    @HiddenInV1 data object WidgetSettings    : RafiqRoute("widget_settings")
 
     // ═══ M3 — Advanced ═══
     data object Language          : RafiqRoute("language")

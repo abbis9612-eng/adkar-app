@@ -20,8 +20,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import app.rafiqaldhikr.ui.utils.formatClock
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.ui.components.nextMunasaba
+import app.rafiqaldhikr.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -53,12 +64,27 @@ import app.rafiqaldhikr.ui.sky.sunPosition
 import app.rafiqaldhikr.ui.sky.skyInk
 import app.rafiqaldhikr.ui.sky.skyColors
 import app.rafiqaldhikr.ui.sky.moonPhase
-import app.rafiqaldhikr.ui.sky.SkyCanvas
+import app.rafiqaldhikr.ui.hero.HeroAnim
+import app.rafiqaldhikr.ui.hero.HeroBackdrop
+import app.rafiqaldhikr.ui.hero.HeroWreath
+import app.rafiqaldhikr.ui.hero.MeeqatLine
+import app.rafiqaldhikr.ui.hero.Nida
+import app.rafiqaldhikr.ui.hero.NidaBlock
+import app.rafiqaldhikr.ui.hero.NidaStore
+import app.rafiqaldhikr.ui.hero.nidaCall
+import app.rafiqaldhikr.ui.hero.HeroKind
+import app.rafiqaldhikr.ui.hero.HeroStore
+import app.rafiqaldhikr.ui.hero.heroPen
+import app.rafiqaldhikr.ui.hero.rememberHeroEntrance
+import app.rafiqaldhikr.ui.sky.WeatherStore
+import app.rafiqaldhikr.ui.sky.moonPosition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.layout.Box
 
 /* ═══════════════════════════════════════════════════════════════════
+ *  التوقيع: سماءٌ تتبع ساعةَ مكانك وطقسَه — تُصبح وتُمسي معك
+ *
    الرئيسية — كلمةٌ تتصدّرها، وأربعُ طبقاتٍ تحتها
 
    كان قبلها «اللوح»: خطّة اليوم محفورةً على معدن. عنصرٌ واحد يحمل تسعة
@@ -78,11 +104,11 @@ import androidx.compose.foundation.layout.Box
    فلا عدّاد ولا علامةُ صحّ ولا شريطُ تقدّم. ومن أراد التفصيل ضغطه
    فانفتح بالأسماء الكاملة والأوقات.
 
-   ═══ الأخضران ═══
-   [RafiqPalette.emerald] داكنٌ يُقرأ نصّاً على الورق (7.61) ولا يصلح
-   ملءاً. و[RafiqPalette.emeraldFill] فاتحٌ عكسه: ملءٌ ممتاز (8.54 بحبر
-   داكن فوقه) ونصٌّ لا يُقرأ (1.66). لونان لدورين — لا لونٌ واحد يُجبَر
-   على الدورين.
+   ═══ الأخضر ═══
+   كانا أخضرين: داكنٌ يُقرأ نصّاً وفاتحٌ يصلح ملءاً. وصارا **واحداً**
+   هو #17402F — أعلى تدرّج `HeroBackdrop` عند الظهيرة بعينه، فالأيقونةُ
+   والزرُّ من لون السماء التي فوقهما لا من لونٍ يجاورها. ويصحّ الدوران
+   معاً: نصّاً ١١٫٣٩:١ على الورق، وملءاً ٧٫٥٤:١ بحبرٍ فاتحٍ فوقه.
 
    ═══ سطحٌ واحد ═══
    لا بطاقةَ في هذه الشاشة ولا حبّةَ ملوّنة: الورق يمتدّ من أعلاها إلى
@@ -151,16 +177,110 @@ fun HomeHubScreen(
         sunPosition(now, home.lat, home.lng)
     }
     val moon = remember(now / 3_600_000L) { moonPhase(now) }
+    //  وموضعُه الحقيقيّ — كان يُرسم في مكانٍ ثابتٍ لا يطلع ولا يغيب.
+    val moonAt = remember(now / 60_000L, home.lat, home.lng) {
+        moonPosition(now, home.lat, home.lng)
+    }
+
+    /*  طقسُ مكانك — طبقةٌ تُضاف، لا شرطٌ للعمل.
+     *
+     *  يُقرأ المحفوظُ فوراً بلا شبكة فتُرسم السماءُ بحالٍ صحيحةٍ من أوّل
+     *  إطار، ثمّ يُجلب الجديدُ إن وُجد اتّصال. وبلا إنترنتٍ تبقى السماءُ
+     *  تامّةً بشمسها وقمرها ونجومها — ويسقط المطرُ والضبابُ وحدَهما.
+     *
+     *  ولا تُطلب إلّا حين يُعرف المكان: طقسُ إحداثيّاتٍ صفريّةٍ طقسُ
+     *  نقطةٍ في المحيط الأطلسيّ، لا طقسُ صاحب الهاتف. */
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    var weather by remember { mutableStateOf(WeatherStore.cached(ctx)) }
+
+    /*  بطاقةُ الشاشة الأولى — انظر `ui/hero/HeroCard.kt`.
+     *
+     *  المحفوظُ يُقرأ فوراً بلا شبكة، ثمّ يُجدَّد في الخلفية إن مضت
+     *  ثلاثُ ساعات. فلا تنتظر الشاشةُ الشبكةَ لحظةً واحدة، ولا تظهر
+     *  فارغةً في الطائرة. */
+    val heroBase = stringResource(R.string.hero_base_url)
+    var hero by remember { mutableStateOf(HeroStore.cached(ctx)) }
+    LaunchedEffect(heroBase) {
+        if (heroBase.isNotBlank()) HeroStore.refresh(ctx, heroBase)?.let { hero = it }
+    }
+    /*  الصورةُ تُفكّ **على خيطٍ خلفيٍّ وبحدٍّ للأبعاد**.
+     *
+     *  وكانت تُفكّ في أثناء التركيب على الخيط الرئيسيّ: فأوّلُ إطارٍ
+     *  يتوقّف حتى تُفكّ الصورةُ كلُّها. والحدُّ ٦ م.ب كان على **بايتات
+     *  الملفّ** لا على أبعاده — وصورةٌ مضغوطةٌ بستّة ميغابايت قد تكون
+     *  أربعةَ آلافٍ في ثلاثة، أي نحو ٤٨ ميغابايت في الذاكرة.
+     *
+     *  فتُقرأ أبعادُها أوّلاً (`inJustDecodeBounds`) ويُحسب التصغيرُ
+     *  إلى عرض الشاشة — فلا تُفكّ أكبرَ من حاجتها. */
+    val heroBg by produceState<android.graphics.Bitmap?>(null, hero?.src) {
+        val c = hero
+        value = if (c == null || c.kind != HeroKind.IMAGE) null
+        else withContext(Dispatchers.IO) {
+            HeroStore.mediaFile(ctx, c.src)?.let { f ->
+                runCatching { decodeBounded(f.path, 1080) }.getOrNull()
+            }
+        }
+    }
+    LaunchedEffect(home.lat, home.lng) {
+        if (home.lat != 0.0 || home.lng != 0.0) {
+            weather = WeatherStore.refresh(ctx, home.lat, home.lng)
+        }
+    }
     val sky = remember(sun.altitude) { skyColors(sun.altitude.toFloat()) }
     val skyInk = remember(sky) { skyInk(sky) }
 
+    /*  السماءُ بمقاس ما فيها.
+     *
+     *  الارتفاعُ **مثبَّتٌ ولا بدّ**: بداخله `Spacer(weight(1f))` يوزّع
+     *  الفراغَ بين الكلام والقوس، و`weight` في عمودٍ بلا سقفٍ يبتلع
+     *  الشاشةَ كلَّها فتُدفَع الورقةُ خارجها. فيُثبَّت — لكن بقيمتين:
+     *  حين يُرسم القوسُ يحتاج مئةً وثمانيَ نقاطٍ وسطرَه، وحين لا
+     *  يُرسم لا معنى لحجز مكانه فارغاً. */
+    val meeqat = LocalMeeqat.current
+    val times = meeqat.times
+
+    /*  موعظةُ الطور — انظر `ui/hero/Nida.kt`.
+     *
+     *  تُقرأ من الأصول مرّةً واحدةً خارج الخيط الرئيسيّ، ولا تُعرض حتى
+     *  تجهز: لا إطارَ فارغاً ينتظر محتواه. */
+    var nidaAll by remember { mutableStateOf<List<Nida>>(emptyList()) }
+    LaunchedEffect(Unit) { nidaAll = NidaStore.load(ctx) }
+    val nida = remember(nidaAll, meeqat.phase) {
+        nidaAll.firstOrNull { it.phase == NidaStore.keyOf(meeqat.phase) }
+    }
+
     Box(Modifier.fillMaxSize().background(rc.bg)) {
-        SkyCanvas(
-            altitude = sun.altitude.toFloat(),
-            azimuth  = sun.azimuth.toFloat(),
-            moon     = moon,
-            rc       = rc,
-            modifier = Modifier.fillMaxWidth().height(SKY_H),
+        /*  الخلفيّة — انظر `ui/hero/HeroBackdrop.kt`.
+         *
+         *  مرّت هذه الرقعةُ بأربعة أطوار وسقط كلُّها: تدرُّجٌ رماديٌّ
+         *  يقطعه شريط، فسماءٌ على المعالج الرسوميّ، فبستانٌ مرسوم،
+         *  فصورةُ نهرٍ فوتوغرافيّة. والصورةُ سقطت بالقياس لا بالذوق:
+         *  ٦:١ تبايناً خلف السطر بعد حجابٍ ثقيل، مقابل ما فوق ١٢:١
+         *  للتدرُّج بحجابٍ خفيف — و٣٠٨ كيلوبايت مقابل سطور حساب.
+         *
+         *  وما بقي حركةٌ واحدةٌ صادقة: الضوءُ يزحف مع الساعة. */
+        HeroBackdrop(
+            sunAlt        = sun.altitude,
+            reducedMotion = LocalReducedMotion.current,
+            weather       = weather,
+            /*  **لا ذوبانَ في الورقة.**
+             *
+             *  كان أسفلُ السماء يذوب في لون الورق «فلا يبقى قطعٌ حادّ»
+             *  — وعلى الجهاز خرج **ضباباً أبيضَ متّسخاً** فوق حافّة
+             *  الورقة، لا ذوباناً. والورقةُ لها حافّةٌ مدوّرةٌ تجلس على
+             *  السماء: الحدُّ الحادُّ هنا صوابٌ لا عيب — ورقةٌ فوق
+             *  سماءٍ، لا سماءٌ تُمسح. */
+            background    = heroBg,
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
+        )
+
+        /*  الإكليل — انظر `ui/hero/HeroWreath.kt`.
+         *
+         *  هنا لا داخلَ `HeroBackdrop`: ذاك يُنهي رسمَه بحجابٍ يُطفئ ما
+         *  تحته ليُقرأ الكلام، والغصنُ إن وقع أسفلَه ابتُلع. */
+        HeroWreath(
+            reducedMotion = LocalReducedMotion.current,
+            modifier      = Modifier.fillMaxWidth().height(SKY_H),
         )
 
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
@@ -171,7 +291,7 @@ fun HomeHubScreen(
              *  طيّب». الآن للصورة نطاقٌ خالصٌ بينهما، والحبّةُ — وهي
              *  أقربُ ما يُقرأ إلى الفعل — تجلس على حافّة الورقة مباشرةً.
              */
-            CompositionLocalProvider(LocalContentColor provides skyInk) {
+            CompositionLocalProvider(LocalContentColor provides heroInk) {
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -180,18 +300,112 @@ fun HomeHubScreen(
                 ) {
                     SkyTopBar(
                         hijri = home.hijriDate.localizedDigits(ar),
-                        ink   = skyInk,
+                        ink   = heroInk,
                         onSettings = { navController.navigate(RafiqRoute.Settings.route) },
                     )
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(17.dp))
+                    /*  نداءٌ لا تحيّة.
+                     *
+                     *  «نهارٌ طيّب» مجاملةٌ تُقرأ مرّةً ثمّ تُهمَل. والشاشةُ
+                     *  الأولى موضعُ فعلٍ لا مجاملة، فصار السطرُ فعلاً
+                     *  مضارعاً يتبع الساعة: ابدأ · أدِمْ · أمسِكْ · اختم.
+                     *
+                     *  وهو **كلامُنا نحن لا حديثٌ مرويّ**، فلا إسنادَ
+                     *  يُطلب منه. وما كان حديثاً فله بطاقتُه كاملاً
+                     *  بتخريجه في «كلمةُ اليوم» — ولا يُقصُّ منه سطرٌ
+                     *  ليُكتب فوق صورة. */
+                    /*  والقلمُ يكتبه: القناعُ يمرّ عليه فيُقرأ كتابةً،
+                     *  ويبقى **نصّاً** لا صورة — فيكبر مع خطّ المستخدم
+                     *  ويقرؤه التدقيقُ الصوتيّ. */
+                    /*  النداءُ يتبع **طورَ الميقات** لا ساعةَ الجدار: «أقبِلْ
+                     *  قبل أن يُطبِقَ الليل» تُقال عند المغرب حيث وقع، لا عند
+                     *  السابعة في كلّ بلد. وفيه دعاءٌ لصاحبه — «رعاك الله» —
+                     *  فهو نداءٌ من رفيقٍ لا أمرٌ من آلة.
+                     *
+                     *  **وهو كلامُنا خالصاً**: لا يستعير لفظَ آيةٍ ولا حديث.
+                     *  والنصُّ المرويُّ له موضعُه على الورق بخطِّه وإسناده. */
+                    val (callId, subId) = nidaCall(meeqat.phase)
+                    val line = hero?.title?.takeIf { it.isNotBlank() }
+                        ?: stringResource(callId)
+                    val anim = hero?.anim ?: HeroAnim.PEN
+                    val write by rememberHeroEntrance(line, anim, LocalReducedMotion.current)
                     Text(
-                        if (sun.altitude > 8) "نهارٌ طيّب" else if (sun.altitude > -1) "وقتٌ مبارك" else "مساءُ الخير",
-                        style = RafiqType.hero,
-                        color = skyInk,
+                        line,
+                        //  خطُّ الواجهة لا الأميري — انظر `RafiqType.nida`.
+                        style = RafiqType.nida,
+                        color = heroInk,
+                        modifier = Modifier.heroPen(anim, write),
                     )
+                    /*  سطرُ الطقس تحت التحيّة مباشرةً — لا حبّةً ثانيةً
+                     *  تزاحم حبّةَ الميقات في الأسفل.
+                     *
+                     *  والسماءُ تُظهر المطرَ والضبابَ، لكنّ العينَ تحتاج
+                     *  من يسمّي لها ما ترى: «غائمٌ · ٢٨°» تُقرأ في لحظة،
+                     *  والغيمُ وحدَه يحتمل أن يكون زينة. */
+                    //  سطرُ البطاقة يحلّ محلَّ سطر الطقس حين يوجد — سطرٌ
+                    //  واحدٌ تحت التحيّة لا سطران يتزاحمان.
+                    //  سطرٌ واحدٌ تحت النداء لا ثلاثة: بطاقةُ المدير إن
+                    //  وُجدت، وإلّا الطقسُ إن عُرف، وإلّا تتمّةُ النداء.
+                    val sub = hero?.note?.takeIf { it.isNotBlank() }
+                        ?: weatherLine(weather, ar).takeIf { weather.known }
+                        ?: stringResource(subId)
+                    if (sub != null) {
+                        Spacer(Modifier.height(5.dp))
+                        //  السطرُ الصغيرُ يتبع الكبيرَ بعد أن يُكتب نصفُه.
+                        Text(
+                            sub,
+                            style = RafiqType.bodyS,
+                            color = heroInk.copy(alpha = 0.80f * ((write - 0.45f) / 0.55f).coerceIn(0f, 1f)),
+                        )
+                    }
                     Spacer(Modifier.weight(1f))          // نطاقُ الصورة
-                    WindowPill(day.nowStation, day.needsLocation, ar, skyInk)
-                    Spacer(Modifier.height(14.dp))
+                    /*  الميقاتُ على قوس الشمس — انظر `ui/hero/SunArc.kt`.
+                     *
+                     *  كانت هنا حبّةٌ زجاجيّةٌ مكتوبٌ فيها «الظهر بعد
+                     *  ساعةٍ وربع». والحبّةُ شكلٌ يُستعار من أيّ تطبيق،
+                     *  والجملةُ تقول ما يقوله عدّادٌ في أيّ تطبيق.
+                     *
+                     *  والقوسُ يقول الشيءَ نفسَه **بموضعٍ لا بعبارة**:
+                     *  الظهرُ في القمّة لأنّه الزوال، والمغربُ على الأفق
+                     *  لأنّه الغروب، والفجرُ والعشاءُ تحته فيصير القرصُ
+                     *  هلالاً. والسطرُ الذي كانت الحبّةُ تحمله باقٍ
+                     *  تحته — اسمُ القادم ووقتُه وكم بقي.
+                     *
+                     *  والمواقيتُ من `LocalMeeqat` لا من حسابٍ جديد، فإن
+                     *  لم تُحلّ لم يُرسم شيء — لا نخترع وقتاً. */
+                    /*  سطرٌ واحد: الاسمُ والساعةُ وكم بقي. لا رسمَ.
+                     *
+                     *  كان هنا قوسُ شمسٍ يمشي عليه قرصٌ وعليه ستُّ
+                     *  علامات. وكان صحيحاً في حسابه — ومرفوضاً في
+                     *  شاشته: لا يُفهم بلا شرح، وبلا موقعٍ يصير بيضةً
+                     *  فارغة. والقاعدةُ التي تعلّمتُها منه: **ما احتاج
+                     *  شرحاً على الشاشة الأولى فقد سقط**.
+                     *
+                     *  فبقي ما كان القوسُ يخدمه أصلاً: متى الصلاةُ
+                     *  القادمةُ وكم بقي لها. وهو ما يُقرأ في نصف ثانية.
+                     *
+                     *  وبلا مواقيتَ لا سطر: البطاقةُ تحته تقول «حدِّد
+                     *  مدينتك» مرّةً واحدة، وتكرارُها هنا ضجيج. */
+                    if (times != null) {
+                        //  خطٌّ رفيعٌ يفصل الميقاتَ عن النداء — كان غائباً،
+                        //  فيلتصق السطرُ بما فوقه بلا حدٍّ يفصله.
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 18.dp)
+                                .height(1.dp)
+                                .background(heroInk.copy(alpha = 0.18f)),
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        MeeqatLine(
+                            times = times,
+                            nowMs = now,
+                            left  = humanRemaining(nextMeeqatAt(times, now) - now),
+                            ink   = heroInk,
+                            ar    = ar,
+                        )
+                        Spacer(Modifier.height(18.dp))
+                    }
                 }
             }
 
@@ -202,12 +416,10 @@ fun HomeHubScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            0f to lerp(rc.bg, sky.second, 0.14f),
-                            0.46f to rc.bg,
-                        ),
-                    )
+                    //  لونٌ واحدٌ لا تدرّج. كان طرفُ الورق يحمل نبرةً
+                    //  من السماء (١٤٪) فيُقرأ ظلّاً باهتاً تحت الحافّة،
+                    //  والنموذج ورقٌ صِرف.
+                    .background(rc.bg)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 18.dp),
             ) {
@@ -220,7 +432,16 @@ fun HomeHubScreen(
                         .background(rc.divider),
                 )
 
+                /*  الموعظةُ أوّلَ الورقة.
+                 *
+                 *  على **الورق** لا على السماء، وبخطّ `AmiriFamily` لا خطّ
+                 *  الواجهة، وإسنادُها ذهبيٌّ يُلمَس فيفتح المصدر. ثلاثُ
+                 *  طبقاتٍ تفصل صوتَ الوحي والأثر عن صوتنا — سطحاً وحرفاً
+                 *  ولوناً — فلا يلتبسان على عينٍ ولا على قارئٍ عجل. */
+                nida?.let { NidaBlock(it) }
+
                 MeeqatCard(
+                    modifier  = Modifier.tourAnchor("meeqat"),
                     station   = day.nowStation,
                     needsLoc  = day.needsLocation,
                     nextName  = home.nextPrayerName,
@@ -234,25 +455,62 @@ fun HomeHubScreen(
                     stations   = day.stations,
                     nowId      = day.nowStation?.id,
                     doneIds    = day.completedIds,
+                    timed      = day.timed,
                     ar         = ar,
                     onOpen     = { navController.navigate(RafiqRoute.DayPage.route) },
                 )
 
-                hub.wisdom?.let { WordOfDay(it) }
+                hub.lastRead?.let { pos ->
+                    ContinueReading(pos.surah, pos.page, ar) {
+                        navController.navigate(RafiqRoute.Mushaf.atPage(pos.page))
+                    }
+                }
+
+                /*  «كلمةُ اليوم» نزلت إلى «أوراقي».
+                 *
+                 *  كانت الشاشةُ الأولى تحمل ثلاثةَ نصوصٍ معاً: موعظةَ
+                 *  الطور، وفضلَ المحطّة، وكلمةَ اليوم. والنصُّ الصريح:
+                 *  «كانَ يَتَخَوَّلُنا بالمَوْعِظَةِ في الأيَّامِ **كَراهَةَ
+                 *  السَّآمَةِ عَلَيْنا**» — البخاري ٦٨. فبقي نصٌّ واحد. */
 
                 DoorsRow(
                     onTasbeeh = { navController.navigate(RafiqRoute.Tasbeeh.route) },
                     onQibla   = { navController.navigate(RafiqRoute.Qibla.route) },
                     onTimes   = { navController.navigate(RafiqRoute.PrayerTimes.route) },
+                    onKhatma  = { navController.navigate(RafiqRoute.Khatma.route) },
                 )
+
+                MunasabaLine(ar)
             }
         }
     }
 }
 
+/**
+ * حبرُ الشاشة الأولى — كريميٌّ ثابتٌ في كلّ ساعة.
+ *
+ * كان يُشتقّ من ألوان السماء المحسوبة، ولا سماءَ محسوبةً اليوم: الصورةُ
+ * تحته شجرٌ داكنٌ في أعلى الإطار مهما تغيّرت الساعة، وحجابُ `Tareeq`
+ * يضمن التباينَ فوق ذلك.
+ */
+private val heroInk = Color(0xFFF4EFE2)
+
+/*  علامةُ الميقات القادم.
+ *
+ *  جُرّب الأخضرُ الزيتونيُّ نفسُه فاختفى ليلاً: القوسُ يقع على سماءٍ
+ *  تُظلم، وداكنٌ على داكنٍ لا يُرى. والذهبُ يُقرأ على طرفَي اليوم كليهما. */
+private val MEEQAT_GOLD = Color(0xFFE8C46A)
+
+/** أوّلُ ميقاتٍ لم يأتِ بعد، وإلّا فجرُ الغد — بالترتيب نفسِه الذي
+ *  يمشي عليه `SunArc`، فلا يفترق السطرُ عن العلامة. */
+private fun nextMeeqatAt(t: app.rafiq.domain.model.PrayerTimesResult, now: Long): Long =
+    listOf(t.fajr, t.sunrise, t.dhuhr, t.asr, t.maghrib, t.isha)
+        .firstOrNull { it > now } ?: (t.fajr + 86_400_000L)
+
 /** ارتفاعُ السماء، وارتفاعُ كلامها. والورقةُ تبدأ حيث ينتهي الكلام. */
-private val SKY_H = 360.dp
 private val SKY_TEXT_H = 288.dp
+/** وأسفلُ التدرّج يبقى خلف الورقة، فلا تنتهي السماءُ عند حافّتها. */
+private val SKY_H = 360.dp
 
 /* ── الشريطُ العلويُّ فوق السماء ─────────────────────────────────
 
@@ -273,16 +531,17 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .size(width = 40.dp, height = 45.dp)
+                    .size(44.dp)
                     .clip(RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp))
                     .background(glassBg)
                     .border(1.dp, glassBd, RoundedCornerShape(5.dp, 5.dp, 17.dp, 5.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text("ر", style = RafiqType.hero, color = ink) }
+            ) { Text("ر", style = RafiqType.mark, fontSize = 30.sp, color = ink) }
             Spacer(Modifier.width(10.dp))
             Column {
-                Text("رفيق الذِّكر", style = RafiqType.titleM, color = ink)
-                Text(hijri, style = RafiqType.bodyS, color = ink.copy(alpha = 0.78f), maxLines = 1)
+                Text(stringResource(R.string.app_name), style = RafiqType.titleM, color = ink)
+                //  التاريخُ الهجريُّ ليس كلاماً — كوفيٌّ كما في النموذج
+                Text(hijri, style = RafiqType.metaL, color = ink.copy(alpha = 0.78f), maxLines = 1)
             }
         }
         Box(
@@ -293,39 +552,7 @@ private fun SkyTopBar(hijri: String, ink: Color, onSettings: () -> Unit) {
                 .border(1.dp, glassBd, CircleShape)
                 .clickable(onClick = onSettings),
             contentAlignment = Alignment.Center,
-        ) { RafiqIcon(RIcon.Settings, 19.dp, ink) }
-    }
-}
-
-/** «نافذةُ الضحى · بقي ١٢ دقيقة» — على السماء، فوق الأفق. */
-@Composable
-private fun WindowPill(
-    station: DayCompanionViewModel.StationUi?,
-    needsLoc: Boolean,
-    ar: Boolean,
-    ink: Color,
-) {
-    val glassBg = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.15f else 0.10f)
-    val glassBd = ink.copy(alpha = if (ink.luminance() > 0.5f) 0.28f else 0.20f)
-    val label = when {
-        needsLoc -> "مواقيتُك لم تُضبط بعد"
-        station == null -> "ورقةُ يومك"
-        else -> {
-            val left = humanRemaining(station.endMillis - System.currentTimeMillis())
-            "نافذةُ ${station.short}" + (left?.let { " · بقي ${it.localizedDigits(ar)}" } ?: "")
-        }
-    }
-    Row(
-        Modifier
-            .clip(CircleShape)
-            .background(glassBg)
-            .border(1.dp, glassBd, CircleShape)
-            .padding(horizontal = 13.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(6.dp).clip(CircleShape).background(ink.copy(alpha = 0.8f)))
-        Spacer(Modifier.width(8.dp))
-        Text(label, style = RafiqType.bodyS, color = ink, maxLines = 1)
+        ) { RafiqIcon(RIcon.Settings, 17.dp, ink) }
     }
 }
 
@@ -351,11 +578,11 @@ private fun HubTopBar(onSettings: () -> Unit) {
             }
             Spacer(Modifier.width(11.dp))
             Column {
-                Text("رفيق الذِّكر", style = RafiqType.titleL, color = rc.emerald)
-                Text("رفيقُك في يومك", style = RafiqType.bodyS, color = rc.inkMed)
+                Text(stringResource(R.string.app_name), style = RafiqType.titleL, color = rc.emerald)
+                Text(stringResource(R.string.hub_companion), style = RafiqType.bodyS, color = rc.inkMed)
             }
         }
-        RafiqIconButton(onClick = onSettings, label = "الإعدادات") {
+        RafiqIconButton(onClick = onSettings, label = stringResource(R.string.settings)) {
             RafiqIcon(RIcon.Settings, size = 21.dp, tint = rc.inkMed)
         }
     }
@@ -372,7 +599,7 @@ private fun Greeting(hijri: String, ar: Boolean) {
         verticalAlignment = Alignment.Bottom,
     ) {
         Column {
-            Text("السلام عليكم", style = RafiqType.bodyS, color = rc.inkMed)
+            Text(stringResource(R.string.greet_salam), style = RafiqType.bodyS, color = rc.inkMed)
             Spacer(Modifier.height(3.dp))
             Text(greetingText(), style = RafiqType.titleXL, color = rc.ink)
         }
@@ -390,51 +617,14 @@ private fun Greeting(hijri: String, ar: Boolean) {
  * مجاملةٌ لا معلومة، ولو ربطتُها بالمواقيت لصارت تقول «صباحٌ مبارك» بعد
  * الفجر في ليل الشتاء الطويل.
  */
+@Composable
 private fun greetingText(): String {
     val h = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
     return when (h) {
-        in 4..10  -> "صباحٌ مبارك"
-        in 11..15 -> "نهارٌ طيّب"
-        in 16..19 -> "مساءٌ مطمئن"
-        else      -> "ليلةٌ هادئة"
-    }
-}
-
-/* ── الكلمة — بطلةُ الشاشة ──────────────────────────────────────
-
-   الاقتباس أوّل ما تقع عليه العين، ومصدرُه تحته مباشرةً لا في حاشية:
-   خيطٌ أخضر رأسيّ ثم اسم القائل ثم كتابه. وهذه علامة السند نفسها التي
-   تتكرّر حيثما ورد نصٌّ ديني في التطبيق.
-──────────────────────────────────────────────────────────────── */
-
-@Composable
-private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
-    val rc = LocalRafiqColors.current
-    Column(
-        Modifier.fillMaxWidth().padding(top = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            w.text,
-            style = RafiqType.ayah,
-            color = rc.ink,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .width(3.dp)
-                    .height(30.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(rc.emeraldFill),
-            )
-            Spacer(Modifier.width(9.dp))
-            Column {
-                Text(w.author, style = RafiqType.titleM, color = rc.emerald)
-                Text(w.source, style = RafiqType.bodyS, color = rc.inkMed)
-            }
-        }
+        in 4..10  -> stringResource(R.string.greet_morning)
+        in 11..15 -> stringResource(R.string.greet_day)
+        in 16..19 -> stringResource(R.string.greet_calm_evening)
+        else      -> stringResource(R.string.greet_night)
     }
 }
 
@@ -464,15 +654,21 @@ private fun WordOfDay(w: app.rafiq.domain.model.Wisdom) {
    يكلّف ارتفاعاً وهو أوّلُ ما تقع عليه العين.
 ══════════════════════════════════════════════════════════════ */
 
-/** «بقي ١٢ دقيقة» من فارقٍ بالمللي ثانية — بتصريف العدد العربي. */
+/** «بقي ١٢ دقيقة» من فارقٍ بالمللي ثانية. */
+@Composable
 private fun humanRemaining(millis: Long): String? {
     if (millis <= 0) return null
     val total = millis / 60_000L
-    return humanCountdown("%02d:%02d:00".format(total / 60, total % 60))
+    // Locale.ROOT: بلا تحديدٍ يُنتج `format` أرقاماً عربيةً على جهازٍ
+    // محلّيتُه ar، فلا يعود `toIntOrNull` يقرؤها.
+    return humanCountdown(
+        String.format(java.util.Locale.ROOT, "%02d:%02d:00", total / 60, total % 60)
+    )
 }
 
 @Composable
 private fun MeeqatCard(
+    modifier:  Modifier = Modifier,
     station:   DayCompanionViewModel.StationUi?,
     needsLoc:  Boolean,
     nextName:  String,
@@ -490,104 +686,190 @@ private fun MeeqatCard(
      *    ٣) الباقي: «ابدأ» إلى شاشة أذكاره. */
     val title:  String
     val desc:   String
-    val source: String?
+    /*  الفضلُ بنصّه لا شارةُ تخريجه.
+     *
+     *  كانت البطاقة تعرض [StationUi.source] وحدَه — «رواه مسلم» — فيقرأ
+     *  المستخدم إسناداً بلا مُسنَد. والنموذج يعرض [StationUi.virtue]:
+     *  الحديثَ وتخريجَه معاً، فيعرف **لماذا** هذه المحطّة قبل أن يبدأها. */
+    val virtue: String?
     val cta:    String
+    /** «اقرأ على مهل» — لا تُقال إلّا حين يكون الزرُّ بدايةَ قراءةٍ فعلاً. */
+    val unhurried: Boolean
     val action: () -> Unit
     when {
         // بلا إحداثيات لا مواقيت، وبلا مواقيت لا محطّات — فكانت البطاقة
         // تعرض «أذكار يومك» عامّةً بلا نافذةٍ ولا خيطٍ ولا إسناد، ولا
         // تقول لماذا هي كذلك. الآن تقول السبب وتحمل علاجه.
         needsLoc -> {
-            title = "حدِّد مدينتك"
+            title = stringResource(R.string.hub_set_city)
             desc = "محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. " +
                 "حدِّدها مرّةً واحدة ويُحسب الباقي."
-            source = null; cta = "حدِّد الموقع"; action = onDayPage
+            virtue = null; cta = stringResource(R.string.hub_set_location)
+            unhurried = false; action = onDayPage
         }
         station == null -> {
-            title = "أذكار يومك"
-            desc = "من الاستيقاظ إلى النوم — افتح ورقتك"
-            source = null; cta = "افتح"; action = onDayPage
+            title = stringResource(R.string.hub_day_adhkar)
+            desc = stringResource(R.string.hub_day_sub)
+            virtue = null; cta = stringResource(R.string.action_open)
+            unhurried = false; action = onDayPage
         }
         station.route == null -> {
-            title = station.title; desc = station.description.localizedDigits(ar)
-            source = station.source; cta = "التفصيل"; action = onDayPage
+            title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
+            virtue = station.virtue; cta = stringResource(R.string.action_detail)
+            unhurried = false; action = onDayPage
         }
         else -> {
-            title = station.title; desc = station.description.localizedDigits(ar)
-            source = station.source; cta = "ابدأ"; action = onStart
+            title = stringResource(station.title); desc = stringResource(station.description).localizedDigits(ar)
+            virtue = station.virtue
+            //  «ابدأ» وحدَها لا تقول ماذا تبدأ. «ابدأ صلاة الضحى» تقول.
+            cta = stringResource(R.string.action_start_named, stringResource(station.title))
+            unhurried = true; action = onStart
         }
     }
 
 
     /*  كانت البطاقةُ سطحاً أخضرَ داكناً لأنّها كانت مركزَ ثقل الشاشة.
-     *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. فهي الآن على
-     *  الورق نفسه، والفعلُ وحده ملوّن. */
+     *  والسماءُ صارت المركز، فلو بقيت داكنةً لتنازعتا. ثمّ صارت عاريةً
+     *  على الورق بلا حدٍّ ولا سطح — فذابت فيه ولم تعد تُقرأ بطاقةً.
+     *
+     *  فهي الآن **صندوق**: سطحُ [card] على ورق [bg]، وحدٌّ رفيع، وزاويةٌ
+     *  واحدةٌ عريضةٌ في bottomStart توقيعاً كسائر أسطح التطبيق. */
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp),
+            .padding(top = 12.dp)
+            //  بعد الحشوة العلويّة لا قبلها: مرساةُ الجولة تقيس هذا
+            //  الموضع، والثقبُ يجب أن يُطبق على البطاقة لا على فراغٍ فوقها.
+            .then(modifier)
+            .clip(ActShape)
+            .background(rc.card)
+            .border(1.dp, rc.cardBorder, ActShape)
+            .padding(horizontal = 17.dp, vertical = 16.dp),
     ) {
-        /*  رأسُ البطاقة وخيطُها انتقلا إلى السماء: النافذةُ وما بقي
-         *  منها في الحبّة فوق الأفق، وموضعُ الوقت في موضع الشمس نفسِه.
-         *  وإبقاؤهما هنا تكرارٌ لما تقوله السماءُ بلا كلمة. */
-        /* الجسم */
-        Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp)) {
-            Text(title, style = RafiqType.heroCard, color = rc.ink)
-            Spacer(Modifier.height(5.dp))
-            Text(
-                desc,
-                style = RafiqType.bodyS,
-                color = rc.inkMed,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        /* الفعل: «ابدأ» وزرُّ «لماذا هذا الآن؟» */
+        /*  رأسُ البطاقة: «خطوتك الآن» ⟷ «محطّة الضحى».
+         *
+         *  سطرٌ صغيرٌ يفعل شيئين لا تفعلهما البطاقةُ بدونه: يقول إنّ ما
+         *  تحته **فعلٌ مطلوبٌ الآن** لا خبر، ويقول **أين أنت من يومك**
+         *  بلا أن تنزل العينُ إلى صفّ المحطّات. وكان غائباً. */
         Row(
-            Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment     = Alignment.CenterVertically,
         ) {
-            if (source != null) {
-                // كانت سطراً وحدها فوق الزرّين، فتُقرأ لصاقةً معلَّقة.
-                // وهي في صفّ الفعل تُقرأ ما تُقرأ به: سنداً لِما ستفعل.
-                Row(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(1.dp, rc.cardBorder, RoundedCornerShape(10.dp))
-                        .padding(start = 9.dp, end = 11.dp, top = 9.dp, bottom = 9.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(Modifier.width(3.dp).height(15.dp).clip(RoundedCornerShape(2.dp)).background(rc.gold))
-                    Spacer(Modifier.width(8.dp))
-                    Text(source, style = RafiqType.caption, color = rc.gold, maxLines = 1)
-                }
+            Text(
+                stringResource(R.string.hub_eyebrow_now),
+                style = RafiqType.metaS,
+                color = rc.inkLight,
+                maxLines = 1,
+            )
+            //  بلا موقعٍ لا محطّةَ يُوسَم بها، ولو كانت آخرَ محطّةٍ محسوبة:
+            //  البطاقةُ تطلب الموقع، فوسمُ «محطّة العصر» فوقها يناقضها.
+            station?.takeIf { !needsLoc }?.let {
+                Text(
+                    stringResource(R.string.hub_station_tag, stringResource(it.short)),
+                    style = RafiqType.metaS,
+                    fontWeight = FontWeight.SemiBold,
+                    color = rc.emerald,
+                    maxLines = 1,
+                )
             }
+        }
+
+        /*  عنوانُ البطاقة **أخفضُ من النصّ المرويّ** فوقه (٢٢ مقابل ٢٦)،
+         *  وبخطّ الواجهة. كان ثلاثين أميريّاً عريضاً — فتقع العينُ على
+         *  «صلاة الضحى» قبل كلام النبيّ ﷺ. */
+        Text(
+            title,
+            style = RafiqType.titleL,
+            //  عشرون لا اثنتان وعشرون — النموذج يخفض العنوان ستَّ نقاطٍ
+            //  تحت النصّ المرويّ فوقه، لا أربعاً.
+            fontSize = 20.sp,
+            lineHeight = 31.sp,
+            color = rc.ink,
+            modifier = Modifier.padding(top = 3.dp),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            desc,
+            style = RafiqType.bodyS,
+            fontSize = 13.5.sp,
+            color = rc.inkMed,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        if (virtue != null) {
+            /*  الفضلُ بعرض البطاقة على سطح الورق.
+             *
+             *  كان حبّةً محاطةً **تقاسم الزرَّ الصفَّ**، فيضيق كلاهما ولا
+             *  يتّسع إلّا لشارة «رواه مسلم». وهو هنا سطرُه، فيتّسع للحديث
+             *  بتخريجه. والشريطُ الذهبيُّ يمتدّ بارتفاع النصّ لا بمقاسٍ
+             *  ثابت — ومن هنا [IntrinsicSize.Min]. */
             Row(
                 Modifier
-                    .weight(1f)
-                    .heightIn(min = 54.dp)
-                    .clip(CtaShape)
-                    .background(rc.emerald)
-                    .clickable(onClick = action)
-                    .padding(horizontal = 18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically,
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(rc.bg)
+                    .padding(horizontal = 11.dp, vertical = 9.dp)
+                    .height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(9.dp),
             ) {
-                Text(cta, style = RafiqType.titleM, color = rc.onEmerald, maxLines = 1)
-                RafiqIcon(RIcon.ChevronLeft, 19.dp, rc.onEmerald)
+                Box(
+                    Modifier
+                        .width(3.dp)
+                        .heightIn(min = 16.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(rc.gold),
+                )
+                Text(virtue, style = RafiqType.caption, fontSize = 11.5.sp, color = rc.gold)
             }
-            Box(
-                Modifier
-                    .size(54.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Transparent)
-                    .border(1.dp, rc.cardBorder, RoundedCornerShape(16.dp))
-                    .clickable(onClick = onDayPage),
-                contentAlignment = Alignment.Center,
-            ) {
-                RafiqIcon(RIcon.Info, 21.dp, rc.emerald)
+        }
+
+        /*  الزرُّ بعرض البطاقة.
+         *
+         *  كان جزءَ عرضٍ بجانب حبّةِ المصدر وزرِّ ⓘ — ثلاثةُ أهدافٍ في صفٍّ
+         *  واحد، وأحدُها (ⓘ) بابُه مكرَّرٌ في صفّ «افتح ورقة يومك» تحته.
+         *  فحُذف المكرَّر، وبقي هدفٌ واحدٌ لا يُخطئه الإصبع.
+         *
+         *  و«اقرأ على مهل» في طرفه بدل السهم: السهمُ يقول «إلى أين»
+         *  وهو معلومٌ من النصّ، وهذه تقول **كيف** — وهي الأنفع. */
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 14.dp)
+                .heightIn(min = 54.dp)
+                .clip(CtaShape)
+                .background(rc.emerald)
+                .clickable(onClick = action)
+                .padding(horizontal = 17.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment     = Alignment.CenterVertically,
+        ) {
+            /*  سطران لا سطرٌ واحد.
+             *
+             *  أطولُ عنوانٍ في اليوم «سورة الكهف والصلاة على النبي ﷺ»،
+             *  ومعه «ابدأ» و«اقرأ على مهل» لا يتّسع في ٣٩٠ نقطة. وسطرٌ
+             *  واحدٌ يعني قطعَه بنقاطٍ في منتصفه — واقتطاعُ عنوانِ عملٍ
+             *  شرعيّ ليس خياراً. فيلتفّ الزرُّ ويعلو، وهو أهونُ. */
+            Text(
+                cta,
+                style = RafiqType.titleM,
+                fontSize = 16.sp,
+                color = rc.onEmerald,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            if (unhurried) {
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    stringResource(R.string.hub_cta_hint),
+                    style = RafiqType.meta,
+                    color = rc.onEmerald.copy(alpha = 0.85f),
+                    maxLines = 1,
+                )
             }
         }
     }
@@ -599,7 +881,12 @@ private val MeeqatShape = RoundedCornerShape(
     topStart = 26.dp, topEnd = 26.dp, bottomEnd = 26.dp, bottomStart = 44.dp,
 )
 private val CtaShape = RoundedCornerShape(
-    topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 26.dp,
+    topStart = 15.dp, topEnd = 15.dp, bottomEnd = 15.dp, bottomStart = 26.dp,
+)
+
+/** سطحُ بطاقة الفعل — نفسُ التوقيع بمقاسٍ أكبر: زاويةٌ عريضةٌ واحدة. */
+private val ActShape = RoundedCornerShape(
+    topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 32.dp,
 )
 
 
@@ -610,27 +897,35 @@ private val CtaShape = RoundedCornerShape(
  * وتصريفُ العدد عربيّ: ساعة · ساعتان · ٣ ساعات — لا «١ ساعة».
  * تُرجع null حين لا عدّاد بعد، فيُحذف السطر كلّه.
  */
+@Composable
 private fun humanCountdown(raw: String): String? {
+    val (h, m) = countdownParts(raw) ?: return null
+    /*  التصريفُ يُترك لأندرويد لا يُكتب بالكود.
+     *
+     *  كانت الصيغُ الستُّ مكتوبةً هنا عربيةً (ساعة · ساعتين · ٣ ساعات …)
+     *  — صحيحةً في العربية، ولا شيءَ منها يعمل في الإنجليزية. ونظامُ
+     *  `plurals` في أندرويد يعرف مثنّى العربية وصيغتَي جمعها ويعرف
+     *  الإنجليزية، فيكفيه ملفُّ موارد.
+     */
+    val hs = if (h > 0) pluralStringResource(R.plurals.hours, h, h) else null
+    val ms = if (m > 0) pluralStringResource(R.plurals.minutes, m, m) else null
+    val sep = stringResource(R.string.and_separator)
+    return listOfNotNull(hs, ms).joinToString(sep)
+}
+
+/**
+ * ساعاتُ العدّاد ودقائقُه، أو null حين لا عدّاد بعد.
+ *
+ * مفصولةٌ عن الصياغة ليختبرها اختبارُ وحدةٍ بلا أندرويد — وكان الاختبار
+ * قبلها ينسخ منطقَ الدالّة نسخاً بدل أن يناديها، فلا يحرس شيئاً.
+ */
+internal fun countdownParts(raw: String): Pair<Int, Int>? {
     val p = raw.split(":")
     if (p.size != 3) return null
     val h = p[0].toIntOrNull() ?: return null
     val m = p[1].toIntOrNull() ?: return null
     if (h == 0 && m == 0) return null
-    val hs = when (h) {
-        0    -> null
-        1    -> "ساعة"
-        2    -> "ساعتين"
-        in 3..10 -> "$h ساعات"
-        else -> "$h ساعة"
-    }
-    val ms = when (m) {
-        0    -> null
-        1    -> "دقيقة"
-        2    -> "دقيقتين"
-        in 3..10 -> "$m دقائق"
-        else -> "$m دقيقة"
-    }
-    return listOfNotNull(hs, ms).joinToString(" و")
+    return h to m
 }
 
 /* ── الطبقة ٣: صفُّ اليوم ───────────────────────────────────────
@@ -645,6 +940,8 @@ private fun DayRow(
     stations: List<DayCompanionViewModel.StationUi>,
     nowId:      String?,
     doneIds:    Set<String> = emptySet(),
+    /** بلا مدينةٍ تُعرض المحطّاتُ بترتيبها، وساعاتُها ترتيبٌ لا وقت — فلا تُطبع. */
+    timed:      Boolean = true,
     ar:         Boolean,
     onOpen:     () -> Unit,
 ) {
@@ -668,51 +965,59 @@ private fun DayRow(
             // في التطبيق. الصفُّ كلُّه بابٌ الآن.
             .clickable(onClick = onOpen),
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.Bottom,
+        /*  ═══ شرائحُ المحطّات ═══
+         *
+         *  مرَّ هذا الصفُّ بثلاثة أطوار: تسعةُ أسماءٍ في سطرٍ واحدٍ تحت
+         *  الحاضر منها خطّ؛ ثمّ نقطةٌ لكلٍّ على قضيبٍ يمتلئ. وسقط
+         *  كلاهما لعلّةٍ واحدة: **ثمانيةُ أسماءٍ لا تتّسع في عرض شاشة.**
+         *  فتتزاحم حتّى تلتصق، ويصغر حرفُها حتّى يُقرأ بمشقّة، ولا يبقى
+         *  مكانٌ لوقتٍ بجانب اسم.
+         *
+         *  والحلُّ أن يُترك العرضُ يقرّر: صفٌّ يتمرّر، كلُّ محطّةٍ فيه
+         *  شريحةٌ تأخذ ما تحتاجه — اسمُها ووقتُها. فتتنفّس الأسماء،
+         *  ويظهر الوقتُ الذي لم يكن له مكانٌ قطّ.
+         *
+         *  والحاضرةُ شريحةٌ **مصمتة** — أظهرُ شيءٍ في الورقة كلِّها —
+         *  ويُزحَف إليها تلقائياً عند الفتح فتُرى بلا أن يبحث عنها أحد.
+         */
+        val chips = rememberLazyListState()
+        LaunchedEffect(nowIdx, names.size) {
+            //  تُترك واحدةٌ قبلها في المشهد: يُقرأ «من أين جئت» مع «أين أنت»
+            if (nowIdx >= 0) chips.animateScrollToItem((nowIdx - 1).coerceAtLeast(0))
+        }
+        LazyRow(
+            state = chips,
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            names.forEachIndexed { i, short ->
-                val isNow  = i == nowIdx
+            itemsIndexed(names) { i, short ->
+                val isNow = i == nowIdx
                 /*  ثلاثُ حالاتٍ لا اثنتان.
                  *
                  *  التطبيقُ يعرف أنّ الوقت مضى، ولا يعرف أنّ صاحبَه صلّى.
-                 *  فما مرَّ وقتُه «مضت» بحبرٍ خافت، ولا يصير «تمّت» ذهبيّةً
-                 *  إلّا إن سجّلها هو. وكتابةُ «تمّت» لانقضاء الوقت وحده
-                 *  شهادةٌ له بعبادةٍ لم يفعلها — وهي أسوأُ من كلِّ عدّاد. */
-                val isDone = !waiting && stations.getOrNull(i)?.id in doneIds
-                val isGone = nowIdx >= 0 && i < nowIdx && !isDone
-                val nameColor by animateColorAsState(
-                    when {
-                        isNow  -> rc.ink
-                        isDone -> rc.gold
-                        isGone -> rc.inkLight
-                        else   -> rc.inkLight
+                 *  فما مرَّ وقتُه يبقى كما هو، ولا يصير ذهبيّاً إلّا إن
+                 *  سجّله هو. وكتابةُ «تمّت» لانقضاء الوقت وحده شهادةٌ له
+                 *  بعبادةٍ لم يفعلها — وهي أسوأُ من كلِّ عدّاد. */
+                val st = stations.getOrNull(i)
+                StationChip(
+                    name = stringResource(short),
+                    /*  الممتدّةُ تُعرَض بوسمها لا بساعتها.
+                     *
+                     *  قراءةُ الكهف مداها من الفجر إلى العشاء، لا ساعةَ
+                     *  لها. وكانت الشريحةُ تطبع بدايةَ المدى — «الكهف
+                     *  ٤:٣٥ ص» — فتُقرأ صلاةً في ذلك الوقت. ووسمُها
+                     *  مكتوبٌ في التطبيق منذ البداية ولا يُستعمل. */
+                    time = if (st != null && st.spansDay) {
+                        stringResource(st.timeLabel)
+                    } else if (!timed) {
+                        null
+                    } else {
+                        st?.startMillis?.let { formatClock(it, ar) }
                     },
-                    progressSpec(500), label = "stationColor",
+                    isNow = isNow,
+                    isDone = !waiting && st?.id in doneIds,
+                    onClick = onOpen,
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    // IntrinsicSize.Max يجعل الخطّ أدناه بعرض الاسم بالضبط
-                    modifier = Modifier.width(IntrinsicSize.Max),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isDone) {
-                            RafiqIcon(RIcon.Check, 11.dp, rc.gold)
-                            Spacer(Modifier.width(3.dp))
-                        }
-                        Text(
-                            short,
-                            fontSize   = 14.sp,
-                            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
-                            color      = nameColor,
-                            maxLines   = 1,
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    NowUnderline(active = isNow)
-                }
             }
         }
 
@@ -729,7 +1034,7 @@ private fun DayRow(
             // والشيفرون يطوي القائمة في مكانها. كانا مدموجين في ضغطةٍ
             // واحدة تفعل الطيّ وحده — فلم يبقَ للورقة بابٌ من الرئيسية.
             Text(
-                "افتح ورقة يومك",
+                stringResource(R.string.hub_open_waraqa),
                 style = RafiqType.bodyS,
                 color = rc.emerald,
                 modifier = Modifier
@@ -774,14 +1079,14 @@ private fun DayRow(
                     )
                     Spacer(Modifier.width(13.dp))
                     Text(
-                        st.title,
+                        stringResource(st.title),
                         style = RafiqType.titleM,
                         fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
                         color = if (isNow || isPast) rc.ink else rc.inkMed,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
-                        st.timeLabel.localizedDigits(ar),
+                        stringResource(st.timeLabel).localizedDigits(ar),
                         style = RafiqType.bodyS,
                         color = rc.inkMed,
                     )
@@ -795,44 +1100,86 @@ private fun DayRow(
 }
 
 /**
- * خطُّ المحطّة الحاضرة.
+ * شريحةُ محطّة — اسمٌ ووقتُ بدايتها.
  *
- * ينبض نبضاً خافتاً (0.55↔1.0 في 1.4 ثانية) — وهو الحركةُ الوحيدة في
- * الشاشة، فتقع العين على «الآن» بلا أن يُقال لها ذلك. والنبض على
- * الشفافية لا على الحجم: تغيّرُ الحجم يزحزح ما حوله ويشتّت القراءة.
+ * والحاضرةُ مصمتةٌ بلون الهويّة وحرفٍ ثقيل، والمسجَّلةُ محاطةٌ بذهبٍ
+ * وأمامها نقطة، وما عداهما هادئ. ولا لونَ رابعاً: الموضعُ في الصفّ
+ * يقول ما مضى وما بقي بلا صبغة.
  *
- * ويحترم LocalReducedMotion فيثبت على الوضوح الكامل.
+ * والارتفاعُ اثنتان وأربعون نقطةً حدّاً أدنى — الشريحةُ مقصودةٌ باللمس
+ * لا زخرفةً تُقرأ، ومساحةُ الإصبع لا تُقاس بحجم الحرف.
  */
 @Composable
-private fun NowUnderline(active: Boolean) {
+private fun StationChip(
+    name: String,
+    time: String?,
+    isNow: Boolean,
+    isDone: Boolean,
+    onClick: () -> Unit,
+) {
     val rc = LocalRafiqColors.current
-    val reduced = LocalReducedMotion.current
-    val alpha = if (!active || reduced) 1f else {
-        val t = rememberInfiniteTransition(label = "nowPulse")
-        t.animateFloat(
-            initialValue = 0.55f,
-            targetValue  = 1f,
-            animationSpec = infiniteRepeatable(
-                tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse,
-            ),
-            label = "nowPulseAlpha",
-        ).value
-    }
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(3.dp)
-            .clip(RoundedCornerShape(3.dp))
-            .background(
-                if (active) rc.emeraldFill.copy(alpha = alpha) else Color.Transparent,
-            ),
+    val bg by animateColorAsState(
+        if (isNow) rc.emeraldFill else Color.Transparent,
+        progressSpec(500), label = "chipBg",
     )
+    val border = when {
+        isNow -> rc.emeraldFill
+        isDone -> rc.gold.copy(alpha = 0.40f)
+        else -> rc.divider
+    }
+    /*  `inkMed` لا `inkLight`.
+     *
+     *  النموذجُ رسمها بحبرٍ فاتحٍ جدّاً، وقاعدةُ اللوحة في هذا المشروع
+     *  صريحة: `inkLight` للأيقونات والعناصر الخاملة، و**النصُّ الخافت
+     *  يستعمل `inkMed`** — وهو ٤٫٥٤:١ على الورق، أي على حدّ المقروئيّة
+     *  بالضبط ولا يُنزَل عنه. */
+    val fg = when {
+        isNow -> rc.onEmeraldFill
+        isDone -> rc.gold
+        else -> rc.inkMed
+    }
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(bg)
+            .border(1.dp, border, CircleShape)
+            .clickable(onClick = onClick)
+            .defaultMinSize(minHeight = 42.dp)
+            .padding(horizontal = if (isNow) 17.dp else 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (isDone) {
+            Box(Modifier.size(5.dp).clip(CircleShape).background(rc.gold))
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(
+            name,
+            fontSize = 14.sp,
+            fontWeight = if (isNow) FontWeight.Bold else FontWeight.Normal,
+            color = fg,
+            maxLines = 1,
+        )
+        if (time != null) {
+            Spacer(Modifier.width(6.dp))
+            /*  الوقتُ يتميّز **بالمقاس لا بالشفافيّة**: خفضُ ألفا
+             *  الحبرِ الخافت إلى ٧٥٪ يُسقط تباينَه تحت ٤٫٥:١، وهو نصٌّ
+             *  صغيرٌ أصلاً. فبقي لونُه كاملاً وصغر حرفُه. */
+            Text(
+                time,
+                fontSize = 11.5.sp,
+                color = fg,
+                maxLines = 1,
+            )
+        }
+    }
 }
+
 
 /** أسماءُ اليوم حين لا مواقيت بعد — تُعرض مطفأةً كلُّها فيرى المستخدم شكل
  *  يومه قبل أن يحدّد موقعه. مطابقة لـ`short` في محطّات DayCompanion. */
 private val FALLBACK_DAY = listOf(
-    "الاستيقاظ", "الفجر", "الضحى", "الظهر", "العصر", "المغرب", "العشاء", "النوم",
+    R.string.st_wake_s, R.string.st_fajr_s, R.string.st_duha_s, R.string.st_dhuhr_s,
+    R.string.st_asr_s, R.string.st_maghrib_s, R.string.st_isha_s, R.string.st_sleep_s,
 )
 
 /* ── الطبقة ٤: الأبواب الثلاثة في صفّ ───────────────────────────
@@ -848,39 +1195,143 @@ private fun DoorsRow(
     onTasbeeh: () -> Unit,
     onQibla:   () -> Unit,
     onTimes:   () -> Unit,
+    onKhatma:  () -> Unit,
 ) {
+    val rc = LocalRafiqColors.current
+    /*  الأبوابُ الثلاثة — وهي ليست في النموذج.
+     *
+     *  والنموذجُ يحذفها لأنّه معاينة؛ والتطبيقُ لا يقدر: `PrayerTimes`
+     *  **لا بابَ لها سواها** في التطبيق كلِّه، فحذفُها يُيتِّم الشاشة.
+     *
+     *  فالحلُّ ليس الحذفَ بل **إدخالَها في لغة النموذج**: كانت ثلاثَ
+     *  حبّاتٍ محاطةٍ بارتفاع خمسين نقطةً وخطِّ عنوانٍ ثمانيَ عشرة — لوحاً
+     *  غريباً يُنادي على نفسه أسفلَ الورق. وهي الآن بلغة الشريط السفليِّ
+     *  نفسِها: رمزٌ بجانب اسمٍ بالكوفيّ العُشْرِ والنصف، وخطٌّ فاصلٌ
+     *  فوقها. فصارت **ذيلَ الصفحة** لا بطاقةً ثالثة، ووفّرت ثلاثين نقطة.
+     *
+     *  والمساحةُ المقصودةُ باللمس ثمانٍ وأربعون نقطةً لكلّ بابٍ رغم
+     *  صِغَر ما يُرى — الإصبعُ لا يقيس بحجم الحرف. */
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+            .height(1.dp)
+            .background(rc.divider),
+    )
     Row(
-        // الحشوة السفلية ضرورية: Scaffold يفصل ارتفاع الشريط عن المحتوى
-        // لكنه لا يترك متنفَّساً بينهما، فبدت الأبواب ملتصقةً بالتنقّل.
-        Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        DoorChip("المسبحة", Modifier.weight(1f), onTasbeeh) { IcoMisbaha(20.dp, it) }
-        DoorChip("القبلة",  Modifier.weight(1f), onQibla)   { IcoCompass(20.dp, it) }
-        DoorChip("المواقيت", Modifier.weight(1f), onTimes)  { IcoMosque(20.dp, it) }
+        Door(stringResource(R.string.tasbeeh_title), onTasbeeh) { IcoMisbaha(12.dp, it) }
+        Door(stringResource(R.string.qibla_title), onQibla) { IcoCompass(12.dp, it) }
+        Door(stringResource(R.string.prayer_times_title), onTimes) { IcoClock(12.dp, it) }
+        //  الختمةُ بابٌ رابع — تُضبط مرّةً، ثمّ وِردُها محطّةٌ في الصفّ.
+        Door(stringResource(R.string.khatma_title), onKhatma) { IcoBookOpen(12.dp, it) }
+    }
+}
+
+/**
+ * «المناسبة القادمة — بداية رمضان · بعد ١٢٣ يوماً».
+ *
+ * سطرٌ يُحوّل الوقتَ من شيءٍ يمرّ إلى شيءٍ **يُنتظَر**: من عرف أنّ بينه
+ * وبين رمضان أربعةَ أشهرٍ استعدّ، ومن لم يعرف فوجئ به.
+ *
+ * وموضعُه **ذيلُ الصفحة** لا رأسُها: هو خبرٌ عن بعيدٍ، وفعلُ اليوم أولى
+ * بالعين. ولا يُعرض شيءٌ إن تعذّر الحسابُ — سطرٌ خاطئٌ أسوأُ من غيابه.
+ */
+@Composable
+private fun MunasabaLine(ar: Boolean) {
+    val rc = LocalRafiqColors.current
+    val ctx = LocalContext.current
+    //  يُحسب مرّةً لكلّ يوم: التقويمُ لا يتبدّل بين إعادتَي تركيب.
+    val today = remember { System.currentTimeMillis() / 86_400_000L }
+    val m = remember(today) { nextMunasaba(ctx) } ?: return
+
+    val away = when (m.daysAway) {
+        0 -> stringResource(R.string.munasaba_today)
+        1 -> stringResource(R.string.munasaba_tomorrow)
+        else -> pluralStringResource(R.plurals.days, m.daysAway, m.daysAway)
+            .localizedDigits(ar)
+    }
+    Row(
+        Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 14.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(R.string.munasaba_next), style = RafiqType.metaS, color = rc.inkLight)
+        Spacer(Modifier.width(7.dp))
+        Text(
+            stringResource(m.name),
+            style = RafiqType.metaS,
+            fontWeight = FontWeight.SemiBold,
+            color = rc.gold,
+        )
+        Spacer(Modifier.width(7.dp))
+        Text("·", style = RafiqType.metaS, color = rc.inkLight)
+        Spacer(Modifier.width(7.dp))
+        Text(away, style = RafiqType.metaS, color = rc.inkMed)
     }
 }
 
 @Composable
-private fun DoorChip(
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    icon: @Composable (Color) -> Unit,
-) {
+private fun Door(label: String, onClick: () -> Unit, icon: @Composable (Color) -> Unit) {
     val rc = LocalRafiqColors.current
     Row(
-        modifier
-            .heightIn(min = 50.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, rc.divider, RoundedCornerShape(16.dp))
+        Modifier
+            .clip(RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp),
+            .defaultMinSize(minHeight = 48.dp)
+            .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        icon(rc.inkMed)
-        Spacer(Modifier.width(7.dp))
-        Text(label, style = RafiqType.titleM, color = rc.ink, maxLines = 1)
+        icon(rc.emerald)
+        Spacer(Modifier.width(5.dp))
+        Text(label, style = RafiqType.metaS, color = rc.emerald, maxLines = 1)
     }
+}
+
+/**
+ * سطرُ الطقس: «غائمٌ جزئياً · ٢٨°».
+ *
+ * وأسماءُ الأحوال من ترميز WMO — وهو معيارٌ عالميّ، فالرمزُ ٦١ مطرٌ
+ * خفيفٌ في كلّ خدمةِ أرصادٍ في الدنيا. وتُجمَع الرموزُ المتقاربة في
+ * اسمٍ واحد: لا فائدةَ لصاحب الهاتف من الفرق بين «رذاذٍ خفيف» و«رذاذٍ
+ * متوسّط»، وهو يريد أن يعرف هل يحمل مظلّة.
+ */
+@Composable
+private fun weatherLine(w: app.rafiqaldhikr.ui.sky.SkyWeather, ar: Boolean): String {
+    val name = stringResource(
+        when (w.code) {
+            0 -> R.string.wx_clear
+            1, 2 -> R.string.wx_partly
+            3 -> R.string.wx_overcast
+            45, 48 -> R.string.wx_fog
+            in 51..57 -> R.string.wx_drizzle
+            in 61..67, in 80..82 -> R.string.wx_rain
+            in 71..77, 85, 86 -> R.string.wx_snow
+            in 95..99 -> R.string.wx_thunder
+            else -> R.string.wx_clear
+        },
+    )
+    if (w.tempC.isNaN()) return name
+    val deg = kotlin.math.round(w.tempC).toInt().toString().localizedDigits(ar)
+    return "$name · $deg°"
+}
+
+/**
+ * يفكّ صورةً بحدٍّ لعرضها — فلا تُحمَّل أكبرَ من حاجة الشاشة.
+ *
+ * ويُقرأ الرأسُ أوّلاً بـ`inJustDecodeBounds` فلا تُحجَز ذاكرةٌ لبكسل،
+ * ثمّ يُحسب `inSampleSize` قوّةَ اثنين — وهو ما يقبله فاكُّ أندرويد.
+ */
+private fun decodeBounded(path: String, maxWidth: Int): android.graphics.Bitmap? {
+    val head = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    android.graphics.BitmapFactory.decodeFile(path, head)
+    if (head.outWidth <= 0) return null
+    var sample = 1
+    while (head.outWidth / sample > maxWidth) sample *= 2
+    val opts = android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }
+    return android.graphics.BitmapFactory.decodeFile(path, opts)
 }

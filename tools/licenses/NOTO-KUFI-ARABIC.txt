@@ -1,0 +1,25 @@
+Noto Kufi Arabic — خطُّ السطور الصغيرة في الواجهة
+═══════════════════════════════════════════════
+
+الملفّات
+  androidApp/src/main/res/font/noto_kufi_regular.ttf
+  androidApp/src/main/res/font/noto_kufi_medium.ttf
+  androidApp/src/main/res/font/noto_kufi_semibold.ttf
+
+المصدر    Google Fonts — https://fonts.google.com/noto/specimen/Noto+Kufi+Arabic
+          جُلبت من fonts.gstatic.com بنسخة v27.
+الحقوق    Copyright 2019-2022 Google LLC. All Rights Reserved.
+الترخيص   SIL Open Font License 1.1 — https://openfontlicense.org
+          (الحقلُ ١٤ في جدول `name` داخل الملفّات نفسِها يشير إليه)
+
+ما يسمح به الترخيص وما نفعله
+  الاستعمالُ والتضمينُ في تطبيقٍ تجاريٍّ أو مجّانيٍّ مباحٌ بلا مقابل،
+  ولا يُشترط ذكرُ المصدر في واجهة التطبيق. الشرطُ الوحيدُ الذي يعنينا:
+  لا تُباع الخطوطُ وحدَها، ولا يُستعمل اسمُ «Noto» لنسخةٍ معدَّلة.
+  ونحن نشحنها كما هي بلا تعديلٍ ولا إعادة تسمية.
+
+لماذا خطٌّ ثالث
+  الواجهةُ تفصل ثلاثةَ أصوات: النصُّ المرويُّ بالأميري، وكلامُنا
+  بـ Noto Sans Arabic، و**ما ليس كلاماً** — التواريخُ والأوقاتُ
+  والدرجاتُ وأسماءُ التبويبات — بهذا. فيعرف القارئُ بالحرف وحدَه
+  أيَّ الثلاثة يقرأ قبل أن يقرأه.

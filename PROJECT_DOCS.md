@@ -410,67 +410,112 @@ The app also calls **Aladhan.com** API internally for prayer times:
 
 ## 8. Features & Modules
 
-### Core Features (M1)
+> **Generated from `RafiqRoute.kt` + `RafiqNavGraph.kt`, not written by hand.**
+>
+> These tables drifted badly once: they named ten screens that no longer
+> existed (`HomeScreen`, `QuranReadingScreen`, `QuranAudioPlayer`,
+> `KhatiraScreen`, `CustomDhikrScreen`, `PrayerTrackingScreen`,
+> `DeepLinkLandingScreen`, `RamadanHomeScreen`, `WidgetSettingsScreen`,
+> `EmotionalDuaScreen`) while omitting several that did (`MushafScreen`,
+> `HomeHubScreen`, `WaraqaScreen`, `ColorsScreen`, `ContactScreen`).
+> Only three of those ten were deleted in the round that noticed — the
+> other seven had been gone for a while with nothing to catch it.
+>
+> `tools/check_docs_screens.py` now runs in `verify.sh` and fails on any
+> screen name here that has no file on disk. Keep the tables in step with
+> the route table; do not hand-edit one row at a time.
 
-| Feature | Screen(s) | Files |
-|---------|-----------|-------|
-| **Home Dashboard** | `HomeScreen` | `HomeViewModel`, `HomeScreen.kt` |
-| **Adhkar** | `AdhkarCategoriesScreen`, `DhikrReadingScreen`, `CelebrationScreen` | `AdhkarCategoriesViewModel`, `DhikrReadingViewModel` |
-| **Tasbeeh Counter** | `TasbeehScreen` | `TasbeehViewModel` |
-| **Quran** | `QuranListScreen`, `QuranReadingScreen`, `QuranSearchScreen`, `QuranBookmarksScreen` | `QuranListViewModel`, `QuranReadingViewModel` |
-| **Prayer Times** | `PrayerTimesScreen`, `PrayerMethodScreen` | `PrayerTimesViewModel` |
-| **Qibla Compass** | `QiblaScreen` | `QiblaViewModel`, `CompassManager` |
-| **Dua** | `DuaCategoriesScreen`, `DuaListScreen`, `EmotionalDuaScreen` | `DuaViewModel` |
-| **Khatira** | `KhatiraScreen` | `KhatiraViewModel` |
-| **Profile/Stats** | `ProfileScreen`, `StatisticsScreen` | `ProfileViewModel` |
-| **Settings** | `SettingsScreen`, `ThemeSettingsScreen`, `FontSettingsScreen`, `NotificationSettingsScreen`, `AccessibilitySettingsScreen` | `SettingsViewModel` |
-| **Onboarding** | `OnboardingScreen` | — |
+Every screen below is reachable: `tools/check_orphan_routes.py` proves no
+route is an orphan, so this list is also the complete set of destinations.
 
-### New Features (M2)
+### Reading & Dhikr
 
-| Feature | Screen(s) |
-|---------|-----------|
-| Quran Audio Player | `QuranAudioPlayer` |
-| Breathing Exercise | `BreathingScreen` |
-| Custom Dhikr | `CustomDhikrScreen` |
-| Gamification Garden | `GardenScreen` |
-| Achievements | `AchievementsScreen` |
-| Prayer Tracking | `PrayerTrackingScreen` |
-| Share Card | `ShareCardScreen` |
-| Ramadan Mode | `RamadanHomeScreen` |
-| Weekly Report | `WeeklyReportScreen` |
-| Data Export | `ExportDataScreen` |
-| Widget Settings | `WidgetSettingsScreen` |
+| Feature | Route | Screen(s) | ViewModel |
+|---------|-------|-----------|-----------|
+| Home | `home` | `HomeHubScreen` | `HomeHubViewModel` |
+| Today's page (الورقة) | `day_page` | `WaraqaScreen` | `DayCompanionViewModel` |
+| Adhkar | `adhkar_categories`, `dhikr_reading/{category}`, `celebration` | `AdhkarCategoriesScreen`, `DhikrReadingScreen`, `CelebrationScreen` | `DhikrReadingViewModel` |
+| Tasbeeh | `tasbeeh` | `TasbeehScreen` | `TasbeehViewModel` |
+| Dua | `dua_categories`, `dua_list/{category}` | `DuaCategoriesScreen`, `DuaListScreen` | `DuaViewModel` |
 
-### Advanced Features (M3)
+### Quran
 
-| Feature | Screen(s) |
-|---------|-----------|
-| Language Selection | `LanguageScreen` |
-| What's New | `WhatsNewScreen` |
-| Deep Links | `DeepLinkLandingScreen` |
+| Feature | Route | Screen(s) | ViewModel |
+|---------|-------|-----------|-----------|
+| Surah list | `quran_list` | `QuranListScreen` | `QuranListViewModel` |
+| Mushaf (the only reader) | `mushaf?page={page}&aya={aya}` | `MushafScreen` | `MushafPageViewModel` |
+| Search | `quran_search` | `QuranSearchScreen` | — |
+| Bookmarks | `quran_bookmarks` | `QuranBookmarksScreen` | — |
+
+`MushafScreen` is the single Quran reader. A second surah-based reading
+screen once existed alongside it, which meant the same text looked
+different depending on which door you came through; it was removed, and
+list/search/bookmarks all open the Mushaf page now.
+
+### Prayer & Qibla
+
+| Feature | Route | Screen(s) | ViewModel |
+|---------|-------|-----------|-----------|
+| Prayer times | `prayer_times` | `PrayerTimesScreen` | `PrayerTimesViewModel` |
+| Calculation method | `prayer_method` | `PrayerMethodScreen` | `SettingsViewModel` |
+| Qibla compass | `qibla` | `QiblaScreen` | `QiblaViewModel`, `CompassManager` |
+
+### Progress
+
+| Feature | Route | Screen(s) | ViewModel |
+|---------|-------|-----------|-----------|
+| Profile (أوراقي) | `profile` | `ProfileScreen` | `ProfileViewModel` |
+| Statistics | `statistics` | `StatisticsScreen` | `ProfileViewModel` |
+| Achievements | `achievements` | `AchievementsScreen` | `AwraqViewModel` |
+| Weekly report | `weekly_report` | `WeeklyReportScreen` | `ProfileViewModel` |
+| Garden | `garden` | `GardenScreen` | `ProfileViewModel` |
+| Breathing | `breathing` | `BreathingScreen` | — |
+| Share card | `share_card` | `ShareCardScreen` | `ProfileViewModel` |
+
+The last four reach the user through quick links at the bottom of
+`ProfileScreen`.
+
+### Settings & Info
+
+| Feature | Route | Screen(s) | ViewModel |
+|---------|-------|-----------|-----------|
+| Settings root | `settings` | `SettingsScreen` | `SettingsViewModel` |
+| Theme / Colors / Font | `theme_settings`, `colors`, `font_settings` | `ThemeSettingsScreen`, `ColorsScreen`, `FontSettingsScreen` | `SettingsViewModel` |
+| Notifications | `notification_settings` | `NotificationSettingsScreen` | `SettingsViewModel` |
+| Accessibility | `accessibility_settings` | `AccessibilitySettingsScreen` | `SettingsViewModel` |
+| Language | `language` | `LanguageScreen` | `SettingsViewModel` |
+| Export / Import | `export_data` | `ExportDataScreen` | `ExportDataViewModel` |
+| About / Help / Contact | `about`, `help`, `contact` | `AboutScreen`, `HelpScreen`, `ContactScreen` | — |
+| Privacy / Terms | `privacy_policy`, `terms` | `PrivacyPolicyScreen`, `TermsScreen` | — |
+| What's New | `whats_new` | `WhatsNewScreen` | — |
+| Onboarding | `onboarding` | `OnboardingScreen` | `SettingsViewModel` |
 
 ### Widget
 
-- **PrayerWidget** — Glance home-screen widget showing next prayer time
-- Uses `PrayerTimeCalculator` and stored `UserPrefs` for location/method
-- Updates via `provideContent`
+- **`PrayerWidget`** — Glance home-screen widget showing the next prayer.
+  Reads `PrayerTimeCalculator` and stored `UserPrefs` for location/method.
+- It is the **only** widget. A settings screen once offered switches for
+  two more that were never written; it was deleted. The user adds the
+  widget from the launcher, so the app only points the way — a hint at
+  the bottom of `PrayerTimesScreen`.
 
 ### Background Services
 
-| Service | Purpose |
-|---------|---------|
-| `QuranAudioService` | Media3 `MediaSessionService` for Quran audio playback |
-| `PrayerAlarmReceiver` | `BroadcastReceiver` for exact alarm triggers |
-| `BootReceiver` | Reschedules all prayer alarms after device reboot |
-| `PrayerAlarmManager` | Schedules/cancels exact `AlarmManager` alarms |
+| File | Purpose |
+|------|---------|
+| `PrayerAlarmManager` | Schedules/cancels alarms; falls back to inexact when the exact-alarm permission is absent |
+| `PrayerAlarmReceiver` | Fires the notification and chains the next day's reschedule |
+| `PrayerRescheduler` | Recomputes and reschedules when settings change |
+| `BootReceiver` | Reschedules after reboot |
+| `ExactAlarmPermissionReceiver` | Reschedules when the user grants exact-alarm permission |
+| `CompassManager` | Sensor plumbing for the qibla compass |
 
-### Navigation (RafiqNavGraph)
+### Navigation (`RafiqNavGraph`)
 
-- **65+ routes** defined in `RafiqRoute` sealed class
-- Navigation managed via `NavHost` with `RafiqBottomBar` visible on most screens
-- Cinematic transitions using `CinematicTransitions`
-- Deep linking supported via intent filters (`https://rafiqaldhikr.app`)
+- **37 routes** in the `RafiqRoute` sealed class — all reachable.
+- `NavHost` with `RafiqBottomBar` on most screens; the Mushaf hides it.
+- Transitions via `CinematicTransitions`.
+- Deep links via intent filters (`https://rafiqaldhikr.app`).
 
 ---
 
@@ -503,7 +548,7 @@ The app also calls **Aladhan.com** API internally for prayer times:
 | `PrayerTimesViewModel` | Prayer times, next prayer, prayer method |
 | `QiblaViewModel` | Compass heading, qibla direction |
 | `TasbeehViewModel` | Current count, target, sessions |
-| `QuranReadingViewModel` | Current surah, ayah, bookmarks, last read |
+| `MushafPageViewModel` | Page ayat, tafsir, bookmarks, last-read position |
 | `DhikrReadingViewModel` | Current adhkar category, completed count |
 
 ### Persistent State
@@ -661,7 +706,7 @@ export KEY_PASSWORD="..."
 2. **`RafiqApplication.kt`**: RevenueCat commented out — "TODO: RevenueCat — add API key in local.properties"
 3. **`androidApp/build.gradle.kts`**: Google Services and Firebase Crashlytics plugins commented out — "TODO: Uncomment when google-services.json is added"
 4. **`androidApp/build.gradle.kts`**: RevenueCat dependencies commented out — "TODO: Uncomment when RevenueCat API key is configured"
-5. **`RafiqNavGraph.kt`**: `TafsirSheet` is noted as a `ModalBottomSheet` used directly from `QuranReadingScreen` rather than as a navigation route
+5. **`MushafScreen.kt`**: `TafsirSheet` and `AyahSheet` are `ModalBottomSheet`s opened directly from the Mushaf page rather than as navigation routes
 
 ### Configuration Gaps
 

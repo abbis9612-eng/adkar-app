@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    نظيرا لونَي النافذة في الوضع الداكن.
+
+    وكانا مفقودَين: `values/colors.xml` وحده، فيهما كريميّان. و
+    `windowBackground` هو ما يرسمه أندرويد **قبل** أن يُركِّب Compose شيئاً،
+    و`windowSplashScreenBackground` ما يُرسم في شاشة البدء. فكان كلُّ فتحٍ
+    للتطبيق على جهازٍ داكن يبدأ بومضةٍ بيضاءَ ساطعة، وكذلك كلُّ عودةٍ إليه
+    من الخلفية.
+-->
+<resources>
+    <color name="splash_bg">#0F1311</color>
+    <color name="cream_bg">#0F1311</color>
+</resources>

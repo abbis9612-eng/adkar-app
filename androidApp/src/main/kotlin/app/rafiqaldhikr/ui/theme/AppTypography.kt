@@ -41,6 +41,25 @@ val NaskhFamily = FontFamily(
     Font(R.font.noto_naskh_bold,     FontWeight.Bold),
 )
 
+/**
+ * **الخطُّ الثالث** — للسطور التي ليست كلاماً.
+ *
+ * الواجهةُ تفصل ثلاثةَ أصوات، ولكلٍّ حرفُه فلا يُخلط:
+ *   • **النصُّ المرويّ** — قرآنٌ وحديثٌ وأثر → [AmiriFamily]
+ *   • **كلامُنا نحن** — النداءُ والعناوينُ والأوصاف → [UiFamily]
+ *   • **ما ليس كلاماً** — تاريخٌ ووقتٌ ودرجةُ إسنادٍ ووسمُ نوعٍ وأسماءُ
+ *     تبويبات → هذا.
+ *
+ * والكوفيُّ هندسيٌّ ثابتُ النِّسَب، يُقرأ **شارةً** لا جملةً. ومن هنا
+ * لا يُكتب به سطرٌ يُقرأ قراءةً، ولا يزيد مقاسُه على ثلاثَ عشرةَ نقطة.
+ */
+val KufiFamily = FontFamily(
+    Font(R.font.noto_kufi_regular,  FontWeight.Normal),
+    Font(R.font.noto_kufi_medium,   FontWeight.Medium),
+    Font(R.font.noto_kufi_semibold, FontWeight.SemiBold),
+    Font(R.font.noto_kufi_semibold, FontWeight.Bold),
+)
+
 /** خط البسملة الزخرفي: Amiri — لعبارة البسملة فقط (نص قرآني قصير). */
 val AmiriFamily = FontFamily(
     Font(R.font.amiri_regular, FontWeight.Normal),
@@ -73,14 +92,16 @@ val TrimmedLeading = LineHeightStyle(
 private fun arabic(
     family: FontFamily = UiFamily,
     weight: FontWeight = FontWeight.Normal,
-    size:   Int,
-    line:   Int,
+    //  `Number` لا `Int`: الكوفيُّ يحتاج ١٠٫٥ و١١٫٥ كما في النموذج،
+    //  وتقريبُهما إلى ١٠ أو ١١ يغيّر وزنَ السطر في عينٍ تقارن.
+    size:   Number,
+    line:   Number,
     features: String? = null,
 ) = TextStyle(
     fontFamily          = family,
     fontWeight          = weight,
-    fontSize            = size.sp,
-    lineHeight          = line.sp,
+    fontSize            = size.toFloat().sp,
+    lineHeight          = line.toFloat().sp,
     lineHeightStyle     = TrimmedLeading,
     fontFeatureSettings = features,
 )
@@ -105,17 +126,34 @@ object RafiqType {
     /** نص الذكر والدعاء المشكول (1.80). */
     val dhikr = arabic(NaskhFamily, FontWeight.Normal, 20, 36)
 
+    /** الذكرُ حين يكون هو **الفعلَ الأوّل** — موضعَ اللمس في المسبحة (1.80).
+     *
+     *  وكان في الشاشة `TextStyle(fontSize = 34.sp, lineHeight = 56.sp)`
+     *  مكتوباً بيده خارجَ السلّم. ومقاسٌ مكتوبٌ عارياً **لا يكبر مع
+     *  «مقياس الخطّ»** — فمن كبّره لأنّه يحتاجه لا يُكبَّر له أكبرُ
+     *  نصٍّ في الشاشة. فصار رُتبةً مسمّاةً كغيرها. */
+    val dhikrL = arabic(NaskhFamily, FontWeight.Bold, 30, 54)
+
     /** البسملة والآية المقتبسة القصيرة (1.62). */
     val ayah = arabic(AmiriFamily, FontWeight.Normal, 26, 42)
 
     /* ── الواجهة ── */
 
-    /** عنوانُ شاشة الترحيب وحده — أميري عريض، أكبرُ كلامٍ في التطبيق.
-        كان `ayah` (26) يُستعمل هناك فبدا العنوانُ اقتباساً في وسط فراغ:
-        الشاشةُ نصفها خالٍ فوقه، والعينُ تقيس الحجم بما حوله لا بذاته. */
-    val hero = arabic(AmiriFamily, FontWeight.Bold, 32, 48)
+    /** **حرفُ الشعار وحدَه** — «ر» في مربّع الرأس. أميريٌّ عريض.
+     *
+     *  كان اسمُه `hero` ويُكتب به عنوانُ الترحيب ونداءُ الرئيسية و«استقبل
+     *  وصلِّ» في القبلة — أي **كلامُنا نحن بحرف النصّ المرويّ**. وقد
+     *  خرجت كلُّها إلى خطّ الواجهة، فلم يبقَ له إلّا الشعار: حرفٌ واحدٌ
+     *  يُنظر إليه علامةً لا يُقرأ كلاماً، والأميريُّ فيه في موضعه.
+     *
+     *  **ولا يُكتب به نصٌّ للقراءة أبداً** — لا منّا ولا مَرويّ؛ فالمرويُّ
+     *  له [ayah] و[quran] و[dhikr]. */
+    val mark = arabic(AmiriFamily, FontWeight.Bold, 32, 48)
 
-    /** الرقم الضخم — عدّاد المسبحة وحده. */
+    /** الرقمُ الضخم — عدّادُ المسبحة وزاويةُ القبلة.
+     *
+     *  و`tnum` أرقامٌ متساويةُ العرض: زاويةُ القبلة تتغيّر مع كلّ حركةِ
+     *  يد، وبأرقامٍ متفاوتةِ العرض يرتجف السطرُ كلُّه يميناً وشمالاً. */
     val display = arabic(UiFamily, FontWeight.Bold, 32, 44, "tnum")
 
     /** الفعلُ الحاضر في الرئيسية — أكبر ما يُقرأ بعد الكلمة، وأصغر من
@@ -123,9 +161,20 @@ object RafiqType {
         الفعل بحجم عنوان الشريط. */
     val titleXL = arabic(UiFamily, FontWeight.Bold, 26, 38)
 
-    /** عنوانُ بطاقة الميقات — أكبرُ ما يُقرأ في الرئيسية، وأميريٌّ لأنّ
-        البطاقة سطحٌ داكنٌ يحتمل خطّاً ذا تباينٍ عالٍ لا يحتمله الورق. */
-    val heroCard = arabic(AmiriFamily, FontWeight.Bold, 30, 40)
+    /** نداءُ الشاشة الأولى — أعلى ما يُقرأ فيها، و**بخطّ الواجهة**.
+     *
+     *  كان `hero` أي أميريّاً عريضاً بثلاثين نقطة. والأميريُّ في هذا
+     *  التطبيق حرفُ **النصّ المرويّ**: القرآن والحديث والأثر. فكان
+     *  نداؤنا — «أقبِلْ، وفّقك الله» — يُكتب بحرف الوحي، و**أكبرَ من
+     *  الحديث نفسِه** (٢٦). فالعينُ تقرأ كلامَنا أفخمَ من كلام النبيّ ﷺ.
+     *
+     *  وهو خللٌ شرعيٌّ قبل أن يكون بصريّاً، ولا يُصلحه تنبيهٌ في وثيقة:
+     *  الفصلُ يجب أن يقع في الشاشة. */
+    val nida = arabic(UiFamily, FontWeight.Bold, 28, 42)
+
+    /*  ويُستعمل أيضاً لعنوان شاشة الترحيب و«استقبل وصلِّ» في القبلة:
+     *  القاعدةُ واحدةٌ في التطبيق كلِّه لا في الرئيسية وحدَها — **أعلى
+     *  ما يُقرأ من كلامنا، بخطّ الواجهة**. */
 
     /** عنوان الشاشة في الشريط العلوي. */
     val titleL = arabic(UiFamily, FontWeight.Bold, 22, 32)
@@ -151,6 +200,20 @@ object RafiqType {
 
     /** شارة — الحدّ الأدنى المطلق للمقروئية العربية. */
     val micro = arabic(UiFamily, FontWeight.Medium, 11, 17)
+
+    /* ── الكوفيّ: ما ليس كلاماً ── */
+
+    /** وسمُ النوع فوق النصّ المرويّ، و«اقرأ على مهل» على الزرّ. */
+    val meta = arabic(KufiFamily, FontWeight.Medium, 11.5f, 20)
+
+    /** التاريخُ الهجريّ ووقتُ الميقات التالي — على السماء. */
+    val metaL = arabic(KufiFamily, FontWeight.Normal, 13, 22)
+
+    /** «خطوتك الآن» · «صحيح» · أسماءُ التبويبات — أصغرُ شارةٍ في الواجهة. */
+    val metaS = arabic(KufiFamily, FontWeight.Normal, 10.5f, 18)
+
+    /** «تابِع القراءة» و«الآيات ٧٠ – ٧٦». */
+    val metaM = arabic(KufiFamily, FontWeight.Normal, 11, 19)
 }
 
 /* ═══════════════════════════════════════════════════════════════════

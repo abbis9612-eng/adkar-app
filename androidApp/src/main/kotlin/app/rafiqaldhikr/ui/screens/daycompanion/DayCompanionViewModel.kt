@@ -3,6 +3,10 @@ package app.rafiqaldhikr.ui.screens.daycompanion
 import androidx.lifecycle.ViewModel
 import app.rafiqaldhikr.util.coordsOrNull
 import app.rafiqaldhikr.util.isFriday
+import app.rafiq.domain.model.wirdOf
+import app.rafiq.domain.repository.KhatmaRepository
+import app.rafiqaldhikr.R
+import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.RafiqResult
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -31,16 +35,54 @@ class DayCompanionViewModel(
     private val progressRepo:   ProgressRepository,
     private val companionRepo:  DayCompanionRepository,
     private val getPrayerTimes: GetPrayerTimesUseCase,
+    private val khatmaRepo:     KhatmaRepository,
 ) : ViewModel() {
+
+    private companion object {
+        /** أوّلُ صفحاتِ الكهف في المصحف المدنيّ — مرساةُ محطّة الجمعة. */
+        const val KAHF_PAGE = 293
+
+        private const val H = 3_600_000L
+        private const val M = 60_000L
+
+        /**
+         * أوقاتٌ للترتيب وحدَه — لا تُعرض ساعةٌ منها أبداً.
+         *
+         * بلا مدينةٍ تُبنى المحطّاتُ بها لتُرتَّب كما تُرتَّب في كلّ مدينة،
+         * ثمّ تُخفى ساعاتُها في الواجهة ([UiState.timed]). والقيمُ يومُ
+         * اعتدالٍ تقريبيّ؛ ولا يهمّ منها إلّا أنّ كلَّ وقتٍ بعد الذي قبله.
+         */
+        private val ORDER_ONLY = app.rafiq.domain.model.PrayerTimesResult(
+            fajr = 5 * H, sunrise = 6 * H + 30 * M, dhuhr = 12 * H,
+            asr = 15 * H + 30 * M, maghrib = 18 * H, isha = 19 * H + 30 * M,
+        )
+    }
 
     enum class StationStatus { UPCOMING, ACTIVE, DONE, PASSED }
 
     data class StationUi(
         val id:          String,
-        val title:       String,
+        /*  العنوانُ والاسمُ القصيرُ والوصفُ والتوقيتُ مراجعُ موارد لا نصوص:
+         *  كانت أربعتُها مكتوبةً عربيةً هنا لعشرِ محطّات — فميزةُ «رفيق
+         *  اليوم» كلُّها لا تُترجَم، وهي بطلةُ الشاشة الرئيسية.
+         *
+         *  و[virtue] و[source] يبقيان نصّاً عربياً: هما حديثٌ وتخريجُه،
+         *  وترجمةُ الحديث تفسيرٌ له لا نقل — وقاعدةُ المشروع أن لا يُصاغ
+         *  نصٌّ دينيٌّ ولا يُعاد صوغُه. فيُعرضان بالعربية في اللغتين، وهو
+         *  الصدق. */
+        @androidx.annotation.StringRes val title: Int,
         /** اسمٌ من كلمة واحدة لصفّ اليوم في الرئيسية — تسعةٌ منها تتّسع في سطر. */
-        val short:       String,
-        val description: String,
+        @androidx.annotation.StringRes val short: Int,
+        @androidx.annotation.StringRes val description: Int,
+        /**
+         * محطّةٌ تمتدّ اليومَ كلَّه لا تقع في لحظة.
+         *
+         *  وقراءةُ الكهف من هذا الباب: مداها من الفجر إلى العشاء، لا
+         *  ساعةَ لها. وكانت الشريحةُ تطبع [startMillis] ساعةً — فيُقرأ
+         *  «الكهف ٤:٣٥ ص» كأنّها صلاةٌ في ذلك الوقت. فهذه تقول إنّ
+         *  وسمَها ([timeLabel]) هو ما يُعرَض لا الساعة.
+         */
+        val spansDay:    Boolean = false,
         val virtue:      String,          // الفضل الوارد بدليله
         /**
          * تخريجُ [virtue] وحده — شارةُ المصدر في بطاقة الميقات.
@@ -51,7 +93,7 @@ class DayCompanionViewModel(
          * تكذب يوماً، والكذبُ هنا في الإسناد لا في الواجهة.
          */
         val source:      String,
-        val timeLabel:   String,          // «بعد الفجر حتى الشروق»
+        @androidx.annotation.StringRes val timeLabel: Int,
         val startMillis: Long,
         val endMillis:   Long,
         val route:       String?,         // وجهة «ابدأ» — فئة أذكار غالباً
@@ -74,6 +116,16 @@ class DayCompanionViewModel(
          * في أخصِّ ما عنده. فما مضى يُكتب «مضت»، و«تمّت» لهؤلاء وحدهم.
          */
         val completedIds: Set<String>   = emptySet(),
+        /**
+         * هل للمحطّات أوقاتٌ حقيقيّة؟
+         *
+         * بلا مدينةٍ مختارةٍ كانت الورقةُ تختفي كلُّها، فلا يرى من فتح
+         * التطبيقَ أوّلَ مرّةٍ «الرفيقَ» أصلاً — وهو اسمُ التطبيق. فصارت
+         * تُعرَض بترتيبها **بلا ساعات**: الترتيبُ صادقٌ في كلّ مدينة
+         * (الاستيقاظُ قبل الفجر، والضحى بعد الشروق)، والساعةُ وحدَها
+         * تحتاج المدينة. فلا تكذب في وقتٍ ولا تختفي.
+         */
+        val timed: Boolean               = true,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -105,22 +157,27 @@ class DayCompanionViewModel(
                 prefsRepo.getPrefs(),
                 progressRepo.getByDate(today),
                 companionRepo.getCompletedStations(today),
+                khatmaRepo.active(),
                 refreshTrigger,
-            ) { prefs, progress, completed, _ ->
-                // محطّات اليوم كلّها موقوتة بأوقات الصلاة. بلا موقع لا محطّات —
-                // والورقة تطلب الموقع بدل أن تعرض جدول مدينةٍ ليست مدينته.
+            ) { prefs, progress, completed, khatma, _ ->
+                // محطّات اليوم موقوتة بأوقات الصلاة، وهي تُحسب من المدينة.
+                // وبلا مدينةٍ لا تُخترع أوقاتُ مدينةٍ أخرى — بل تُعرض
+                // المحطّاتُ بترتيبها وحدَه، انظر [UiState.timed].
                 val here = coordsOrNull(prefs.lastKnownLat, prefs.lastKnownLng)
-                    ?: return@combine UiState(isLoading = false, needsLocation = true)
-                val times = when (val r = getPrayerTimes(
-                    here.lat, here.lng, prefs.prayerMethod,
-                    elevation = prefs.elevation, madhab = prefs.madhab,
-                    fajrOffset = prefs.fajrOffset, dhuhrOffset = prefs.dhuhrOffset,
-                    asrOffset = prefs.asrOffset, maghribOffset = prefs.maghribOffset,
-                    ishaOffset = prefs.ishaOffset
-                )) {
-                    is RafiqResult.Success -> r.data
-                    else -> null
-                } ?: return@combine UiState(isLoading = true)
+                val real = here?.let { h ->
+                    when (val r = getPrayerTimes(
+                        h.lat, h.lng, prefs.prayerMethod,
+                        elevation = prefs.elevation, madhab = prefs.madhab,
+                        fajrOffset = prefs.fajrOffset, dhuhrOffset = prefs.dhuhrOffset,
+                        asrOffset = prefs.asrOffset, maghribOffset = prefs.maghribOffset,
+                        ishaOffset = prefs.ishaOffset
+                    )) {
+                        is RafiqResult.Success -> r.data
+                        else -> null
+                    } ?: return@combine UiState(isLoading = true)
+                }
+                val timed = real != null
+                val times = real ?: ORDER_ONLY
 
                 val now = System.currentTimeMillis()
                 val todayDate = Clock.System.now()
@@ -133,9 +190,28 @@ class DayCompanionViewModel(
                 }
                 val allDone = completed + auto
 
-                val stations = buildStations(times, todayDate.isFriday()).map { st ->
+                /*  وِردُ الختمة **محطّةٌ في الصفّ** لا شاشةٌ في درج.
+                 *
+                 *  والمنافسُ يضعها أداةً بين خمسَ عشرةَ أداةً وتذكيرُها
+                 *  «مرتبطٌ بالصلاة». ونحن أولى بالفكرة: محطّاتُنا موقوتةٌ
+                 *  بالصلاة أصلاً، فيدخل الوِردُ بينها في ميقاته ويُرتَّب
+                 *  معها بالوقت — لا يُلحق في آخر القائمة. */
+                val todayEpoch = todayDate.toEpochDays().toLong()
+                val wirdStation = khatma?.let { k ->
+                    val w = wirdOf(
+                        fromPage = k.fromPage, toPage = k.toPage, days = k.days,
+                        startedOn = k.startedOn, readTo = k.readTo, today = todayEpoch,
+                    )
+                    if (w.finished) null else wirdStationOf(k, w, times)
+                }
+
+                val stations = (buildStations(times, todayDate.isFriday()) + listOfNotNull(wirdStation))
+                    .sortedBy { it.startMillis }
+                    .map { st ->
                     val status = when {
                         st.id in allDone                      -> StationStatus.DONE
+                        // بلا ساعاتٍ لا «الآن» ولا «مضى» — لا يُدرى أيٌّ منهما
+                        !timed                                -> StationStatus.UPCOMING
                         now in st.startMillis..st.endMillis   -> StationStatus.ACTIVE
                         now > st.endMillis                    -> StationStatus.PASSED
                         else                                  -> StationStatus.UPCOMING
@@ -146,11 +222,14 @@ class DayCompanionViewModel(
                 UiState(
                     completedIds = allDone,
                     stations   = stations,
-                    nowStation = stations.firstOrNull { it.status == StationStatus.ACTIVE }
-                        ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
+                    nowStation = if (!timed) null
+                        else stations.firstOrNull { it.status == StationStatus.ACTIVE }
+                            ?: stations.firstOrNull { it.status == StationStatus.UPCOMING },
                     isFriday   = todayDate.isFriday(),
                     doneCount  = stations.count { it.status == StationStatus.DONE },
                     isLoading  = false,
+                    needsLocation = !timed,
+                    timed      = timed,
                 )
             }.collect { _uiState.value = it }
         }
@@ -162,6 +241,40 @@ class DayCompanionViewModel(
         }
     }
 
+    /**
+     * محطّةُ الوِرد — نافذتُها من ميقاتها إلى الذي يليه.
+     *
+     * ووصفُها **بالوقت لا بالصفحات وحدَها**: «٢١ صفحة» لا تقول شيئاً لمن
+     * لا يعرف كم تأخذ، و«نحو ٣٥ دقيقة» تقول. ومن تأخّر يُقال له كم
+     * تأخّر صراحةً — لا يُترك يكتشفه بنفسه حين ييأس.
+     */
+    private fun wirdStationOf(
+        k: app.rafiq.domain.model.KhatmaPlan,
+        w: app.rafiq.domain.model.Wird,
+        t: app.rafiq.domain.model.PrayerTimesResult,
+    ): StationUi {
+        val (start, end) = when (k.meeqat) {
+            "fajr"    -> t.fajr to t.sunrise
+            "duha"    -> t.sunrise to t.dhuhr
+            "asr"     -> t.asr to t.maghrib
+            "maghrib" -> t.maghrib to t.isha
+            "isha"    -> t.isha to (t.fajr + 86_400_000L)
+            else      -> t.dhuhr to t.asr
+        }
+        return StationUi(
+            id = "wird",
+            title = R.string.wird_title,
+            short = R.string.wird_short,
+            description = R.string.wird_title,
+            //  لا نصَّ دينيَّ هنا: الفضلُ يُضاف في مرحلة الإسناد بتخريجه.
+            virtue = "",
+            source = "",
+            timeLabel = R.string.wird_time,
+            startMillis = start, endMillis = end,
+            route = RafiqRoute.Mushaf.atPage(w.from),
+        )
+    }
+
     private fun buildStations(t: app.rafiq.domain.model.PrayerTimesResult, friday: Boolean): List<StationUi> {
         val sleepStart = t.isha + 60 * 60_000L      // بعد العشاء بساعة
         val dayEnd     = t.isha + 5 * 3600_000L     // نهاية نافذة النوم للعرض
@@ -169,103 +282,108 @@ class DayCompanionViewModel(
         return listOf(
             StationUi(
                 id = "wake",
-                title = "الاستيقاظ",
-                short = "الاستيقاظ",
-                description = "«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك",
+                title = R.string.st_wake_t,
+                short = R.string.st_wake_s,
+                description = R.string.st_wake_d,
                 virtue = "هدي النبي ﷺ عند الاستيقاظ — رواه البخاري",
                 source = "رواه البخاري",
-                timeLabel = "قبل الفجر",
+                timeLabel = R.string.st_wake_time,
                 startMillis = t.fajr - 90 * 60_000L, endMillis = t.fajr,
                 route = null,
             ),
             StationUi(
                 id = "fajr_morning",
-                title = "الفجر وأذكار الصباح",
-                short = "الفجر",
-                description = "صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس",
+                title = R.string.st_fajr_t,
+                short = R.string.st_fajr_s,
+                description = R.string.st_fajr_d,
                 virtue = "«من صلى الغداة في جماعة ثم قعد يذكر الله حتى تطلع الشمس ثم صلى ركعتين كانت له كأجر حجة وعمرة تامة تامة تامة» — الترمذي (حسن)",
                 source = "الترمذي · حسن",
-                timeLabel = "من الفجر إلى الشروق",
+                timeLabel = R.string.st_fajr_time,
                 startMillis = t.fajr, endMillis = t.sunrise,
                 route = "dhikr_reading/morning",
             ),
             StationUi(
                 id = "duha",
-                title = "صلاة الضحى",
-                short = "الضحى",
-                description = "ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك",
+                title = R.string.st_duha_t,
+                short = R.string.st_duha_s,
+                description = R.string.st_duha_d,
                 virtue = "«يصبح على كل سُلامى من أحدكم صدقة... ويجزئ من ذلك ركعتان يركعهما من الضحى» — رواه مسلم",
                 source = "رواه مسلم",
-                timeLabel = "من بعد الشروق إلى قبيل الظهر",
+                timeLabel = R.string.st_duha_time,
                 startMillis = t.sunrise + 20 * 60_000L, endMillis = t.dhuhr - 10 * 60_000L,
                 route = null,
             ),
             StationUi(
                 id = "dhuhr",
-                title = "الظهر وأذكار بعد الصلاة",
-                short = "الظهر",
-                description = "الصلاة ثم الاستغفار والتسبيح 33/33/34 وآية الكرسي",
+                title = R.string.st_dhuhr_t,
+                short = R.string.st_dhuhr_s,
+                description = R.string.st_dhuhr_d,
                 virtue = "«من سبّح الله دبر كل صلاة... غُفرت خطاياه وإن كانت مثل زبد البحر» — رواه مسلم",
                 source = "رواه مسلم",
-                timeLabel = "من الظهر إلى العصر",
+                timeLabel = R.string.st_dhuhr_time,
                 startMillis = t.dhuhr, endMillis = t.asr,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "asr_evening",
-                title = "العصر وأذكار المساء",
-                short = "العصر",
-                description = "صلاة العصر ثم أذكار المساء قبل الغروب",
+                title = R.string.st_asr_t,
+                short = R.string.st_asr_s,
+                description = R.string.st_asr_d,
                 virtue = "اختار ابن القيم في الوابل الصيّب أن وقت أذكار المساء بين العصر والغروب",
                 source = "اختيار ابن القيّم · الوابل الصيّب",
-                timeLabel = "من العصر إلى المغرب",
+                timeLabel = R.string.st_asr_time,
                 startMillis = t.asr, endMillis = t.maghrib,
                 route = "dhikr_reading/evening",
             ),
             StationUi(
                 id = "maghrib",
-                title = "المغرب وأذكار بعد الصلاة",
-                short = "المغرب",
-                description = "الصلاة وأذكارها" + if (friday) " — وأكثر من الدعاء فآخر ساعة من الجمعة ساعة إجابة" else "",
+                title = R.string.st_maghrib_t,
+                short = R.string.st_maghrib_s,
+                // الجمعةُ لها وصفٌ خاصّ: آخرُ ساعةٍ منها ساعةُ إجابة.
+                description = if (friday) R.string.st_maghrib_d_friday else R.string.st_maghrib_d,
                 virtue = "«لا مانع لما أعطيت ولا معطي لما منعت» — متفق عليه",
                 source = "متفق عليه",
-                timeLabel = "من المغرب إلى العشاء",
+                timeLabel = R.string.st_maghrib_time,
                 startMillis = t.maghrib, endMillis = t.isha,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "isha",
-                title = "العشاء والوتر",
-                short = "العشاء",
-                description = "صلاة العشاء ثم الوتر ولو بركعة",
+                title = R.string.st_isha_t,
+                short = R.string.st_isha_s,
+                description = R.string.st_isha_d,
                 virtue = "«اجعلوا آخر صلاتكم بالليل وتراً» — متفق عليه",
                 source = "متفق عليه",
-                timeLabel = "بعد العشاء",
+                timeLabel = R.string.st_isha_time,
                 startMillis = t.isha, endMillis = sleepStart,
                 route = "dhikr_reading/prayer",
             ),
             StationUi(
                 id = "sleep",
-                title = "أذكار النوم",
-                short = "النوم",
-                description = "الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح",
+                title = R.string.st_sleep_t,
+                short = R.string.st_sleep_s,
+                description = R.string.st_sleep_d,
                 virtue = "«إذا أويت إلى فراشك فاقرأ آية الكرسي... لن يزال عليك من الله حافظ ولا يقربك شيطان حتى تصبح» — رواه البخاري",
                 source = "رواه البخاري",
-                timeLabel = "عند النوم",
+                timeLabel = R.string.st_sleep_time,
                 startMillis = sleepStart, endMillis = dayEnd,
                 route = "dhikr_reading/sleep",
             ),
         ) + if (friday) listOf(
             StationUi(
                 id = "friday_kahf",
-                title = "سورة الكهف والصلاة على النبي ﷺ",
-                short = "الكهف",
-                description = "قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة",
+                title = R.string.st_kahf_t,
+                short = R.string.st_kahf_s,
+                description = R.string.st_kahf_d,
+                spansDay = true,
                 virtue = "«من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» — رواه الحاكم والبيهقي (صحيح)",
                 source = "الحاكم والبيهقي · صحيح",
-                timeLabel = "طوال يوم الجمعة",
+                timeLabel = R.string.st_kahf_time,
                 startMillis = t.fajr, endMillis = t.isha,
-                route = "quran_reading/18",
+                // صفحةُ الكهف في المصحف المدنيّ. وكان هنا "quran_reading/18"
+                // — مسارٌ لا وجود له في الرسم البياني منذ حُذفت شاشةُ القراءة
+                // بالسورة، فكان كلُّ يوم جمعةٍ ينتهي بانهيار عند فتح المحطّة.
+                route = RafiqRoute.Mushaf.atPage(KAHF_PAGE),
             )
         ) else emptyList()
     }

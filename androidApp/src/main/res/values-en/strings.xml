@@ -24,6 +24,20 @@
     <string name="back">Back</string>
 
     <!-- Tasbeeh -->
+    <string name="tasbeeh_mode_word">Word</string>
+    <string name="tasbeeh_mode_thread">Thread</string>
+    <string name="tasbeeh_tap_invite">Tap the dhikr to count</string>
+    <string name="tasbeeh_thread_invite">Push a bead under your thumb</string>
+    <string name="tasbeeh_undo">Undo</string>
+    <string name="tasbeeh_cycle">After prayer</string>
+    <string name="tasbeeh_left_of">%1$s left of %2$s</string>
+    <string name="tasbeeh_hundred">The hundred is complete</string>
+    <string name="tasbeeh_of_hundred">%1$s of %2$s</string>
+    <string name="tasbeeh_cycle_start">Start the cycle</string>
+    <string name="khatma_open_from">Start at</string>
+    <string name="khatma_open_to">Stop at</string>
+    <string name="khatma_open_spine">%1$s pages · Juz %2$s</string>
+    <string name="khatma_open_verb">Open the Mushaf here</string>
     <string name="tasbeeh_title">Tasbeeh</string>
     <string name="tap_to_count">Tap to count</string>
     <string name="reset">Reset</string>
@@ -138,6 +152,7 @@
     <string name="hijri_suffix">— AH</string>
     <string name="waraqa_title">Your Day</string>
     <string name="waraqa_opens_first">Opens at the first prayer</string>
+    <string name="waraqa_untimed">Times appear once you choose your city</string>
     <string name="waraqa_footer">Marked from your day</string>
     <string name="quran_search_hint">Search for a surah…</string>
     <string name="revelation_makki">Meccan</string>
@@ -148,7 +163,7 @@
     <string name="quran_surahs">Surahs</string>
     <string name="quran_search_screen">Search the Quran</string>
     <string name="quran_search_field">Type a word or verse…</string>
-    <string name="quran_search_min">Type at least two words to search</string>
+    <string name="quran_search_min">Type at least three letters</string>
     <string name="dhikr_tap_anywhere">Tap anywhere to count</string>
     <string name="dhikr_done_next">Done — tap for next</string>
     <string name="dhikr_section_done">Section complete</string>
@@ -273,4 +288,810 @@
     <string name="ob4_body">Even a single word, said in its time.</string>
     <string name="ob4_cta">Begin my wird</string>
     <string name="ob4_link">Remind me later</string>
+
+    <!-- ═══ States that used to render as a silent blank screen ═══ -->
+    <string name="adhkar_empty_category">No adhkar in this section yet.</string>
+
+    <!-- ═══ Alarm precision — a permission nothing used to request ═══ -->
+    <string name="notif_what_arrives">What you receive when reminders are on</string>
+    <string name="notif_exact_title">Get reminders at the exact time</string>
+    <string name="notif_exact_body">Reminders currently arrive within a few minutes. With system permission they arrive at the exact minute of the adhan.</string>
+    <string name="notif_exact_cta">Open system settings</string>
+
+    <!-- ═══ Search ═══ -->
+    <string name="quran_search_none">No results for “%1$s”.\nTry another word from the verse.</string>
+
+    <!-- ═══ Mushaf ═══ -->
+    <string name="mushaf_banner_title">This is the adjusted page</string>
+    <string name="mushaf_banner_body">Tap to show the page as printed</string>
+    <string name="mushaf_font_failed">Could not fetch this page\'s font</string>
+    <string name="mushaf_font_retry">Check your connection, then tap to retry</string>
+
+    <!-- ═══ Accessibility — one of these switches used to lie ═══ -->
+    <string name="a11y_reduced_motion">Reduce motion</string>
+    <string name="a11y_reduced_motion_desc">Animations settle across the whole app</string>
+    <string name="a11y_high_contrast">High contrast</string>
+    <string name="a11y_high_contrast_desc">Stronger ink and clearer borders for all text</string>
+
+    <!-- ═══ Widget ═══ -->
+    <string name="widget_needs_location">Set your location</string>
+
+    <!-- ═══ Contact ═══ -->
+    <string name="contact_no_mail_app">No mail app on this device. Write to us at %1$s</string>
+    <string name="export_failed">Could not prepare the export file</string>
+
+    <string name="mushaf_hizb">Hizb %1$s</string>
+    <string name="mushaf_jump_title">Go to page</string>
+    <string name="mushaf_jump_hint">Page number (1 – 604)</string>
+    <string name="mushaf_jump_go">Go</string>
+    <string name="mushaf_jump_juz">Or pick a juz</string>
+    <string name="bookmarks_empty">No bookmarks yet.\nLong-press a verse in the Mushaf, then “Bookmark”.</string>
+    <string name="bookmark_remove">Remove bookmark</string>
+    <string name="qibla_a11y_aligned">You are facing the qibla now.</string>
+    <string name="qibla_a11y_turn">Turn %1$s degrees to the %2$s</string>
+    <string name="qibla_a11y_left">left</string>
+    <string name="qibla_a11y_right">right</string>
+
+    <!-- ═══ What's New — used to advertise features that did not exist ═══ -->
+    <string name="whatsnew_current_label">Current release</string>
+    <string name="whatsnew_mushaf">Mushaf: jump to a page or juz, hizb in the margin, and tapping a verse opens its tafsir and bookmark</string>
+    <string name="whatsnew_search">Quran search now finds what you type, undiacritized</string>
+    <string name="whatsnew_quran_text">Quran text corrected: the basmala sits in its proper place in every surah</string>
+    <string name="whatsnew_alarms">Adhan reminders arrive, and are rescheduled after every update and journey</string>
+    <string name="whatsnew_qibla">Qibla corrected for your local magnetic declination</string>
+    <string name="whatsnew_a11y">Font size and high contrast now apply across the whole app</string>
+    <string name="whatsnew_first_label">First release</string>
+    <string name="whatsnew_first_release">First release</string>
+    <string name="whatsnew_quran">The Holy Quran with search and bookmarks</string>
+    <string name="whatsnew_tasbeeh">Tasbeeh counter</string>
+    <string name="whatsnew_adhkar">Adhkar and duas with their sources</string>
+    <string name="whatsnew_times">Prayer times and qibla direction</string>
+    <string name="whatsnew_profile">My Pages and statistics</string>
+    <string name="whatsnew_theme">Dark and light themes</string>
+    <string name="state_loading">Loading</string>
+
+    <!-- ═══ Notification text — used to be hardcoded Arabic ═══ -->
+    <string name="notif_prayer_title">It is time for %1$s</string>
+    <string name="notif_prayer_body">The time for %1$s prayer has come</string>
+    <string name="notif_channel_adhkar">Adhkar reminders</string>
+    <string name="notif_adhkar_morning_title">Morning adhkar 🌅</string>
+    <string name="notif_adhkar_morning_body">Begin your day remembering Allah</string>
+    <string name="notif_adhkar_evening_title">Evening adhkar 🌇</string>
+    <string name="notif_adhkar_evening_body">Your daily fortress before sunset</string>
+    <string name="notif_adhkar_sleep_title">Sleep adhkar 🌙</string>
+    <string name="notif_adhkar_sleep_body">Sleep upon the remembrance of Allah</string>
+
+    <!-- ═══ Countdown ═══ -->
+    <plurals name="hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="and_separator">" and "</string>
+
+    <!-- ═══ Home ═══ -->
+    <!-- The opening call: a verb that follows the clock, not a greeting or a narration -->
+    <string name="greet_salam">Peace be upon you</string>
+    <string name="greet_morning">A blessed morning</string>
+    <string name="greet_day">A good day</string>
+    <string name="greet_blessed">A blessed hour</string>
+    <string name="greet_evening">Good evening</string>
+    <string name="greet_calm_evening">A calm evening</string>
+    <string name="greet_night">A quiet night</string>
+    <string name="hub_times_unset">Your prayer times are not set yet</string>
+    <string name="hub_companion">Your companion today</string>
+    <string name="hub_set_city">Choose your city</string>
+    <string name="hub_set_location">Set location</string>
+    <string name="hub_day_adhkar">Today\'s adhkar</string>
+    <string name="hub_day_sub">From waking to sleeping — open your page</string>
+    <string name="hub_open_waraqa">Open your day\'s page</string>
+    <string name="action_open">Open</string>
+    <string name="action_detail">Details</string>
+    <string name="action_start">Start</string>
+    <string name="hub_eyebrow_now">Your step now</string>
+    <string name="hub_station_tag">%1$s station</string>
+    <string name="hub_cta_hint">Read unhurried</string>
+    <string name="action_start_named">Start %1$s</string>
+
+    <!-- ═══ Qibla ═══ -->
+    <string name="qibla_needs_location">The qibla is computed from your location; an arrow pointing from another city points away from the Kaaba.</string>
+    <string name="qibla_wait_steady">We do not announce a direction until the compass settles</string>
+    <string name="qibla_aligned">Direction confirmed — face it and pray</string>
+    <string name="qibla_near">Close — move slowly</string>
+    <string name="qibla_turn_hint">Turn the phone until the Kaaba enters the corridor</string>
+    <string name="qibla_delta_label">Current offset</string>
+    <string name="qibla_face_and_pray">Face it and pray</string>
+    <string name="qibla_rightward">right</string>
+    <string name="qibla_leftward">left</string>
+    <string name="qibla_bearing">Qibla bearing</string>
+    <string name="qibla_distance">Distance to Mecca</string>
+    <string name="qibla_gates">No direction is announced until both are true</string>
+    <string name="qibla_metal_warning">A phone compass errs near metal and electricity.</string>
+    <string name="qibla_gate_calibrated">Compass calibrated</string>
+    <string name="qibla_gate_steady">Reading steady</string>
+    <string name="qibla_no_sensor">Compass unavailable</string>
+    <string name="qibla_no_sensor_body">Your device has no compass sensor</string>
+
+    <!-- ═══ Tasbeeh ═══ -->
+    <string name="tasbeeh_milestones">Milestones</string>
+    <string name="tasbeeh_reset">Reset counter</string>
+    <string name="tasbeeh_pick">Choose dhikr</string>
+    <string name="tasbeeh_done">Well done — the dhikr is complete</string>
+    <string name="tasbeeh_target">Target count</string>
+    <string name="tasbeeh_choose">Choose a dhikr</string>
+    <string name="tasbeeh_your_count">Your count</string>
+    <string name="tasbeeh_mark_at">Wird marker at %1$s</string>
+    <string name="action_close">Close</string>
+    <plurals name="laps">
+        <item quantity="one">You completed %1$d lap</item>
+        <item quantity="other">You completed %1$d laps</item>
+    </plurals>
+
+    <!-- ═══ Privacy policy — every sentence backed by a line of code ═══ -->
+    <string name="pp_intro_t">Introduction</string>
+    <string name="pp_intro_b">We respect your privacy. This policy describes what the app actually does, not what we intend to do.</string>
+
+    <string name="pp_collect_t">What is kept on your device</string>
+    <string name="pp_collect_b">• Your progress: completed adhkar, tasbeeh counts, Quran pages, prayer log.\n• Your location: to compute prayer times and the qibla, with your permission only. It stays on the device and is never sent. If you do not grant it, we show no estimated times — we ask for your location rather than showing times that are not yours.\n• Your preferences: theme, font, numerals, notifications.</string>
+
+    <string name="pp_not_collect_t">What we do not collect</string>
+    <string name="pp_not_collect_b">• No name, email, or account.\n• No tracking across other apps.\n• No selling or sharing with third parties.\n• No analytics and no crash reporting.</string>
+
+    <string name="pp_storage_t">Storage</string>
+    <string name="pp_storage_b">• All your data lives on your device: a local SQLite database and a preferences file. We run no servers that receive it.\n• These files are not encrypted; they are protected by Android app sandboxing — no other app can reach them on a non-rooted device.\n• Cloud backup is disabled for this app, so nothing is uploaded to Google Drive.\n• Uninstalling the app erases all of it.</string>
+
+    <string name="pp_network_t">Network access</string>
+    <string name="pp_network_b">The app uses the internet for two things only:\n\n1 · Downloading mushaf page fonts, and only when you explicitly ask — no connection is opened before you agree, and nothing about you is sent with that request.\n\n2 · Weather, so the sky on the home screen is drawn cloudy or clear as it actually is where you are. Your position is sent **rounded to about 11 km** — not your exact coordinates, no device identifier, nothing about your usage. Turning the sky off in settings removes this too.\n\nEverything else is on the device: the mushaf, the tafsir, the adhkar, the supplications, the prayer times and the qibla. It works fully in airplane mode.</string>
+
+    <string name="pp_rights_t">Your rights</string>
+    <string name="pp_rights_b">You can export or erase all of your data at any time from: Settings → Export data.</string>
+
+    <string name="pp_updates_t">Updates</string>
+    <string name="pp_updates_b">This policy may be updated. Any material change will be announced inside the app.</string>
+
+    <string name="pp_contact_t">Contact</string>
+    <string name="pp_contact_b">For any privacy question: privacy@rafiqaldhikr.app</string>
+
+    <!-- ═══ Terms of use ═══ -->
+    <string name="tos_accept_t">Acceptance</string>
+    <string name="tos_accept_b">By using the app you agree to these terms. If you do not agree with any of them, please do not use it.</string>
+    <string name="tos_allowed_t">Permitted use</string>
+    <string name="tos_allowed_b">• Using the app for worship and drawing near to Allah.\n• Sharing its content with others.\n• Personal, non-commercial use.</string>
+    <string name="tos_religious_t">Religious content</string>
+    <string name="tos_religious_b">Every dhikr and dua in the app carries its source and grading, shown alongside it. Even so, the app is not a source of fatwa: ask people of knowledge about what is unclear to you.</string>
+    <string name="tos_times_t">Prayer times</string>
+    <string name="tos_times_b">Times are computed astronomically from your location and your chosen calculation method, and are approximate by nature. Verify with your local mosque.</string>
+    <string name="tos_ip_t">Intellectual property</string>
+    <string name="tos_ip_b">Rights to the app belong to the Rafiq Al-Dhikr team. The Quranic text and the hadith belong to the ummah, to no one person.</string>
+    <string name="tos_disclaimer_t">Disclaimer</string>
+    <string name="tos_disclaimer_b">The app is provided as is, without warranty, and we bear no liability for harm arising from its use.</string>
+    <string name="tos_changes_t">Changes</string>
+    <string name="tos_changes_b">These terms may change; any material change will be announced inside the app.</string>
+
+    <!-- ═══ Contact ═══ -->
+    <string name="contact_welcome">We would love to hear from you 💬</string>
+    <string name="contact_email">Email</string>
+    <string name="contact_bug">Report a bug</string>
+    <string name="contact_bug_desc">Tell us about any technical fault</string>
+    <string name="contact_idea">Suggest a feature</string>
+    <string name="contact_idea_desc">Share your ideas for the app</string>
+    <string name="contact_your_message">Your message</string>
+    <string name="contact_subj_note">Rafiq Al-Dhikr — feedback</string>
+    <string name="contact_subj_bug">Rafiq Al-Dhikr — bug report</string>
+    <string name="contact_subj_idea">Rafiq Al-Dhikr — suggestion</string>
+    <string name="contact_subj_user">Rafiq Al-Dhikr — message from a user</string>
+    <string name="action_send">Send</string>
+
+    <!-- ═══ My Pages ═══ -->
+    <string name="awraq_not_opened">Not opened yet</string>
+    <string name="awraq_subtitle">What you completed — to see it, not to be judged by it</string>
+    <string name="awraq_last_seven">Last seven days</string>
+    <string name="awraq_completed_f">Completed</string>
+    <string name="awraq_untouched_f">Untouched</string>
+    <string name="awraq_today">Today</string>
+    <string name="awraq_this_month">This month</string>
+    <string name="awraq_completed_m">Completed</string>
+    <string name="awraq_partial">Partly</string>
+    <string name="awraq_untouched_m">Untouched</string>
+    <string name="awraq_besides">Besides the wird</string>
+    <string name="awraq_tasbeeh_unit">tasbeeh</string>
+    <string name="awraq_page_unit">Quran pages</string>
+    <plurals name="awrad">
+        <item quantity="zero">No wird yet</item>
+        <item quantity="one">%1$d wird</item>
+        <item quantity="other">%1$d awrad</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+
+    <!-- ═══ Theme, About, Celebration ═══ -->
+    <string name="theme_system_full">Automatic (system)</string>
+    <string name="theme_dynamic">Dynamic colours</string>
+    <string name="theme_dynamic_desc">Use wallpaper colours (Android 12+)</string>
+    <string name="about_made_with">Made with ❤️ for Allah</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="celebration_title">May Allah bless you!</string>
+    <string name="awraq_no_wird">No wird yet</string>
+
+    <!-- ═══ Mushaf ═══ -->
+    <string name="mushaf_surah_label">Surah %1$s</string>
+    <string name="mushaf_juz_label">Juz %1$s</string>
+    <string name="mushaf_hint">Tap the page for tools · long-press a word to open its verse</string>
+    <string name="action_got_it">Got it</string>
+    <string name="mushaf_mode">Display mode</string>
+    <string name="mushaf_font_size">Font size</string>
+    <string name="mushaf_size_note">The Mushaf page sizes itself so the lines align — this slider is for the text modes.</string>
+    <string name="mushaf_not_downloaded">%1$s — not downloaded yet</string>
+    <string name="mushaf_dl_progress">Downloading %1$s of %2$s · %3$s MB</string>
+    <string name="mushaf_dl_ready">Ready · %1$s MB on your device</string>
+    <string name="mushaf_dl_resume">Finish downloading — %1$s of %2$s</string>
+    <string name="mushaf_dl_title">Download the Mushaf fonts</string>
+    <string name="mushaf_dl_note">About 90 MB, once. Everything below it works offline.</string>
+    <string name="mushaf_offer_body">Fifteen lines matching the Madinah Mushaf — each word in its place, each line breaking where the printed page breaks.</string>
+    <string name="mushaf_offer_now">Show it now</string>
+    <string name="mushaf_offer_now_note">Only the font for the page you are reading is fetched — about two megabytes, seconds. The rest fills in as you turn pages.</string>
+    <string name="mushaf_offer_all">Download the whole Mushaf — 90 MB</string>
+    <string name="mushaf_offer_all_note">For complete offline reading</string>
+    <string name="mushaf_offer_later">Later — read the fitted page</string>
+
+    <!-- Display modes -->
+    <string name="mushaf_mode_classic">Verse list</string>
+    <string name="mushaf_mode_classic_note">One verse per line with its number — easiest for search and tafsir</string>
+    <string name="mushaf_mode_fitted">Fitted page</string>
+    <string name="mushaf_mode_fitted_note">Madinah page numbering — works offline with no download</string>
+    <string name="mushaf_mode_page">Mushaf page</string>
+    <string name="mushaf_mode_page_note">Line-for-line with the Madinah Mushaf — needs a download</string>
+    <string name="mushaf_mode_night">Mushaf page at night</string>
+    <string name="mushaf_mode_night_note">The same page in light ink on dark paper</string>
+
+    <!-- Verse sheet -->
+    <string name="ayah_label">%1$s · verse %2$s</string>
+    <string name="ayah_bookmarked">Bookmarked</string>
+    <string name="ayah_bookmark">Bookmark</string>
+    <string name="ayah_note">Note</string>
+    <string name="ayah_note_hint">Write what came to you at this verse</string>
+    <string name="ayah_note_saved">Note saved</string>
+    <string name="ayah_note_cleared">Note cleared</string>
+    <string name="action_save">Save</string>
+    <string name="share_as_text">As text</string>
+    <string name="share_as_image">As image</string>
+    <string name="ayah_stop">Stop</string>
+    <string name="risala_title">Your message today</string>
+    <string name="risala_sub">Behind this supplication may be a message written for you, and today you need it most</string>
+    <string name="risala_open">Tap to open it</string>
+    <string name="munasaba_next">Next occasion</string>
+    <string name="munasaba_today">Today</string>
+    <string name="munasaba_tomorrow">Tomorrow</string>
+    <string name="munasaba_hijri_new_year">Hijri New Year</string>
+    <string name="munasaba_ashura">Ashura</string>
+    <string name="munasaba_ramadan">Start of Ramadan</string>
+    <string name="munasaba_eid_fitr">Eid al-Fitr</string>
+    <string name="munasaba_ten_dhulhijjah">First ten of Dhul-Hijjah</string>
+    <string name="munasaba_arafah">Day of Arafah</string>
+    <string name="munasaba_eid_adha">Eid al-Adha</string>
+    <string name="hint_tasbeeh">Tap the dhikr itself to count — a bead leaves your thumb and lands in the tally. What you counted is saved when you leave, and Undo takes back one tap.</string>
+    <string name="hint_qibla">Hold your device flat and turn slowly until the arrow settles.</string>
+    <string name="hint_waraqa">This is your day\'s page: its stations from waking to sleep. Tap a station to open it.</string>
+    <string name="wird_title">Your daily portion</string>
+    <string name="wird_short">Portion</string>
+    <string name="wird_time">at its time</string>
+    <string name="wird_pages">Pages %1$s to %2$s · about %3$s min</string>
+    <string name="wird_behind">You are %1$s pages behind — spread over the days left</string>
+    <string name="wird_done">You finished today\'s portion</string>
+    <string name="khatma_title">Khatma</string>
+    <string name="khatma_none">No khatma yet</string>
+    <string name="khatma_none_sub">Pick a length and a time; your portion appears as a station in your day</string>
+    <string name="khatma_start">Start a khatma</string>
+    <string name="khatma_days">Length</string>
+    <string name="khatma_meeqat">Portion time</string>
+    <string name="khatma_continuous">Continuous</string>
+    <string name="khatma_continuous_sub">Starts again as soon as it completes</string>
+    <string name="khatma_progress">%1$s of %2$s pages</string>
+    <string name="khatma_day_of">Day %1$s of %2$s</string>
+    <string name="khatma_stop">End this khatma</string>
+    <string name="khatma_days_n">%1$s days</string>
+    <string name="pin_add">Pin this dhikr</string>
+    <string name="pin_remove">Unpin</string>
+    <string name="pin_remind">Remind me</string>
+    <string name="pin_remind_at">Remind me %1$s</string>
+    <string name="pin_after">after %1$s</string>
+    <string name="pin_none">No reminder</string>
+    <string name="mirror_title">Your year</string>
+    <string name="mirror_sub">The last 365 days — each square is a day, its shade the depth of it</string>
+    <string name="mirror_empty">Nothing recorded yet. Begin today, and this fills on its own.</string>
+    <string name="mirror_active">%1$s days with work</string>
+    <string name="mirror_longest">Longest streak: %1$s days</string>
+    <string name="mirror_most">What you kept most: %1$s</string>
+    <string name="mirror_quran">%1$s pages of the Mushaf</string>
+    <string name="mirror_tasbeeh">%1$s tasbeehat</string>
+    <string name="mirror_less">Less</string>
+    <string name="mirror_more">More</string>
+    <string name="door_morning">Morning adhkar</string>
+    <string name="door_evening">Evening adhkar</string>
+    <string name="door_quran">Mushaf reading</string>
+    <string name="door_tasbeeh">Tasbeeh</string>
+    <string name="door_prayers">Prayer logging</string>
+    <string name="tj_ghunnah">Ghunnah</string>
+    <string name="tj_idghaam">Idgham</string>
+    <string name="tj_ikhfa">Ikhfa</string>
+    <string name="tj_iqlab">Iqlab</string>
+    <string name="tj_madd">Madd</string>
+    <string name="tj_qalqalah">Qalqalah</string>
+    <string name="tj_wasl">Hamzat wasl</string>
+    <string name="tj_lam_shams">Solar lam</string>
+    <string name="tj_silent">Not pronounced</string>
+    <string name="tajweed_toggle">Tajweed colouring</string>
+    <string name="tajweed_text_only">Shown in text mode — mushaf pages are drawn as glyphs, not letters</string>
+    <string name="tajweed_key">Colour key</string>
+    <string name="ayah_stop_here">Stopped here</string>
+    <string name="bookmarks_stop_section">Where you stopped</string>
+    <string name="bookmarks_marks_section">Your bookmarks</string>
+    <string name="ayah_share_title">Share the verse</string>
+    <string name="tafsir_label">Al-Tafsir al-Muyassar:</string>
+    <string name="mushaf_offer_body_long">Fifteen lines matching the Madinah Mushaf — each word in its place, each line breaking where the printed page breaks. It needs fonts, downloaded once.</string>
+
+    <!-- ═══ Prayer times and location ═══ -->
+    <string name="prayer_needs_location">Prayer times are computed from your location; another place\'s location gives another place\'s times.</string>
+    <string name="action_change">Change</string>
+    <string name="prayer_logged">Logged</string>
+    <string name="prayer_past">Passed</string>
+    <string name="prayer_fajr_edge">End of Fajr, start of Duha</string>
+    <string name="prayer_time_passed">Its time has passed</string>
+    <string name="action_later">Later</string>
+    <string name="prayer_logged_count">You logged %1$s of %2$s prayers</string>
+    <string name="loc_needed_body">Prayer times are computed from your location and cannot be computed without it.</string>
+    <string name="loc_finding">Finding your location…</string>
+    <string name="loc_enable">Enable location</string>
+    <string name="loc_pick_city">Or choose your city manually</string>
+    <string name="loc_failed">Could not get your location. Check that location services are on, grant the permission in system settings, or choose your city manually.</string>
+    <string name="elevation_manual">Or set manually: %1$s m</string>
+    <string name="elevation_maghrib_corr">⏱ Maghrib correction: +%1$s min</string>
+    <string name="elevation_sea">0 — sea level</string>
+    <string name="elevation_metres">%1$s m</string>
+
+    <!-- ═══ Day-companion stations ═══ -->
+    <string name="st_wake_t">Waking</string>
+    <string name="st_wake_s">Waking</string>
+    <string name="st_wake_d">“Praise be to Allah who gave us life after death, and to Him is the return” — and the siwak</string>
+    <string name="st_wake_time">Before Fajr</string>
+    <string name="st_fajr_t">Fajr and the morning adhkar</string>
+    <string name="st_fajr_s">Fajr</string>
+    <string name="st_fajr_d">The Fajr prayer, then the morning adhkar until sunrise</string>
+    <string name="st_fajr_time">From Fajr to sunrise</string>
+    <string name="st_duha_t">The Duha prayer</string>
+    <string name="st_duha_s">Duha</string>
+    <string name="st_duha_d">Two rak’ahs that suffice as charity for every joint of your body</string>
+    <string name="st_duha_time">From after sunrise until just before Dhuhr</string>
+    <string name="st_dhuhr_t">Dhuhr and the post-prayer adhkar</string>
+    <string name="st_dhuhr_s">Dhuhr</string>
+    <string name="st_dhuhr_d">The prayer, then istighfar and tasbih 33/33/34 and Ayat al-Kursi</string>
+    <string name="st_dhuhr_time">From Dhuhr to Asr</string>
+    <string name="st_asr_t">Asr and the evening adhkar</string>
+    <string name="st_asr_s">Asr</string>
+    <string name="st_asr_d">The Asr prayer, then the evening adhkar before sunset</string>
+    <string name="st_asr_time">From Asr to Maghrib</string>
+    <string name="st_maghrib_t">Maghrib and the post-prayer adhkar</string>
+    <string name="st_maghrib_s">Maghrib</string>
+    <string name="st_maghrib_d">The prayer and its adhkar</string>
+    <string name="st_maghrib_d_friday">The prayer and its adhkar — and make much dua, for the last hour of Friday is an hour of answer</string>
+    <string name="st_maghrib_time">From Maghrib to Isha</string>
+    <string name="st_isha_t">Isha and Witr</string>
+    <string name="st_isha_s">Isha</string>
+    <string name="st_isha_d">The Isha prayer, then Witr, even a single rak’ah</string>
+    <string name="st_isha_time">After Isha</string>
+    <string name="st_sleep_t">The adhkar of sleep</string>
+    <string name="st_sleep_s">Sleep</string>
+    <string name="st_sleep_d">Wudu, Ayat al-Kursi, al-Ikhlas and the two mu’awwidhat, the closing verses of al-Baqarah, and tasbih</string>
+    <string name="st_sleep_time">At bedtime</string>
+    <string name="st_kahf_t">Surat al-Kahf and salawat upon the Prophet ﷺ</string>
+    <string name="st_kahf_s">Al-Kahf</string>
+    <string name="st_kahf_d">Reading Surat al-Kahf and abundant salawat upon the Prophet ﷺ on Friday</string>
+    <string name="st_kahf_time">All of Friday</string>
+    <string name="waraqa_you_are_in">You are now in %1$s</string>
+    <string name="waraqa_start_station">Start %1$s</string>
+    <!-- Sun arc: the next window, above the curve -->
+    <string name="meeqat_next">Next: %1$s</string>
+    <string name="meeqat_in">in %1$s</string>
+    <string name="hub_station_window">%1$s window</string>
+    <string name="hub_remaining"> · %1$s left</string>
+
+    <!-- ═══ Meeqat, cities, months ═══ -->
+    <string name="meeqat_duha">Duha</string>
+    <string name="meeqat_night">Night</string>
+    <string name="greet_time_morning">Good morning</string>
+    <string name="greet_time_day">Have a good day</string>
+    <string name="greet_time_evening">Good evening</string>
+    <string name="greet_time_night">Good night</string>
+    <string name="city_pick_title">Choose your city</string>
+    <string name="city_pick_note">Times are computed from the chosen city\'s coordinates.</string>
+    <string name="city_search_hint">Search in Arabic or English…</string>
+    <string name="city_not_found">No city by that name in the list. Try the nearest large city, or enable location for an exact fix.</string>
+
+    <!-- ═══ Colours and My Pages ═══ -->
+    <string name="colors_title">Colours</string>
+    <string name="colors_sub">You choose two; the rest is computed to stay readable</string>
+    <string name="colors_presets">Ready-made pairs</string>
+    <string name="colors_paper">Paper</string>
+    <string name="colors_accent">Accent</string>
+    <string name="colors_measure">Measured</string>
+    <string name="colors_reset">Restore the original colours</string>
+    <string name="colors_card">Card</string>
+    <string name="colors_m_ink_paper">Ink on paper</string>
+    <string name="colors_m_second_card">Secondary on card</string>
+    <string name="colors_m_accent_text">Accent as text</string>
+    <string name="colors_m_button_text">Button text</string>
+    <string name="colors_m_icons">Icons</string>
+    <string name="colors_m_card_tone">Card tone</string>
+    <string name="awraq_steadiest_station">Your steadiest station: %1$s</string>
+    <string name="awraq_faintest_station">And the faintest: %1$s — perhaps that is where to add.</string>
+    <string name="awraq_more_done">You missed less of this week\'s wird than you completed.</string>
+    <string name="awraq_steadiest_day">And your steadiest day: %1$s</string>
+    <string name="awraq_steadiest_day_note">You complete your wird most on this day of the week.</string>
+
+    <!-- ═══ The last of it ═══ -->
+    <string name="days_streak">days in a row — longest streak %1$s</string>
+    <string name="days_caption">Last %1$s days — each square a day, the ink rising with what was written</string>
+    <string name="days_a11y">Ledger of the last %1$d days — %2$d of them complete</string>
+    <string name="days_legend">From a blank page to a full one</string>
+    <string name="hub_location_why">Your day\'s stations are timed by the prayers — from waking to sleeping. Set it once and the rest is computed.</string>
+    <string name="adhkar_count_by_tap">Count your tasbeeh with a tap</string>
+    <string name="adhkar_ayah_source">— Surat al-Ra’d 28</string>
+    <string name="dhikr_a11y">Tap anywhere to count. %1$d of %2$d</string>
+    <string name="dhikr_of_total">Dhikr %1$d of %2$d</string>
+    <string name="dhikr_of">of %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s AH</string>
+    <string name="hijri_unknown">— AH</string>
+    <string name="preset_paper_emerald">Paper and emerald</string>
+    <string name="preset_paper_amber">Paper and amber</string>
+    <string name="preset_paper_mint">Paper and mint</string>
+    <string name="preset_sand_olive">Sand and olive</string>
+    <string name="preset_pine_rose">Pine and rose</string>
+    <string name="preset_white_ink">White and ink</string>
+    <string name="preset_night_emerald">Night and emerald</string>
+    <string name="preset_night_gold">Night and gold</string>
+    <string name="preset_night_silver">Night and silver</string>
+    <string name="quran_list_no_match">No surah by that name.</string>
+
+    <!-- التنفّس مع الذكر -->
+    <string name="breath_title">Breathe with Dhikr</string>
+    <string name="breath_ready">Ready</string>
+    <string name="breath_inhale">Inhale — %1$s</string>
+    <string name="breath_hold">Hold</string>
+    <string name="breath_exhale">Exhale — al-hamdu lillah</string>
+    <string name="breath_rest">Rest</string>
+    <string name="breath_start">Start</string>
+    <string name="breath_stop">Stop</string>
+    <string name="breath_pick">Choose the dhikr</string>
+
+    <!-- Spiritual Garden -->
+    <string name="garden_title">Spiritual Garden</string>
+    <string name="garden_today_hint">Today’s plant grows with your five deeds</string>
+    <string name="garden_week">This week’s garden</string>
+    <string name="garden_legend">Growth guide</string>
+    <string name="garden_stage_seed">Seed</string>
+    <string name="garden_stage_sprout">Seedling</string>
+    <string name="garden_stage_growing">Growing</string>
+    <string name="garden_stage_tree">Tree</string>
+    <string name="garden_stage_flower">Blossom — a complete day</string>
+    <string name="garden_legend_0">Seed — nothing recorded yet</string>
+    <string name="garden_legend_1">Seedling — you have begun</string>
+    <string name="garden_legend_2">Growing — about half the day</string>
+    <string name="garden_legend_3">Tree — most of the day</string>
+    <string name="garden_legend_4">Blossom — all five deeds and all five prayers</string>
+
+    <!-- Weekly report -->
+    <string name="report_title">Weekly Report</string>
+    <string name="report_active_days">%1$d / 7 active days</string>
+    <string name="report_praise_high">Excellent — may God bless you</string>
+    <string name="report_praise_mid">Good work, keep it steady</string>
+    <string name="report_praise_low">Try to keep it up more this week</string>
+    <string name="report_quran_pages">Quran pages</string>
+    <string name="report_tasbeeh">Tasbeeh</string>
+    <string name="report_prayers">Prayers</string>
+    <string name="report_streak">Current streak</string>
+    <string name="report_daily">Day by day</string>
+
+    <!-- Share card -->
+    <string name="share_title">Share a card</string>
+    <string name="share_action">Share the card</string>
+    <string name="share_failed">No app can receive the image</string>
+    <string name="share_card_streak">My streak</string>
+    <string name="share_card_quran">My reading</string>
+    <string name="share_card_tasbeeh">My tasbeeh</string>
+    <string name="share_sub_streak">All praise to God</string>
+    <string name="share_sub_quran">A good deed for every letter of God’s Book</string>
+    <string name="share_sub_tasbeeh">And glorify your Lord with praise</string>
+
+    <plurals name="pages">
+        <item quantity="one">%1$d page</item>
+        <item quantity="other">%1$d pages</item>
+    </plurals>
+    <plurals name="tasbeehat">
+        <item quantity="one">%1$d tasbeeh</item>
+        <item quantity="other">%1$d tasbeehat</item>
+    </plurals>
+
+    <!-- Continue reading -->
+    <string name="continue_reading">Continue reading</string>
+    <string name="continue_reading_at">%1$s · page %2$s</string>
+    <string name="continue_reading_ayat">Verses %1$s–%2$s</string>
+
+    <!-- Import -->
+    <string name="import_action">Import</string>
+    <string name="import_desc">Restore your data from a file you exported earlier. Nothing is erased — it is merged.</string>
+    <string name="import_ok">Imported: %1$d days · %2$d bookmarks · %3$d tasbeeh sessions</string>
+    <string name="import_not_json">The file could not be read</string>
+    <string name="import_not_rafiq">This is not a Rafiq Al-Dhikr export file</string>
+    <string name="import_future">This file is from a newer version — update the app and try again</string>
+
+    <!-- العزو -->
+    <string name="about_credits">The Mushaf fonts are from the King Fahd Glorious Quran Printing Complex, Al-Madinah — used, copied and distributed free of cost under its licence; never sold, never modified.
+
+Morning and evening adhkar come from the Morning-And-Evening-Adhkar-DB dataset (MIT), with their takhrij and grading as given.
+
+Prayer times are computed on-device with the adhan library (MIT).</string>
+
+    <!-- ما الجديد — الجولة الثانية -->
+    <string name="whatsnew_doors">Four new doors in Profile: Breathe with Dhikr · Garden · Weekly Report · Share Card</string>
+    <string name="whatsnew_continue">“Continue reading” on the home screen — returns you to your Mushaf page and its surah</string>
+    <string name="whatsnew_import">Import your data from a file you exported — merged, never overwritten</string>
+    <string name="whatsnew_notify_kinds">Separate switches: silence the adhan but keep the dhikr reminders, or the reverse</string>
+    <string name="whatsnew_adhkar_grown">25 morning and 23 evening adhkar, each with its source, grading and virtue</string>
+
+    <!-- أداةُ المواقيت المصغّرة -->
+    <string name="times_widget_hint">There is a prayer-times widget: long-press your home screen → Widgets → Rafiq Al-Dhikr</string>
+
+    <!-- شريط موضع المصحف -->
+    <string name="mushaf_juz">Juz %1$s</string>
+    <string name="mushaf_page_of">Page %1$s of %2$s</string>
+
+    <!-- الطقس — أسماءُ أحوال WMO -->
+    <string name="wx_clear">Clear</string>
+    <string name="wx_partly">Partly cloudy</string>
+    <string name="wx_overcast">Overcast</string>
+    <string name="wx_fog">Fog</string>
+    <string name="wx_drizzle">Drizzle</string>
+    <string name="wx_rain">Rain</string>
+    <string name="wx_snow">Snow</string>
+    <string name="wx_thunder">Thunderstorm</string>
+
+    <!-- نداءُ الطور — كلامُنا نحن، لا نصٌّ مَرويّ -->
+    <string name="nida_fajr">Begin — may God keep you.</string>
+    <string name="nida_fajr_sub">Open your day with His remembrance.</string>
+    <string name="nida_duha">Turn to Him — may God grant you success.</string>
+    <string name="nida_duha_sub">Two rak‘ahs are enough now.</string>
+    <string name="nida_dhuhr">Rise for the prayer — may God guide you.</string>
+    <string name="nida_dhuhr_sub">And a brief remembrance after it.</string>
+    <string name="nida_asr">Hold on to your day — may God keep you.</string>
+    <string name="nida_asr_sub">Little of your daylight remains.</string>
+    <string name="nida_maghrib">Turn to Him before night falls.</string>
+    <string name="nida_maghrib_sub">May God bless you.</string>
+    <string name="nida_isha">Seal your day — may God accept from you.</string>
+    <string name="nida_isha_sub">One witr is enough.</string>
+    <string name="nida_layl">Sleep upon remembrance — may God guard you.</string>
+    <string name="nida_layl_sub">Ayat al-Kursi is enough.</string>
+    <string name="nida_partial">From the verse · %1$s</string>
+
+    <!-- وسمُ نوع النصّ المرويّ — يُقرأ قبل النصّ لا بعده -->
+    <string name="nida_kind_quran">From the Qur’an</string>
+    <string name="nida_kind_hadith">From a hadith of the Prophet ﷺ</string>
+    <string name="nida_kind_athar">From the words of a Companion</string>
+
+    <!-- قارئُ الأذكار: تراجعٌ وانتقالٌ صريح -->
+    <string name="dhikr_undo">Undo one tap</string>
+    <string name="dhikr_next_explicit">Next dhikr</string>
+    <string name="dhikr_finish">Finish reading</string>
+    <string name="dhikr_done_wait">Count complete — continue when you are ready</string>
+    <!-- التسميع -->
+    <string name="tasmee_title">Recitation check</string>
+    <string name="tasmee_subtitle">Recite from memory; spots are marked</string>
+    <string name="tasmee_hint">Read the verse aloud. Your voice is not sent anywhere — it is heard on your device and erased.</string>
+    <string name="tasmee_ready">Tap to begin</string>
+    <string name="tasmee_start">Recite</string>
+    <string name="tasmee_stop">Done</string>
+    <string name="tasmee_recording">Listening… %1$s seconds left</string>
+    <string name="tasmee_thinking">Listening…</string>
+    <string name="tasmee_clear">Recitation complete</string>
+    <string name="tasmee_review">Spots to revisit: %1$s</string>
+    <string name="tasmee_unheard">I could not make it out — try again, closer and in quiet</string>
+    <string name="tasmee_again">Recite again</string>
+    <string name="tasmee_no_mic">Microphone unavailable — check the permission</string>
+    <string name="tasmee_no_model">Recitation check is not available in this build</string>
+    <string name="action_tasmee">Recite this verse</string>
+    <!-- جَرْد الإسناد -->
+    <string name="isnad_title">Chain of sources</string>
+    <string name="isnad_subtitle">Every text, its source and its grade</string>
+    <string name="isnad_percent">%1$s%%</string>
+    <string name="isnad_total">of %1$s religious texts carry a source and a grade</string>
+    <string name="isnad_counting">Counting…</string>
+    <string name="isnad_note">The grade is the scholars\' ruling in their own words. Tap any row for its full attribution.</string>
+    <string name="settings_isnad">Chain of sources</string>
+    <!-- الأثر -->
+    <string name="athar_title">Evidence</string>
+    <string name="athar_subtitle">Hadiths on remembrance and supplication, with their chains</string>
+    <string name="athar_absent">Evidence texts were not fetched in this build</string>
+    <string name="athar_credit">Publisher: %1$s · edition %2$s. Text and commentary are shown exactly as published, unmodified.</string>
+    <string name="athar_takhrij">Attribution</string>
+    <string name="athar_sharh">Commentary</string>
+    <string name="athar_ref_id">Source reference: %1$s</string>
+    <string name="athar_entry">Evidence: hadiths on remembrance</string>
+    <string name="athar_cat_fadl_dhikr">Virtues of remembrance</string>
+    <string name="athar_cat_fadl_dua">Virtue of supplication</string>
+    <string name="athar_cat_hady_dhikr">The Prophet\'s way in remembrance</string>
+    <string name="athar_cat_fawaid_dhikr">Benefits of remembering Allah</string>
+    <string name="athar_cat_morning_evening">Morning and evening</string>
+    <string name="athar_cat_mutlaq">Unrestricted remembrance</string>
+    <string name="athar_cat_home">At home</string>
+    <string name="athar_cat_khala">The washroom</string>
+    <string name="athar_cat_masjid">The mosque</string>
+    <string name="athar_cat_shidda">In hardship</string>
+    <string name="athar_cat_arida">Occasional matters</string>
+    <string name="athar_cat_ahkam_dua">Rulings of supplication</string>
+    <string name="athar_cat_anwa_dua">Kinds of supplication</string>
+    <string name="athar_cat_adab_dua">Manners of supplication</string>
+    <string name="athar_cat_ijaba">Causes of acceptance</string>
+    <string name="athar_cat_mathura">Transmitted supplications</string>
+    <string name="athar_cat_salah">In prayer</string>
+    <!-- الأربعون النوويّة -->
+    <string name="arbaeen_title">The Forty of al-Nawawi</string>
+    <string name="arbaeen_subtitle">Forty-two hadiths with attribution and commentary</string>
+    <string name="arbaeen_absent">The Forty were not fetched in this build</string>
+    <string name="arbaeen_progress">You have read %1$s of %2$s</string>
+    <string name="arbaeen_credit">Text, grade and commentary from %1$s · edition %2$s, unmodified. The ordering follows the Dar Alsalam edition of Matn al-Arba\'in al-Nawawiyyah.</string>
+    <string name="arbaeen_mark">Mark as read</string>
+    <string name="arbaeen_read">Read</string>
+    <string name="arbaeen_entry">Forty-two hadiths, attributed and explained</string>
+    <string name="athar_hint">Tap a hadith to see its full attribution and commentary.</string>
+    <string name="arbaeen_hint">Tap a hadith for its attribution and commentary. The \"Read\" button keeps your place.</string>
+    <string name="notif_pin_title">A dhikr you pinned</string>
+    <string name="notif_pin_body">Time for a dhikr you pinned — tap to open it</string>
+
+    <!-- Guided tour -->
+    <string name="tour_step_of">%1$s of %2$s</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_done">Done</string>
+    <string name="tour_skip">Skip</string>
+
+    <string name="tour_meeqat_title">Where you are now</string>
+    <string name="tour_meeqat_body">This card changes through the day: it tells you which station you are in, and opens its adhkar with one tap.</string>
+
+    <string name="tour_nav_home_title">Today</string>
+    <string name="tour_nav_home_body">Your starting point — the sky follows your clock, and the page below it holds your station, prayer times and doors.</string>
+
+    <string name="tour_nav_quran_title">Quran</string>
+    <string name="tour_nav_quran_body">Opens on the page, not a list of surahs — so it starts where you stopped. Khatma, tajweed and recitation live here.</string>
+
+    <string name="tour_nav_adhkar_title">Dhikr</string>
+    <string name="tour_nav_adhkar_body">Morning, evening, sleep and everything between — every text with its source and grading. The counter, the Athar and the Forty are here.</string>
+
+    <string name="tour_nav_dua_title">Duas</string>
+    <string name="tour_nav_dua_body">Transmitted supplications, by occasion — distress, travel, illness, istikhara and more.</string>
+
+    <string name="tour_nav_profile_title">My Pages</string>
+    <string name="tour_nav_profile_body">What you have gathered: your khatma, your tasbeeh, your year and your saved texts. Settings and your data are here too.</string>
+
+    <!-- Replaying the tour from Settings -->
+    <string name="settings_replay_tour">Replay the guided tour</string>
+    <string name="settings_replay_tour_sub">Shows the tour and the first-time hints again. Nothing of your data is deleted.</string>
+    <string name="ayah_mark_short">Bookmark</string>
+
+    <!-- Ayah sheet -->
+    <string name="ayah_tafsir_name">Al-Tafsir al-Muyassar</string>
+    <string name="tajweed_not_here">You are on the Mushaf page — it is drawn as word glyphs, not letters, so it cannot be coloured.</string>
+    <string name="tajweed_switch">Switch to fitted page</string>
+    <string name="stop_set_at">Stopped here — %1$s. Find it under Bookmarks.</string>
+    <string name="stop_undo">Undo</string>
+    <string name="stop_resume">Continue from %1$s</string>
+
+    <!-- Dhikr doors screen -->
+    <string name="adhkar_streak_title">%1$s days in a row</string>
+    <string name="adhkar_streak_hint">Keep the streak</string>
+    <string name="adhkar_streak_none">Start your streak today</string>
+    <string name="adhkar_streak_invite">One day is enough to begin</string>
+
+    <!-- ورقة اليوم: الورقة وبطاقات المحطّات -->
+    <string name="task_wake_dua">Waking supplication</string>
+    <string name="task_siwak">Siwak</string>
+    <string name="task_fajr">Fajr prayer</string>
+    <string name="task_morning">Morning adhkar</string>
+    <string name="task_duha">Duha prayer</string>
+    <string name="task_dhuhr">Dhuhr prayer</string>
+    <string name="task_after_prayer">After-prayer adhkar</string>
+    <string name="task_asr">Asr prayer</string>
+    <string name="task_evening">Evening adhkar</string>
+    <string name="task_maghrib">Maghrib prayer</string>
+    <string name="task_isha">Isha prayer</string>
+    <string name="task_witr">Witr</string>
+    <string name="task_sleep">Sleep adhkar</string>
+    <string name="task_kahf">Read Surat al-Kahf</string>
+    <string name="task_salawat">Salawat upon the Prophet ﷺ</string>
+    <string name="task_wird">Quran wird</string>
+    <string name="leaf_complete">Your page is complete</string>
+    <string name="leaf_complete_sub">All five prayers</string>
+    <string name="leaf_prayed">Prayed</string>
+    <string name="leaf_not_prayed">Not logged</string>
+    <string name="leaf_now">Its time is in</string>
+    <string name="leaf_in">in %1$s</string>
+    <string name="leaf_left">%1$s left</string>
+    <string name="leaf_word">Word of the page</string>
+    <string name="leaf_account">Today\'s reckoning</string>
+    <string name="leaf_account_end">No matter — what counts is keeping at it</string>
+    <string name="leaf_flip_front">‹ Front of the page</string>
+    <string name="leaf_flip_back">Today\'s reckoning ›</string>
+    <string name="leaf_row_prayers">The five prayers</string>
+    <string name="leaf_row_stations">Today\'s stations</string>
+    <string name="leaf_row_done">Done</string>
+    <string name="leaf_row_open">Not logged yet</string>
+    <string name="stations_title">Today\'s stations</string>
+    <string name="stations_hint">Swipe to move</string>
+    <string name="st_of">%1$s of %2$s</string>
+    <string name="st_tag_done">Done</string>
+    <string name="st_tag_now">Current</string>
+    <string name="st_tag_up">Upcoming</string>
+    <string name="st_missed_note">Its time has passed, and it still opens</string>
+    <string name="st_did">I did it</string>
+    <string name="st_done">✓ Done</string>
+    <string name="st_count">Start · %1$s</string>
+    <string name="st_prayer_hint">Circled on the page</string>
+    <string name="dur_hm">%1$dh %2$dm</string>
+    <string name="dur_m">%1$dm</string>
+
+    <!-- عزمُ اليوم -->
+    <string name="intent_q">What do you intend today, beside the obligatory prayers?</string>
+    <string name="intent_go">I have resolved — and Allah is the One whose help is sought</string>
+    <string name="intent_none">Not today — the obligatory prayers suffice</string>
+    <string name="intent_line">Today I intend:</string>
+    <string name="intent_duha">Duha</string>
+    <string name="intent_witr">Witr</string>
+    <string name="intent_kahf">al-Kahf</string>
+    <string name="intent_wird">Wird</string>
+
+    <!-- تذكيرُ خروج الوقت -->
+    <string name="notif_channel_end">Before the prayer time ends</string>
+    <string name="notif_end_title">%1$s time ends in %2$dm</string>
+    <string name="notif_end_body">Not logged on your page yet.</string>
+    <string name="notif_end_prayed">I prayed %1$s</string>
+    <string name="notif_end_snooze">Remind me in 10m</string>
+    <string name="notif_end_row">Before the time ends</string>
+    <string name="notif_end_desc">20 minutes before a prayer\'s time ends, if not logged — except Isha, whose end time scholars differ on</string>
+
+    <!-- اللوحُ الطائف -->
+    <string name="lawh_call_m">Dear brother</string>
+    <string name="lawh_call_f">Dear sister</string>
+    <string name="lawh_before">Before %1$s</string>
+    <string name="lawh_plain">%2$s in %1$dm. Don\'t occupy your mind with anything now — set down what you carry; you\'ll find it after, if it deserves it.</string>
+    <string name="lawh_from_quran">From the Book of Allah</string>
+    <string name="lawh_from_hadith">From the Messenger of Allah ﷺ</string>
+    <string name="lawh_go">I\'m going to it</string>
+    <string name="lawh_snooze">Snooze 5m</string>
+    <string name="lawh_surah_23">al-Mu\'minun %1$s</string>
+    <string name="lawh_surah_2">al-Baqarah %1$s</string>
+    <string name="notif_channel_lawh">Before the prayer</string>
+    <string name="lawh_setting">Slate before the prayer</string>
+    <string name="lawh_setting_desc">A slate drops 10 minutes before each prayer, and a notification if the app is closed</string>
+    <string name="lawh_sister">Address me as a sister</string>
+    <string name="lawh_sister_desc">Instead of “Dear brother”</string>
+
+    <!-- لوحةُ المسجد وإجابةُ المؤذّن -->
+    <string name="board_next_in">%1$s in</string>
+    <string name="board_adhan_now">It is time</string>
+    <string name="board_adhan">%1$s adhan</string>
+    <string name="board_tap_hint">Tap its window when you pray</string>
+    <string name="win_prayed">✓ Prayed</string>
+    <string name="win_masjid">At the mosque</string>
+    <string name="win_next">Next</string>
+    <string name="win_sunrise">Not logged</string>
+    <string name="board_legend">Tap: prayed · twice: at the mosque · third: clear</string>
+    <string name="masjid_week">At the mosque this week</string>
+    <string name="masjid_week_sub">%1$s of %2$s · each lamp is a prayer</string>
+    <string name="ijaba_title">%1$s adhan now</string>
+    <string name="ijaba_sub">Repeat what the muezzin says — tap each phrase as you say it</string>
+    <string name="ijaba_muezzin">Muezzin: %1$s</string>
+    <string name="ijaba_then">Then — as in the hadith</string>
+    <string name="ijaba_after">After the adhan</string>
 </resources>

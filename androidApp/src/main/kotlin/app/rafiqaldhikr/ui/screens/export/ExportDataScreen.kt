@@ -20,6 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import app.rafiq.domain.repository.ImportResult
+import java.io.File
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -40,9 +46,39 @@ fun ExportDataScreen(
     viewModel: ExportDataViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+
+    /*  رسائلُ النتيجة تُقرأ في التأليف لا داخل اللامبدا: `stringResource`
+     *  دالّةٌ مركَّبة، ونداؤها في `onResult` لا يُترجم. */
+    val importOk       = stringResource(R.string.import_ok)
+    val importNotJson  = stringResource(R.string.import_not_json)
+    val importNotRafiq = stringResource(R.string.import_not_rafiq)
+    val importFuture   = stringResource(R.string.import_future)
+
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        //  القراءةُ في نموذج العرض على خيط الإدخال والإخراج — كانت هنا
+        //  على الخيط الرئيسيّ فتُجمّد التطبيقَ على ملفٍّ كبير.
+        viewModel.importStream({ context.contentResolver.openInputStream(uri) }) { result ->
+            val msg = when (result) {
+                is ImportResult.Success ->
+                    // النتيجةُ تُقال بأرقامها: «تمّ» وحدَها لا تُطمئن من
+                    // استورد ملفاً ولا يدري أوصل كلُّه أم بعضُه.
+                    String.format(importOk, result.days, result.bookmarks, result.sessions)
+                is ImportResult.Invalid -> when (result.reason) {
+                    ImportResult.Reason.NOT_JSON       -> importNotJson
+                    ImportResult.Reason.NOT_RAFIQ      -> importNotRafiq
+                    ImportResult.Reason.FUTURE_VERSION -> importFuture
+                }
+            }
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+        }
+    }
     // تُحلّ هنا لا داخل onClick: stringResource دالّة @Composable
     // ولا تُستدعى من لامدا نقرٍ عادية.
     val shareSubject = stringResource(R.string.export_share_title)
+    val exportFailed = stringResource(R.string.export_failed)
     val shareChooser = stringResource(R.string.export_action)
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -109,14 +145,43 @@ fun ExportDataScreen(
                             .clip(RafiqShape.item)
                             .background(rc.emerald.copy(alpha = 0.1f))
                             .clickable {
-                                viewModel.exportJson { json ->
-                                    val intent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "application/json"
-                                        putExtra(Intent.EXTRA_SUBJECT, shareSubject)
-                                        putExtra(Intent.EXTRA_TEXT, json)
-                                    }
-                                    context.startActivity(Intent.createChooser(intent, shareChooser))
-                                }
+                                /*  ملفٌّ عبر FileProvider لا نصٌّ في Intent.
+                                 *
+                                 *  كان التصديرُ كلُّه يُمرَّر في
+                                 *  `EXTRA_TEXT` — أي داخل معاملة Binder
+                                 *  سقفُها نحو ميغابايت. وبيانات سنةٍ من
+                                 *  الاستعمال تتجاوزه، فينهار التطبيق عند
+                                 *  من طال استعمالُه: أوفى المستخدمين
+                                 *  بالضبط.  */
+                                viewModel.exportJson(
+                                    onReady = { json ->
+                                        //  والكتابةُ كذلك على خيط الإدخال
+                                        //  والإخراج لا في لامبدا النقر.
+                                        viewModel.writeThenShare(
+                                            write = { writeExportFile(context, json) },
+                                            onReady = { uri ->
+                                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                                    type = "application/json"
+                                                    putExtra(Intent.EXTRA_SUBJECT, shareSubject)
+                                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                }
+                                                context.startActivity(
+                                                    Intent.createChooser(intent, shareChooser),
+                                                )
+                                            },
+                                            onError = {
+                                                Toast.makeText(context, exportFailed, Toast.LENGTH_LONG)
+                                                    .show()
+                                            },
+                                        )
+                                    },
+                                    // الفشلُ كان صامتاً تماماً: `onSuccess` وحدَه
+                                    // بلا `onFailure`، فيضغط المستخدم ولا يقع شيء.
+                                    onError = {
+                                        Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+                                    },
+                                )
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -124,6 +189,50 @@ fun ExportDataScreen(
                             IcoDownload(22.dp, rc.emerald)
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.export_action), color = rc.emerald, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                /*  الاستيراد — النصفُ الذي كان ناقصاً.
+                 *
+                 *  التصديرُ وحدَه ليس نسخاً احتياطياً: يُخرج المستخدم
+                 *  ملفَّه، ثمّ يبدّل جهازَه أو يمسح بيانات التطبيق، فلا
+                 *  سبيلَ لإعادة ما صدَّر. والملفُّ يُختار من أيّ مكانٍ
+                 *  عبر `ACTION_OPEN_DOCUMENT` — لا إذنَ تخزينٍ ولا مسارٌ
+                 *  ثابتٌ نفترضه. */
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .rafiqCard()
+                        .padding(20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IcoDownload(22.dp, rc.emerald)
+                        Spacer(Modifier.width(12.dp))
+                        Text(stringResource(R.string.import_action), fontWeight = FontWeight.SemiBold, color = rc.ink, style = RafiqType.body)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.import_desc), fontSize = 13.sp, color = rc.inkMed)
+                    Spacer(Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .clip(RafiqShape.item)
+                            .background(rc.emerald.copy(alpha = 0.1f))
+                            //  بلا «*/*»: ملفُّ التصدير json أو نصّ، وفتحُ
+                            //  البابِ لأيّ ملفٍّ يجعل المستخدمَ يختار صورةً
+                            //  أو فيديو فيُقرأ ثمّ يُرفض.
+                            .clickable { picker.launch(arrayOf("application/json", "text/plain")) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IcoUpload(22.dp, rc.emerald)
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.import_action), color = rc.emerald, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -197,4 +306,22 @@ fun ExportDataScreen(
             }
         )
     }
+}
+
+/**
+ * يكتب التصدير إلى ملفٍّ في `cacheDir/exports` ويُرجع رابطَه المشترَك.
+ *
+ * والمجلَّدُ يُنظَّف قبل كل كتابة: نسخُ التصدير القديمة لا يحتاجها أحد،
+ * وهي تحمل كلَّ سجلّ المستخدم فلا تُترك في ذاكرةٍ مؤقّتة بلا داعٍ.
+ */
+private fun writeExportFile(context: android.content.Context, json: String): android.net.Uri {
+    val dir = File(context.cacheDir, "exports").apply {
+        deleteRecursively()
+        mkdirs()
+    }
+    val stamp = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+        .format(java.util.Date())
+    val file = File(dir, "rafiq-$stamp.json")
+    file.writeText(json)
+    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 }

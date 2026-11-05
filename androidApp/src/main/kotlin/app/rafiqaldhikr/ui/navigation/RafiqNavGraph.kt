@@ -17,7 +17,6 @@ import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingScreen
 import app.rafiqaldhikr.ui.screens.breathing.BreathingScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaCategoriesScreen
 import app.rafiqaldhikr.ui.screens.dua.DuaListScreen
-import app.rafiqaldhikr.ui.screens.dua.EmotionalDuaScreen
 import app.rafiqaldhikr.ui.screens.export.ExportDataScreen
 import app.rafiqaldhikr.ui.screens.garden.GardenScreen
 import app.rafiqaldhikr.ui.screens.help.HelpScreen
@@ -34,7 +33,6 @@ import app.rafiqaldhikr.ui.screens.qibla.QiblaScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranBookmarksScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranListScreen
 import app.rafiqaldhikr.ui.screens.quran.QuranSearchScreen
-import app.rafiqaldhikr.ui.screens.ramadan.RamadanHomeScreen
 import app.rafiqaldhikr.ui.screens.report.WeeklyReportScreen
 import app.rafiqaldhikr.ui.screens.settings.AccessibilitySettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.FontSettingsScreen
@@ -43,8 +41,13 @@ import app.rafiqaldhikr.ui.screens.settings.SettingsScreen
 import app.rafiqaldhikr.ui.screens.settings.ThemeSettingsScreen
 import app.rafiqaldhikr.ui.screens.share.ShareCardScreen
 import app.rafiqaldhikr.ui.screens.statistics.StatisticsScreen
+import app.rafiqaldhikr.ui.screens.khatma.KhatmaScreen
+import app.rafiqaldhikr.ui.screens.arbaeen.ArbaeenScreen
+import app.rafiqaldhikr.ui.screens.athar.AtharScreen
+import app.rafiqaldhikr.ui.screens.isnad.IsnadScreen
+import app.rafiqaldhikr.ui.screens.tasmee.TasmeeScreen
+import app.rafiqaldhikr.ui.screens.mirror.MirrorScreen
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehScreen
-import app.rafiqaldhikr.ui.screens.widget.WidgetSettingsScreen
 import app.rafiqaldhikr.ui.screens.language.LanguageScreen
 import app.rafiqaldhikr.ui.screens.whatsnew.WhatsNewScreen
 
@@ -96,10 +99,33 @@ fun RafiqNavGraph(
             deepLinks = listOf(navDeepLink { uriPattern = "https://rafiqaldhikr.app/tasbeeh" })
         ) { TasbeehScreen(navController) }
 
+        // ═══ Khatma ═══
+        composable(RafiqRoute.Khatma.route) { KhatmaScreen(navController) }
+
+        // ═══ Mirror ═══
+        composable(RafiqRoute.Mirror.route) { MirrorScreen(navController) }
+
         // ═══ Quran ═══
         composable(RafiqRoute.QuranList.route) { QuranListScreen(navController) }
         composable(RafiqRoute.QuranSearch.route)    { QuranSearchScreen(navController) }
         composable(RafiqRoute.QuranBookmarks.route) { QuranBookmarksScreen(navController) }
+        composable(RafiqRoute.Isnad.route) { IsnadScreen(navController) }
+        composable(RafiqRoute.Athar.route) { AtharScreen(navController) }
+        composable(RafiqRoute.Arbaeen.route) { ArbaeenScreen(navController) }
+
+        composable(
+            route     = RafiqRoute.Tasmee.route,
+            arguments = listOf(
+                navArgument("surah") { type = NavType.IntType },
+                navArgument("ayah") { type = NavType.IntType },
+            ),
+        ) { entry ->
+            TasmeeScreen(
+                nav = navController,
+                surah = entry.arguments?.getInt("surah") ?: 1,
+                ayahNumber = entry.arguments?.getInt("ayah") ?: 1,
+            )
+        }
 
         // ═══ Prayer ═══
         composable(
@@ -120,7 +146,6 @@ fun RafiqNavGraph(
                 navController = navController
             )
         }
-        composable(RafiqRoute.EmotionalDua.route) { EmotionalDuaScreen(navController) }
 
         // ═══ Profile ═══
         composable(RafiqRoute.Profile.route)    { ProfileScreen(navController) }
@@ -165,8 +190,6 @@ fun RafiqNavGraph(
         // Social
         composable(RafiqRoute.ShareCard.route) { ShareCardScreen(navController) }
 
-        // Ramadan
-        composable(RafiqRoute.RamadanHome.route) { RamadanHomeScreen(navController) }
 
         // Reports
         composable(RafiqRoute.WeeklyReport.route) { WeeklyReportScreen(navController) }
@@ -178,7 +201,6 @@ fun RafiqNavGraph(
 
         // Data & Widgets
         composable(RafiqRoute.ExportData.route)      { ExportDataScreen(navController) }
-        composable(RafiqRoute.WidgetSettings.route)  { WidgetSettingsScreen(navController) }
 
         // ═══════════════════════════════════════════
         //  M3 — Advanced

@@ -1,0 +1,42 @@
+-- تثبيتُ ذكرٍ: مفضّلةٌ وتذكير.
+--
+-- ═══ والتذكيرُ **بالميقات لا بالساعة** ═══
+--
+-- «ذكّرني بهذا الساعةَ ٦:٣٠» تنفع في بلدٍ وفصلٍ واحد. ومن سافر أو جاء
+-- الشتاء صار تذكيرُه قبل المغرب بساعتين أو بعده بساعة — فيُعطَّل ويُنسى.
+-- و«ذكّرني بهذا بعد المغرب» صحيحةٌ في كلّ بلدٍ وكلّ فصل، لأنّ التطبيق
+-- يحسب المغربَ من إحداثيّات صاحبه.
+--
+-- وهذا ما لا يملكه تطبيقٌ لا يعرف أين صاحبُه من يومه.
+--
+-- ولا جدولَ للمفضّلة وحدَها: التثبيتُ والتذكيرُ وجهان لفعلٍ واحد —
+-- «هذا الذكرُ يعنيني». و`meeqat` فارغةٌ تعني مفضّلةً بلا تذكير.
+CREATE TABLE DhikrPin (
+    -- معرّفُ الذكر في جدول Adhkar
+    dhikr_id INTEGER NOT NULL PRIMARY KEY,
+    -- '' = مفضّلةٌ بلا تذكير · أو: fajr · duha · dhuhr · asr · maghrib · isha
+    meeqat   TEXT    NOT NULL DEFAULT '',
+    -- دقائقُ الإزاحة عن الميقات — موجبةٌ بعده
+    offset_m INTEGER NOT NULL DEFAULT 0,
+    pinned_at INTEGER NOT NULL
+);
+
+getAll:
+SELECT * FROM DhikrPin ORDER BY pinned_at DESC;
+
+getOne:
+SELECT * FROM DhikrPin WHERE dhikr_id = :dhikr_id;
+
+-- التذكيراتُ وحدَها — لجدولة التنبيهات
+getReminders:
+SELECT * FROM DhikrPin WHERE meeqat != '';
+
+upsert:
+INSERT OR REPLACE INTO DhikrPin(dhikr_id, meeqat, offset_m, pinned_at)
+VALUES (:dhikr_id, :meeqat, :offset_m, :pinned_at);
+
+delete:
+DELETE FROM DhikrPin WHERE dhikr_id = :dhikr_id;
+
+deleteAll:
+DELETE FROM DhikrPin;

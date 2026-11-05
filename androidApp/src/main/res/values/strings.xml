@@ -142,6 +142,7 @@
     <string name="hijri_suffix">— هـ</string>
     <string name="waraqa_title">ورقة يومك</string>
     <string name="waraqa_opens_first">تُفتح مع أول ميقات</string>
+    <string name="waraqa_untimed">تظهر الأوقاتُ حين تختار مدينتك</string>
     <string name="waraqa_footer">خُطّ من يومك</string>
     <string name="quran_search_hint">ابحث عن سورة...</string>
     <string name="revelation_makki">مكية</string>
@@ -152,7 +153,7 @@
     <string name="quran_surahs">السور</string>
     <string name="quran_search_screen">بحث في القرآن</string>
     <string name="quran_search_field">اكتب كلمة أو آية...</string>
-    <string name="quran_search_min">اكتب كلمتين على الأقل للبحث</string>
+    <string name="quran_search_min">اكتب ثلاثة أحرف على الأقل</string>
     <string name="dhikr_tap_anywhere">اضغط في أيّ مكان للعدّ</string>
     <string name="dhikr_done_next">تمّ — اضغط للتالي</string>
     <string name="dhikr_section_done">تمّ القسم كاملاً</string>
@@ -277,4 +278,845 @@
     <string name="ob4_body">ولو كلمةً واحدة، تُقال في وقتها.</string>
     <string name="ob4_cta">أبدأ وِردي</string>
     <string name="ob4_link">أذكّرني لاحقاً</string>
+
+    <!-- ═══ حالاتٌ كانت شاشاتٍ بيضاء صامتة ═══ -->
+    <string name="adhkar_empty_category">لا أذكار في هذا الباب بعد.</string>
+
+    <!-- ═══ دقّةُ التنبيه — إذنٌ لم يكن يُطلب من أيّ مكان ═══ -->
+    <string name="notif_what_arrives">ما يصلك حين يكون التذكير مفعَّلاً</string>
+    <string name="notif_exact_title">اجعل التذكير في وقته بالضبط</string>
+    <string name="notif_exact_body">التذكير يصلك الآن بهامش دقائق. وبإذنٍ من النظام يصلك في دقيقة الأذان نفسِها.</string>
+    <string name="notif_exact_cta">افتح إعدادات النظام</string>
+
+    <!-- ═══ البحث ═══ -->
+    <string name="quran_search_none">لم أجد «%1$s» في المصحف.\nجرّب كلمةً أخرى من الآية.</string>
+
+    <!-- ═══ المصحف ═══ -->
+    <string name="mushaf_banner_title">هذه الصفحةُ المضبوطة</string>
+    <string name="mushaf_banner_body">اضغط لتظهر الصفحةُ كما في الورقة</string>
+    <string name="mushaf_font_failed">تعذّر جلبُ خطّ هذه الصفحة</string>
+    <string name="mushaf_font_retry">تحقّق من اتّصالك ثمّ اضغط للمحاولة ثانية</string>
+
+    <!-- ═══ الإتاحة — مفتاحان أحدُهما كان يكذب ═══ -->
+    <string name="a11y_reduced_motion">تقليل الحركة</string>
+    <string name="a11y_reduced_motion_desc">تهدأ الرسوم المتحركة في التطبيق كلِّه</string>
+    <string name="a11y_high_contrast">تباين عالٍ</string>
+    <string name="a11y_high_contrast_desc">حبرٌ أشدّ وحدودٌ أوضح لكل نصّ</string>
+
+    <!-- ═══ الودجت ═══ -->
+    <string name="widget_needs_location">حدّد موقعك</string>
+
+    <!-- ═══ التواصل ═══ -->
+    <string name="contact_no_mail_app">لا تطبيقَ بريدٍ على هذا الجهاز. راسلنا على %1$s</string>
+    <string name="export_failed">تعذّر تجهيزُ ملفّ التصدير</string>
+
+    <string name="mushaf_hizb">الحزب %1$s</string>
+    <string name="mushaf_jump_title">انتقل إلى صفحة</string>
+    <string name="mushaf_jump_hint">رقم الصفحة (١ – ٦٠٤)</string>
+    <string name="mushaf_jump_go">انتقل</string>
+    <string name="mushaf_jump_juz">أو اختر جزءاً</string>
+    <string name="bookmarks_empty">لم تضع علامةً بعد.\nاضغط آيةً مطوّلاً في المصحف ثمّ «ضَعْ علامة».</string>
+    <string name="bookmark_remove">رفع العلامة</string>
+    <string name="qibla_a11y_aligned">أنت مستقبلُ القبلة الآن.</string>
+    <string name="qibla_a11y_turn">أدِر %1$s درجةً إلى %2$s</string>
+    <string name="qibla_a11y_left">اليسار</string>
+    <string name="qibla_a11y_right">اليمين</string>
+
+    <!-- ═══ ما الجديد — كان يعلن ميزاتٍ لا وجود لها ═══ -->
+    <string name="whatsnew_current_label">الإصدار الحالي</string>
+    <string name="whatsnew_mushaf">المصحف: انتقالٌ إلى صفحةٍ أو جزء، والحزبُ في الهامش، ونقرُ الآية يفتح تفسيرَها وعلامتَها</string>
+    <string name="whatsnew_search">بحثٌ في المصحف يجد ما تكتبه بلا تشكيل</string>
+    <string name="whatsnew_quran_text">تصحيحُ نصّ القرآن: البسملةُ في موضعها من كل سورة</string>
+    <string name="whatsnew_alarms">تنبيهاتُ الأذان تصل، وتُعاد جدولتُها بعد كل تحديثٍ وسفر</string>
+    <string name="whatsnew_qibla">القبلةُ مصحَّحةٌ بانحراف مكانك المغناطيسي</string>
+    <string name="whatsnew_a11y">حجمُ الخطّ والتباين العالي يعملان في التطبيق كلِّه</string>
+    <string name="whatsnew_first_label">الإصدار الأول</string>
+    <string name="whatsnew_first_release">الإصدار الأول</string>
+    <string name="whatsnew_quran">القرآن الكريم مع البحث والعلامات</string>
+    <string name="whatsnew_tasbeeh">المسبحة</string>
+    <string name="whatsnew_adhkar">الأذكار والأدعية بمصادرها</string>
+    <string name="whatsnew_times">مواقيت الصلاة واتجاه القبلة</string>
+    <string name="whatsnew_profile">أوراقي والإحصاءات</string>
+    <string name="whatsnew_theme">المظهر الداكن والفاتح</string>
+    <string name="state_loading">جارٍ التحميل</string>
+
+    <!-- ═══ نصُّ الإشعارات — كان مكتوباً عربياً في الكود ═══ -->
+    <string name="notif_prayer_title">حان وقت %1$s</string>
+    <string name="notif_prayer_body">حان الآن وقت صلاة %1$s</string>
+    <string name="notif_channel_adhkar">تذكير الأذكار</string>
+    <string name="notif_adhkar_morning_title">أذكار الصباح 🌅</string>
+    <string name="notif_adhkar_morning_body">ابدأ يومك بذكر الله</string>
+    <string name="notif_adhkar_evening_title">أذكار المساء 🌇</string>
+    <string name="notif_adhkar_evening_body">حصنُك اليومي قبل الغروب</string>
+    <string name="notif_adhkar_sleep_title">أذكار النوم 🌙</string>
+    <string name="notif_adhkar_sleep_body">نَمْ على ذكر الله</string>
+
+    <!-- ═══ العدّاد — كان التصريفُ مكتوباً في الكود بالعربية وحدها ═══ -->
+    <plurals name="hours">
+        <item quantity="one">ساعة</item>
+        <item quantity="two">ساعتين</item>
+        <item quantity="few">%1$d ساعات</item>
+        <item quantity="many">%1$d ساعة</item>
+        <item quantity="other">%1$d ساعة</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">دقيقة</item>
+        <item quantity="two">دقيقتين</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقة</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
+    <string name="and_separator">" و"</string>
+
+    <!-- ═══ الرئيسية ═══ -->
+    <!-- نداءُ الشاشة الأولى: فعلٌ يتبع الساعة، لا تحيّةٌ ولا حديثٌ مرويّ -->
+    <string name="greet_salam">السلام عليكم</string>
+    <string name="greet_morning">صباحٌ مبارك</string>
+    <string name="greet_day">نهارٌ طيّب</string>
+    <string name="greet_blessed">وقتٌ مبارك</string>
+    <string name="greet_evening">مساءُ الخير</string>
+    <string name="greet_calm_evening">مساءٌ مطمئن</string>
+    <string name="greet_night">ليلةٌ هادئة</string>
+    <string name="hub_times_unset">مواقيتُك لم تُضبط بعد</string>
+    <string name="hub_companion">رفيقُك في يومك</string>
+    <string name="hub_set_city">حدِّد مدينتك</string>
+    <string name="hub_set_location">حدِّد الموقع</string>
+    <string name="hub_day_adhkar">أذكار يومك</string>
+    <string name="hub_day_sub">من الاستيقاظ إلى النوم — افتح ورقتك</string>
+    <string name="hub_open_waraqa">افتح ورقة يومك</string>
+    <string name="action_open">افتح</string>
+    <string name="action_detail">التفصيل</string>
+    <string name="action_start">ابدأ</string>
+    <string name="hub_eyebrow_now">خطوتك الآن</string>
+    <string name="hub_station_tag">محطّة %1$s</string>
+    <string name="hub_cta_hint">اقرأ على مهل</string>
+    <string name="action_start_named">ابدأ %1$s</string>
+
+    <!-- ═══ القبلة ═══ -->
+    <string name="qibla_needs_location">اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة.</string>
+    <string name="qibla_wait_steady">لا نُعلن الاتّجاه حتى تستقرّ البوصلة</string>
+    <string name="qibla_aligned">ثبتَ الاتّجاه — استقبِلْ وصلِّ</string>
+    <string name="qibla_near">اقتربت — حرّكه ببطء</string>
+    <string name="qibla_turn_hint">أدِرِ الهاتفَ حتى تدخل الكعبةُ في الممرّ</string>
+    <string name="qibla_delta_label">فرقُ الاتّجاه الآن</string>
+    <string name="qibla_face_and_pray">استقبِلْ وصلِّ</string>
+    <string name="qibla_rightward">يميناً</string>
+    <string name="qibla_leftward">يساراً</string>
+    <string name="qibla_bearing">زاويةُ القبلة</string>
+    <string name="qibla_distance">كم إلى مكّة</string>
+    <string name="qibla_gates">لا نُعلن الاتّجاه قبل أن تصدق الاثنتان</string>
+    <string name="qibla_metal_warning">وبوصلةُ الهاتف تخطئ قربَ المعدن والكهرباء.</string>
+    <string name="qibla_gate_calibrated">البوصلةُ مضبوطة</string>
+    <string name="qibla_gate_steady">القراءةُ ثابتة</string>
+    <string name="qibla_no_sensor">البوصلة غير متوفرة</string>
+    <string name="qibla_no_sensor_body">جهازك لا يدعم مستشعر البوصلة</string>
+
+    <!-- ═══ المسبحة ═══ -->
+    <string name="tasbeeh_mode_word">الكلمة</string>
+    <string name="tasbeeh_mode_thread">الخيط</string>
+    <string name="tasbeeh_tap_invite">المس الذكرَ لتعدّ</string>
+    <string name="tasbeeh_thread_invite">ادفع الحبّةَ تحت إبهامك</string>
+    <string name="tasbeeh_undo">تراجع</string>
+    <string name="tasbeeh_cycle">دُبُرَ الصلاة</string>
+    <string name="tasbeeh_left_of">%1$s باقيةٌ من %2$s</string>
+    <string name="tasbeeh_hundred">تمَّت المائة</string>
+    <string name="tasbeeh_of_hundred">%1$s من %2$s</string>
+    <string name="tasbeeh_cycle_start">ابدأ الدورة</string>
+    <string name="khatma_open_from">تبدأ عند</string>
+    <string name="khatma_open_to">تقف عند</string>
+    <string name="khatma_open_spine">%1$s صفحة · الجزء %2$s</string>
+    <string name="khatma_open_verb">افتح المصحفَ هنا</string>
+    <string name="tasbeeh_milestones">محطات الإنجاز</string>
+    <string name="tasbeeh_reset">تصفير العدّاد</string>
+    <string name="tasbeeh_pick">اختيار الذكر</string>
+    <string name="tasbeeh_done">أحسنت! اكتمل الذكر</string>
+    <string name="tasbeeh_target">العدد المستهدف</string>
+    <string name="tasbeeh_choose">اختر الذكر</string>
+    <string name="tasbeeh_your_count">عددُك</string>
+    <string name="tasbeeh_mark_at">علامةُ الوِرد عند %1$s</string>
+    <string name="action_close">إغلاق</string>
+    <plurals name="laps">
+        <item quantity="one">أتممتَ دورة</item>
+        <item quantity="two">أتممتَ دورتين</item>
+        <item quantity="few">أتممتَ %1$d دورات</item>
+        <item quantity="many">أتممتَ %1$d دورة</item>
+        <item quantity="other">أتممتَ %1$d دورة</item>
+    </plurals>
+
+    <!-- ═══ سياسة الخصوصية — كل جملة يقابلها سطر كود ═══ -->
+    <string name="pp_intro_t">مقدمة</string>
+    <string name="pp_intro_b">نحترم خصوصيتك. وهذه السياسة تصف ما يفعله التطبيق فعلاً، لا ما ننوي فعله.</string>
+
+    <string name="pp_collect_t">ما يُحفظ على جهازك</string>
+    <string name="pp_collect_b">• تقدّمك: الأذكار المتمّة، وعدد التسبيح، وصفحات القرآن، وسجلّ الصلاة.\n• موقعك: لحساب المواقيت والقبلة، بإذنك وحدك. يبقى على الجهاز ولا يُرسل. وإن لم تأذن، لا نعرض مواقيتَ مقدَّرة — نطلب الموقع بدل عرض أوقاتٍ ليست لك.\n• تفضيلاتك: المظهر والخط والأرقام والإشعارات.</string>
+
+    <string name="pp_not_collect_t">ما لا نجمعه</string>
+    <string name="pp_not_collect_b">• لا اسم ولا بريد ولا حساب.\n• لا تتبّع عبر تطبيقات أخرى.\n• لا بيع ولا مشاركة مع طرفٍ ثالث.\n• لا أدوات تحليلات ولا تقارير أعطال.</string>
+
+    <string name="pp_storage_t">التخزين</string>
+    <string name="pp_storage_b">• بياناتك كلّها على جهازك: قاعدة SQLite محلّية وملفّ تفضيلات. لا خوادمَ لنا تستقبلها.\n• هذه الملفات غير مشفَّرة، وتحميها عزلةُ التطبيقات في أندرويد: لا يصل إليها تطبيقٌ آخر على جهازٍ غير مروَّت.\n• النسخُ الاحتياطي السحابي معطَّل لهذا التطبيق، فلا تُرفع إلى Google Drive.\n• حذفُ التطبيق يمحوها كلَّها.</string>
+
+    <string name="pp_network_t">الاتّصال بالشبكة</string>
+    <string name="pp_network_b">للتطبيق إذنُ الإنترنت لأمرين لا غير:\n\n١) تنزيلُ خطوط الصفحة المصحفية حين تطلبها أنت صراحةً — ولا يُفتح اتّصالٌ قبل موافقتك، ولا يُرسَل شيءٌ عنك في ذلك الطلب.\n\n٢) حالةُ الطقس، لتُرسم سماءُ الشاشة الأولى غائمةً أو صافيةً كما هي عندك. ويُرسَل فيه موضعُك **مدوَّراً إلى نحو ١١ كيلومتراً** — لا إحداثيّتُك الدقيقة، ولا معرّفُ جهازك، ولا شيءٌ عن استعمالك. ويُستغنى عنه بإطفاء السماء من الإعدادات.\n\nوكلُّ ما عدا هذين داخل التطبيق: المصحفُ والتفسيرُ والأذكارُ والأدعيةُ والمواقيتُ والقبلة. فهو يعمل كاملاً في وضع الطيران.</string>
+
+    <string name="pp_rights_t">حقوقك</string>
+    <string name="pp_rights_b">تستطيع في أي وقت تصديرَ بياناتك أو محوَها كلَّها من: الإعدادات ← تصدير البيانات.</string>
+
+    <string name="pp_updates_t">التحديثات</string>
+    <string name="pp_updates_b">قد تُحدَّث هذه السياسة. وأيُّ تغييرٍ جوهريّ يُعلَن داخل التطبيق.</string>
+
+    <string name="pp_contact_t">التواصل</string>
+    <string name="pp_contact_b">لأي سؤالٍ عن الخصوصية: privacy@rafiqaldhikr.app</string>
+
+    <!-- ═══ شروط الاستخدام ═══ -->
+    <string name="tos_accept_t">القبول</string>
+    <string name="tos_accept_b">باستخدامك التطبيق فإنك توافق على هذه الشروط. وإن لم توافق على شيءٍ منها فلا تستعمله.</string>
+    <string name="tos_allowed_t">الاستخدام المسموح</string>
+    <string name="tos_allowed_b">• استعمالُ التطبيق للعبادة والتقرّب إلى الله.\n• مشاركةُ محتواه مع غيرك.\n• الاستعمالُ الشخصيّ غيرُ التجاري.</string>
+    <string name="tos_religious_t">المحتوى الديني</string>
+    <string name="tos_religious_b">كلُّ ذكرٍ ودعاءٍ في التطبيق يحمل مصدرَه ودرجتَه، ويُعرضان معه. ومع ذلك فالتطبيق ليس مرجعاً في الفتوى: ما أشكل عليك فاسأل عنه أهلَ العلم.</string>
+    <string name="tos_times_t">مواقيت الصلاة</string>
+    <string name="tos_times_b">المواقيتُ محسوبةٌ فلكياً من موقعك وطريقة الحساب التي تختارها، وهي تقريبيةٌ بطبيعتها. وتحقّقْ من مسجدك المحلّي.</string>
+    <string name="tos_ip_t">الملكية الفكرية</string>
+    <string name="tos_ip_b">حقوقُ التطبيق لفريق رفيق الذكر. والنصوصُ القرآنية والأحاديثُ ملكٌ للأمّة لا لأحد.</string>
+    <string name="tos_disclaimer_t">إخلاء المسؤولية</string>
+    <string name="tos_disclaimer_b">التطبيقُ مُقدَّمٌ كما هو بلا ضمانات، ولا نتحمّل تبعةَ ضررٍ ناتجٍ عن استعماله.</string>
+    <string name="tos_changes_t">التعديلات</string>
+    <string name="tos_changes_b">قد تُعدَّل هذه الشروط، وأيُّ تغييرٍ جوهريّ يُعلَن داخل التطبيق.</string>
+
+    <!-- ═══ التواصل ═══ -->
+    <string name="contact_welcome">نسعد بتواصلك! 💬</string>
+    <string name="contact_email">البريد الإلكتروني</string>
+    <string name="contact_bug">الإبلاغ عن خطأ</string>
+    <string name="contact_bug_desc">أخبرنا عن أي خطأ تقني</string>
+    <string name="contact_idea">اقتراح ميزة</string>
+    <string name="contact_idea_desc">شاركنا أفكارك لتطوير التطبيق</string>
+    <string name="contact_your_message">رسالتك</string>
+    <string name="contact_subj_note">رفيق الذكر — ملاحظة</string>
+    <string name="contact_subj_bug">رفيق الذكر — بلاغ خطأ</string>
+    <string name="contact_subj_idea">رفيق الذكر — اقتراح</string>
+    <string name="contact_subj_user">رفيق الذكر — رسالة من المستخدم</string>
+    <string name="action_send">إرسال</string>
+
+    <!-- ═══ أوراقي ═══ -->
+    <string name="awraq_not_opened">لم تفتحها بعد</string>
+    <string name="awraq_subtitle">ما أتممتَه — لتراه، لا ليحاسبك</string>
+    <string name="awraq_last_seven">آخر سبعة أيّام</string>
+    <string name="awraq_completed_f">أتممتَها</string>
+    <string name="awraq_untouched_f">لم تفتحها</string>
+    <string name="awraq_today">اليوم</string>
+    <string name="awraq_this_month">هذا الشهر</string>
+    <string name="awraq_completed_m">أتممتَه</string>
+    <string name="awraq_partial">بعضَه</string>
+    <string name="awraq_untouched_m">لم تفتحه</string>
+    <string name="awraq_besides">وما عدا الأوراد</string>
+    <string name="awraq_tasbeeh_unit">تسبيحة</string>
+    <string name="awraq_page_unit">صفحة من المصحف</string>
+    <plurals name="awrad">
+        <item quantity="zero">لا وِردَ بعد</item>
+        <item quantity="one">وِردٌ واحد</item>
+        <item quantity="two">وِردان</item>
+        <item quantity="few">%1$d أوراد</item>
+        <item quantity="many">%1$d وِرداً</item>
+        <item quantity="other">%1$d وِرداً</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">يومٌ واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%1$d أيّام</item>
+        <item quantity="many">%1$d يوماً</item>
+        <item quantity="other">%1$d يوماً</item>
+    </plurals>
+
+    <!-- ═══ المظهر وحول والاحتفاء ═══ -->
+    <string name="theme_system_full">تلقائي (النظام)</string>
+    <string name="theme_dynamic">ألوان ديناميكية</string>
+    <string name="theme_dynamic_desc">استخدام ألوان الخلفية (Android 12+)</string>
+    <string name="about_made_with">صُنع بـ ❤️ لله</string>
+    <string name="about_version">الإصدار %1$s</string>
+    <string name="celebration_title">بارك الله فيك!</string>
+    <string name="awraq_no_wird">لا وِردَ بعد</string>
+
+    <!-- ═══ المصحف ═══ -->
+    <string name="mushaf_surah_label">سُورَةُ %1$s</string>
+    <string name="mushaf_juz_label">الجُزْءُ %1$s</string>
+    <string name="mushaf_hint">المسِ الورقةَ لتظهر الأدوات · واضغط كلمةً مطوّلاً لتفتح آيتَها</string>
+    <string name="action_got_it">فهمت</string>
+    <string name="mushaf_mode">طريقةُ العرض</string>
+    <string name="mushaf_font_size">مقاسُ الخطّ</string>
+    <string name="mushaf_size_note">الورقةُ المصحفيةُ تضبط مقاسَها بنفسها لتستويَ الأسطر — والمقياسُ لِعرضِ النصّ.</string>
+    <string name="mushaf_not_downloaded">%1$s — لم تُنزَّل بعد</string>
+    <string name="mushaf_dl_progress">يُنزَّل %1$s من %2$s — %3$s م.ب</string>
+    <string name="mushaf_dl_ready">جاهزة — %1$s م.ب على جهازك</string>
+    <string name="mushaf_dl_resume">أكمِلِ التنزيل — %1$s من %2$s</string>
+    <string name="mushaf_dl_title">نزِّلْ خطوطَ المصحف</string>
+    <string name="mushaf_dl_note">نحو ٩٠ م.ب، مرّةً واحدة. وما دونها يعمل دون إنترنت.</string>
+    <string name="mushaf_offer_body">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة.</string>
+    <string name="mushaf_offer_now">اعرِضْها الآن</string>
+    <string name="mushaf_offer_now_note">يُجلَب خطُّ ما تقرؤه وحدَه — نحو مليونَي بايت، ثوانٍ. ويمتلئ الباقي كلّما قلبتَ ورقة.</string>
+    <string name="mushaf_offer_all">نزِّلِ المصحفَ كلَّه — ٩٠ م.ب</string>
+    <string name="mushaf_offer_all_note">لقراءةٍ كاملةٍ دون إنترنت</string>
+    <string name="mushaf_offer_later">لاحقاً — واقرأ بالصفحة المضبوطة</string>
+
+    <!-- أنماطُ العرض -->
+    <string name="mushaf_mode_classic">قائمةُ الآيات</string>
+    <string name="mushaf_mode_classic_note">آيةٌ في سطرٍ مع رقمها — أسهلُ للبحث والتفسير</string>
+    <string name="mushaf_mode_fitted">صفحةٌ مضبوطة</string>
+    <string name="mushaf_mode_fitted_note">بترقيم المصحف المدنيّ — يعمل دون إنترنت بلا تنزيل</string>
+    <string name="mushaf_mode_page">الصفحةُ المصحفية</string>
+    <string name="mushaf_mode_page_note">مطابقةٌ لمصحف المدينة سطراً بسطر — تحتاج تنزيلاً</string>
+    <string name="mushaf_mode_night">المصحفيةُ ليلاً</string>
+    <string name="mushaf_mode_night_note">الصفحةُ نفسُها بحبرٍ فاتحٍ على ورقٍ داكن</string>
+
+    <!-- ورقةُ الآية -->
+    <string name="ayah_label">%1$s — الآية %2$s</string>
+    <string name="ayah_bookmarked">مُعَلَّمة</string>
+    <string name="ayah_bookmark">ضَعْ علامة</string>
+    <string name="ayah_note">ملاحظة</string>
+    <string name="ayah_note_hint">اكتب ما خطر لك عند هذه الآية</string>
+    <string name="ayah_note_saved">حُفظت الملاحظة</string>
+    <string name="ayah_note_cleared">مُحيت الملاحظة</string>
+    <string name="action_save">احفظ</string>
+    <string name="share_as_text">نصّاً</string>
+    <string name="share_as_image">صورةً</string>
+    <string name="ayah_stop">فاصل</string>
+    <string name="risala_title">رسالتك اليوم</string>
+    <string name="risala_sub">قد يكون وراء هذا الدعاء رسالةٌ كُتبت لك، وأنت اليوم أشدُّ ما تحتاجها</string>
+    <string name="risala_open">اضغط هنا لتفتحها</string>
+    <string name="munasaba_next">المناسبة القادمة</string>
+    <string name="munasaba_today">اليوم</string>
+    <string name="munasaba_tomorrow">غداً</string>
+    <string name="munasaba_hijri_new_year">رأس السنة الهجرية</string>
+    <string name="munasaba_ashura">عاشوراء</string>
+    <string name="munasaba_ramadan">بداية رمضان</string>
+    <string name="munasaba_eid_fitr">عيد الفطر</string>
+    <string name="munasaba_ten_dhulhijjah">عشر ذي الحجة</string>
+    <string name="munasaba_arafah">يوم عرفة</string>
+    <string name="munasaba_eid_adha">عيد الأضحى</string>
+    <string name="hint_tasbeeh">المس الذكرَ نفسَه لتعدّ — تخرج حبّةٌ من موضع إبهامك وتصل إلى العدد. وما عددتَه يُحفظ حين تخرج، و«تراجع» يردّ ضغطة.</string>
+    <string name="hint_qibla">أمسِك جهازك مستوياً وأدِره ببطء حتى يستقيم السهم.</string>
+    <string name="hint_waraqa">هذه ورقةُ يومك: محطّاتُه من الاستيقاظ إلى النوم. اضغط محطّةً لتفتحها.</string>
+    <string name="wird_title">وِردك من الختمة</string>
+    <string name="wird_short">وِردك</string>
+    <string name="wird_time">في ميقاته</string>
+    <string name="wird_pages">صفحة %1$s إلى %2$s — نحو %3$s دقيقة</string>
+    <string name="wird_behind">تأخّرتَ %1$s صفحة — وُزّعت على ما بقي</string>
+    <string name="wird_done">أتممتَ وِردك اليوم</string>
+    <string name="khatma_title">الختمة</string>
+    <string name="khatma_none">لا ختمةَ الآن</string>
+    <string name="khatma_none_sub">اختر مدّةً وميقاتاً، فيظهر وِردك محطّةً في يومك</string>
+    <string name="khatma_start">ابدأ ختمة</string>
+    <string name="khatma_days">المدّة</string>
+    <string name="khatma_meeqat">وقت الورد</string>
+    <string name="khatma_continuous">ختمة مستمرّة</string>
+    <string name="khatma_continuous_sub">تبدأ من جديدٍ فور الختم</string>
+    <string name="khatma_progress">%1$s من %2$s صفحة</string>
+    <string name="khatma_day_of">اليوم %1$s من %2$s</string>
+    <string name="khatma_stop">أنهِ هذه الختمة</string>
+    <string name="khatma_days_n">%1$s يوماً</string>
+    <string name="pin_add">ثبّت هذا الذكر</string>
+    <string name="pin_remove">أزِل التثبيت</string>
+    <string name="pin_remind">ذكّرني به</string>
+    <string name="pin_remind_at">ذكّرني به %1$s</string>
+    <string name="pin_after">بعد %1$s</string>
+    <string name="pin_none">بلا تذكير</string>
+    <string name="mirror_title">سنتك</string>
+    <string name="mirror_sub">آخر ٣٦٥ يوماً — كلّ مربّعٍ يومٌ ولونُه عمقُ ما كان فيه</string>
+    <string name="mirror_empty">لم يُسجَّل بعدُ شيء. ابدأ اليوم، ويمتلئ هذا من نفسِه.</string>
+    <string name="mirror_active">%1$s يوماً فيها عمل</string>
+    <string name="mirror_longest">أطول سلسلة: %1$s يوماً</string>
+    <string name="mirror_most">أكثر ما واظبتَ عليه: %1$s</string>
+    <string name="mirror_quran">%1$s صفحة من المصحف</string>
+    <string name="mirror_tasbeeh">%1$s تسبيحة</string>
+    <string name="mirror_less">أقلّ</string>
+    <string name="mirror_more">أكثر</string>
+    <string name="door_morning">أذكار الصباح</string>
+    <string name="door_evening">أذكار المساء</string>
+    <string name="door_quran">قراءة المصحف</string>
+    <string name="door_tasbeeh">التسبيح</string>
+    <string name="door_prayers">تسجيل الصلوات</string>
+    <string name="tj_ghunnah">غُنّة</string>
+    <string name="tj_idghaam">إدغام</string>
+    <string name="tj_ikhfa">إخفاء</string>
+    <string name="tj_iqlab">إقلاب</string>
+    <string name="tj_madd">مدّ</string>
+    <string name="tj_qalqalah">قلقلة</string>
+    <string name="tj_wasl">همزة وصل</string>
+    <string name="tj_lam_shams">لام شمسية</string>
+    <string name="tj_silent">لا يُنطق</string>
+    <string name="tajweed_toggle">تلوين التجويد</string>
+    <string name="tajweed_text_only">يظهر في نمط النصّ — صفحةُ المصحف تُرسم برموزٍ لا حروف</string>
+    <string name="tajweed_key">دليل الألوان</string>
+    <string name="ayah_stop_here">وقفتُ هنا</string>
+    <string name="bookmarks_stop_section">موضع وقوفك</string>
+    <string name="bookmarks_marks_section">علاماتك</string>
+    <string name="ayah_share_title">مشاركةُ الآية</string>
+    <string name="tafsir_label">التفسير الميسّر:</string>
+    <string name="mushaf_offer_body_long">خمسةَ عشرَ سطراً مطابقةً لمصحف المدينة — الكلمةُ في موضعها والسطرُ يقطع حيث يقطع في الورقة. وتحتاج خطوطاً تُنزَّل مرّةً واحدة.</string>
+
+    <!-- ═══ المواقيت والموقع ═══ -->
+    <string name="prayer_needs_location">مواقيت الصلاة تُحسب من موقعك، ولا يصحّ حسابها بموقع غيرك.</string>
+    <string name="action_change">تغيير</string>
+    <string name="prayer_logged">سجّلتَها</string>
+    <string name="prayer_past">مضى</string>
+    <string name="prayer_fajr_edge">حدُّ الفجر والضحى</string>
+    <string name="prayer_time_passed">مضى وقتُها</string>
+    <string name="action_later">لاحقاً</string>
+    <string name="prayer_logged_count">سجّلتَ %1$s من %2$s صلوات</string>
+    <string name="loc_needed_body">المواقيت تُحسب من موقعك، ولا يمكن حسابها بدونه.</string>
+    <string name="loc_finding">جارٍ تحديد الموقع…</string>
+    <string name="loc_enable">تفعيل الموقع</string>
+    <string name="loc_pick_city">أو اختر مدينتك يدوياً</string>
+    <string name="loc_failed">تعذّر الحصول على الموقع. تأكّد من تفعيل خدمة الموقع في جهازك، أو امنح الإذن من إعدادات النظام، أو اختر مدينتك يدوياً.</string>
+    <string name="elevation_manual">أو اختر يدوياً: %1$s متر</string>
+    <string name="elevation_maghrib_corr">⏱ تصحيح المغرب: +%1$s دقيقة</string>
+    <string name="elevation_sea">0 — مستوى البحر</string>
+    <string name="elevation_metres">%1$s متر</string>
+
+    <!-- ═══ محطّاتُ رفيق اليوم — كانت مكتوبةً في الـViewModel ═══ -->
+    <string name="st_wake_t">الاستيقاظ</string>
+    <string name="st_wake_s">الاستيقاظ</string>
+    <string name="st_wake_d">«الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور» — والسواك</string>
+    <string name="st_wake_time">قبل الفجر</string>
+    <string name="st_fajr_t">الفجر وأذكار الصباح</string>
+    <string name="st_fajr_s">الفجر</string>
+    <string name="st_fajr_d">صلاة الفجر ثم أذكار الصباح حتى طلوع الشمس</string>
+    <string name="st_fajr_time">من الفجر إلى الشروق</string>
+    <string name="st_duha_t">صلاة الضحى</string>
+    <string name="st_duha_s">الضحى</string>
+    <string name="st_duha_d">ركعتان تجزئان عن صدقة عن كل مفصل من مفاصلك</string>
+    <string name="st_duha_time">من بعد الشروق إلى قبيل الظهر</string>
+    <string name="st_dhuhr_t">الظهر وأذكار بعد الصلاة</string>
+    <string name="st_dhuhr_s">الظهر</string>
+    <string name="st_dhuhr_d">الصلاة ثم الاستغفار والتسبيح وآية الكرسي</string>
+    <string name="st_dhuhr_time">من الظهر إلى العصر</string>
+    <string name="st_asr_t">العصر وأذكار المساء</string>
+    <string name="st_asr_s">العصر</string>
+    <string name="st_asr_d">صلاة العصر ثم أذكار المساء قبل الغروب</string>
+    <string name="st_asr_time">من العصر إلى المغرب</string>
+    <string name="st_maghrib_t">المغرب وأذكار بعد الصلاة</string>
+    <string name="st_maghrib_s">المغرب</string>
+    <string name="st_maghrib_d">الصلاة وأذكارها</string>
+    <string name="st_maghrib_d_friday">الصلاة وأذكارها — وأكثِر من الدعاء، فآخرُ ساعةٍ من الجمعة ساعةُ إجابة</string>
+    <string name="st_maghrib_time">من المغرب إلى العشاء</string>
+    <string name="st_isha_t">العشاء والوتر</string>
+    <string name="st_isha_s">العشاء</string>
+    <string name="st_isha_d">صلاة العشاء ثم الوتر ولو بركعة</string>
+    <string name="st_isha_time">بعد العشاء</string>
+    <string name="st_sleep_t">أذكار النوم</string>
+    <string name="st_sleep_s">النوم</string>
+    <string name="st_sleep_d">الوضوء، آية الكرسي، الإخلاص والمعوذتان، خواتيم البقرة، والتسبيح</string>
+    <string name="st_sleep_time">عند النوم</string>
+    <string name="st_kahf_t">سورة الكهف والصلاة على النبي ﷺ</string>
+    <string name="st_kahf_s">الكهف</string>
+    <string name="st_kahf_d">قراءة سورة الكهف والإكثار من الصلاة على النبي ﷺ يوم الجمعة</string>
+    <string name="st_kahf_time">طوال يوم الجمعة</string>
+    <string name="waraqa_you_are_in">أنت الآن في %1$s</string>
+    <string name="waraqa_start_station">ابدأ %1$s</string>
+    <!-- قوسُ الشمس: اسمُ الميقات التالي فوق القوس -->
+    <string name="meeqat_next">التالي %1$s</string>
+    <string name="meeqat_in">بعد %1$s</string>
+    <string name="hub_station_window">نافذةُ %1$s</string>
+    <string name="hub_remaining"> — بقي %1$s</string>
+
+    <!-- ═══ الميقات والمدن والشهور ═══ -->
+    <string name="meeqat_duha">الضحى</string>
+    <string name="meeqat_night">الليل</string>
+    <string name="greet_time_morning">صباح الخير</string>
+    <string name="greet_time_day">طاب يومك</string>
+    <string name="greet_time_evening">مساء النور</string>
+    <string name="greet_time_night">طابت ليلتك</string>
+    <string name="city_pick_title">اختر مدينتك</string>
+    <string name="city_pick_note">تُحسب المواقيت من إحداثيات المدينة المختارة.</string>
+    <string name="city_search_hint">ابحث بالعربية أو بالإنجليزية…</string>
+    <string name="city_not_found">لا مدينة بهذا الاسم في القائمة. جرّب اسم أقرب مدينة كبيرة إليك، أو فعّل الموقع ليُحدَّد بدقّة.</string>
+
+    <!-- ═══ الألوان وأوراقي ═══ -->
+    <string name="colors_title">الألوان</string>
+    <string name="colors_sub">لونان تختارهما، والباقي يُحسب ليبقى مقروءاً</string>
+    <string name="colors_presets">تركيبات جاهزة</string>
+    <string name="colors_paper">الورق</string>
+    <string name="colors_accent">اللهجة</string>
+    <string name="colors_measure">القياس</string>
+    <string name="colors_reset">إرجاع الألوان الأصلية</string>
+    <string name="colors_card">بطاقة</string>
+    <string name="colors_m_ink_paper">النصّ على الورق</string>
+    <string name="colors_m_second_card">الثانوي على البطاقة</string>
+    <string name="colors_m_accent_text">لون اللهجة نصّاً</string>
+    <string name="colors_m_button_text">نصّ الزرّ</string>
+    <string name="colors_m_icons">الأيقونات</string>
+    <string name="colors_m_card_tone">نبرة البطاقة</string>
+    <string name="awraq_steadiest_station">أثبتُ محطّاتك: %1$s</string>
+    <string name="awraq_faintest_station">وأخفُّها حضوراً: %1$s — فلعلّه موضعُ ما تريد أن تزيد.</string>
+    <string name="awraq_more_done">ما فاتك من أوراد هذا الأسبوع أقلُّ ممّا أتممت.</string>
+    <string name="awraq_steadiest_day">وأثبتُ أيّامك: %1$s</string>
+    <string name="awraq_steadiest_day_note">أكثرُ ما تُتمّ أورادك في هذا اليوم من الأسبوع.</string>
+
+    <!-- ═══ آخر ما بقي ═══ -->
+    <string name="days_streak">يوماً متّصلاً — أطول سلسلة %1$s</string>
+    <string name="days_caption">آخر %1$s يوماً — كل مربّعٍ يومٌ، وارتفاع الحبر ما خُطّ منه</string>
+    <string name="days_a11y">دفتر آخر %1$d يوماً — %2$d منها مكتملة</string>
+    <string name="days_legend">من ورقةٍ بيضاء إلى ورقةٍ مكتملة</string>
+    <string name="hub_location_why">محطّاتُ يومك موقوتةٌ بالصلاة — من الاستيقاظ إلى النوم. حدِّدها مرّةً واحدة ويُحسب الباقي.</string>
+    <string name="adhkar_count_by_tap">عُدَّ تسبيحك بضغطة</string>
+    <string name="adhkar_ayah_source">— سورة الرعد ٢٨</string>
+    <string name="dhikr_a11y">اضغط في أيّ مكان للعدّ. %1$d من %2$d</string>
+    <string name="dhikr_of_total">الذكر %1$d من %2$d</string>
+    <string name="dhikr_of">من %1$s</string>
+    <string name="hijri_date">%1$s %2$s %3$s هـ</string>
+    <string name="hijri_unknown">— هـ</string>
+    <string name="preset_paper_emerald">ورقٌ وزمرّد</string>
+    <string name="preset_paper_amber">ورقٌ وعنبر</string>
+    <string name="preset_paper_mint">ورقٌ ونعناع</string>
+    <string name="preset_sand_olive">رملٌ وزيتون</string>
+    <string name="preset_pine_rose">صنوبر ووردة</string>
+    <string name="preset_white_ink">أبيضُ وحبر</string>
+    <string name="preset_night_emerald">ليلٌ وزمرّد</string>
+    <string name="preset_night_gold">ليلٌ وذهب</string>
+    <string name="preset_night_silver">ليلٌ وفضّة</string>
+    <string name="quran_list_no_match">لا سورةَ بهذا الاسم.</string>
+
+    <!-- التنفّس مع الذكر -->
+    <string name="breath_title">التنفّس مع الذكر</string>
+    <string name="breath_ready">استعِدّ</string>
+    <string name="breath_inhale">شهيق — %1$s</string>
+    <string name="breath_hold">إمساك</string>
+    <string name="breath_exhale">زفير — الحمد لله</string>
+    <string name="breath_rest">راحة</string>
+    <string name="breath_start">ابدأ</string>
+    <string name="breath_stop">إيقاف</string>
+    <string name="breath_pick">اختر الذكر</string>
+
+    <!-- الحديقة الروحية -->
+    <string name="garden_title">الحديقة الروحية</string>
+    <string name="garden_today_hint">نبتةُ اليوم تنمو بأعمالك الخمسة</string>
+    <string name="garden_week">حديقة الأسبوع</string>
+    <string name="garden_legend">دليل النمو</string>
+    <string name="garden_stage_seed">بذرة</string>
+    <string name="garden_stage_sprout">نبتة صغيرة</string>
+    <string name="garden_stage_growing">نبتة نامية</string>
+    <string name="garden_stage_tree">شجرة</string>
+    <string name="garden_stage_flower">زهرة — يومٌ تامّ</string>
+    <string name="garden_legend_0">بذرة — لم يُسجَّل عملٌ بعد</string>
+    <string name="garden_legend_1">نبتة صغيرة — بدأتَ اليوم</string>
+    <string name="garden_legend_2">نبتة نامية — نحوُ نصفِ اليوم</string>
+    <string name="garden_legend_3">شجرة — أكثرُ اليوم</string>
+    <string name="garden_legend_4">زهرة — الأعمالُ الخمسة والصلواتُ الخمس</string>
+
+    <!-- التقرير الأسبوعي -->
+    <string name="report_title">التقرير الأسبوعي</string>
+    <string name="report_active_days">%1$d / 7 أيّام نشطة</string>
+    <string name="report_praise_high">أداءٌ ممتاز، بارك الله فيك</string>
+    <string name="report_praise_mid">أداءٌ جيّد، استمرّ في المداومة</string>
+    <string name="report_praise_low">حاوِل المداومةَ أكثرَ هذا الأسبوع</string>
+    <string name="report_quran_pages">صفحات قرآن</string>
+    <string name="report_tasbeeh">تسبيح</string>
+    <string name="report_prayers">صلوات</string>
+    <string name="report_streak">سلسلةٌ حالية</string>
+    <string name="report_daily">التفاصيل اليومية</string>
+
+    <!-- بطاقة المشاركة -->
+    <string name="share_title">مشاركة بطاقة</string>
+    <string name="share_action">مشاركة البطاقة</string>
+    <string name="share_failed">لا يوجد تطبيقٌ يستقبل الصورة</string>
+    <string name="share_card_streak">سلسلتي</string>
+    <string name="share_card_quran">قراءتي</string>
+    <string name="share_card_tasbeeh">تسبيحي</string>
+    <string name="share_sub_streak">الحمد لله على التوفيق</string>
+    <string name="share_sub_quran">من قرأ حرفاً من كتاب الله فله به حسنة</string>
+    <string name="share_sub_tasbeeh">وسبِّح بحمد ربّك</string>
+
+    <plurals name="pages">
+        <item quantity="one">صفحةٌ واحدة</item>
+        <item quantity="two">صفحتان</item>
+        <item quantity="few">%1$d صفحات</item>
+        <item quantity="many">%1$d صفحةً</item>
+        <item quantity="other">%1$d صفحة</item>
+    </plurals>
+    <plurals name="tasbeehat">
+        <item quantity="one">تسبيحةٌ واحدة</item>
+        <item quantity="two">تسبيحتان</item>
+        <item quantity="few">%1$d تسبيحات</item>
+        <item quantity="many">%1$d تسبيحةً</item>
+        <item quantity="other">%1$d تسبيحة</item>
+    </plurals>
+
+    <!-- تابِع القراءة -->
+    <string name="continue_reading">تابِع القراءة</string>
+    <string name="continue_reading_at">%1$s — صفحة %2$s</string>
+    <string name="continue_reading_ayat">الآيات %1$s – %2$s</string>
+
+    <!-- الاستيراد -->
+    <string name="import_action">استيراد</string>
+    <string name="import_desc">أعِد بياناتِك من ملفٍّ صدَّرته من قبل. لا يُمحى ما عندك — يُدمج معه.</string>
+    <string name="import_ok">استُورد: %1$d يوماً — %2$d علامة — %3$d جلسة تسبيح</string>
+    <string name="import_not_json">تعذّرت قراءةُ الملفّ</string>
+    <string name="import_not_rafiq">هذا ليس ملفَّ تصديرٍ من رفيق الذكر</string>
+    <string name="import_future">الملفُّ من نسخةٍ أحدث — حدِّث التطبيق ثمّ أعِد المحاولة</string>
+
+    <!-- العزو -->
+    <string name="about_credits">خطوطُ المصحف من مجمَّع الملك فهد لطباعة المصحف الشريف بالمدينة المنوّرة — تُستعمل وتُنسخ وتُوزَّع مجاناً بموجب رخصته، ولا تُباع ولا تُعدَّل.
+
+وأذكارُ الصباح والمساء من قاعدة Morning-And-Evening-Adhkar-DB برخصة MIT، بتخريجها ودرجتها كما وردت.
+
+ومواقيتُ الصلاة تُحسب محلّياً بمكتبة adhan برخصة MIT.</string>
+
+    <!-- ما الجديد — الجولة الثانية -->
+    <string name="whatsnew_doors">أربعةُ أبوابٍ جديدة في «أوراقي»: التنفّس مع الذكر · الحديقة · التقرير الأسبوعي · بطاقة المشاركة</string>
+    <string name="whatsnew_continue">«تابِع القراءة» في الرئيسية — تعيدك إلى صفحتك في المصحف بسورتها</string>
+    <string name="whatsnew_import">استيرادُ بياناتك من ملفٍّ صدَّرته — دمجاً لا استبدالاً</string>
+    <string name="whatsnew_notify_kinds">تحكّمٌ منفصل: أطفئ الأذانَ وأبقِ تذكيرَ الأذكار، أو العكس</string>
+    <string name="whatsnew_adhkar_grown">أذكارُ الصباح ٢٥ والمساء ٢٣، لكلٍّ تخريجُه ودرجتُه وفضلُه</string>
+
+    <!-- أداةُ المواقيت المصغّرة -->
+    <string name="times_widget_hint">للمواقيت أداةٌ مصغّرة: اضغط مطوّلاً على شاشتك الرئيسية ← الأدوات المصغّرة ← رفيق الذكر</string>
+
+    <!-- شريط موضع المصحف -->
+    <string name="mushaf_juz">الجزء %1$s</string>
+    <string name="mushaf_page_of">صفحة %1$s من %2$s</string>
+
+    <!-- الطقس — أسماءُ أحوال WMO -->
+    <string name="wx_clear">صحو</string>
+    <string name="wx_partly">غائمٌ جزئياً</string>
+    <string name="wx_overcast">غائم</string>
+    <string name="wx_fog">ضباب</string>
+    <string name="wx_drizzle">رذاذ</string>
+    <string name="wx_rain">مطر</string>
+    <string name="wx_snow">ثلج</string>
+    <string name="wx_thunder">عاصفةٌ رعدية</string>
+
+    <!-- نداءُ الطور — كلامُنا نحن، لا نصٌّ مَرويّ -->
+    <string name="nida_fajr">ابدأْ، رعاك الله.</string>
+    <string name="nida_fajr_sub">افتحْ يومَك بذكره.</string>
+    <string name="nida_duha">أقبِلْ، وفّقك الله.</string>
+    <string name="nida_duha_sub">ركعتان تكفيك الآن.</string>
+    <string name="nida_dhuhr">قُمْ إلى الصلاة، سدّدك الله.</string>
+    <string name="nida_dhuhr_sub">وما بعدها ذِكرٌ يسير.</string>
+    <string name="nida_asr">أمسِكْ بيومك، رعاك الله.</string>
+    <string name="nida_asr_sub">ما بقي من نهارك قليل.</string>
+    <string name="nida_maghrib">أقبِلْ قبل أن يُطبِقَ الليل.</string>
+    <string name="nida_maghrib_sub">بارك الله فيك.</string>
+    <string name="nida_isha">اختِمْ يومَك، تقبّل الله منك.</string>
+    <string name="nida_isha_sub">وِترٌ واحدٌ يكفي.</string>
+    <string name="nida_layl">نَمْ على ذِكر، حفظك الله.</string>
+    <string name="nida_layl_sub">آيةُ الكرسيّ تكفيك.</string>
+    <string name="nida_partial">من الآية %1$s</string>
+
+    <!-- وسمُ نوع النصّ المرويّ — يُقرأ قبل النصّ لا بعده -->
+    <string name="nida_kind_quran">من القرآن الكريم</string>
+    <string name="nida_kind_hadith">من حديث النبي ﷺ</string>
+    <string name="nida_kind_athar">من قول صحابيٍّ رضي الله عنه</string>
+
+    <!-- قارئُ الأذكار: تراجعٌ وانتقالٌ صريح -->
+    <string name="dhikr_undo">تراجعْ عن ضغطة</string>
+    <string name="dhikr_next_explicit">الذكرُ التالي</string>
+    <string name="dhikr_finish">أُنهي القراءة</string>
+    <string name="dhikr_done_wait">اكتمل العدد — تابِعْ حين تكون مستعدّاً</string>
+    <!-- التسميع -->
+    <string name="tasmee_title">التسميع</string>
+    <string name="tasmee_subtitle">سمِّعْ من حفظك، وتُشار المواضع</string>
+    <string name="tasmee_hint">اقرأِ الآيةَ بصوتٍ مسموع. ولا يُرسَل صوتُك إلى أحدٍ — يُنصَت إليه في جهازك ويُمحى.</string>
+    <string name="tasmee_ready">اضغطْ لتبدأ</string>
+    <string name="tasmee_start">سمِّعْ</string>
+    <string name="tasmee_stop">أتممتُ</string>
+    <string name="tasmee_recording">يسمع… بقي %1$s ثانية</string>
+    <string name="tasmee_thinking">يُنصِت…</string>
+    <string name="tasmee_clear">تمَّتِ التلاوة</string>
+    <string name="tasmee_review">مواضعُ تُراجَع: %1$s</string>
+    <string name="tasmee_unheard">لم أتبيَّنْ — أعِدْ من قريبٍ وفي هدوء</string>
+    <string name="tasmee_again">سمِّعْ مرّةً أخرى</string>
+    <string name="tasmee_no_mic">تعذَّر الميكروفون — تحقَّقْ من الإذن</string>
+    <string name="tasmee_no_model">التسميعُ غيرُ متاحٍ في هذه النسخة</string>
+    <string name="action_tasmee">سمِّعْ هذه الآية</string>
+    <!-- جَرْد الإسناد -->
+    <string name="isnad_title">جَرْدُ الإسناد</string>
+    <string name="isnad_subtitle">كلُّ نصٍّ ومصدرُه ودرجتُه</string>
+    <string name="isnad_percent">%1$s٪</string>
+    <string name="isnad_total">من %1$s نصّاً دينيّاً له مصدرٌ ودرجة</string>
+    <string name="isnad_counting">يُجرَد…</string>
+    <string name="isnad_note">الدرجةُ حكمُ أهل العلم بلفظه. والمسُ أيَّ سطرٍ يُظهر تخريجَه كاملاً.</string>
+    <string name="settings_isnad">جَرْدُ الإسناد</string>
+    <!-- الأثر — أحاديث الذكر والدعاء بأدلّتها -->
+    <string name="athar_title">الأثر</string>
+    <string name="athar_subtitle">أحاديثُ الذكر والدعاء بأدلّتها</string>
+    <string name="athar_absent">لم تُجلب نصوصُ الأثر في هذه النسخة</string>
+    <string name="athar_credit">الناشر: %1$s — إصدارُ %2$s. يُعرَض المتنُ والشرحُ كما نشرهما المصدرُ بلا تعديل.</string>
+    <string name="athar_takhrij">التخريج</string>
+    <string name="athar_sharh">الشرح</string>
+    <string name="athar_ref_id">رقمُه عند المصدر: %1$s</string>
+    <string name="athar_entry">الدليل: أحاديثُ الذكر وفضائله</string>
+    <string name="athar_cat_fadl_dhikr">فضائلُ الذكر</string>
+    <string name="athar_cat_fadl_dua">فضلُ الدعاء</string>
+    <string name="athar_cat_hady_dhikr">هديُ النبيّ في الذكر</string>
+    <string name="athar_cat_fawaid_dhikr">فوائدُ ذكر الله</string>
+    <string name="athar_cat_morning_evening">أذكارُ الصباح والمساء</string>
+    <string name="athar_cat_mutlaq">الأذكارُ المطلقة</string>
+    <string name="athar_cat_home">أذكارُ المنزل</string>
+    <string name="athar_cat_khala">أذكارُ الخلاء</string>
+    <string name="athar_cat_masjid">أذكارُ المسجد</string>
+    <string name="athar_cat_shidda">أذكارُ الشدّة</string>
+    <string name="athar_cat_arida">الأمورُ العارضة</string>
+    <string name="athar_cat_ahkam_dua">أحكامُ الدعاء</string>
+    <string name="athar_cat_anwa_dua">أنواعُ الدعاء</string>
+    <string name="athar_cat_adab_dua">آدابُ الدعاء</string>
+    <string name="athar_cat_ijaba">أسبابُ الإجابة</string>
+    <string name="athar_cat_mathura">الأدعيةُ المأثورة</string>
+    <string name="athar_cat_salah">أذكارُ الصلاة</string>
+    <!-- الأربعون النوويّة -->
+    <string name="arbaeen_title">الأربعون النوويّة</string>
+    <string name="arbaeen_subtitle">اثنان وأربعون حديثاً بتخريجها وشرحها</string>
+    <string name="arbaeen_absent">لم تُجلب الأربعون في هذه النسخة</string>
+    <string name="arbaeen_progress">قرأتَ %1$s من %2$s</string>
+    <string name="arbaeen_credit">المتنُ والدرجةُ والشرحُ من %1$s — إصدارُ %2$s، بلا تعديل. والترتيبُ على «متن الأربعين النووية» — نسخة دار السلام.</string>
+    <string name="arbaeen_mark">علّمْ أنّي قرأتُه</string>
+    <string name="arbaeen_read">قرأتُه</string>
+    <string name="arbaeen_entry">اثنان وأربعون حديثاً، بتخريجٍ وشرح</string>
+    <string name="athar_hint">المسِ الحديثَ ليظهر تخريجُه وشرحُه كاملين.</string>
+    <string name="arbaeen_hint">المسِ الحديثَ ليظهر تخريجُه وشرحُه. وزرُّ «قرأتُه» يحفظ موضعَك.</string>
+    <string name="notif_pin_title">ذكرٌ ثبّتَه</string>
+    <string name="notif_pin_body">حان وقتُ ذكرٍ ثبّتَه — اضغط لتفتحه</string>
+
+    <!-- الجولة التعريفيّة -->
+    <string name="tour_step_of">%1$s من %2$s</string>
+    <string name="tour_next">التالي</string>
+    <string name="tour_done">تمّت</string>
+    <string name="tour_skip">تخطّي</string>
+
+    <string name="tour_meeqat_title">محطّتُك الآن</string>
+    <string name="tour_meeqat_body">هذه البطاقةُ تتبدّل مع الوقت: تقول أين أنت من يومك، وتفتح أذكارَ هذه المحطّة بلمسة.</string>
+
+    <string name="tour_nav_home_title">اليوم</string>
+    <string name="tour_nav_home_body">مبدؤك — السماءُ تتبع ساعتك، والورقةُ تحتها فيها محطّتُك ومواقيتُك وأبوابُك.</string>
+
+    <string name="tour_nav_quran_title">المصحف</string>
+    <string name="tour_nav_quran_body">يفتح على الصفحة لا على قائمة السور — فيبدأ من حيث وقفت. ومنه الختمةُ والتجويدُ والتسميع.</string>
+
+    <string name="tour_nav_adhkar_title">الذِّكر</string>
+    <string name="tour_nav_adhkar_body">أذكارُ الصباح والمساء والنوم وما بينها، وكلُّ نصٍّ بمصدره ودرجته. ومنه المسبحةُ والأثرُ والأربعون.</string>
+
+    <string name="tour_nav_dua_title">الدعاء</string>
+    <string name="tour_nav_dua_body">أدعيةٌ مأثورةٌ مبوَّبة — للهمّ والسفر والمرض والاستخارة وغيرها.</string>
+
+    <string name="tour_nav_profile_title">أوراقي</string>
+    <string name="tour_nav_profile_body">ما جمعتَه: ختمتُك وتسبيحُك وسنتُك ومحفوظاتُك. وهنا الإعداداتُ وبياناتُك.</string>
+
+    <!-- إعادة الجولة من الإعدادات -->
+    <string name="settings_replay_tour">أعد الجولة التعريفيّة</string>
+    <string name="settings_replay_tour_sub">تُعرَض الجولةُ والتلميحاتُ من جديد. لا يُحذَف شيءٌ من بياناتك.</string>
+    <string name="ayah_mark_short">علامة</string>
+
+    <!-- ورقة الآية -->
+    <string name="ayah_tafsir_name">التفسير الميسَّر</string>
+    <string name="tajweed_not_here">أنت في «الصفحة المصحفية» — وهي تُرسم رموزاً لا حروفاً، فلا تُلوَّن.</string>
+    <string name="tajweed_switch">بدّل إلى صفحة مضبوطة</string>
+    <string name="stop_set_at">وقفتُ هنا — %1$s. تجده في العلامات.</string>
+    <string name="stop_undo">تراجع</string>
+    <string name="stop_resume">تابعْ من %1$s</string>
+
+    <!-- شاشة أبواب الذِّكر — المواظبة -->
+    <string name="adhkar_streak_title">%1$s يوماً متتابعاً</string>
+    <string name="adhkar_streak_hint">لا تكسر السلسلة</string>
+    <string name="adhkar_streak_none">ابدأ سلسلتك اليوم</string>
+    <string name="adhkar_streak_invite">يومٌ واحدٌ يكفي لتبدأ</string>
+
+    <!-- ورقة اليوم: الورقة وبطاقات المحطّات -->
+    <string name="task_wake_dua">دعاءُ الاستيقاظ</string>
+    <string name="task_siwak">السواك</string>
+    <string name="task_fajr">صلاةُ الفجر</string>
+    <string name="task_morning">أذكارُ الصباح</string>
+    <string name="task_duha">صلاةُ الضحى</string>
+    <string name="task_dhuhr">صلاةُ الظهر</string>
+    <string name="task_after_prayer">أذكارُ بعد الصلاة</string>
+    <string name="task_asr">صلاةُ العصر</string>
+    <string name="task_evening">أذكارُ المساء</string>
+    <string name="task_maghrib">صلاةُ المغرب</string>
+    <string name="task_isha">صلاةُ العشاء</string>
+    <string name="task_witr">الوتر</string>
+    <string name="task_sleep">أذكارُ النوم</string>
+    <string name="task_kahf">قراءةُ سورة الكهف</string>
+    <string name="task_salawat">الصلاةُ على النبيّ ﷺ</string>
+    <string name="task_wird">وِردُ القرآن</string>
+    <string name="leaf_complete">اكتملت ورقتك</string>
+    <string name="leaf_complete_sub">الصلواتُ الخمس</string>
+    <string name="leaf_prayed">صلّيتُ</string>
+    <string name="leaf_not_prayed">لم تُسجَّل</string>
+    <string name="leaf_now">حان وقتُها</string>
+    <string name="leaf_in">بعد %1$s</string>
+    <string name="leaf_left">يبقى %1$s</string>
+    <string name="leaf_word">كلمةُ الورقة</string>
+    <string name="leaf_account">محاسبةُ اليوم</string>
+    <string name="leaf_account_end">لا بأس، فالعبرةُ بالمداومة</string>
+    <string name="leaf_flip_front">‹ وجهُ الورقة</string>
+    <string name="leaf_flip_back">محاسبةُ اليوم ‹</string>
+    <string name="leaf_row_prayers">الصلواتُ الخمس</string>
+    <string name="leaf_row_stations">محطّاتُ اليوم</string>
+    <string name="leaf_row_done">تمّت</string>
+    <string name="leaf_row_open">لم تُسجَّل بعد</string>
+    <string name="stations_title">محطّاتُ اليوم</string>
+    <string name="stations_hint">اسحب للتنقّل</string>
+    <string name="st_of">%1$s من %2$s</string>
+    <string name="st_tag_done">تمّت</string>
+    <string name="st_tag_now">الحاضرة</string>
+    <string name="st_tag_up">قادمة</string>
+    <string name="st_missed_note">مضى وقتُها، وما زالت تُفتح</string>
+    <string name="st_did">فعلتُها</string>
+    <string name="st_done">✓ تمّت</string>
+    <string name="st_count">ابدأ · %1$s</string>
+    <string name="st_prayer_hint">تُحاط في الورقة</string>
+    <string name="dur_hm">%1$dس %2$dد</string>
+    <string name="dur_m">%1$dد</string>
+
+    <!-- عزمُ اليوم -->
+    <string name="intent_q">ما تنوي اليومَ مع فرائضك؟</string>
+    <string name="intent_go">عزمتُ، والله المستعان</string>
+    <string name="intent_none">ليس اليوم — الفرائضُ تكفيني</string>
+    <string name="intent_line">نويتُ اليوم:</string>
+    <string name="intent_duha">الضحى</string>
+    <string name="intent_witr">الوتر</string>
+    <string name="intent_kahf">الكهف</string>
+    <string name="intent_wird">الوِرد</string>
+
+    <!-- تذكيرُ خروج الوقت -->
+    <string name="notif_channel_end">قبل خروج الوقت</string>
+    <string name="notif_end_title">يبقى من وقت %1$s: %2$dد</string>
+    <string name="notif_end_body">لم تُسجَّل في ورقتك بعد.</string>
+    <string name="notif_end_prayed">صلّيتُ %1$s</string>
+    <string name="notif_end_snooze">ذكّرني بعد ١٠د</string>
+    <string name="notif_end_row">قبل خروج الوقت</string>
+    <string name="notif_end_desc">قبل آخر الوقت بعشرين دقيقة إن لم تُسجَّل الصلاة — عدا العشاء، لاختلاف العلماء في آخر وقتها</string>
+
+    <!-- اللوحُ الطائف -->
+    <string name="lawh_call_m">أَخِي الكَرِيم</string>
+    <string name="lawh_call_f">أُخْتِي الكَرِيمَة</string>
+    <string name="lawh_before">قبل %1$s</string>
+    <string name="lawh_plain">%2$s بعد %1$dد. لا تشغل فكرك بشيءٍ الآن — ضَعْ ما تحمله، تجده بعدها إن كان يستحقّ.</string>
+    <string name="lawh_from_quran">من كتاب الله</string>
+    <string name="lawh_from_hadith">من حديث رسول الله ﷺ</string>
+    <string name="lawh_go">أنا ذاهبٌ إليها</string>
+    <string name="lawh_snooze">أجِّل ٥ د</string>
+    <string name="lawh_surah_23">المؤمنون %1$s</string>
+    <string name="lawh_surah_2">البقرة %1$s</string>
+    <string name="notif_channel_lawh">قبل الصلاة</string>
+    <string name="lawh_setting">اللوح قبل الصلاة</string>
+    <string name="lawh_setting_desc">لوحٌ ينزل قبل كلّ صلاةٍ بعشر دقائق، وإشعارٌ إن كان التطبيقُ مغلقاً</string>
+    <string name="lawh_sister">النداء: «أختي الكريمة»</string>
+    <string name="lawh_sister_desc">بدل «أخي الكريم»</string>
+
+    <!-- لوحةُ المسجد وإجابةُ المؤذّن -->
+    <string name="board_next_in">%1$s بعد</string>
+    <string name="board_adhan_now">حان الآن</string>
+    <string name="board_adhan">أذان %1$s</string>
+    <string name="board_tap_hint">اضغط نافذتَه حين تصلّي</string>
+    <string name="win_prayed">✓ صلّيتُ</string>
+    <string name="win_masjid">في المسجد</string>
+    <string name="win_next">القادمة</string>
+    <string name="win_sunrise">لا تُسجَّل</string>
+    <string name="board_legend">ضغطة: صلّيتُ · ضغطتان: في المسجد · ثالثة: تُمحى</string>
+    <string name="masjid_week">في المسجد هذا الأسبوع</string>
+    <string name="masjid_week_sub">%1$s من %2$s · كلُّ مصباحٍ صلاة</string>
+    <string name="ijaba_title">أذانُ %1$s الآن</string>
+    <string name="ijaba_sub">قُل مثلَ ما يقول المؤذّن — واضغط الجملةَ حين تقولها</string>
+    <string name="ijaba_muezzin">المؤذِّن: %1$s</string>
+    <string name="ijaba_then">ثمّ — كما في الحديث</string>
+    <string name="ijaba_after">وبعد الأذان</string>
 </resources>

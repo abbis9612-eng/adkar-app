@@ -2,12 +2,7 @@
 
 import androidx.compose.ui.res.stringResource
 import app.rafiqaldhikr.R
-import android.app.LocaleManager
-import android.os.Build
-import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,7 +39,16 @@ data class LanguageOption(
 @Composable
 fun LanguageScreen(navController: NavHostController) {
     val context = LocalContext.current
-    var selectedLang by remember { mutableStateOf("ar") }
+    /*  اللغةُ الحاضرة تُقرأ لا تُفترض.
+     *
+     *  كانت `mutableStateOf("ar")` ثابتةً — فمن اختار الإنجليزية ثم عاد
+     *  إلى الشاشة وجد العلامةَ على «العربية»، فيظنّ اختيارَه لم يُحفظ.  */
+    var selectedLang by remember {
+        mutableStateOf(
+            AppCompatDelegate.getApplicationLocales()
+                .takeIf { !it.isEmpty }?.get(0)?.language ?: "ar"
+        )
+    }
 
     // لغتان فقط: ما تُرجم فعلاً. الستّ الأخرى (fr · tr · ur · id · ms · bn)
     // كانت معروضة بلا ملف موارد واحد — يختارها المستخدم فلا يتغيّر شيء.

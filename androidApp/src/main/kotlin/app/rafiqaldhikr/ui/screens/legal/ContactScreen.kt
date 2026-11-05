@@ -18,7 +18,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.util.sendMail
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
 import app.rafiqaldhikr.ui.components.IcoBulb
@@ -36,6 +39,11 @@ fun ContactScreen(navController: NavHostController) {
     val context = LocalContext.current
     var message by remember { mutableStateOf("") }
     val rc = LocalRafiqColors.current
+    // تُقرأ في التأليف: `stringResource` لا تُنادى داخل onClick.
+    val subjNote = stringResource(R.string.contact_subj_note)
+    val subjBug  = stringResource(R.string.contact_subj_bug)
+    val subjIdea = stringResource(R.string.contact_subj_idea)
+    val subjUser = stringResource(R.string.contact_subj_user)
 
     Box(
         Modifier
@@ -49,7 +57,7 @@ fun ContactScreen(navController: NavHostController) {
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "تواصل معنا",
+                title  = stringResource(R.string.settings_contact),
                 onBack = {navController.popBackStack()},
             )
 
@@ -59,7 +67,7 @@ fun ContactScreen(navController: NavHostController) {
                     .padding(20.dp)
             ) {
                 Text(
-                    "نسعد بتواصلك! 💬",
+                    stringResource(R.string.contact_welcome),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = rc.ink
@@ -69,43 +77,31 @@ fun ContactScreen(navController: NavHostController) {
                 // Email
                 ContactItem(
                     icon = { s, c -> IcoMail(s, c) },
-                    title = "البريد الإلكتروني",
+                    title = stringResource(R.string.contact_email),
                     desc = "support@rafiqaldhikr.app",
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:support@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — ملاحظة")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("support@rafiqaldhikr.app", subjNote)
                     }
                 )
 
                 ContactItem(
                     icon = { s, c -> IcoWarning(s, c) },
-                    title = "الإبلاغ عن خطأ",
-                    desc = "أخبرنا عن أي خطأ تقني",
+                    title = stringResource(R.string.contact_bug),
+                    desc = stringResource(R.string.contact_bug_desc),
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:bugs@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — بلاغ خطأ")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("bugs@rafiqaldhikr.app", subjBug)
                     }
                 )
 
                 ContactItem(
                     icon = { s, c -> IcoBulb(s, c) },
-                    title = "اقتراح ميزة",
-                    desc = "شاركنا أفكارك لتطوير التطبيق",
+                    title = stringResource(R.string.contact_idea),
+                    desc = stringResource(R.string.contact_idea_desc),
                     rc = rc,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:ideas@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — اقتراح")
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("ideas@rafiqaldhikr.app", subjIdea)
                     }
                 )
 
@@ -114,7 +110,7 @@ fun ContactScreen(navController: NavHostController) {
                 OutlinedTextField(
                     value = message,
                     onValueChange = { message = it },
-                    label = { Text("رسالتك", color = rc.inkMed) },
+                    label = { Text(stringResource(R.string.contact_your_message), color = rc.inkMed) },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     shape = RafiqShape.card,
                     maxLines = 5,
@@ -131,12 +127,7 @@ fun ContactScreen(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:support@rafiqaldhikr.app")
-                            putExtra(Intent.EXTRA_SUBJECT, "رفيق الذكر — رسالة من المستخدم")
-                            putExtra(Intent.EXTRA_TEXT, message)
-                        }
-                        context.startActivity(intent)
+                        context.sendMail("support@rafiqaldhikr.app", subjUser, message)
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     enabled = message.isNotBlank(),
@@ -149,7 +140,7 @@ fun ContactScreen(navController: NavHostController) {
                 ) {
                     IcoSend(20.dp, rc.bg)
                     Spacer(Modifier.width(8.dp))
-                    Text("إرسال", fontWeight = FontWeight.Bold, style = RafiqType.body)
+                    Text(stringResource(R.string.action_send), fontWeight = FontWeight.Bold, style = RafiqType.body)
                 }
             }
         }

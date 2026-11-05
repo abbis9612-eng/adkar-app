@@ -312,10 +312,13 @@ fun DuaCategoriesScreen(
                 Spacer(Modifier.height(10.dp))
             }
 
-            // ═══ 2×2 CATEGORY GRID — الأقسام التي لها أدعية فعلية فقط ═══
-            val availableDefs = KNOWN_DUA_CATEGORIES.filter {
-                (state.categoryCounts[it.key] ?: 0L) > 0L
-            }
+            /*  الشبكةُ تُبنى من الأقسام التي لها أدعيةٌ فعلاً — وهي فارغةٌ
+             *  في أوّل إطارٍ قبل وصول العدّ من القاعدة، فكانت الشاشةُ تومض
+             *  صفحةً بيضاء ثمّ تمتلئ. */
+            val availableDefs = if (state.isLoading) emptyList() else
+                KNOWN_DUA_CATEGORIES.filter {
+                    (state.categoryCounts[it.key] ?: 0L) > 0L
+                }
             val pairs = availableDefs.chunked(2)
             items(pairs.size) { idx ->
                 val pair = pairs[idx]

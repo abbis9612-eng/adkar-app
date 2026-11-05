@@ -15,7 +15,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.util.rememberPermissionState
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
 import app.rafiqaldhikr.ui.components.RafiqBackButton
@@ -28,7 +33,21 @@ fun NotificationSettingsScreen(
     navController: NavHostController,
     vm: SettingsViewModel = koinViewModel()
 ) {
-    val rc = LocalRafiqColors.current
+    val rc    = LocalRafiqColors.current
+    val perms = rememberPermissionState()
+
+    /*  حالُ الإذن تُقرأ عند كل عودةٍ إلى الشاشة، لا مرّةً عند التركيب:
+     *  المستخدم يخرج إلى إعدادات النظام ليأذن ثمّ يعود — ولو بقيت القيمةُ
+     *  الأولى لبقيت البطاقةُ تطلب إذناً قد مُنح.  */
+    var exact by remember { mutableStateOf(perms.canScheduleExactAlarms()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) exact = perms.canScheduleExactAlarms()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Box(
         Modifier
@@ -47,16 +66,20 @@ fun NotificationSettingsScreen(
             )
 
             // Content
+            val enabled by vm.notificationsEnabled.collectAsStateWithLifecycle()
+            val morning by vm.notifyMorning.collectAsStateWithLifecycle()
+            val evening by vm.notifyEvening.collectAsStateWithLifecycle()
+            val prayers by vm.notifyPrayers.collectAsStateWithLifecycle()
+            val endRem by vm.endReminder.collectAsStateWithLifecycle()
+
             Column(Modifier.padding(horizontal = 16.dp)) {
                 Spacer(Modifier.height(16.dp))
-                
+
                 Column(
                     Modifier
                         .fillMaxWidth()
                         .rafiqCard()
                 ) {
-                    val enabled by vm.notificationsEnabled.collectAsState()
-
                     // Main Toggle
                     Row(
                         Modifier
@@ -70,7 +93,14 @@ fun NotificationSettingsScreen(
                         }
                         Switch(
                             checked = enabled,
-                            onCheckedChange = { vm.setNotifications(it) },
+                            onCheckedChange = {
+                                /*  إذنُ الإشعارات كان يُطلب في التعريف الأوّل
+                                 *  وحدَه. فمن تخطّاه ثمّ أضاء هذا المفتاح ظنّ
+                                 *  أنّ الأذان سيصله، والنظامُ يُسقط كلَّ إشعارٍ
+                                 *  بلا صوتٍ ولا أثر.  */
+                                if (it) perms.requestNotificationPermission()
+                                vm.setNotifications(it)
+                            },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = rc.card,
                                 checkedTrackColor = rc.emerald,
@@ -81,28 +111,154 @@ fun NotificationSettingsScreen(
                     }
                     
                     HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
-                    
-                    // Items
+
+                    /*  مفاتيحُ تعمل — لا قائمةُ «ما يصلك».
+                     *
+                     *  كانت الصفوفُ الثلاثة نصّاً يبدو مفتاحاً ولا يُنقر،
+                     *  ثمّ صارت قائمةَ وصفٍ حتى لا تكذب — لأنّ التحكّمَ
+                     *  المنفصل يحتاج أعمدةً في الجدول ولم يكن ثمّة نظامُ
+                     *  ترحيل. صار، فصارت مفاتيحَ حقيقيةً تُطفئ ما لا يُراد.
+                     *
+                     *  وتذكيرُ النوم ليس بينها عمداً: هو الذي يحمل سلسلةَ
+                     *  إعادة الجدولة لليوم التالي، فإطفاؤه يُسكت التنبيهاتِ
+                     *  كلَّها. مذكورٌ في `PrayerAlarmManager`.
+                     */
+                    Text(
+                        stringResource(R.string.notif_what_arrives),
+                        color = rc.inkMed,
+                        style = RafiqType.caption,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp),
+                    )
+
                     listOf(
-                        stringResource(R.string.cat_morning) to stringResource(R.string.notif_morning_desc),
-                        stringResource(R.string.cat_evening) to stringResource(R.string.notif_evening_desc),
-                        stringResource(R.string.nav_prayer) to stringResource(R.string.notif_prayer_desc)
-                    ).forEachIndexed { index, (title, subtitle) ->
+                        Triple(R.string.cat_morning, R.string.notif_morning_desc, morning),
+                        Triple(R.string.cat_evening, R.string.notif_evening_desc, evening),
+                        Triple(R.string.nav_prayer,  R.string.notif_prayer_desc,  prayers),
+                        Triple(R.string.notif_end_row, R.string.notif_end_desc,    endRem),
+                    ).forEachIndexed { index, (titleRes, descRes, checked) ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text(title, color = if (enabled) rc.ink else rc.inkMed, style = RafiqType.body)
-                                Text(subtitle, fontSize = 13.sp, color = if (enabled) rc.inkMed else rc.inkMed)
+                                Text(
+                                    stringResource(titleRes),
+                                    color = if (enabled) rc.ink else rc.inkLight,
+                                    style = RafiqType.body,
+                                )
+                                Text(
+                                    stringResource(descRes),
+                                    fontSize = 13.sp,
+                                    color = rc.inkMed,
+                                )
                             }
+                            Switch(
+                                checked = checked && enabled,
+                                // المفتاحُ العامّ يسبقها: بلا إشعاراتٍ لا معنى لتفصيلها.
+                                enabled = enabled,
+                                onCheckedChange = { v ->
+                                    when (index) {
+                                        0 -> vm.setNotifyKinds(v, evening, prayers)
+                                        1 -> vm.setNotifyKinds(morning, v, prayers)
+                                        2 -> vm.setNotifyKinds(morning, evening, v)
+                                        else -> vm.setEndReminder(v)
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = rc.card,
+                                    checkedTrackColor = rc.emerald,
+                                    uncheckedThumbColor = rc.inkLight,
+                                    uncheckedTrackColor = rc.divider
+                                )
+                            )
                         }
-                        
-                        if (index < 2) {
-                            HorizontalDivider(color = rc.gold.copy(alpha = 0.06f), modifier = Modifier.padding(horizontal = 16.dp))
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
+
+                /*  اللوحُ الطائف — مفتاحُه وصيغةُ ندائه.
+                 *
+                 *  في تفضيلات اللوح لا في القاعدة: حالةُ عرض، لا بيانٌ يُصدَّر.
+                 *  وتبديلُه يُعيد الجدولة ليُلغى إشعارُه أو يُجدوَل فوراً. */
+                Spacer(Modifier.height(16.dp))
+                val lctx = androidx.compose.ui.platform.LocalContext.current
+                var lawhOn by remember { mutableStateOf(app.rafiqaldhikr.ui.components.LawhPrefs.enabled(lctx)) }
+                var sister by remember { mutableStateOf(app.rafiqaldhikr.ui.components.LawhPrefs.sister(lctx)) }
+                Column(Modifier.fillMaxWidth().rafiqCard()) {
+                    listOf(
+                        Triple(R.string.lawh_setting, R.string.lawh_setting_desc, lawhOn),
+                        Triple(R.string.lawh_sister, R.string.lawh_sister_desc, sister),
+                    ).forEachIndexed { i, (titleRes, descRes, checked) ->
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(titleRes), color = rc.ink, style = RafiqType.body)
+                                Text(stringResource(descRes), style = RafiqType.bodyS, color = rc.inkMed)
+                            }
+                            Switch(
+                                checked = checked,
+                                enabled = i == 0 || lawhOn,
+                                onCheckedChange = { v ->
+                                    if (i == 0) {
+                                        lawhOn = v
+                                        app.rafiqaldhikr.ui.components.LawhPrefs.setEnabled(lctx, v)
+                                        vm.rescheduleNow()
+                                    } else {
+                                        sister = v
+                                        app.rafiqaldhikr.ui.components.LawhPrefs.setSister(lctx, v)
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = rc.card,
+                                    checkedTrackColor = rc.emerald,
+                                    uncheckedThumbColor = rc.inkLight,
+                                    uncheckedTrackColor = rc.divider
+                                )
+                            )
                         }
+                    }
+                }
+
+                /*  دقّةُ التنبيه — حالٌ يجب أن يراها صاحبُه.
+                 *
+                 *  التطبيق يستهدف SDK 36، وأندرويد يسحب إذنَ التنبيه الدقيق
+                 *  عن كل مستهدِفٍ لـ33 فأعلى. فيبقى الأذانُ مجدولاً تقريبياً
+                 *  ما لم يأذن المستخدم — وهو لا يعلم أنّ ثمّة إذناً أصلاً.  */
+                if (enabled && !exact) {
+                    Spacer(Modifier.height(16.dp))
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .rafiqCard()
+                            .clickable {
+                                perms.requestExactAlarmPermission()
+                                exact = perms.canScheduleExactAlarms()
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.notif_exact_title),
+                            color = rc.ink,
+                            fontWeight = FontWeight.SemiBold,
+                            style = RafiqType.body,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.notif_exact_body),
+                            fontSize = 13.sp,
+                            color = rc.inkMed,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            stringResource(R.string.notif_exact_cta),
+                            color = rc.emerald,
+                            fontWeight = FontWeight.SemiBold,
+                            style = RafiqType.bodyS,
+                        )
                     }
                 }
             }

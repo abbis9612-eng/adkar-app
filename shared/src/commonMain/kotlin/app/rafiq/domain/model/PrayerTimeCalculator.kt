@@ -1,6 +1,7 @@
 package app.rafiq.domain.model
 
 import com.batoulapps.adhan2.CalculationMethod
+import com.batoulapps.adhan2.HighLatitudeRule
 import com.batoulapps.adhan2.Coordinates
 import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.PrayerTimes
@@ -48,8 +49,21 @@ class PrayerTimeCalculator {
         fajrOffset: Int, dhuhrOffset: Int, asrOffset: Int,
         maghribOffset: Int, ishaOffset: Int
     ): PrayerTimesResult {
+        /*  قاعدةُ العروض العليا — لم تكن مضبوطةً إطلاقاً.
+         *
+         *  فوق نحوِ ٤٨ درجةً شمالاً أو جنوباً لا تنحدر الشمسُ في الصيف
+         *  إلى الزاوية التي يُحسب بها الفجرُ والعشاء، فالحسابُ الفلكيّ لا
+         *  يعطي وقتاً أصلاً — أو يعطي رقماً بلا معنى (عشاءٌ بعد منتصف
+         *  الليل بساعات، وفجرٌ قبله بدقائق). ومسلمو لندن وبرلين وستوكهولم
+         *  وموسكو كلُّهم فوق هذا الخطّ.
+         *
+         *  و`TWILIGHT_ANGLE` هي قاعدةُ زاوية الشفق، وعليها فتوى المجلس
+         *  الأوروبي للإفتاء والبحوث، وهي المستعملةُ في أكثر تطبيقات
+         *  المواقيت. وأثرُها معدومٌ تحت ذلك الخطّ — فلا تُغيّر شيئاً على
+         *  أغلب المستخدمين.  */
         val params = methodParams(method).copy(
-            madhab = if (madhab == "hanafi") Madhab.HANAFI else Madhab.SHAFI
+            madhab = if (madhab == "hanafi") Madhab.HANAFI else Madhab.SHAFI,
+            highLatitudeRule = HighLatitudeRule.TWILIGHT_ANGLE,
         )
         val times = PrayerTimes(
             Coordinates(lat, lng),

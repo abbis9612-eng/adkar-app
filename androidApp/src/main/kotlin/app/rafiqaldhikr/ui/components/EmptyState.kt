@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import app.rafiqaldhikr.ui.theme.LocalRafiqColors
+import app.rafiqaldhikr.ui.theme.RafiqType
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,17 +22,19 @@ fun EmptyState(
     message:  String,
     modifier: Modifier    = Modifier
 ) {
+    // اللوحةُ لوحةُ التطبيق — انظر التعليق في [ErrorState].
+    val rc = LocalRafiqColors.current
     Column(
         modifier              = modifier.fillMaxSize().padding(32.dp),
         verticalArrangement   = Arrangement.Center,
         horizontalAlignment   = Alignment.CenterHorizontally
     ) {
-        IcoInbox(64.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+        IcoInbox(64.dp, rc.inkLight)
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text      = message,
-            style     = MaterialTheme.typography.bodyLarge,
-            color     = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            style     = RafiqType.body,
+            color     = rc.inkMed,
             textAlign = TextAlign.Center
         )
     }

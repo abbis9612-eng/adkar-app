@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,7 @@ fun ThemeSettingsScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "إعدادات المظهر",
+                title  = stringResource(R.string.settings_theme),
                 onBack = {navController.popBackStack()},
             )
 
@@ -55,7 +57,7 @@ fun ThemeSettingsScreen(
                         .fillMaxWidth()
                         .rafiqCard()
                 ) {
-                    listOf("system" to "تلقائي (النظام)", "light" to "فاتح", "dark" to "داكن").forEachIndexed { index, (key, label) ->
+                    listOf("system" to stringResource(R.string.theme_system_full), "light" to stringResource(R.string.theme_light), "dark" to stringResource(R.string.theme_dark)).forEachIndexed { index, (key, label) ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -95,10 +97,10 @@ fun ThemeSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text("ألوان ديناميكية",
+                            Text(stringResource(R.string.theme_dynamic),
                                 color = rc.ink, style = RafiqType.body)
                             Text(
-                                "استخدام ألوان الخلفية (Android 12+)",
+                                stringResource(R.string.theme_dynamic_desc),
                                 fontSize = 13.sp,
                                 color = rc.inkMed
                             )

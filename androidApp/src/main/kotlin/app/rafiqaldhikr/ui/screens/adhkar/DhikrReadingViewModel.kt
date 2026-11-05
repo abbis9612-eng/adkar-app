@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -20,8 +23,55 @@ class DhikrReadingViewModel(
     private val savedState:   SavedStateHandle,
     private val getAdhkar:    GetAdhkarByCategoryUseCase,
     private val progressRepo: ProgressRepository,
-    private val updateStreak: UpdateStreakUseCase
+    private val updateStreak: UpdateStreakUseCase,
+    private val pins:         app.rafiq.domain.repository.DhikrPinRepository,
+    private val rescheduler:  app.rafiqaldhikr.service.PrayerRescheduler,
+    private val alarms:       app.rafiqaldhikr.service.PrayerAlarmManager,
 ) : ViewModel() {
+
+    /** الأذكارُ المثبَّتة — مفضّلةٌ ومعها ميقاتُ تذكيرها إن وُجد. */
+    val pinned: kotlinx.coroutines.flow.StateFlow<Map<Long, app.rafiq.domain.model.DhikrPin>> =
+        pins.all()
+            .map { list -> list.associateBy { it.dhikrId } }
+            .stateIn(
+                viewModelScope,
+                kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+                emptyMap(),
+            )
+
+    /**
+     * يبدّل التثبيت.
+     *
+     * والمثبَّتُ بلا ميقاتٍ مفضّلة، وبميقاتٍ تذكير. فالضغطةُ على ★
+     * تُثبّت أو تَفكّ، والضغطةُ على ⏰ تُسند ميقاتاً أو تنزعه.
+     */
+    fun togglePin(dhikrId: Long, isPinned: Boolean) {
+        viewModelScope.launch {
+            if (isPinned) pins.unpin(dhikrId) else pins.pin(dhikrId)
+            syncAlarms(dhikrId)
+        }
+    }
+
+    fun setReminder(dhikrId: Long, meeqat: String) {
+        viewModelScope.launch {
+            pins.pin(dhikrId, meeqat)
+            syncAlarms(dhikrId)
+        }
+    }
+
+    /*  إعادةُ الجدولة **فورَ التغيير** لا عند الإقلاع.
+     *
+     *  ولولا ذلك لما عمل تذكيرٌ أُضيف اليومَ إلّا بعد إعادة تشغيلٍ أو
+     *  تبديلِ وقت — ومن أضافه ينتظره اليوم. والإلغاءُ صريحٌ قبلها: جدولةُ
+     *  الباقي لا تمسّ تنبيهاً قائماً لذكرٍ فُكّ تثبيتُه. */
+    private suspend fun syncAlarms(changed: Long) {
+        runCatching {
+            if (pins.one(changed).first()?.hasReminder != true) {
+                alarms.cancelPinned(changed)
+            }
+            rescheduler.reschedule()
+        }
+    }
 
     data class UiState(
         val adhkar:         List<Dhikr> = emptyList(),
@@ -36,8 +86,18 @@ class DhikrReadingViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    /**
+     * مجمِّعُ التصنيف الحاضر.
+     *
+     * كان كلُّ نداءٍ لـ[loadCategory] يُطلق مجمِّعاً جديداً ولا يُلغي ما قبله —
+     * و`LaunchedEffect` يناديها عند كل دخول، وزرُّ «أعد المحاولة» ينادي أيضاً.
+     * فتتكدّس مجمّعاتٌ تكتب في الحالة نفسها.
+     */
+    private var loadJob: kotlinx.coroutines.Job? = null
+
     fun loadCategory(category: String) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 getAdhkar(category).collect { list ->
@@ -59,26 +119,57 @@ class DhikrReadingViewModel(
         }
     }
 
+    /*  ═══ العدُّ يقف عند العدد، ولا ينتقل من نفسه ═══
+     *
+     *  كان بلوغُ العدد ينقل إلى الذكر التالي **في الضغطة نفسِها**. فمن
+     *  سبّح «سبحان الله وبحمده» مئةً، اختفى النصُّ تحت إصبعه عند المئة
+     *  وحلّ محلَّه نصٌّ آخر لم يستعدّ له. وهو أسوأُ ما يقع في شاشة ذِكر:
+     *  اليدُ أسرعُ من العين، فيضغط على الجديد قبل أن يقرأه.
+     *
+     *  فالعدُّ يقف الآن عند العدد، والانتقالُ بطلبٍ صريحٍ من صاحبه.
+     */
     fun tap() {
         val state = _uiState.value
         if (state.adhkar.isEmpty() || state.isAllCompleted) return
 
         val currentDhikr = state.adhkar[state.currentIndex]
-        val newCount     = state.currentCount + 1
+        if (state.currentCount >= currentDhikr.count) return   // اكتمل — ينتظر «التالي»
 
-        if (newCount >= currentDhikr.count) {
-            val nextIndex = state.currentIndex + 1
-            if (nextIndex >= state.adhkar.size) {
-                _uiState.update { it.copy(isAllCompleted = true) }
-                markCategoryCompleted()
-            } else {
-                savedState["index"] = nextIndex
-                savedState["count"] = 0
-                _uiState.update { it.copy(currentIndex = nextIndex, currentCount = 0) }
-            }
+        val newCount = state.currentCount + 1
+        savedState["count"] = newCount
+        _uiState.update { it.copy(currentCount = newCount) }
+    }
+
+    /**
+     * تراجعٌ عن ضغطةٍ واحدة.
+     *
+     *  ضغطةٌ خاطئةٌ في ذكرٍ عدده مئة كانت **لا تُستدرَك**: لا سبيلَ إلّا
+     *  إعادةُ الباب من أوّله أو المضيُّ على عددٍ يعرف صاحبُه أنّه ليس
+     *  الصواب. والعبادةُ لا تُبنى على رقمٍ يعلم أنّه خطأ.
+     */
+    fun undo() {
+        val state = _uiState.value
+        if (state.adhkar.isEmpty() || state.currentCount == 0) return
+        val newCount = state.currentCount - 1
+        savedState["count"] = newCount
+        _uiState.update { it.copy(currentCount = newCount) }
+    }
+
+    /** الانتقالُ إلى الذكر التالي — بطلبٍ صريحٍ بعد اكتمال العدد. */
+    fun next() {
+        val state = _uiState.value
+        if (state.adhkar.isEmpty() || state.isAllCompleted) return
+        val currentDhikr = state.adhkar[state.currentIndex]
+        if (state.currentCount < currentDhikr.count) return
+
+        val nextIndex = state.currentIndex + 1
+        if (nextIndex >= state.adhkar.size) {
+            _uiState.update { it.copy(isAllCompleted = true) }
+            markCategoryCompleted()
         } else {
-            savedState["count"] = newCount
-            _uiState.update { it.copy(currentCount = newCount) }
+            savedState["index"] = nextIndex
+            savedState["count"] = 0
+            _uiState.update { it.copy(currentIndex = nextIndex, currentCount = 0) }
         }
     }
 
@@ -98,5 +189,19 @@ class DhikrReadingViewModel(
             
             updateStreak(today)
         }
+    }
+
+    /**
+     * يُستدعى بعد أن تُفتح شاشةُ الاحتفاء.
+     *
+     * وبدونه كانت الشاشةُ مصيدة: `isAllCompleted` تبقى `true`، فالرجوعُ من
+     * الاحتفاء يُعيد إطلاقَ الانتقال إليه، والشريطُ السفليُّ مخفيٌّ على
+     * الشاشتين — فلا مخرجَ إلا قتلُ التطبيق. والتصفيرُ هنا يجعل التصنيف
+     * يبدأ من أوّله في المرّة القادمة، وهو الصواب: الأذكار تُعاد لا تُتابَع.
+     */
+    fun consumeCompletion() {
+        savedState["index"] = 0
+        savedState["count"] = 0
+        _uiState.update { it.copy(isAllCompleted = false, currentIndex = 0, currentCount = 0) }
     }
 }

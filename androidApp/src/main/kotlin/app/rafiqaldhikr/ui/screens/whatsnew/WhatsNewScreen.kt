@@ -16,6 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.RafiqPalette
@@ -34,34 +36,61 @@ data class ChangelogEntry(
 @Composable
 fun WhatsNewScreen(navController: NavHostController) {
     val rc = LocalRafiqColors.current
+    /*  سجلٌّ يصف ما في التطبيق، لا ما نُوي فيه.
+     *
+     *  كان يعلن سبعَ ميزاتٍ لا يصل إليها المستخدم: «وضع رمضان» و«التنفس
+     *  والذكر» و«الحديقة الروحية» و«بطاقات المشاركة» و«التقرير الأسبوعي»
+     *  و«إعدادات الـWidgets» — كلُّها موسومةٌ `@HiddenInV1` بلا مدخل —
+     *  و«مشغّل صوت القرآن مع اختيار القارئ» وقد حُذف من المستودع كلِّه.
+     *  فيقرأ المستخدم عن ميزةٍ ثمّ يبحث عنها فلا يجدها، ويظنّ التطبيق
+     *  معطّلاً عنده.
+     *
+     *  وقد حُسمت الستُّ بعدُ: أربعٌ أُصلحت ورُفع إخفاؤها وصار لها مدخلٌ
+     *  في «أوراقي» (التنفّس · الحديقة · المشاركة · التقرير)، وثلاثٌ
+     *  حُذفت من المستودع (رمضان · إعدادات الودجت · الدعاء الشعوري).
+     *  فما يُعلَن هنا اليومَ يوجد كلُّه ويُوصَل إليه.
+     *
+     *  والنسخةُ تُقرأ من البناء لا تُكتب يدوياً: كانت `1.2.0` ثابتةً
+     *  هنا و`BuildConfig.VERSION_NAME` في شاشة «حول» — فيقرأ الرقمين
+     *  مختلفَين في تطبيقٍ واحد.
+     */
     val changelog = listOf(
-        ChangelogEntry("1.2.0", "رمضان 1447", listOf(
-            "وضع رمضان — برنامج يومي مخصص",
-            "التنفس والذكر — تمارين تأمل مع الأذكار",
-            "الحديقة الروحية — نبتة تنمو بأعمالك",
-            "نظام الإنجازات",
-            "التقرير الأسبوعي التفصيلي",
-            "بطاقات المشاركة",
-            "ذكر مخصص",
-            "سياسة الخصوصية وشروط الاستخدام"
-        ), isLatest = true),
-        ChangelogEntry("1.1.0", "محرم 1447", listOf(
-            "مشغل صوت القرآن مع اختيار القارئ",
-            "تفسير الآيات",
-            "متابعة الصلاة اليومية",
-            "إعدادات الـ Widgets",
-            "تصدير وإدارة البيانات"
-        )),
-        ChangelogEntry("1.0.0", "ذو الحجة 1446", listOf(
-            "الإصدار الأول!",
-            "القرآن الكريم مع البحث والعلامات",
-            "المسبحة الإلكترونية",
-            "الأدعية والأذكار",
-            "مواقيت الصلاة واتجاه القبلة",
-            "الإحصائيات والملف الشخصي",
-            "المظهر الداكن والفاتح",
-            "خاطرة اليوم"
-        ))
+        ChangelogEntry(
+            app.rafiqaldhikr.BuildConfig.VERSION_NAME,
+            stringResource(R.string.whatsnew_current_label),
+            listOf(
+                stringResource(R.string.whatsnew_mushaf),
+                stringResource(R.string.whatsnew_search),
+                stringResource(R.string.whatsnew_quran_text),
+                stringResource(R.string.whatsnew_alarms),
+                stringResource(R.string.whatsnew_qibla),
+                stringResource(R.string.whatsnew_a11y),
+                /*  الجولة الثانية — في نفس المُدخل لا في مُدخلٍ ثانٍ.
+                 *
+                 *  كلاهما يشحن مع `BuildConfig.VERSION_NAME` نفسِه، ومُدخلان
+                 *  برقمِ إصدارٍ واحدٍ يجعلان الشاشةَ تكذب بطريقةٍ أخرى.
+                 *  فإذا رُفع الرقمُ يوماً فُصلا حينئذٍ. */
+                stringResource(R.string.whatsnew_doors),
+                stringResource(R.string.whatsnew_continue),
+                stringResource(R.string.whatsnew_import),
+                stringResource(R.string.whatsnew_notify_kinds),
+                stringResource(R.string.whatsnew_adhkar_grown),
+            ),
+            isLatest = true,
+        ),
+        ChangelogEntry(
+            "1.0.0",
+            stringResource(R.string.whatsnew_first_label),
+            listOf(
+                stringResource(R.string.whatsnew_first_release),
+                stringResource(R.string.whatsnew_quran),
+                stringResource(R.string.whatsnew_tasbeeh),
+                stringResource(R.string.whatsnew_adhkar),
+                stringResource(R.string.whatsnew_times),
+                stringResource(R.string.whatsnew_profile),
+                stringResource(R.string.whatsnew_theme),
+            ),
+        ),
     )
 
     Box(
@@ -76,7 +105,7 @@ fun WhatsNewScreen(navController: NavHostController) {
         ) {
             // ═══ HEADER ═══
             RafiqTopBar(
-                title  = "ما الجديد",
+                title  = stringResource(R.string.settings_whats_new),
                 onBack = {navController.popBackStack()},
             )
 

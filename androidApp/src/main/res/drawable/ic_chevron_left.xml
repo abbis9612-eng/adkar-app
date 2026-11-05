@@ -1,5 +1,12 @@
+<!--
+    autoMirrored: هذه أيقوناتُ اتّجاه، تُستعمل بمعنى «التالي» و«السابق»
+    لا بمعنى «يمين» و«يسار». والتطبيق يدعم العربية والإنجليزية معاً،
+    فبلا هذه السمة كانت أسهمُ «التالي» تشير إلى الخلف في الإنجليزية:
+    في الإعدادات وقوائم الأذكار والأدعية والملف الشخصي.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
-    android:viewportWidth="256" android:viewportHeight="256">
+    android:viewportWidth="256" android:viewportHeight="256"
+    android:autoMirrored="true">
   <path android:fillColor="#FF111111" android:pathData="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/>
 </vector>

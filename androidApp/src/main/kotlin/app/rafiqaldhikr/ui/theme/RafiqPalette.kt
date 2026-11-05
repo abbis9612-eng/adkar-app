@@ -73,6 +73,15 @@ data class RafiqPalette(
     val gold: Color,
     val goldLight: Color,
 
+    /** ذهبُ الكعبة — حزامُها وبابُها على جسمها.
+     *
+     *  وهو ذهبٌ ثالثٌ لأنّ جسمَ الكعبة [ink] (أو [emerald] عند المحاذاة)،
+     *  وهذان ينقلبان بين الوضعين: داكنان على الورق وفاتحان في الليل. فذهبٌ
+     *  واحدٌ لا يُقرأ عليهما جميعاً — [goldLight] كان فاتحاً على جسمٍ فاتحٍ
+     *  في الليل، فيختفي الحزامُ والبابُ وتبقى مكعّبةٌ عارية. فهذا ينقلب
+     *  معهما: فاتحٌ على الورق، داكنٌ في الليل. */
+    val kaabaGold: Color,
+
     /* ── لون المحتوى فوق الأسطح المملوءة ──
        في الوضع الداكن يصير الزمرّدي والذهبي فاتحَين، فالأبيض فوقهما
        يهبط إلى 2.72:1 و2.24:1 — دون كل عتبة. المحتوى هناك يكون داكناً. */
@@ -87,6 +96,14 @@ data class RafiqPalette(
 
     /* ── الفاصل ── */
     val divider: Color,
+
+    /** حجابُ الجولة — ما يُعتم الشاشةَ حول ما تشير إليه.
+     *
+     *  وهو داكنٌ في الوضعين كليهما، لا ينقلب: الحجابُ وظيفتُه أن يُسقط
+     *  كلَّ ما حولَ الثقب، وحجابٌ فاتحٌ على ورقٍ فاتحٍ لا يُسقط شيئاً.
+     *  ويحمل شفافيّتَه في قيمته — فما تحته يُرى خافتاً فيبقى المستخدمُ
+     *  عارفاً أين هو من الشاشة، ولا تصير الجولةُ شاشةً أخرى. */
+    val scrim: Color,
 
     /* ── تدرّج بطاقة البطل (زمرّدي، ليس لوناً جديداً) ── */
     val heroStart: Color,
@@ -145,17 +162,27 @@ val LightRafiqPalette = RafiqPalette(
     // الزمرّد عاد زمرّداً. كان العنبر يشغل العائلة كلَّها فيقرأ البنّي
     // «برتقالياً»، وهذا اللون هو heroMid الموجود في التطبيق أصلاً —
     // فالبطاقة الخضراء الداكنة كانت تلبسه وحدها، وصار لَونَ الهويّة.
-    emerald        = Color(0xFF09472B),  // 10.78:1 على البطاقة · 10.59 على الورق
+    /*  لونُ الشاشة الأولى عينُه: هو أعلى تدرّج `HeroBackdrop` عند
+        الظهيرة (#17402F)، محسوباً من معادلته لا مختاراً بالعين.
+        فالزرُّ والأيقونةُ من لون السماء التي فوقهما.  ١١٫٣٩:١ على الورق. */
+    emerald        = Color(0xFF17402F),  // 11.39:1 على الورق · 11.57 على البطاقة
     emeraldMed     = Color(0xFF062F1D),
     emeraldLight   = Color(0xFF0B5934),  //  8.42:1
     emeraldPastel  = Color(0xFFDCECE2),  // نبرته عن الورق 1.20 — أدنى ما تراه العين
 
-    // الملء أفتحُ درجةً من النصّ: لَونان لدورين كما كان، لكن كليهما أخضر.
-    emeraldFill    = Color(0xFF0B5934),
+    /*  والملءُ صار **اللونَ نفسَه** لا درجةً أفتح.
+     *
+     *  كانا لونين لدورين: داكنٌ يُقرأ نصّاً وفاتحٌ يصلح ملءاً. وقد طُلب
+     *  أن تكون الأيقونةُ والزرُّ من لون أعلى الشاشة نفسِه — ولونُ أعلى
+     *  الشاشة واحد. فالدوران يقعان على لونٍ واحدٍ ويبقى كلاهما سليماً:
+     *  نصّاً ١١٫٣٩:١ على الورق، وملءاً ٧٫٥٤:١ بحبر [onEmeraldFill]
+     *  فوقه — وكلاهما فوق حدّ ٤٫٥. */
+    emeraldFill    = Color(0xFF17402F),
     onEmeraldFill  = Color(0xFFF7F2E6),  // 7.54:1 فوق الملء (الحبر الداكن هناك 2.12)
 
     gold           = Color(0xFF825E08),  // 5.89:1 على الورق الجديد
     goldLight      = Color(0xFF9F7715),
+    kaabaGold      = Color(0xFFD9BC77),  // 9.71:1 على الحبر · 6.29:1 على الزمرّد
 
     onEmerald      = Color(0xFFF7F2E6),  // 9.65:1 فوق الزمرّد
     onGold         = Color(0xFFF7F2E6),  //  3.5:1 — أيقونات ونصّ كبير
@@ -169,6 +196,7 @@ val LightRafiqPalette = RafiqPalette(
 
     // خطّ المسطرة — لا فاصل رمادي
     divider        = Color(0xFFE4DCC9),
+    scrim          = Color(0xE6100E09),  // ٩٠٪ من حبرٍ أدكنَ من [ink]
 
     heroStart      = Color(0xFF062917),
     heroMid        = Color(0xFF09472B),
@@ -197,33 +225,35 @@ val LightRafiqPalette = RafiqPalette(
 ═══════════════════════════════════════════ */
 
 val DarkRafiqPalette = RafiqPalette(
-    bg             = Color(0xFF12100A),
-    card           = Color(0xFF1E1C15),
+    bg             = Color(0xFF14120E),
+    card           = Color(0xFF1E1B16),
     cardBorder    = Color(0xFF312D22),
     cardPrayed     = Color(0xFF26241D),
     chipBg         = Color(0xFF221F19),
 
     // في الداكن ينقلب السلّم: الأخضرُ الداكن يختفي في الليل، فيصير فاتحاً.
-    emerald        = Color(0xFF5CBF88),  // 7.52:1 على البطاقة
+    emerald        = Color(0xFF6FBF97),  // 8.67:1 على الورق الداكن
     emeraldMed     = Color(0xFF4CAF7B),  // 6.27:1
     emeraldLight   = Color(0xFF7BD3A4),  // 9.49:1
     emeraldPastel  = Color(0xFF173126),  // الحبر فوقه 11.44:1
 
-    gold           = Color(0xFFDAA520),
+    gold           = Color(0xFFD8B65A),
     goldLight      = Color(0xFFE8B84D),
+    kaabaGold      = Color(0xFF6B5010),  // 6.47:1 على الحبر · 3.44:1 على الزمرّد
 
-    emeraldFill    = Color(0xFF4CAF7B),
+    emeraldFill    = Color(0xFF6FBF97),
     onEmeraldFill  = Color(0xFF14201A),  // 6.17:1 — الأبيض فوقه 2.72 فقط
 
     onEmerald      = Color(0xFF14201A),  // 7.40:1 — الأبيض هنا 2.07:1 فقط
     onGold         = Color(0xFF14201A),  // 8.6:1 — الأبيض هنا 2.24:1 فقط
 
-    ink            = Color(0xFFEFE8D8),
+    ink            = Color(0xFFF2EDE1),
     inkDark        = Color(0xFFD6CFBE),
-    inkMed         = Color(0xFFA7A194),
-    inkLight       = Color(0xFF837E73),
+    inkMed         = Color(0xFFA9A399),
+    inkLight       = Color(0xFF7C776E),
 
-    divider        = Color(0xFF35332B),
+    divider        = Color(0xFF2C281F),
+    scrim          = Color(0xF0080705),  // ٩٤٪: الورقُ داكنٌ أصلاً فيحتاج حجاباً أكثفَ ليُفصَل عنه
 
     // كان التدرّج #0A1F14→#144430، ونبرةُ أغمقِ طرفٍ عن الصفحة 1.10 —
     // أي بطاقةٌ لا تُرى إطلاقاً (العين تبدأ التمييز عند 1.20). أُزيح

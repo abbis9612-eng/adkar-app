@@ -33,22 +33,66 @@ import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
+import app.rafiqaldhikr.ui.components.LoadingState
+import app.rafiqaldhikr.util.weekdayIndex
+import app.rafiqaldhikr.util.weekdayLetters
+import app.rafiq.domain.model.DailyProgressInfo
+import app.rafiq.domain.model.isActiveDay
+import androidx.compose.ui.res.stringResource
+import app.rafiqaldhikr.R
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 
 @Composable
 fun WeeklyReportScreen(
     navController: NavHostController,
     viewModel: ProfileViewModel = koinViewModel()
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val week = state.weekProgress
+    val state = viewModel.uiState.collectAsStateWithLifecycle().value
     val rc = LocalRafiqColors.current
+    val ar = LocalArabicNumerals.current
 
-    val totalQuran    = week.sumOf { it.quranPages }
-    val totalTasbeeh  = week.sumOf { it.tasbeehCount }
-    val totalPrayers  = week.sumOf { it.prayersLogged }
-    val morningDays   = week.count { it.morningDone }
-    val eveningDays   = week.count { it.eveningDone }
-    val activeDays    = week.count { it.morningDone || it.eveningDone || it.prayersLogged > 0 }
+    /*  الشاشةُ كانت تفتح على «٠ / ٧ أيّام نشطة · حاول المداومة أكثر»
+     *  قبل وصول البيانات، فتوبّخ من كان أسبوعُه كاملاً. و`isLoading`
+     *  محسوبةٌ في `ProfileViewModel` منذ البداية ولا يقرؤها أحد. */
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize().background(rc.bg)) { LoadingState() }
+        return
+    }
+
+    /*  سبعةُ صفوفٍ دائماً — لا ما وُجد في القاعدة.
+     *
+     *  كانت القائمةُ `weekProgress` كما جاءت: ثلاثةُ أيّامٍ مسجَّلةٍ ←
+     *  ثلاثةُ صفوف، فيقرأ صاحبُ الأسبوع «التفاصيل اليومية» ويرى ثلاثةَ
+     *  أيّامٍ فيظنّ أنّ أربعةً ضاعت. والغائبُ يومٌ فارغٌ لا يومٌ ناقص. */
+    val today  = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val byDate = state.weekProgress.associateBy { it.date }
+    val week: List<Pair<String, DailyProgressInfo?>> = (0..6).map { back ->
+        val d = today.minus(back, DateTimeUnit.DAY).toString()
+        d to byDate[d]
+    }
+    val rows = week.mapNotNull { it.second }
+
+    val totalQuran    = rows.sumOf { it.quranPages }
+    val totalTasbeeh  = rows.sumOf { it.tasbeehCount }
+    val totalPrayers  = rows.sumOf { it.prayersLogged }
+    val morningDays   = rows.count { it.morningDone }
+    val eveningDays   = rows.count { it.eveningDone }
+    /*  كان العدُّ للأذكار والصلوات فقط: فيومٌ قرأتَ فيه عشرين صفحةً
+     *  «غيرُ نشط» — والبطاقةُ التي تعلوه تعرض تلك الصفحات بعينها.
+     *  و`isActiveDay` المشتركة تعدّ الخمسةَ كلَّها. */
+    val activeDays    = rows.count { isActiveDay(it) }
+
+    val letters = weekdayLetters()
+    fun dayLabel(iso: String): String = runCatching {
+        val d = LocalDate.parse(iso)
+        // «الأحد ٣١» لا «2026-08-31» خاماً.
+        "${letters[weekdayIndex(d)]} ${d.dayOfMonth}".localizedDigits(ar)
+    }.getOrDefault(iso)
 
     Box(
         Modifier
@@ -62,7 +106,7 @@ fun WeeklyReportScreen(
         ) {
             // u2550u2550u2550 HEADER u2550u2550u2550
             RafiqTopBar(
-                title  = "التقرير الأسبوعي",
+                title  = stringResource(R.string.report_title),
                 onBack = {navController.popBackStack()},
             )
 
@@ -84,37 +128,46 @@ fun WeeklyReportScreen(
                 ) {
                     RafiqIcon(RIcon.Moon, 44.dp, rc.emerald)
                     Spacer(Modifier.height(8.dp))
-                    Text("$activeDays / 7 أيام نشطة".localizedDigits(LocalArabicNumerals.current), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald)
+                    Text(
+                        stringResource(R.string.report_active_days, activeDays).localizedDigits(ar),
+                        fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.emerald,
+                    )
                     Spacer(Modifier.height(4.dp))
-                    Text(if (activeDays >= 6) "أداء ممتاز! بارك الله فيك" else
-                        if (activeDays >= 4) "أداء جيد، استمر في المداومة" else
-                        "حاول المداومة أكثر هذا الأسبوع",
+                    Text(
+                        stringResource(
+                            when {
+                                activeDays >= 6 -> R.string.report_praise_high
+                                activeDays >= 4 -> R.string.report_praise_mid
+                                else            -> R.string.report_praise_low
+                            }
+                        ),
                         textAlign = TextAlign.Center,
-                        color = rc.inkMed, style = RafiqType.bodyS)
+                        color = rc.inkMed, style = RafiqType.bodyS,
+                    )
                 }
 
                 Spacer(Modifier.height(24.dp))
 
                 // Stats
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Book, 26.dp, rc.emerald) }, "$totalQuran", "صفحات قرآن", rc)
-                    ReportStatCard(Modifier.weight(1f), { IcoMisbaha(26.dp, rc.emerald) }, "$totalTasbeeh", "تسبيح", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Book, 26.dp, rc.emerald) }, "$totalQuran", stringResource(R.string.report_quran_pages), rc)
+                    ReportStatCard(Modifier.weight(1f), { IcoMisbaha(26.dp, rc.emerald) }, "$totalTasbeeh", stringResource(R.string.report_tasbeeh), rc)
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), { IcoMosque(26.dp, rc.emerald) }, "$totalPrayers", "صلوات", rc)
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunrise, 26.dp, rc.gold) }, "$morningDays / 7", "أذكار صباح", rc)
+                    ReportStatCard(Modifier.weight(1f), { IcoMosque(26.dp, rc.emerald) }, "$totalPrayers", stringResource(R.string.report_prayers), rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunrise, 26.dp, rc.gold) }, "$morningDays / 7", stringResource(R.string.cat_morning), rc)
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.lightDusk) }, "$eveningDays / 7", "أذكار مساء", rc)
-                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.lightDusk) }, "${state.streak.current}", "سلسلة حالية", rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Sunset, 26.dp, rc.lightDusk) }, "$eveningDays / 7", stringResource(R.string.cat_evening), rc)
+                    ReportStatCard(Modifier.weight(1f), { RafiqIcon(RIcon.Flame, 26.dp, rc.lightDusk) }, "${state.streak.current}", stringResource(R.string.report_streak), rc)
                 }
 
                 Spacer(Modifier.height(32.dp))
 
                 // Day-by-day
-                Text("التفاصيل اليومية", fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
+                Text(stringResource(R.string.report_daily), fontWeight = FontWeight.Bold, color = rc.ink, style = RafiqType.titleM)
                 Spacer(Modifier.height(12.dp))
 
                 Column(
@@ -123,7 +176,7 @@ fun WeeklyReportScreen(
                         .rafiqCard()
                         .padding(16.dp)
                 ) {
-                    week.reversed().forEachIndexed { index, day ->
+                    week.forEachIndexed { index, (date, day) ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -131,21 +184,39 @@ fun WeeklyReportScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(day.date, color = rc.inkMed, style = RafiqType.bodyS)
+                            Text(
+                                dayLabel(date),
+                                color = if (index == 0) rc.gold else rc.inkMed,
+                                fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                style = RafiqType.bodyS,
+                            )
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
-                                if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.lightDusk)
-                                if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
-                                    Text("${day.quranPages}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
-                                }
-                                if (day.prayersLogged > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    IcoMosque(14.dp, rc.emerald)
-                                    Text("${day.prayersLogged}".localizedDigits(LocalArabicNumerals.current), color = rc.ink, style = RafiqType.bodyS)
+                                if (day == null) {
+                                    // يومٌ فارغٌ يُقال إنّه فارغ — لا يُحذف صفُّه.
+                                    Text("—", color = rc.inkLight, style = RafiqType.bodyS)
+                                } else {
+                                    if (day.morningDone) RafiqIcon(RIcon.Sunrise, 16.dp, rc.gold)
+                                    if (day.eveningDone) RafiqIcon(RIcon.Sunset, 16.dp, rc.lightDusk)
+                                    if (day.quranPages > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        RafiqIcon(RIcon.Book, 14.dp, rc.emerald)
+                                        Text("${day.quranPages}".localizedDigits(ar), color = rc.ink, style = RafiqType.bodyS)
+                                    }
+                                    if (day.tasbeehCount > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        IcoMisbaha(14.dp, rc.emerald)
+                                        Text("${day.tasbeehCount}".localizedDigits(ar), color = rc.ink, style = RafiqType.bodyS)
+                                    }
+                                    if (day.prayersLogged > 0) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        IcoMosque(14.dp, rc.emerald)
+                                        Text("${day.prayersLogged}".localizedDigits(ar), color = rc.ink, style = RafiqType.bodyS)
+                                    }
+                                    if (!day.morningDone && !day.eveningDone && day.quranPages == 0L &&
+                                        day.tasbeehCount == 0L && day.prayersLogged == 0L) {
+                                        Text("—", color = rc.inkLight, style = RafiqType.bodyS)
+                                    }
                                 }
                             }
                         }
-                        if (index < week.size - 1) {
+                        if (index < week.lastIndex) {
                             HorizontalDivider(color = rc.gold.copy(alpha = 0.06f))
                         }
                     }

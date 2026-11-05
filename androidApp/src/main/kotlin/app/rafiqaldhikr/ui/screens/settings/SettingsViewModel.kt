@@ -63,6 +63,27 @@ class SettingsViewModel(
         .map { it?.reducedMotion ?: false }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /*  مفاتيحُ التذكير لكل نوع — كانت الصفوفُ الثلاثة تبدو مفاتيحَ
+     *  ولا تُنقر، لأنّ التحكّمَ يحتاج أعمدةً ولم يكن ثمّة نظامُ ترحيل. */
+    val notifyMorning: StateFlow<Boolean> = _prefs
+        .map { it?.notifyMorning ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val notifyEvening: StateFlow<Boolean> = _prefs
+        .map { it?.notifyEvening ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val notifyPrayers: StateFlow<Boolean> = _prefs
+        .map { it?.notifyPrayers ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val endReminder: StateFlow<Boolean> = _prefs
+        .map { it?.endReminder ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    /** كان يُحفظ في القاعدة ولا يقرؤه أحد — فالمفتاحُ في شاشة الإتاحة يكذب. */
+    val highContrast: StateFlow<Boolean> = _prefs
+        .map { it?.highContrast ?: false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     val fajrOffset: StateFlow<Int> = _prefs.map { it?.fajrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
     val dhuhrOffset: StateFlow<Int> = _prefs.map { it?.dhuhrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
     val asrOffset: StateFlow<Int> = _prefs.map { it?.asrOffset ?: 0 }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
@@ -82,6 +103,24 @@ class SettingsViewModel(
             runCatching { rescheduler.reschedule() }
         }
     }
+    fun setNotifyKinds(morning: Boolean, evening: Boolean, prayers: Boolean) {
+        viewModelScope.launch {
+            prefsRepo.updateNotifyKinds(morning, evening, prayers)
+            // الجدولةُ تتبع المفاتيح فوراً — لا عند إعادة التشغيل.
+            runCatching { rescheduler.reschedule() }
+        }
+    }
+
+    /** بعد تبديل مفتاحٍ ليس في القاعدة (اللوح) — الجدولةُ تتبعه فوراً. */
+    fun rescheduleNow() {
+        viewModelScope.launch { runCatching { rescheduler.reschedule() } }
+    }
+    fun setEndReminder(enabled: Boolean) {
+        viewModelScope.launch {
+            prefsRepo.updateEndReminder(enabled)
+            runCatching { rescheduler.reschedule() }
+        }
+    }
     fun setGamification(visible: Boolean) {
         viewModelScope.launch { prefsRepo.updateGamification(visible) }
     }
@@ -91,21 +130,37 @@ class SettingsViewModel(
     fun completeOnboarding() {
         viewModelScope.launch { prefsRepo.updateOnboarding(true) }
     }
+    /*  كلُّ ما يُغيّر حسابَ الميقات يجب أن يُعيد جدولة التنبيهات.
+     *
+     *  كان `setNotifications` وحدَه ينادي `reschedule()`. فمن بدّل الطريقة
+     *  من MWL إلى أم القرى، أو حرّك إزاحة الفجر، بقيت تنبيهاتُه على الحساب
+     *  القديم إلى أن يُعاد تشغيل التطبيق أو تقفز سلسلةُ تنبيهِ النوم — أي
+     *  أنّه يرى مواقيتَ جديدةً في الشاشة ويسمع أذاناً على القديمة.  */
     fun setPrayerOffsets(fajr: Int, dhuhr: Int, asr: Int, maghrib: Int, isha: Int) {
         viewModelScope.launch {
             prefsRepo.updatePrayerOffsets(fajr, dhuhr, asr, maghrib, isha)
+            runCatching { rescheduler.reschedule() }
         }
     }
     fun setElevation(elevation: Double) {
-        viewModelScope.launch { prefsRepo.updateElevation(elevation) }
+        viewModelScope.launch {
+            prefsRepo.updateElevation(elevation)
+            runCatching { rescheduler.reschedule() }
+        }
     }
     fun setMadhab(madhab: String) {
-        viewModelScope.launch { prefsRepo.updateMadhab(madhab) }
+        viewModelScope.launch {
+            prefsRepo.updateMadhab(madhab)
+            runCatching { rescheduler.reschedule() }
+        }
     }
     fun setNumerals(arabic: Boolean) {
         viewModelScope.launch { prefsRepo.updateNumerals(if (arabic) "arabic" else "latin") }
     }
     fun setPrayerMethod(method: String) {
-        viewModelScope.launch { prefsRepo.updatePrayerMethod(method) }
+        viewModelScope.launch {
+            prefsRepo.updatePrayerMethod(method)
+            runCatching { rescheduler.reschedule() }
+        }
     }
 }

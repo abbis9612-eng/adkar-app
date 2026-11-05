@@ -21,7 +21,9 @@ class DuaViewModel(
         val duas:           List<DuaItem>     = emptyList(),
         val favorites:      List<DuaItem>     = emptyList(),
         val isLoading:      Boolean           = true,
-        val error:          String?           = null
+        val error:          String?           = null,
+        /** تحميلُ أدعية التصنيف — مستقلٌّ عن تحميل التصنيفات. */
+        val duasLoading: Boolean = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -41,10 +43,26 @@ class DuaViewModel(
         }
     }
 
+    /**
+     * مجمِّعُ التصنيف الحاضر.
+     *
+     * كان كلُّ نداءٍ يُطلق مجمِّعاً جديداً ولا يُلغي ما قبله، و`LaunchedEffect`
+     * يناديها عند كل دخول — فتتكدّس مجمّعاتٌ تكتب في الحالة نفسها، ويظلّ
+     * أوّلُها يكتب أدعيةَ التصنيف القديم فوق الجديد.
+     */
+    private var categoryJob: kotlinx.coroutines.Job? = null
+
     fun loadCategory(category: String) {
-        viewModelScope.launch {
+        categoryJob?.cancel()
+        /*  `duasLoading` تخصّ هذا التصنيف وحدَه.
+         *
+         *  كانت الشاشة تعتمد `isLoading` العامّة — وهي تُطفأ من مجمِّع
+         *  **التصنيفات** في `init`، لا من هنا. فتومض «لا أدعية» قبل أن
+         *  تصل القائمة.  */
+        _uiState.update { it.copy(duas = emptyList(), duasLoading = true) }
+        categoryJob = viewModelScope.launch {
             repository.getByCategory(category).collect { list ->
-                _uiState.update { it.copy(duas = list) }
+                _uiState.update { it.copy(duas = list, duasLoading = false) }
             }
         }
     }

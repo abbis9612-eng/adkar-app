@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 
 class PrayerTimesViewModel(
@@ -39,7 +40,9 @@ class PrayerTimesViewModel(
         val isLoading:  Boolean            = true,
         val error:      String?            = null,
         /** لا إحداثيات محفوظة — الشاشة تطلب الموقع بدل عرض أوقات ليست للمستخدم. */
-        val needsLocation: Boolean         = false
+        val needsLocation: Boolean         = false,
+        /** صلواتُ المسجد في الأيّام السبعة الأخيرة — أقدمُها أوّلاً، واليومُ آخرُها. */
+        val masjidWeek: List<Pair<kotlinx.datetime.LocalDate, Int>> = emptyList(),
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -47,9 +50,21 @@ class PrayerTimesViewModel(
 
     init { loadData() }
 
+    /**
+     * مجمِّعا هذه الشاشة.
+     *
+     * كان `refresh()` ينادي [loadData] بلا إلغاءِ ما قبله، فيتراكم مع كل
+     * ضغطةٍ مجمِّعان دائمان على `viewModelScope`. وكلُّ واحدٍ منهما يُعيد
+     * جدولةَ التنبيهات عند كل انبعاثٍ للتفضيلات — أي أن الضغط على «تحديث»
+     * خمسَ مرّاتٍ يعني خمسَ جدولاتٍ متزامنة.
+     */
+    private var loadJob: kotlinx.coroutines.Job? = null
+    private var logJob:  kotlinx.coroutines.Job? = null
+
     private fun loadData() {
+        loadJob?.cancel()
         // ✅ v2.6: collect منفصلان — يمنع deadlock الـ collect المتداخل
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             prefsRepo.getPrefs().collectLatest { prefs ->
                 if (prefs == null) return@collectLatest
                 _uiState.update {
@@ -63,10 +78,21 @@ class PrayerTimesViewModel(
                     }
                     return@collectLatest
                 }
+                /*  الإزاحاتُ الخمس كانت تسقط هنا وحدَها.
+                 *
+                 *  فكانت الشاشةُ تعرض مواقيتَ بلا تعديلِ صاحبها، ثم تُعيد
+                 *  جدولةَ التنبيهات بها بنفس أرقام الطلب — فتدهس ما كان
+                 *  `PrayerRescheduler` قد جدوله صحيحاً بالإزاحات. أي أنّ
+                 *  فتحَ شاشة المواقيت وحدَه كان يُفسد تنبيهاتٍ سليمة.  */
                 val result = getPrayerTimes(
                     here.lat, here.lng, prefs.prayerMethod,
-                    elevation = prefs.elevation,
-                    madhab = prefs.madhab
+                    elevation     = prefs.elevation,
+                    madhab        = prefs.madhab,
+                    fajrOffset    = prefs.fajrOffset,
+                    dhuhrOffset   = prefs.dhuhrOffset,
+                    asrOffset     = prefs.asrOffset,
+                    maghribOffset = prefs.maghribOffset,
+                    ishaOffset    = prefs.ishaOffset,
                 )
                 when (result) {
                     is RafiqResult.Success -> {
@@ -74,13 +100,16 @@ class PrayerTimesViewModel(
                         _uiState.update { it.copy(times = times, isLoading = false, error = null, needsLocation = false) }
                         if (prefs.notificationsEnabled) {
                             alarmManager.scheduleAllForToday(
-                                mapOf(
+                                prayerTimes = mapOf(
                                     "fajr"    to times.fajr,
                                     "dhuhr"   to times.dhuhr,
                                     "asr"     to times.asr,
                                     "maghrib" to times.maghrib,
                                     "isha"    to times.isha
-                                )
+                                ),
+                                prayers = prefs.notifyPrayers,
+                                morning = prefs.notifyMorning,
+                                evening = prefs.notifyEvening,
                             )
                         }
                     }
@@ -91,13 +120,50 @@ class PrayerTimesViewModel(
             }
         }
 
-        // ✅ coroutine منفصل للـ prayer logs — لا يحجب prefs collector
-        viewModelScope.launch {
+        // ✅ coroutine منفصل للـ prayer logs — لا يحجب prefs collector.
+        // ويتبع loadJob كي يُلغى معه عند التحديث بدل أن يتراكم.
+        logJob?.cancel()
+        logJob = viewModelScope.launch {
             val today = Clock.System.now()
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
             prayerRepo.getByDate(today).collect { logs ->
                 _uiState.update { it.copy(prayerLogs = logs) }
             }
+        }
+
+        weekJob?.cancel()
+        weekJob = viewModelScope.launch {
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val days = (6 downTo 0).map { today.minus(kotlinx.datetime.DatePeriod(days = it)) }
+            prayerRepo.getRange(days.first().toString(), today.toString()).collect { logs ->
+                val byDay = logs.filter { it.inMasjid }.groupingBy { it.date }.eachCount()
+                _uiState.update { s -> s.copy(masjidWeek = days.map { it to (byDay[it.toString()] ?: 0) }) }
+            }
+        }
+    }
+
+    private var weekJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * نافذةُ اللوحة: لم تُسجَّل ← صلّيتُ ← في المسجد ← لم تُسجَّل.
+     *
+     * والضغطةُ الثالثةُ تمحو الصلاةَ والمسجدَ معاً — من ضغط خطأً يدور
+     * إلى البداية بلا زرٍّ آخر.
+     */
+    fun cycle(prayerName: String) {
+        val entry = _uiState.value.prayerLogs.find { it.prayerName == prayerName }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+        viewModelScope.launch {
+            when {
+                entry?.inMasjid == true -> {
+                    prayerRepo.setInMasjid(today, prayerName, false)
+                    prayerRepo.logPrayer(today, prayerName, false)
+                }
+                entry?.prayed == true -> prayerRepo.setInMasjid(today, prayerName, true)
+                else -> prayerRepo.logPrayer(today, prayerName, true)
+            }
+            progressRepo.ensureExists(today)
+            progressRepo.updatePrayers(today, prayerRepo.getPrayedCount(today, today))
         }
     }
 

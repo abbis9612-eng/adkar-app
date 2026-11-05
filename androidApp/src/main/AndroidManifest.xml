@@ -20,6 +20,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- التسميع وحدَه، ولا يُطلب إلّا في شاشته. والصوتُ لا يُحفظ ولا يُرسَل. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -54,11 +58,70 @@
             </intent-filter>
         </activity>
 
+        <!--
+            حفظُ اللغة على أندرويد ١٢ فأقلّ.
+
+            من ١٣ فأعلى يحفظ النظامُ لغةَ التطبيق بنفسه. وما دونها يحفظها
+            AppCompat — لكن فقط إن وُجدت هذه الخدمةُ الحاملةُ للوسم. وهي
+            مفقودة، و`minSdk` هنا ٢٣ — فكان اختيارُ الإنجليزية يضيع عند كل
+            إقلاع، ويعود التطبيقُ عربياً، ولا يفهم صاحبُه لماذا.
+        -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+        <!-- مشاركةُ ملفّ التصدير بأمان — انظر res/xml/file_paths.xml -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <receiver android:name=".service.PrayerAlarmReceiver" android:exported="false" />
 
+        <!--
+            كلُّ حدثٍ يُبطل التنبيهات المجدولة يجب أن يُعيد جدولتها.
+
+            وكان الفلترُ يحمل `BOOT_COMPLETED` وحدَه — فيُعاد الجدولةُ بعد
+            إقلاع الجهاز لا غير. أمّا:
+
+            · MY_PACKAGE_REPLACED — أندرويد يُلغي كلَّ تنبيهات التطبيق عند
+              كل تحديث. فكان المستخدم يفقد الأذانَ بعد كل تحديثٍ من المتجر
+              ولا يعود إلّا إن فتح التطبيق بنفسه.
+
+            · TIME_SET و TIMEZONE_CHANGED — التنبيهاتُ مجدولةٌ بتوقيتٍ
+              مطلقٍ (`RTC_WAKEUP`) محسوبٍ من المنطقة الزمنية الحاضرة. فمن
+              سافر بقيت عنده مواقيتُ بلدِه: يؤذَّن الفجرُ في العصر.
+
+            و LOCKED_BOOT_COMPLETED لأجهزةٍ تُقلع إلى التخزين المحميّ أوّلاً.
+        -->
         <receiver android:name=".service.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+            يُمنح إذنُ التنبيه الدقيق من إعدادات النظام بعد أن يكون
+            التطبيق قد جدول تنبيهاتٍ تقريبية. وبلا هذا المستقبِل تبقى
+            التقريبيةُ إلى أن يُفتح التطبيق مرّةً أخرى.
+        -->
+        <receiver android:name=".service.ExactAlarmPermissionReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 

@@ -17,6 +17,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -90,9 +97,25 @@ class QiblaViewModel(
                         isLocationKnown = true
                     )
                 }
+
+                /*  البوصلةُ لا تبدأ قبل معرفة المكان.
+                 *
+                 *  تصحيحُ الانحراف المغناطيسي يحتاج الإحداثيات، وبدونها
+                 *  تُقرأ الإبرةُ من الشمال المغناطيسي بينما القبلةُ محسوبةٌ
+                 *  من الحقيقي — فتنحرف بمقدار انحراف المكان.  */
+                if (!compassStarted) {
+                    compassStarted = true
+                    startCompass(here.lat, here.lng)
+                }
             }
         }
+    }
 
+    /** حتى لا تُطلق البوصلةُ مرّتين حين تنبعث التفضيلاتُ ثانيةً. */
+    private var compassStarted = false
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun startCompass(lat: Double, lng: Double) {
         viewModelScope.launch {
             if (!compassManager.isAvailable) {
                 _uiState.update { it.copy(isCompassAvailable = false) }
@@ -102,7 +125,38 @@ class QiblaViewModel(
                 والمدى بينها بالدرجات. فإن جاوز 6° فالإبرةُ ترتجف — إمّا
                 معدنٌ قريبٌ أو يدٌ تتحرّك — ولا يُعلَن اتّجاهٌ عليها. */
             val window = ArrayDeque<Float>()
-            compassManager.getReadingFlow().collect { reading ->
+            /*  المستشعرُ يعمل ما دامت الشاشةُ منظورة.
+             *
+             *  كان المجمِّعُ يعمل ما دام الـViewModel حيّاً — والـViewModel
+             *  يعيش بعمر مدخل التنقّل، فيبقى مستشعرُ الدوران يُطلق قراءاتٍ
+             *  والتطبيقُ في الخلفية. وهي نفسُ الحيلة المستعملة في مؤقّت
+             *  `DayCompanionViewModel`: لا مشترِكَ فلا عمل.  */
+            /*  الخطأُ يُعرَض ولا يُسقط التطبيق.
+             *
+             *  كان `.collect` عارياً: أيُّ نازلٍ في المستشعر أو في تدفّقه
+             *  يخرج غيرَ ملتقَطٍ من `viewModelScope.launch` فيقتل العملية.
+             *  ولا شيءَ يُعيد فتحَ التطبيق بعدها، لأنّ أندرويد يستعيد
+             *  الشاشةَ نفسَها فيسقط ثانيةً.
+             *
+             *  وشاشةُ القبلة تعرف كيف تقول «لا بوصلة في جهازك» — وهي
+             *  الرسالةُ الصحيحة حين تخفق البوصلةُ لأيّ سبب. */
+            /*  والتعليقُ داخل المجمِّع لا يُوقف المستشعر.
+             *
+             *  كان يُنتظَر مشترِكٌ **داخل** `collect`: فيتوقّف العملُ
+             *  ويبقى المستشعرُ مسجَّلاً يستهلك البطّاريةَ، ثمّ تُفرَّغ
+             *  عليه قراءاتٌ قديمةٌ تراكمت حين يرجع الناظر.
+             *
+             *  فالتدفّقُ يُبنى على عدد المشترِكين: لا مشترِكَ فلا تدفّقَ
+             *  أصلاً — و`flatMapLatest` يُلغي السابقَ فيُنزَع تسجيلُ
+             *  المستشعر، ويُعاد بناؤه نظيفاً عند العودة. */
+            _uiState.subscriptionCount
+                .map { it > 0 }
+                .distinctUntilChanged()
+                .flatMapLatest { watched ->
+                    if (watched) compassManager.getReadingFlow(lat, lng) else emptyFlow()
+                }
+                .catch { _uiState.update { s -> s.copy(isCompassAvailable = false) } }
+                .collect { reading ->
                 val qibla = _uiState.value.qiblaBearing
                 window.addLast(reading.heading)
                 if (window.size > 12) window.removeFirst()
@@ -115,7 +169,7 @@ class QiblaViewModel(
                         readingSteady   = steady,
                     )
                 }
-            }
+                }
         }
     }
 }

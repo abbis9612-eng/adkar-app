@@ -6,9 +6,13 @@ import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiq.domain.repository.TasbeehRepository
 import app.rafiq.domain.usecase.UpdateStreakUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -39,38 +43,112 @@ class TasbeehViewModel(
         UiState(count = count, target = target, dhikrText = dhikr, isCompleted = count >= target)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
 
-    fun increment() { savedState["count"] = _count.value + 1 }
-    fun reset()     { savedState["count"] = 0 }
+    fun increment() {
+        //  شوطٌ جديدٌ يبدأ: ما حُفظ قبله لا يمنع حفظَ هذا
+        runSaved = false
+        savedState["count"] = _count.value + 1
+    }
+
+    /**
+     * يردّ لمسةً زائدة.
+     *
+     * فسؤالُ «هل حُسِبت ضغطتي؟» لا جوابَ له إن لم يكن للغلط مخرج: من
+     * ضغط مرّتين بإبهامٍ واحدٍ لا يستطيع أن يُنقص واحدة، فإمّا أن يُصفّر
+     * الشوطَ كلَّه أو يعدّ على خطأ. وكلاهما سيّئ.
+     *
+     * **ولا يمسّ [runSaved]:** ردُّ لمسةٍ ليس شوطاً جديداً. ولو رفع
+     * العَلَمَ لحُفظ الشوطُ نفسُه مرّتين — مرّةً عند التصفير ومرّةً عند
+     * مغادرة الشاشة — وهو العطبُ الذي حرسه [saveSession].
+     */
+    fun decrement() {
+        val c = _count.value
+        if (c <= 0) return
+        savedState["count"] = c - 1
+    }
+
+    /** تصفيرٌ بعد حفظِ ما عُدّ — لا محوَ له. */
+    fun reset() {
+        saveSession()
+        savedState["count"] = 0
+    }
+
     fun setTarget(target: Int) {
+        saveSession()
         savedState["target"] = target
         savedState["count"]  = 0
     }
+
     fun setDhikr(text: String) {
+        saveSession()
         savedState["dhikr"] = text
         savedState["count"] = 0
     }
 
+    /**
+     * هل حُفظ **هذا الشوط** بعينه؟
+     *
+     * الحفظُ يقع عند كل مخرج (تصفير، تبديل ذكر أو هدف، مغادرة الشاشة)،
+     * فبلا حارسٍ يُسجَّل الشوطُ الواحد مرّتين إن صُفِّر ثم غُودرت الشاشة.
+     *
+     * **وكان الحارسُ عدداً لا حالة**: `lastSavedCount` يقارن الرقمَ وحدَه،
+     * فتسبيحُ «ثلاثٍ وثلاثين» مرّتين — وهو أصلُ التسبيح: ٣٣ · ٣٣ · ٣٤ —
+     * يُحسب شوطُه الثاني **مكرَّراً فيُطرَح**. فلا يُحفظ من المئة إلّا
+     * سبعٌ وستّون. والصوابُ أن يُعلَّم الشوطُ نفسُه محفوظاً، ويُرفع العَلَمُ
+     * عند أوّل ضغطةٍ جديدة في [increment].
+     */
+    private var runSaved = false
+
+    /**
+     * مجالٌ **يبقى بعد إغلاق النموذج**.
+     *
+     * [viewModelScope] يُلغى قبل [onCleared] لا بعده — فكلُّ ما يُطلَق فيه
+     * هناك يُلغى قبل أن يبدأ. وكان الحفظُ عند مغادرة الشاشة فيه، فمن عدّ
+     * مئةً وخرج لم يُحفظ له شيء: لا رقمَ في الرئيسية ولا تقدّمَ في اليوم.
+     * والتوثيقُ فوقَه يقول إنّ العيبَ أُصلح — ولم يُصلَح.
+     */
+    private val saveScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * يحفظ الشوطَ الحاضر ويُحدّث تقدّمَ اليوم والسلسلة.
+     *
+     * كان لا يُنادى إلا من زرّ التصفير — فمن عدّ مئةً ثمّ خرج لم يُحفظ له
+     * شيء: لا رقمَ في الرئيسية ولا تقدّمَ في اليوم. وكان فيه كذلك
+     * `return@collect` يُظنّ كسراً للحلقة وليس كذلك — فلا يُبلَغ
+     * [updateStreak] أبداً، والسلسلةُ لا تتقدّم بالتسبيح قطّ.
+     */
     fun saveSession() {
-        val state = uiState.value
-        viewModelScope.launch {
+        /*  القراءةُ من [savedState] لا من [uiState]: الثاني مشروطٌ
+         *  بـ`WhileSubscribed` على `viewModelScope`، وهو ملغًى في
+         *  [onCleared] — فقيمتُه هناك ما بقي لا ما هو. والأوّل حالةٌ
+         *  محفوظةٌ تُقرأ في كلّ وقت. */
+        val count  = _count.value
+        val target = _target.value
+        val dhikr  = _dhikrText.value
+        if (count <= 0 || runSaved) return
+        runSaved = true
+        saveScope.launch {
             val now   = Clock.System.now()
             val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
             tasbeehRepo.saveSession(
-                dhikrText       = state.dhikrText,
-                count           = state.count,
-                target          = state.target,
-                completed       = state.isCompleted,
+                dhikrText       = dhikr,
+                count           = count,
+                target          = target,
+                completed       = count >= target,
                 durationSeconds = 0L,
                 date            = today
             )
-            // ✅ تحديث التقدم اليومي بعدد التسبيحات
             progressRepo.ensureExists(today)
-            val totalToday = tasbeehRepo.getTotalCountByDate(today)
-            totalToday.collect { total ->
-                progressRepo.updateTasbeeh(today, total)
-                return@collect
-            }
+            // first() لا collect: نريد أوّلَ قيمةٍ ثمّ ننصرف. وcollect لا
+            // ينتهي على Flow قاعدةٍ حيّ، فما بعده لا يُبلَغ.
+            val total = tasbeehRepo.getTotalCountByDate(today).first()
+            progressRepo.updateTasbeeh(today, total)
             updateStreak(today)
         }
+    }
+
+    /** مغادرةُ الشاشة مخرجٌ كغيره — ما عُدّ يُحفظ. */
+    override fun onCleared() {
+        saveSession()
+        super.onCleared()
     }
 }

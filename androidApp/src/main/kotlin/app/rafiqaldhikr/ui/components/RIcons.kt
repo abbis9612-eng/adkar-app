@@ -74,6 +74,7 @@ enum class RIcon(@DrawableRes val res: Int) {
     Food(R.drawable.ic_food),
     Health(R.drawable.ic_health),
     Check(R.drawable.ic_check),
+    Mic(R.drawable.ic_mic),
     CheckDouble(R.drawable.ic_check_double),
     // أجرام سماوية / وقت
     Sun(R.drawable.ic_sun),
@@ -83,16 +84,27 @@ enum class RIcon(@DrawableRes val res: Int) {
     Duha(R.drawable.ic_duha),
 }
 
-/** يعرض أيقونة موحّدة بحجم ولون محددين (اللون افتراضياً لون النص). */
+/**
+ * يعرض أيقونة موحّدة بحجم ولون محددين (اللون افتراضياً لون النص).
+ *
+ * @param contentDescription وصفٌ لقارئ الشاشة. يبقى `null` للأيقونة
+ *   الزخرفية التي بجانبها نصٌّ يقولها — وهو الأغلب — ويُملأ حين تكون
+ *   الأيقونةُ وحدَها هي المعنى.
+ *
+ *   وكان `null` **مثبَّتاً في الكود** بلا وسيطٍ يُغيّره: فأيُّ مدخلٍ
+ *   مبنيٍّ بأيقونةٍ وحدَها لا وجودَ له عند مستعمل TalkBack، ولا سبيل
+ *   لإصلاحه إلّا بتغيير هذه الدالّة نفسِها.
+ */
 @Composable
 fun RafiqIcon(
     icon: RIcon,
     size: Dp = 24.dp,
     tint: Color = LocalRafiqColors.current.ink,
+    contentDescription: String? = null,
 ) {
     Icon(
         painter = painterResource(icon.res),
-        contentDescription = null,
+        contentDescription = contentDescription,
         tint = tint,
         modifier = Modifier.size(size),
     )

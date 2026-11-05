@@ -2,10 +2,10 @@ package app.rafiqaldhikr.ui.screens.hub
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.rafiq.domain.model.Wisdom
+import app.rafiq.domain.model.LastReadPosition
+import app.rafiq.domain.repository.QuranRepository
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiq.domain.repository.TasbeehRepository
-import app.rafiq.domain.repository.WisdomRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +27,7 @@ import kotlinx.datetime.toLocalDateTime
 class HomeHubViewModel(
     private val progressRepo: ProgressRepository,
     private val tasbeehRepo:  TasbeehRepository,
-    private val wisdomRepo:   WisdomRepository,
+    private val quranRepo:    QuranRepository,
 ) : ViewModel() {
 
     data class UiState(
@@ -36,8 +36,8 @@ class HomeHubViewModel(
         val quranPages:  Int     = 0,
         val tasbeeh:     Int     = 0,
         val prayers:     Int     = 0,
-        /** كلمةُ اليوم — تتصدّر الشاشة، وتحتها مصدرها. تدور يوماً بيوم. */
-        val wisdom:      Wisdom?  = null,
+        /** آخرُ موضعٍ في المصحف — لبطاقة «تابِع القراءة». */
+        val lastRead:    LastReadPosition? = null,
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -47,11 +47,15 @@ class HomeHubViewModel(
         get() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
 
     init {
+        /*  «تابِع القراءة».
+         *
+         *  `QuranLastRead` كان جدولاً كاملاً بطرقه في المستودع و**بلا
+         *  مستدعٍ واحد** — لا كاتبَ ولا قارئ. صار المصحفُ يكتب فيه عند
+         *  كل قلبِ صفحة، وهذه تقرؤه. */
         viewModelScope.launch {
-            val day = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault()).date.toEpochDays()
-            val w = wisdomRepo.forDay(day.toLong())
-            _uiState.value = _uiState.value.copy(wisdom = w)
+            quranRepo.getLastRead().collect { pos ->
+                _uiState.value = _uiState.value.copy(lastRead = pos)
+            }
         }
         viewModelScope.launch {
             val d = today

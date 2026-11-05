@@ -17,9 +17,16 @@ data class Dhikr(
     val id:          Long,
     val category:    String,
     val textAr:      String,
+    /*  ترجمةُ المعنى والنطقُ اللاتينيّ — لمن لا يقرأ العربية.
+     *
+     *  ونصُّ الذكر نفسُه لا يُترجَم ولا يُستبدَل: يُعرض عربياً دائماً،
+     *  وهذه تحته. من يذكر الله يذكره بلفظه. */
+    val textEn:      String,
+    val translit:    String,
     val source:      String,
     val sourceGrade: String,
     val virtue:      String,
+    val virtueEn:    String,
     val count:       Int,
     val audioFile:   String?,
     val sortOrder:   Int
@@ -89,6 +96,10 @@ data class UserPrefsInfo(
     val dynamicColor:         Boolean,
     val fontScale:            Double,
     val notificationsEnabled: Boolean,
+    /** تحكّمٌ منفصلٌ لكل نوع — تحت المفتاح العامّ لا بدلاً منه. */
+    val notifyMorning:        Boolean,
+    val notifyEvening:        Boolean,
+    val notifyPrayers:        Boolean,
     val glassLevel:           String,
     val gamificationVisible:  Boolean,
     val prayerMethod:         String,
@@ -109,7 +120,9 @@ data class UserPrefsInfo(
     val ishaOffset:           Int,
     val elevation:            Double,
     val madhab:               String,
-    val numerals:             String
+    val numerals:             String,
+    /** تذكيرٌ قبل خروج الوقت — افتراضيُّه مفعَّل كعمودِه. */
+    val endReminder:          Boolean = true,
 )
 
 data class LastReadPosition(
@@ -125,7 +138,9 @@ data class QuranBookmark(
     val ayah:      Int,
     val page:      Int,
     val createdAt: Long,
-    val note:      String?
+    val note:      String?,
+    /** `mark` علامةٌ تبقى · `stop` موضعُ وقوفٍ يتبدّل. */
+    val kind:      String = "mark",
 )
 
 // ═══ Mapping Extensions: DB Entity → Domain Model ═══
@@ -134,9 +149,12 @@ fun AdhkarEntity.toDomain() = Dhikr(
     id          = id,
     category    = category,
     textAr      = text_ar,
+    textEn      = text_en,
+    translit    = translit,
     source      = source,
     sourceGrade = source_grade,
     virtue      = virtue,
+    virtueEn    = virtue_en,
     count       = count.toInt(),
     audioFile   = audio_file,
     sortOrder   = sort_order.toInt()
@@ -205,6 +223,9 @@ fun UserPrefsEntity.toDomain() = UserPrefsInfo(
     dynamicColor         = dynamic_color == 1L,
     fontScale            = font_scale,
     notificationsEnabled = notifications_enabled == 1L,
+    notifyMorning        = notify_morning == 1L,
+    notifyEvening        = notify_evening == 1L,
+    notifyPrayers        = notify_prayers == 1L,
     glassLevel           = glass_level,
     gamificationVisible  = gamification_visible == 1L,
     prayerMethod         = prayer_method,
@@ -225,7 +246,8 @@ fun UserPrefsEntity.toDomain() = UserPrefsInfo(
     ishaOffset           = isha_offset.toInt(),
     elevation            = elevation,
     madhab               = madhab,
-    numerals             = numerals
+    numerals             = numerals,
+    endReminder          = end_reminder == 1L,
 )
 
 fun QuranLastReadEntity.toDomain() = LastReadPosition(
@@ -241,5 +263,32 @@ fun QuranBookmarkEntity.toDomain() = QuranBookmark(
     ayah      = ayah.toInt(),
     page      = page.toInt(),
     createdAt = created_at,
-    note      = note
+    note      = note,
+    kind      = kind,
 )
+
+/** خطّةُ ختمةٍ كما هي في القاعدة. */
+data class KhatmaPlan(
+    val id:         Long,
+    val startedOn:  Long,
+    val days:       Int,
+    val fromPage:   Int,
+    val toPage:     Int,
+    val readTo:     Int,
+    /** الميقاتُ الذي يظهر عنده الوِرد في صفّ المحطّات. */
+    val meeqat:     String,
+    val continuous: Boolean,
+    val active:     Boolean,
+    val finishedOn: Long?,
+)
+
+/** ذكرٌ مثبَّت: مفضّلةٌ، ومعها تذكيرٌ إن كان له ميقات. */
+data class DhikrPin(
+    val dhikrId:       Long,
+    /** فارغةٌ = مفضّلةٌ بلا تذكير. */
+    val meeqat:        String,
+    val offsetMinutes: Int,
+    val pinnedAt:      Long,
+) {
+    val hasReminder: Boolean get() = meeqat.isNotBlank()
+}

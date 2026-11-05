@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.luminance
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import app.rafiqaldhikr.R
 
 /* ═══════════════════════════════════════════════════════════════════
    اشتقاق لوحةٍ كاملة من لونين يختارهما المستخدم
@@ -147,18 +148,19 @@ fun RafiqPalette.tuned(paper: Color?, accent: Color?): RafiqPalette {
 }
 
 /** التركيبات الجاهزة — كلُّها مقيسة، والاشتقاق يضمن الباقي. */
-data class ColorPreset(val name: String, val paper: Color, val accent: Color)
+data class ColorPreset(
+    @androidx.annotation.StringRes val name: Int, val paper: Color, val accent: Color)
 
 val ColorPresets = listOf(
-    ColorPreset("ورقٌ وزمرّد",   Color(0xFFFFFDF5), Color(0xFF0B5934)),   // الافتراضي المشحون
-    ColorPreset("ورقٌ وعنبر",    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي السابق
-    ColorPreset("ورقٌ ونعناع",   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
-    ColorPreset("رملٌ وزيتون",   Color(0xFFF2EFE4), Color(0xFF8CA83E)),
-    ColorPreset("صنوبر ووردة",   Color(0xFFF5F2EF), Color(0xFFD98C97)),
-    ColorPreset("أبيضُ وحبر",    Color(0xFFFBFAF7), Color(0xFF3E8F72)),
-    ColorPreset("ليلٌ وزمرّد",   Color(0xFF101511), Color(0xFF4ECF95)),
-    ColorPreset("ليلٌ وذهب",     Color(0xFF0A0B10), Color(0xFFE7C57C)),
-    ColorPreset("ليلٌ وفضّة",    Color(0xFF0B0E1A), Color(0xFFB8CCE1)),
+    ColorPreset(R.string.preset_paper_emerald,   Color(0xFFFFFDF5), Color(0xFF0B5934)),   // الافتراضي المشحون
+    ColorPreset(R.string.preset_paper_amber,    Color(0xFFF4F1E7), Color(0xFFE0A83C)),   // الافتراضي السابق
+    ColorPreset(R.string.preset_paper_mint,   Color(0xFFF5EBD5), Color(0xFF4ECF95)),
+    ColorPreset(R.string.preset_sand_olive,   Color(0xFFF2EFE4), Color(0xFF8CA83E)),
+    ColorPreset(R.string.preset_pine_rose,   Color(0xFFF5F2EF), Color(0xFFD98C97)),
+    ColorPreset(R.string.preset_white_ink,    Color(0xFFFBFAF7), Color(0xFF3E8F72)),
+    ColorPreset(R.string.preset_night_emerald,   Color(0xFF101511), Color(0xFF4ECF95)),
+    ColorPreset(R.string.preset_night_gold,     Color(0xFF0A0B10), Color(0xFFE7C57C)),
+    ColorPreset(R.string.preset_night_silver,    Color(0xFF0B0E1A), Color(0xFFB8CCE1)),
 )
 
 /** ألوان الورق المتاحة للاختيار الحرّ. */
@@ -174,3 +176,31 @@ val AccentSwatches = listOf(
     0xFFE0A83C, 0xFFE7C57C, 0xFFD98C4A, 0xFFD98C97, 0xFFB8748E,
     0xFF9B7FD4, 0xFF6E92D8, 0xFF3E6FA8, 0xFFB8CCE1, 0xFF8A6414,
 ).map { Color(it) }
+
+/**
+ * لوحةُ التباين العالي.
+ *
+ * **الخطأ الذي كان:** مفتاح «تباين عالٍ» في شاشة الإتاحة كان `checked =
+ * false` مكتوبةً في الكود، والقيمةُ تُحفظ في القاعدة ولا يقرؤها أحدٌ في
+ * التطبيق كلِّه. أي مفتاحٌ يكذب — في شاشة الإتاحة بالذات، حيث من يحتاجه
+ * يحتاجه فعلاً لا تزيّناً.
+ *
+ * وهي لا تقلب اللوحةَ ولا تُلغي هويّتها: الورقُ والزمرّدُ والذهبُ كما هي.
+ * إنّما يُدفع الحبرُ إلى طرفه، ويُقرَّب الثانويُّ من الأساسيّ، وتُغمَّق
+ * الفواصلُ والحدود — فيعبر كلُّ زوجٍ عتبةَ AAA بدل AA.
+ */
+fun RafiqPalette.highContrast(): RafiqPalette {
+    val light = bg.luminance() > 0.45f
+    val hardInk = if (light) Color(0xFF000000) else Color(0xFFFFFFFF)
+
+    return copy(
+        ink      = hardInk,
+        inkDark  = hardInk,
+        // الثانويّ كان يقف عند 4.5؛ هنا يُرفع إلى ما يقارب الأساسيّ.
+        inkMed   = mix(hardInk, bg, 0.12f),
+        inkLight = mix(hardInk, bg, 0.28f),
+        // الحدُّ الشعرة لا يُرى لمن يحتاج التباين — يُغمَّق ويُثبَّت.
+        divider    = mix(hardInk, bg, 0.45f),
+        cardBorder = mix(hardInk, bg, 0.35f),
+    )
+}

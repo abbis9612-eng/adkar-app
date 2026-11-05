@@ -6,24 +6,30 @@ import androidx.compose.ui.text.font.FontFamily
 import java.io.File
 
 /* ══════════════════════════════════════════════════════════════
-   خطوطُ المصحف — لماذا لا تُشحن في الحزمة
+   خطوطُ المصحف — تُشحن في التطبيق
 
-   خطُّ QCF4 سبعةٌ وأربعون ملفّاً للمتن (بدل ٦٠٤ في الإصدارين الأوّل
-   والثاني)، وثامنٌ وأربعون للوح السور. ومجموعُها بصيغة TTF نحو تسعين
-   ميغابايت — قِيست بالتنزيل لا بالتقدير. والتطبيقُ اليوم ٢٥٫٣، فشحنُها
-   يجعله سبعين وما فوق.
+   **هذا عكسُ ما كان.** كانت تُنزَّل من الإنترنت بإذنٍ صريح، والحجّةُ
+   مكتوبةٌ هنا: تسعون ميغابايت تُضاعف حجمَ التطبيق. وقد جُرّب التنزيلُ
+   فلم يصل: بين شبكةٍ محدودة، وحوارٍ يسدّ الشاشة، وأثرٍ ينسحب على
+   `layout == null` فلا يعود — والصفحةُ المصحفيةُ لا تظهر لصاحبها.
+
+   **والحلُّ الذي لا يمكن أن يفشل هو ألّا يكون ثمّة تنزيلٌ إطلاقاً.**
+
+   فالثمانيةُ والأربعون في `assets/mushaf/`: سبعةٌ وأربعون للمتن وثامنٌ
+   وأربعون للوح السور. ٩٢٫٥ ميغابايت خاماً، تنضغط في الحزمة إلى ≈٥٥ —
+   فيصير التطبيق نحو ٦٢ ميغابايت. وهو نصفُ «المصحف الذهبي» (١٤٣).
+
+   والمقابل: الصفحةُ المصحفية تُرسم **من أوّل ثانية**، بلا إنترنتٍ ولا
+   إذنٍ ولا انتظار. ولا شيءَ فيها يمكن أن يفشل.
+
+   > **وقيدٌ أُصرّح به:** مستودعُ المصدر يمنع إعادةَ النشر صراحةً، ورخصةُ
+   > مجمَّع الملك فهد نفسُها تُجيز النسخَ والتوزيع مجاناً. وقد أُخبر
+   > صاحبُ التطبيق بهذا التعارض واختار الشحن. والنصُّ الكامل للرخصة في
+   > `tools/licenses/KFGQPC-FONT-LICENSE.txt`، والعزوُ في شاشة «حول».
 
    ولا تُطلب الثمانيةُ والأربعون لصفحةٍ واحدة: خمسُ مئةٍ وستُّ صفحاتٍ من
    الستّ مئة والأربع يكفيها خطٌّ واحد، وخمسٌ وتسعون تحتاج ثلاثةً لأنّ
-   فيها لوحَ سورةٍ وبسملة.
-
-   ولذلك تُنزَّل مرّةً واحدةً بإذنٍ صريح، وتُحفظ في `filesDir`. وقاعدةُ
-   «يعمل دون إنترنت» لا تُكسر: نمطُ الصفحة المضبوطة يعمل دائماً بخطٍّ
-   مشحونٍ في الحزمة، والمصحفيُّ إضافةٌ فوقه لا شرطٌ له.
-
-   وثمّة ما يُحسم قبل أيّ شحن: ترخيصُ الخطوط. مستودعُ المصدر يقول
-   «احترم شروطَ الاستعمال الأصلية» ولا يذكر ترخيصاً صريحاً، وخطوطُ
-   مجمع الملك فهد لها شروطُها. فلا يُدخَل في التطبيق ما لم يُتحقّق منه.
+   فيها لوحَ سورةٍ وبسملة. فالتحميلُ كسولٌ عند أوّل استعمال.
 ══════════════════════════════════════════════════════════════ */
 
 /** خطوطُ صفحةٍ واحدة: المتنُ ولوحُ السورة والبسملة. */
@@ -35,32 +41,59 @@ data class PageFonts(
 
 class MushafFonts(private val context: Context) {
 
-    private val dir: File get() = File(context.filesDir, "mushaf").apply { mkdirs() }
+    /*  يُنشأ مرّةً واحدة.
+     *
+     *  كان `get() = File(...).apply { mkdirs() }` — أي نداءَ نظامٍ لإنشاء
+     *  المجلَّد عند **كل قراءةٍ للخاصيّة**. و`isReady` وحدَها تقرؤها ٤٨
+     *  مرّة، و`isPageReady` تُنادى داخل التأليف عند كل إعادة تركيب. أي
+     *  عشراتُ نداءاتِ القرص على الخيط الرئيسي في كل إطار.  */
+    private val dir: File = File(context.filesDir, "mushaf").apply { mkdirs() }
 
     /*  خريطةٌ متزامنة: الخطوطُ تُهيَّأ مسبقاً على خيط الإدخال/الإخراج
         وتُقرأ من خيط التأليف، فالخريطةُ العاديّة تتسابق عليها. */
     private val cache = java.util.concurrent.ConcurrentHashMap<String, FontFamily>()
 
-    /** هل نُزِّلت الخطوطُ كلُّها؟ */
-    fun isReady(layout: MushafLayout): Boolean =
-        layout.fonts.all { File(dir, "$it.ttf").exists() }
+    /*  مشحونةٌ في الحزمة — فالجوابُ نعم دائماً، ولا قرصَ يُسأل.
+     *
+     *  وكانت هذه الدوالُّ تفحص وجودَ ٤٨ ملفّاً على القرص، و`isPageReady`
+     *  تُنادى **داخل التأليف** عند كل إعادة تركيب. فسقط معها عملُ قرصٍ
+     *  في كل إطار. */
+    fun isReady(layout: MushafLayout): Boolean = true
 
-    /** هل تكتمل هذه الصفحةُ رسماً — خطُّها وخطُّ لوحِها وبسملتِها؟ */
-    fun isPageReady(layout: MushafLayout, page: Int): Boolean =
-        layout.fontsNeeded(page).all { File(dir, "$it.ttf").exists() }
+    fun isPageReady(layout: MushafLayout, page: Int): Boolean = true
 
-    fun downloadedCount(layout: MushafLayout): Int =
-        layout.fonts.count { File(dir, "$it.ttf").exists() }
+    fun downloadedCount(layout: MushafLayout): Int = layout.fonts.size
 
     fun fileFor(name: String): File = File(dir, "$name.ttf")
 
-    /** عائلةُ خطٍّ باسمه، أو null إن لم يُنزَّل بعد. */
+    /**
+     * عائلةُ خطٍّ باسمه.
+     *
+     * تُقرأ من أصول التطبيق أوّلاً. ويبقى القرصُ بديلاً لمن نزّلها
+     * بنسخةٍ سابقة: ملفّاتُه موجودةٌ في `filesDir` ولا معنى لتجاهلها
+     * ثمّ حذفها — تُستعمل كما هي حتى يُفرغها من أراد.
+     */
     fun family(name: String?): FontFamily? {
         if (name == null) return null
         cache[name]?.let { return it }
-        val f = fileFor(name)
-        if (!f.exists()) return null
-        return runCatching { FontFamily(Font(f)) }.getOrNull()?.also { cache[name] = it }
+        val assetPath = "mushaf/$name.ttf"
+        val fam = runCatching {
+            /*  فتحُ الأصل ثمّ إغلاقُه فحصٌ **حقيقيّ**.
+             *
+             *  `Font(path, assets)` كسولٌ: لا يفتح شيئاً حتى يُطلب رسمُ
+             *  حرف، فـ`runCatching` حولَه لا يفشل أبداً ولو كان الأصلُ
+             *  ناقصاً أو تالفاً — فيُرجَع خطٌّ ميّتٌ، و**البديلُ على
+             *  القرص تحتَه لا يُبلَغ قطّ**. والنتيجةُ صفحةٌ بيضاءُ لا
+             *  يُنقِذها وجودُ الملفّ في `filesDir`.
+             *
+             *  والفتحُ يقع مرّةً لكلّ خطٍّ ثمّ يُخزَّن في [cache] — فلا
+             *  عملَ قرصٍ في إعادة التركيب. */
+            context.assets.open(assetPath).close()
+            FontFamily(Font(assetPath, context.assets))
+        }.getOrNull()
+            ?: fileFor(name).takeIf { it.exists() && it.length() > 0L }
+                ?.let { runCatching { FontFamily(Font(it)) }.getOrNull() }
+        return fam?.also { cache[name] = it }
     }
 
     /** عائلةُ خطِّ صفحةٍ ما، أو null إن لم تُنزَّل بعد. */
@@ -98,4 +131,18 @@ class MushafFonts(private val context: Context) {
         dir.listFiles()?.forEach { it.delete() }
         cache.clear()
     }
+
+    /**
+     * يحذف بقايا التنزيلات المقطوعة.
+     *
+     * كلُّ تنزيلٍ يُلغى في منتصفه يترك `.part` في `filesDir` — لا يراه
+     * المستخدم ولا يُحسب في «حجم ما نُزِّل»، ويبقى إلى أن يُحذف التطبيق.
+     */
+    fun clearPartials() {
+        dir.listFiles()?.forEach { if (it.name.endsWith(".part")) it.delete() }
+    }
+
+    /** حجمُ الخطوط الصالحة وحدَها — لا البقايا. */
+    fun sizeMbOfFonts(): Double =
+        (dir.listFiles()?.filter { it.name.endsWith(".ttf") }?.sumOf { it.length() } ?: 0L) / 1_048_576.0
 }

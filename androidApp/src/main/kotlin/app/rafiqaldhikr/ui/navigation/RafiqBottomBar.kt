@@ -23,9 +23,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import app.rafiqaldhikr.R
-import app.rafiqaldhikr.ui.components.MisbahaIcon
+import app.rafiqaldhikr.ui.components.GlyphTrigram
+import app.rafiqaldhikr.ui.components.GlyphLines
+import app.rafiqaldhikr.ui.components.GlyphHouse
+import app.rafiqaldhikr.ui.components.GlyphHeart
+import app.rafiqaldhikr.ui.components.GlyphDotted
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
+import app.rafiqaldhikr.ui.components.tourAnchor
+import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.progressSpec
 import app.rafiqaldhikr.ui.theme.RafiqShape
@@ -34,19 +40,39 @@ data class BottomNavItem(
     val labelRes: Int,
     // أيقونة مخصصة من مكتبة RafiqIcons الموحّدة (حجم، لون)
     val icon:     @Composable (Dp, Color) -> Unit,
-    val route:    RafiqRoute
+    val route:    RafiqRoute,
+    /** مفتاحُ مرساة الجولة التعريفيّة — تُثقَب الشاشةُ فوق هذا التبويب. */
+    val tourKey:  String,
+    /**
+     * العنوانُ الذي يُنتقل إليه — وقد يفترق عن [RafiqRoute.route].
+     *
+     * ═══ وهذا عطبٌ أسقط ورقةَ الآية فارغةً ═══
+     *
+     * `RafiqRoute.Mushaf.route` **قالبٌ** لا عنوان:
+     * `"mushaf?page={page}&aya={aya}"`. وإرسالُه كما هو يصل إلى الشاشة
+     * `aya = "{aya}"` — نصّاً غيرَ فارغ — فتُفتح ورقةُ الآية عليه،
+     * وتُفسَّر السورةُ صفراً والآيةُ صفراً: ورقةٌ بلا نصٍّ ولا اسمِ سورة
+     * كلّما لُمس تبويبُ المصحف.
+     *
+     * والتطبيقُ عنده العنوانُ الصحيحُ مكتوبٌ منذ البداية وغيرُ مستعمَل:
+     * `Mushaf.tab` — «بلا صفحة: يُفتح على آخر ما قرأ».
+     */
+    val dest:     String = route.route,
 )
 
 @Composable
 fun RafiqBottomBar(navController: NavHostController) {
     val items = listOf(
-        BottomNavItem(R.string.nav_home,    { s, c -> RafiqIcon(RIcon.Home, s, c) },     RafiqRoute.Home),
+        BottomNavItem(R.string.nav_home,    { s, c -> GlyphHouse(s, c) },   RafiqRoute.Home, "nav_home"),
         // تبويبُ المصحف يفتح المصحف نفسَه لا قائمةَ السور: الصفحةُ هي
         // المقصود، والقائمةُ بابٌ داخلَها لمن أراد الانتقالَ بالسورة.
-        BottomNavItem(R.string.nav_quran,   { s, c -> RafiqIcon(RIcon.Book, s, c) },     RafiqRoute.Mushaf),
-        BottomNavItem(R.string.nav_tasbeeh, { s, c -> MisbahaIcon(s, c) },             RafiqRoute.AdhkarCategories),
-        BottomNavItem(R.string.nav_dua,     { s, c -> RafiqIcon(RIcon.Heart, s, c) }, RafiqRoute.DuaCategories),
-        BottomNavItem(R.string.nav_profile, { s, c -> RafiqIcon(RIcon.User, s, c) },  RafiqRoute.Profile),
+        BottomNavItem(
+            R.string.nav_quran, { s, c -> GlyphLines(s, c) }, RafiqRoute.Mushaf,
+            "nav_quran", RafiqRoute.Mushaf.tab,
+        ),
+        BottomNavItem(R.string.nav_tasbeeh, { s, c -> GlyphDotted(s, c) },  RafiqRoute.AdhkarCategories, "nav_adhkar"),
+        BottomNavItem(R.string.nav_dua,     { s, c -> GlyphHeart(s, c) },   RafiqRoute.DuaCategories, "nav_dua"),
+        BottomNavItem(R.string.nav_profile, { s, c -> GlyphTrigram(s, c) }, RafiqRoute.Profile, "nav_profile"),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -92,7 +118,7 @@ fun RafiqBottomBar(navController: NavHostController) {
                         item = item,
                         isSelected = isSelected,
                         onClick = {
-                            navController.navigate(item.route.route) {
+                            navController.navigate(item.dest) {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
                                 restoreState    = true
@@ -114,90 +140,46 @@ private fun BottomBarItemEnhanced(
 ) {
     val rc = LocalRafiqColors.current
 
-    // Animated background
-    val bgColor by animateColorAsState(
-        targetValue = if (isSelected) rc.emerald.copy(alpha = 0.10f) else Color.Transparent,
+    /*  رمزٌ **بجانب** الاسم على سطرٍ واحد — كما يرسمها النموذج:
+     *  `<span>⌂ اليوم</span>`. وكانت الأيقونةُ فوق الاسم في حبّةٍ
+     *  خضراءَ وتحته نقطةٌ ذهبيّةٌ والعنصرُ كلُّه يقفز عند الاختيار.
+     *  ثلاثُ زينةٍ لا يعرفها النموذج، وكلُّها تقول ما يقوله اللونُ
+     *  وحدَه: أين أنت. فبقي اللون.
+     *
+     *  والفرقُ الوحيدُ المقصود: ارتفاعٌ ثمانٍ وأربعون نقطةً حدّاً أدنى.
+     *  النموذجُ صفحةٌ تُنقر بالفأرة، وهذا شريطٌ يُلمس بالإصبع — والمساحةُ
+     *  لا تُقاس بحجم الحرف. وهي مساحةٌ غيرُ مرئيّةٍ حول الرمز والاسم،
+     *  فالشكلُ كما هو. */
+    val tint by animateColorAsState(
+        targetValue = if (isSelected) rc.emerald else rc.inkLight,
         animationSpec = progressSpec(300),
-        label = "navBg"
-    )
-    // onSurface بشفافية 35% كان يعطي 1.95:1 على سطح الشريط — أي تسميةً
-    // شبه غير مرئية. inkMed مصمَّم لهذا الدور ويعطي 5.05:1.
-    val iconColor by animateColorAsState(
-        targetValue = if (isSelected) rc.emerald else rc.inkMed,
-        animationSpec = progressSpec(300),
-        label = "navIcon"
-    )
-    val labelColor by animateColorAsState(
-        targetValue = if (isSelected) rc.emerald else rc.inkMed,
-        animationSpec = progressSpec(300),
-        label = "navLabel"
+        label = "navTint",
     )
 
-    // Micro-animation: bounce on select
-    val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.05f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "navScale"
-    )
-
-    Column(
+    Row(
         modifier = modifier
-            .scale(scale)
-            .clip(RafiqShape.item)
+            //  المرساةُ على الصفّ كلِّه لا على الأيقونة: الثقبُ يجب أن
+            //  يُظهر الرمزَ والاسمَ معاً، فالاسمُ هو ما يُقرأ.
+            .tourAnchor(item.tourKey)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = onClick
+                onClick = onClick,
             )
-            .padding(horizontal = 2.dp, vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .defaultMinSize(minHeight = 48.dp)
+            .padding(horizontal = 2.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Icon container with subtle border
-        Box(
-            modifier = Modifier
-                // خلفية واحدة — كان فوقها تدرّجٌ ثانٍ، وهو نفس داء
-                // الطبقتين في عنصر صغير.
-                .clip(RafiqShape.item)
-                .background(bgColor)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            item.icon(22.dp, iconColor)
-        }
-
-        Spacer(Modifier.height(2.dp))
-
+        item.icon(12.dp, tint)
+        Spacer(Modifier.width(5.dp))
         Text(
             stringResource(item.labelRes),
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 11.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+            style = RafiqType.metaS.copy(
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             ),
-            color = labelColor,
+            color = tint,
             maxLines = 1,
         )
-
-        // Gold underline dot for active
-        if (isSelected) {
-            Spacer(Modifier.height(3.dp))
-            Box(
-                modifier = Modifier
-                    .width(16.dp)
-                    .height(2.dp)
-                    .clip(RafiqShape.chip)
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                rc.gold,
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
-        }
     }
 }

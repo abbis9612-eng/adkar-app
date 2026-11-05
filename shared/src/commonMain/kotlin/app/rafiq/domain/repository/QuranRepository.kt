@@ -7,6 +7,17 @@ interface QuranRepository {
     fun getAllSurahs(): Flow<List<SurahInfo>>
     fun getAyahsBySurah(surahNumber: Int): Flow<List<AyahInfo>>
     fun getAyahsByPage(page: Int): Flow<List<AyahInfo>>
+
+    /**
+     * آيةٌ بعينها بسورتها ورقمها.
+     *
+     * كانت ورقةُ الآية تلتقطها من **صفحة التخطيط** الحاضرة، والقاعدةُ
+     * تخزّن للآية صفحتَها هي. وهما يفترقان في ٥٦ آيةً على ٢٥ صفحة —
+     * كلُّ آيةٍ تبدأ في صفحةٍ وتُتِمّ في التي بعدها. فكانت الورقةُ تفتح
+     * فارغةً على تلك الصفحات، والنسخُ والمشاركةُ يُخرجان العنوانَ بلا نصّ.
+     */
+    suspend fun getAyah(surah: Int, ayah: Int): AyahInfo?
+
     fun searchAyahs(query: String): Flow<List<AyahInfo>>
     fun getLastRead(): Flow<LastReadPosition?>
     suspend fun saveLastRead(surah: Int, ayah: Int, page: Int, scrollY: Float)
@@ -15,5 +26,20 @@ interface QuranRepository {
     suspend fun removeBookmark(id: Long)
     suspend fun removeBookmarkByPosition(surah: Int, ayah: Int)
     suspend fun isBookmarked(surah: Int, ayah: Int): Boolean
+
+    /** ملاحظةُ المستخدم على آية، أو null إن لم يكتب. */
+    suspend fun ayahNote(surah: Int, ayah: Int): String?
+
+    /** يكتب الملاحظة — والفارغةُ تمحو ما كُتب. */
+    suspend fun setAyahNote(surah: Int, ayah: Int, page: Int, note: String?)
+
+    /** موضعُ الوقوف الحاضر — واحدٌ لا يتعدّد، أو null. */
+    fun stopMark(): Flow<QuranBookmark?>
+
+    /** يضع موضعَ الوقوف هنا — ويُزيح ما قبله. */
+    suspend fun setStop(surah: Int, ayah: Int, page: Int)
+
+    /** يمحو موضعَ الوقوف بلا وضعِ غيره. */
+    suspend fun clearStop()
     suspend fun getTafsir(surah: Int, ayah: Int): String?
 }

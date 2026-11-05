@@ -56,3 +56,27 @@ fun String.localizedDigits(arabic: Boolean): String =
 
 fun Int.localized(arabic: Boolean): String = toString().localizedDigits(arabic)
 fun Long.localized(arabic: Boolean): String = toString().localizedDigits(arabic)
+
+/* ═══ ساعةُ التطبيق — مصدرٌ واحد ═══ */
+
+/**
+ * وقتُ اليوم بصيغة ١٢ ساعة **مع علامة الصباح والمساء**.
+ *
+ * **الخطأ الذي كان:** ثلاثُ صيغٍ مختلفةٍ في التطبيق، اثنتان منها
+ * `SimpleDateFormat("h:mm")` بلا علامة — فالفجر ٥:٠٠ والعصر ٥:٠٠ يُكتبان
+ * سواءً في الرئيسية وفي ورقة اليوم. ومن نظر إلى «الصلاة القادمة ٥:٠٠» لم
+ * يعرف أصباحاً هي أم مساء. والصيغةُ الثالثة (في شاشة المواقيت) كانت
+ * صحيحةً — فصارت هي المصدرَ الواحد.
+ *
+ * والتنسيقُ بـ`Locale.US` ثمّ تحويلُ الأرقام يدوياً: ICU يختار الأرقامَ
+ * اللاتينية للعربية ما لم يُطلب `ar-u-nu-arab` صراحةً، فكان المستخدم يقرأ
+ * «03:59 ص» في تطبيقٍ كلُّه عربيّ.
+ */
+fun formatClock(epochMs: Long, arabic: Boolean): String {
+    val body = java.text.SimpleDateFormat("h:mm", java.util.Locale.US)
+        .format(java.util.Date(epochMs))
+    val cal = java.util.Calendar.getInstance().apply { timeInMillis = epochMs }
+    val pm = cal.get(java.util.Calendar.AM_PM) == java.util.Calendar.PM
+    return if (arabic) "${body.toEasternArabicNumerals()} ${if (pm) "م" else "ص"}"
+    else "$body ${if (pm) "PM" else "AM"}"
+}

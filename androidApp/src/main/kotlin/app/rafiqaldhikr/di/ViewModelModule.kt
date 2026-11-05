@@ -1,5 +1,6 @@
 package app.rafiqaldhikr.di
 
+import app.rafiqaldhikr.ui.screens.adhkar.AdhkarCategoriesViewModel
 import app.rafiqaldhikr.ui.screens.adhkar.DhikrReadingViewModel
 import app.rafiqaldhikr.ui.screens.dua.DuaViewModel
 import app.rafiqaldhikr.ui.screens.home.HomeViewModel
@@ -9,6 +10,8 @@ import app.rafiqaldhikr.ui.screens.qibla.QiblaViewModel
 import app.rafiqaldhikr.ui.screens.quran.QuranListViewModel
 import app.rafiqaldhikr.ui.screens.settings.SettingsViewModel
 import app.rafiqaldhikr.ui.screens.tasbeeh.TasbeehViewModel
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import app.rafiqaldhikr.ui.screens.export.ExportDataViewModel
@@ -18,6 +21,14 @@ import app.rafiqaldhikr.ui.mushaf.MushafPageViewModel
 import app.rafiqaldhikr.ui.components.MeeqatViewModel
 import app.rafiqaldhikr.ui.components.CityListViewModel
 import app.rafiqaldhikr.ui.screens.hub.HomeHubViewModel
+import app.rafiqaldhikr.ui.screens.khatma.KhatmaViewModel
+import app.rafiqaldhikr.ui.screens.mirror.MirrorViewModel
+import app.rafiqaldhikr.ui.screens.arbaeen.ArbaeenViewModel
+import app.rafiqaldhikr.ui.screens.athar.AtharViewModel
+import app.rafiqaldhikr.ui.screens.isnad.IsnadViewModel
+import app.rafiqaldhikr.ui.screens.tasmee.TasmeeViewModel
+import app.rafiqaldhikr.ui.screens.waraqa.WisdomViewModel
+import app.rafiqaldhikr.ui.screens.waraqa.LeafViewModel
 import app.rafiqaldhikr.ui.components.LocationRequestViewModel
 import app.rafiqaldhikr.ui.screens.profile.DaysGridViewModel
 
@@ -26,8 +37,30 @@ val viewModelModule = module {
     viewModelOf(::LocationRequestViewModel)
     viewModelOf(::CityListViewModel)
     viewModelOf(::SettingsViewModel)
-    viewModelOf(::HomeViewModel)
+    viewModelOf(::AdhkarCategoriesViewModel)
+    /*  صريحٌ لا `viewModelOf`.
+     *
+     *  `startKoin { androidContext(app) }` يُسجّل `Context` فعلاً، فـ
+     *  `viewModelOf(::HomeViewModel)` كان سيعمل. لكنّ الاعتمادَ على
+     *  السياق يبقى حينئذٍ مخفيّاً في بانٍ من خمسة وسائط، ويُقرأ هنا
+     *  كأيّ مستودعٍ آخر. وهو الاعتمادُ الوحيد في التطبيق على أندرويد
+     *  داخل ViewModel، فإظهارُه أولى.  */
+    viewModel {
+        HomeViewModel(androidContext(), get(), get(), get(), get())
+    }
     viewModelOf(::HomeHubViewModel)
+    viewModelOf(::WisdomViewModel)
+    viewModelOf(::LeafViewModel)
+    viewModelOf(::KhatmaViewModel)
+    viewModelOf(::MirrorViewModel)
+
+    //  التسميعُ يحتاج سياقاً: أصولُ النموذج في الحزمة والميكروفونُ في الجهاز.
+    viewModel { TasmeeViewModel(androidContext(), get()) }
+
+    //  الجردُ يُقرأ من الأصول — فيحتاج سياقاً لا مستودعاً.
+    viewModel { IsnadViewModel(androidContext()) }
+    viewModel { AtharViewModel(androidContext()) }
+    viewModel { ArbaeenViewModel(androidContext()) }
     viewModelOf(::DhikrReadingViewModel)
     viewModelOf(::TasbeehViewModel)
     viewModelOf(::QuranListViewModel)

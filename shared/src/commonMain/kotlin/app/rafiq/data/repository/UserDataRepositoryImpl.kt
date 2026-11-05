@@ -1,6 +1,7 @@
 package app.rafiq.data.repository
 
 import app.rafiq.db.RafiqDatabase
+import app.rafiq.domain.repository.ImportResult
 import app.rafiq.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -84,6 +85,14 @@ private data class ExportedLastRead(
     val page: Long,
 )
 
+/** صفٌّ من `DayStationLog` أو `DayIntention` — تاريخٌ ومفتاحٌ ولحظة. */
+@Serializable
+private data class ExportedDayMark(
+    val date: String,
+    val key: String,
+    val at: Long,
+)
+
 @Serializable
 private data class RafiqExport(
     val formatVersion: Int,
@@ -98,11 +107,25 @@ private data class RafiqExport(
     val quranLastRead: ExportedLastRead?,
     val favoriteDuas: List<String>,
     val unlockedAchievements: List<String> = emptyList(),
+    /*  حقلان أُضيفا بافتراضيٍّ فارغ — فالصيغةُ تبقى ١: ملفٌّ قديمٌ بلاهما
+     *  يُقرأ كما كان، ونسخةٌ أقدمُ تتجاهلهما بـ`ignoreUnknownKeys`. */
+    val dayStations: List<ExportedDayMark> = emptyList(),
+    val dayIntentions: List<ExportedDayMark> = emptyList(),
 )
 
 class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository {
 
     private val json = Json { prettyPrint = true }
+
+    /*  قارئٌ متسامحٌ للاستيراد وحدَه.
+     *
+     *  `ignoreUnknownKeys` كي يُقرأ ملفٌّ صدّرته نسخةٌ أحدثُ فيها حقولٌ
+     *  لا نعرفها: نأخذ ما نفهم ونترك الباقي، بدل أن نرفض الملفَّ كلَّه.
+     *  والعكسُ محميٌّ بـ`formatVersion` أدناه. */
+    private val reader = Json { ignoreUnknownKeys = true }
+
+    /** أحدثُ صيغةِ تصديرٍ يفهمها هذا الإصدار. */
+    private val supportedFormat = 1
 
     override suspend fun exportAsJson(): String = withContext(Dispatchers.IO) {
         val prefs = db.userPrefsQueries.get().executeAsOneOrNull()?.let {
@@ -180,9 +203,193 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             },
             favoriteDuas = db.duaQueries.getFavorites().executeAsList().map { it.text_ar },
             unlockedAchievements = db.achievementQueries.getAll().executeAsList().map { it.key },
+            dayStations = db.dayStationLogQueries.getAll().executeAsList().map {
+                ExportedDayMark(it.date, it.station, it.completed_at)
+            },
+            dayIntentions = db.dayIntentionQueries.getAll().executeAsList().map {
+                ExportedDayMark(it.date, it.item, it.created_at)
+            },
         )
 
         json.encodeToString(RafiqExport.serializer(), export)
+    }
+
+    override suspend fun importFromJson(jsonText: String): ImportResult = withContext(Dispatchers.IO) {
+        val data = runCatching {
+            reader.decodeFromString(RafiqExport.serializer(), jsonText)
+        }.getOrElse {
+            /*  الفرقُ بين «ليس JSON» و«ليس تصديرَ رفيق» يهمّ المستخدم:
+             *  الأوّلُ ملفٌّ تالف، والثاني ملفٌّ صحيحٌ من تطبيقٍ آخر. */
+            val looksJson = jsonText.trimStart().startsWith("{")
+            return@withContext ImportResult.Invalid(
+                if (looksJson) ImportResult.Reason.NOT_RAFIQ
+                else ImportResult.Reason.NOT_JSON
+            )
+        }
+
+        /*  صيغةٌ أحدثُ ممّا نفهم لا تُستورَد **جزئياً**.
+         *
+         *  فيها حقولٌ قد تُغيّر معنى ما نعرفه، واستيرادُ نصفها يعطي
+         *  المستخدم بياناتٍ يظنّها تامّةً وليست كذلك. والرفضُ الصريح
+         *  خيرٌ من استعادةٍ صامتةٍ ناقصة. */
+        if (data.formatVersion > supportedFormat) {
+            return@withContext ImportResult.Invalid(ImportResult.Reason.FUTURE_VERSION)
+        }
+
+        /*  معاملةٌ واحدة: إمّا استيرادٌ تامّ وإمّا لا شيء.
+         *
+         *  ولا يُمسح شيءٌ قبلها — الاستيرادُ **دمجٌ لا استبدال**:
+         *  `INSERT OR IGNORE` في الأيّام وسجلّ الصلاة والعلامات، فلا
+         *  يدهس المستوردُ يوماً أفضلَ ممّا في الملفّ. ومن أراد البدءَ
+         *  من الملفّ وحدَه يمسح بياناتِه أوّلاً — وذاك زرٌّ ظاهرٌ في
+         *  الشاشة نفسِها، لا أثرٌ خفيٌّ لزرِّ الاستيراد. */
+        db.transaction {
+            data.prefs?.let { p ->
+                db.userPrefsQueries.initIfNeeded()
+                db.userPrefsQueries.updatePrayerMethod(p.prayerMethod)
+                db.userPrefsQueries.updateMadhab(p.madhab)
+                db.userPrefsQueries.updateLocale(p.locale)
+                db.userPrefsQueries.updateHijriOffset(p.hijriOffset)
+                db.userPrefsQueries.updateElevation(p.elevation)
+                db.userPrefsQueries.updatePrayerOffsets(
+                    p.fajrOffset, p.dhuhrOffset, p.asrOffset, p.maghribOffset, p.ishaOffset,
+                )
+                /*  السمةُ تُكتب بلونٍ ديناميكيٍّ افتراضيّ: التصديرُ لا
+                 *  يحمل `dynamic_color`، وتخمينُه خطأٌ في نصف الحالات.
+                 *  فيبقى ما عند الجهاز ولا يُبدَّل إلّا اسمُ السمة. */
+                val dynamic = db.userPrefsQueries.get().executeAsOneOrNull()?.dynamic_color == 1L
+                db.userPrefsQueries.updateTheme(p.theme, if (dynamic) 1L else 0L)
+            }
+
+            /*  السلسلةُ تُدمَج لا تُستبدَل: الأطولُ أطولُ أيّاً كان
+             *  مصدرُه، وآخرُ يومٍ نشِطٍ هو المتأخّرُ من التاريخين
+             *  (والتواريخُ `YYYY-MM-DD` فتُقارن نصّاً بلا تحليل). */
+            data.streak?.let { f ->
+                val cur = db.streakDataQueries.get().executeAsOneOrNull()
+                db.streakDataQueries.upsert(
+                    maxOf(f.currentStreak, cur?.current_streak ?: 0L),
+                    maxOf(f.longestStreak, cur?.longest_streak ?: 0L),
+                    maxOf(f.lastActiveDate, cur?.last_active_date ?: ""),
+                )
+            }
+
+            /*  الأيّامُ تُدمَج حقيقةً لا بالاسم.
+             *
+             *  كان التوثيقُ فوقَه يقول «دمجٌ لا استبدال» و«لا يدهس
+             *  المستوردُ يوماً أفضلَ ممّا في الملفّ» — و`insertNew` وحدَه
+             *  هو `INSERT OR IGNORE`، أمّا `update*` بعده فتكتب قيمَ
+             *  الملفّ **فوق** ما في الجهاز بلا شرط. فمن استورد نسخةً
+             *  قديمةً مُسِح تقدّمُ يومه: الصفحاتُ والتسبيحُ والصلواتُ
+             *  تعود إلى ما كانت في النسخة، وربّما إلى أصفار.
+             *
+             *  والدمجُ الآن بقاعدةٍ واحدةٍ لكلّ نوع: العدّاداتُ **أكبرُ
+             *  القيمتين**، والعلاماتُ **تُرفع ولا تُنزَل**. فلا يُنقِص
+             *  استيرادٌ شيئاً أبداً، ومن أراد البدءَ من الملفّ وحدَه
+             *  يمسح بياناتِه أوّلاً بالزرّ الظاهر في الشاشة نفسِها. */
+            data.dailyProgress.forEach { d ->
+                db.dailyProgressQueries.insertNew(d.date)
+                val cur = db.dailyProgressQueries.getByDate(d.date).executeAsOneOrNull()
+                db.dailyProgressQueries.updateMorning(
+                    if (d.morningDone || cur?.morning_done == 1L) 1L else 0L, d.date,
+                )
+                db.dailyProgressQueries.updateEvening(
+                    if (d.eveningDone || cur?.evening_done == 1L) 1L else 0L, d.date,
+                )
+                db.dailyProgressQueries.updateQuranPages(
+                    maxOf(d.quranPages, cur?.quran_pages ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updateTasbeeh(
+                    maxOf(d.tasbeehCount, cur?.tasbeeh_count ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updatePrayers(
+                    maxOf(d.prayersLogged, cur?.prayers_logged ?: 0L), d.date,
+                )
+                db.dailyProgressQueries.updateMinutes(
+                    maxOf(d.totalMinutes, cur?.total_minutes ?: 0L), d.date,
+                )
+                db.streakDataQueries.insertHistory(d.date)
+            }
+
+            /*  الجلسةُ الموجودةُ لا تُضاف ثانيةً.
+             *
+             *  وكان الإدخالُ عارياً: فمن استورد نسختَه مرّتين — وهو يفعل،
+             *  إذ لا شيءَ يمنعه ولا يُخبره — تضاعفت جلساتُه، وتضاعف معها
+             *  مجموعُ التسبيح في «سنتك» وفي تقدّم اليوم. ولا سبيلَ إلى
+             *  معرفة الصحيح بعدها.
+             *
+             *  والمفتاحُ `created_at`: لحظةٌ بالملّي ثانية لا تتكرّر. */
+            data.tasbeehSessions.forEach {
+                if (db.tasbeehSessionQueries.existsAt(it.createdAt).executeAsOne() > 0L) {
+                    return@forEach
+                }
+                db.tasbeehSessionQueries.insert(
+                    it.dhikrText, it.count, it.target,
+                    if (it.completed) 1L else 0L, it.durationSeconds, it.date, it.createdAt,
+                )
+            }
+
+            data.prayerLogs.forEach {
+                db.prayerLogQueries.insertNew(
+                    it.date, it.prayerName, if (it.prayed) 1L else 0L, 0L,
+                    if (it.inMasjid) 1L else 0L, if (it.sunnahDone) 1L else 0L,
+                )
+            }
+
+            /*  المستورَدةُ **علاماتٌ دائماً** لا مواضعَ وقوف.
+             *
+             *  ملفُّ التصدير لا يحمل النوعَ (صيغتُه أقدمُ من العمود)،
+             *  وموضعُ الوقوف شيءٌ يتبدّل كلَّ يومٍ فلا معنى لاستعادته من
+             *  نسخةٍ محفوظة. والعلامةُ هي التي يُقصد بقاؤها. */
+            data.quranBookmarks.forEach {
+                db.quranBookmarkQueries.insert(
+                    it.surah, it.ayah, it.page, it.createdAt, it.note, "mark",
+                )
+            }
+
+            data.customAdhkar.forEach {
+                db.customDhikrQueries.insert(it.dhikrText, it.target, it.createdAt)
+            }
+
+            /*  موضعُ القراءة: لا يُكتب فوق موضعٍ قائم.
+             *
+             *  كان يُستبدَل بموضع الملفّ بلا شرط — فمن استورد نسخةً
+             *  وهو في وسط سورةٍ قُذف إلى موضعٍ قديمٍ لم يطلبه. والموضعُ
+             *  الحاضرُ أعلمُ بصاحبه من نسخةٍ محفوظة، فلا يُستعاد موضعُ
+             *  الملفّ إلّا حين لا يكون في الجهاز موضعٌ أصلاً. */
+            data.quranLastRead?.let {
+                if (db.quranLastReadQueries.get().executeAsOneOrNull() == null) {
+                    db.quranLastReadQueries.upsert(it.surah, it.ayah, it.page, 0.0, 0L)
+                }
+            }
+
+            data.unlockedAchievements.forEach { db.achievementQueries.unlock(it, 0L) }
+
+            //  محاسبةُ الأيّام وعزمُها — دمجٌ بـINSERT OR IGNORE كسجلّ الصلاة
+            data.dayStations.forEach { db.dayStationLogQueries.complete(it.date, it.key, it.at) }
+            data.dayIntentions.forEach { db.dayIntentionQueries.add(it.date, it.key, it.at) }
+
+            /*  المفضّلةُ تُطابَق بالنصّ لا بالمعرّف.
+             *
+             *  المعرّفاتُ أرقامُ صفوفٍ تُولَّد عند البذر، فتختلف بين
+             *  جهازٍ وجهاز — واستعادتُها بالرقم تُفضّل دعاءً غير الذي
+             *  فضّله صاحبُه. والنصُّ العربيُّ هو الثابت. */
+            if (data.favoriteDuas.isNotEmpty()) {
+                val wanted = data.favoriteDuas.toSet()
+                db.duaQueries.getCategories().executeAsList().forEach { cat ->
+                    db.duaQueries.getAllByCategory(cat).executeAsList().forEach { dua ->
+                        if (dua.text_ar in wanted) db.duaQueries.toggleFavorite(1L, dua.id)
+                    }
+                }
+            }
+        }
+
+        ImportResult.Success(
+            days      = data.dailyProgress.size,
+            sessions  = data.tasbeehSessions.size,
+            prayers   = data.prayerLogs.size,
+            bookmarks = data.quranBookmarks.size,
+            adhkar    = data.customAdhkar.size,
+        )
     }
 
     override suspend fun clearAllUserData() = withContext(Dispatchers.IO) {
@@ -197,6 +404,7 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             db.customDhikrQueries.deleteAll()
             db.achievementQueries.deleteAll()
             db.dayStationLogQueries.deleteAll()
+            db.dayIntentionQueries.deleteAll()
             db.duaQueries.clearFavorites()
             db.userPrefsQueries.resetRow()
             db.userPrefsQueries.initIfNeeded()

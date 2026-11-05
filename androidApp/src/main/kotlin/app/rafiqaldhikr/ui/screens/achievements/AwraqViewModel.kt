@@ -1,5 +1,7 @@
 package app.rafiqaldhikr.ui.screens.achievements
 
+import app.rafiqaldhikr.util.weekdayIndex
+import app.rafiqaldhikr.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.repository.DayCompanionRepository
@@ -33,22 +35,29 @@ class AwraqViewModel(
 
     data class StationRow(
         val id:    String,
-        val short: String,
+        /*  مرجعُ مورد لا نصّ — كانت أسماءُ المحطّات الثماني مكتوبةً
+         *  عربيةً في هذا الـViewModel، فشبكةُ «أوراقي» لا تُترجَم. */
+        @androidx.annotation.StringRes val short: Int,
         val cells: List<Cell>,      // سبعٌ: من أقدم يومٍ إلى اليوم
         val done:  Int,
     )
 
     data class UiState(
         val loading:      Boolean          = true,
-        val weekDays:     List<String>     = emptyList(),   // حروف الأيّام
+        /*  فهارسُ الأيّام لا حروفُها.
+         *
+         *  كان الـViewModel يُخرج الحرفَ العربيَّ جاهزاً — فيصل الشاشةَ
+         *  نصّاً لا يمرّ بمترجم. والفهرسُ محايدٌ، والشاشةُ تقرأ حرفَه من
+         *  الموارد بلغة صاحبها. */
+        val weekDayIndices: List<Int>      = emptyList(),
         val rows:         List<StationRow> = emptyList(),
         val weekTotal:    Int              = 0,
         /** كثافةُ كلِّ يومٍ في الشهر: 0 = لم تفتحه · 1 = بعضه · 2 = أتممتَه. */
         val monthLevels:  List<Int>        = emptyList(),
         val monthOpened:  Int              = 0,
-        val steadiest:    String?          = null,
-        val faintest:     String?          = null,
-        val steadiestDay: String?          = null,
+        @androidx.annotation.StringRes val steadiest: Int? = null,
+        @androidx.annotation.StringRes val faintest:  Int? = null,
+        val steadiestDayIndex: Int?        = null,
         val tasbeeh:      Long             = 0,
         val quranPages:   Long             = 0,
     )
@@ -112,14 +121,14 @@ class AwraqViewModel(
 
                 UiState(
                     loading      = false,
-                    weekDays     = week.map { WEEKDAY_LETTER[weekdayIndex(it)] },
+                    weekDayIndices = week.map { weekdayIndex(it) },
                     rows         = rows,
                     weekTotal    = rows.sumOf { it.done },
                     monthLevels  = levels,
                     monthOpened  = levels.count { it > 0 },
                     steadiest    = ranked.firstOrNull()?.takeIf { it.done >= 3 }?.short,
                     faintest     = ranked.lastOrNull()?.takeIf { it.done <= 2 }?.short,
-                    steadiestDay = topDay?.let { WEEKDAY_NAME[it] },
+                    steadiestDayIndex = topDay,
                     tasbeeh      = progress.sumOf { it.tasbeehCount },
                     quranPages   = progress.sumOf { it.quranPages },
                 )
@@ -132,28 +141,18 @@ class AwraqViewModel(
 
         /** مطابقةٌ لمحطّات «رفيق اليوم» — الثامنةُ الجمعة موسميّة فتُستثنى. */
         val STATIONS = listOf(
-            "wake"          to "الاستيقاظ",
-            "fajr_morning"  to "الفجر",
-            "duha"          to "الضحى",
-            "dhuhr"         to "الظهر",
-            "asr_evening"   to "العصر",
-            "maghrib"       to "المغرب",
-            "isha"          to "العشاء",
-            "sleep"         to "النوم",
+            "wake"          to R.string.st_wake_s,
+            "fajr_morning"  to R.string.st_fajr_s,
+            "duha"          to R.string.st_duha_s,
+            "dhuhr"         to R.string.st_dhuhr_s,
+            "asr_evening"   to R.string.st_asr_s,
+            "maghrib"       to R.string.st_maghrib_s,
+            "isha"          to R.string.st_isha_s,
+            "sleep"         to R.string.st_sleep_s,
         )
         val STATION_IDS = STATIONS.map { it.first }.toSet()
 
-        /**
-         * يومُ الأسبوع حساباً لا بـ`LocalDate.dayOfWeek`: ذاك على أندرويد
-         * اسمٌ مستعار لـ`java.time.DayOfWeek`، وهو API 26 والحدُّ الأدنى هنا 23.
-         * أوّلُ حقبةٍ (1970-01-01) خميس، فإزاحةُ أربعةٍ تجعل الأحدَ صفراً.
-         */
-        fun weekdayIndex(d: LocalDate): Int =
-            (((d.toEpochDays() + 4) % 7) + 7) % 7
-
-        val WEEKDAY_LETTER = listOf("ح", "ن", "ث", "ر", "خ", "ج", "س")
-        val WEEKDAY_NAME = listOf(
-            "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت",
-        )
+        // weekdayIndex و WEEKDAY_LETTER و WEEKDAY_NAME نُقلت إلى
+        // util/Weekday.kt: شاشتان تحتاجانها، ونسخُ الحسابِ يفترقان.
     }
 }

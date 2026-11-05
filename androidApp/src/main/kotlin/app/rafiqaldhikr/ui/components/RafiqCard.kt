@@ -67,39 +67,13 @@ fun Modifier.rafiqCard(
 /** ظلٌّ دافئ لا رمادي — الرماديّ على ورقٍ كريميّ يُقرأ اتّساخاً. */
 private val ShadowTint = androidx.compose.ui.graphics.Color(0xFF4A3A16)
 
-/**
- * سطح شفّاف فوق خلفية داكنة أو صورة — نفس منطق الحدّ، بلا لون بطاقة.
- * يُستخدم داخل البطاقات السينمائية حيث الخلفية ليست `rc.card`.
- */
-fun Modifier.rafiqGlass(
-    alpha: Float = 0.12f,
-    shape: Shape = RafiqShape.item,
-): Modifier = composed {
-    val rc = LocalRafiqColors.current
-    this
-        .clip(shape)
-        .background(rc.card.copy(alpha = alpha))
-        .border(1.dp, rc.gold.copy(alpha = BorderIdle * 2), shape)
-}
 
-/**
- * البطاقة كمكوّن — للمواضع التي تبني عموداً من المحتوى.
- * للمواضع التي تحتاج `Row` أو `Box` استخدم [rafiqCard] مباشرة.
+/*  حُذف من هنا مكوّنان لا يناديهما سطرٌ واحد في التطبيق:
+ *
+ *  · `Modifier.rafiqGlass` — كُتب «للبطاقات السينمائية» ولا وجود لها.
+ *  · `RafiqCard` المركَّب — كلُّ الشاشات تستعمل `Modifier.rafiqCard`
+ *    مباشرةً، وهو الصواب لأنّه يعمل مع Row وBox لا Column وحدَه.
+ *
+ *  ومكوّنٌ موجودٌ بلا مستدعٍ ليس محايداً: يُقرأ خياراً متاحاً فيُستعمل
+ *  في مكانٍ بعد شهر، فيصير في التطبيق نمطان لبطاقةٍ واحدة.
  */
-@Composable
-fun RafiqCard(
-    modifier: Modifier = Modifier,
-    active:   Boolean = false,
-    shape:    Shape = RafiqShape.card,
-    padding:  PaddingValues = PaddingValues(16.dp),
-    onClick:  (() -> Unit)? = null,
-    content:  @Composable ColumnScope.() -> Unit,
-) {
-    Column(
-        modifier
-            .rafiqCard(active = active, shape = shape)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(padding),
-        content = content,
-    )
-}

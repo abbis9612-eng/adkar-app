@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="256" android:viewportHeight="256">
+  <!-- جسمُ الميكروفون: كبسولةٌ مستديرةُ الطرفين -->
+  <path android:fillColor="#FF111111"
+      android:pathData="M128,24 a32,32 0 0 1 32,32 v48 a32,32 0 0 1 -64,0 V56 a32,32 0 0 1 32,-32 Z"/>
+  <!-- الحاملُ القوسيّ -->
+  <path android:fillColor="#00000000" android:strokeColor="#FF111111"
+      android:strokeWidth="16" android:strokeLineCap="round"
+      android:pathData="M64,104 v8 a64,64 0 0 0 128,0 v-8"/>
+  <!-- الساقُ والقاعدة -->
+  <path android:fillColor="#00000000" android:strokeColor="#FF111111"
+      android:strokeWidth="16" android:strokeLineCap="round"
+      android:pathData="M128,176 v40"/>
+  <path android:fillColor="#00000000" android:strokeColor="#FF111111"
+      android:strokeWidth="16" android:strokeLineCap="round"
+      android:pathData="M96,216 h64"/>
+</vector>

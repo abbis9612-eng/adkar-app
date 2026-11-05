@@ -1,6 +1,7 @@
 package app.rafiqaldhikr.ui.mushaf
 
 import android.content.Context
+import app.rafiqaldhikr.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -15,18 +16,26 @@ import androidx.compose.ui.platform.LocalContext
    المشروع تمنع تغييرَ البنية بلا خطّة هجرةٍ معروضة.
 ══════════════════════════════════════════════════════════════ */
 
-enum class MushafMode(val label: String, val note: String) {
+/*  الاسمُ والوصفُ مرجعا مورد، لا نصّان مكتوبان.
+ *
+ *  كانا `String` فيهما العربيةُ وحدَها — فورقةُ إعدادات المصحف تبقى
+ *  عربيةً كاملةً مهما اختار المستخدم.
+ */
+enum class MushafMode(
+    @androidx.annotation.StringRes val label: Int,
+    @androidx.annotation.StringRes val note: Int,
+) {
     /** ما كان في التطبيق: تصفّحٌ بالسورة وآيةٌ في بطاقة. */
-    CLASSIC("قائمةُ الآيات", "آيةٌ في سطرٍ مع رقمها — أسهلُ للبحث والتفسير"),
+    CLASSIC(R.string.mushaf_mode_classic, R.string.mushaf_mode_classic_note),
 
     /** صفحةٌ بترقيم المصحف، نصٌّ متّصلٌ مضبوطُ الطرفين. */
-    PAGE("صفحةٌ مضبوطة", "بترقيم المصحف المدنيّ — يعمل دون إنترنت بلا تنزيل"),
+    PAGE(R.string.mushaf_mode_fitted, R.string.mushaf_mode_fitted_note),
 
     /** الصفحةُ المصحفية بخطّ QCF4 — خمسةَ عشرَ سطراً كما في الورقة. */
-    MUSHAF("الصفحةُ المصحفية", "مطابقةٌ لمصحف المدينة سطراً بسطر — تحتاج تنزيلاً"),
+    MUSHAF(R.string.mushaf_mode_page, R.string.mushaf_mode_page_note),
 
     /** المصحفيةُ بخلفيةٍ داكنة للقراءة الليلية. */
-    MUSHAF_NIGHT("المصحفيةُ ليلاً", "الصفحةُ نفسُها بحبرٍ فاتحٍ على ورقٍ داكن"),
+    MUSHAF_NIGHT(R.string.mushaf_mode_night, R.string.mushaf_mode_night_note),
     ;
 
     val needsFonts: Boolean get() = this == MUSHAF || this == MUSHAF_NIGHT
@@ -66,6 +75,31 @@ class MushafPrefs(context: Context) {
         get() = sp.getBoolean(KEY_ASKED, false)
         set(v) = sp.edit().putBoolean(KEY_ASKED, v).apply()
 
+    /**
+     * سطوعُ الشاشة داخل المصحف — ٠٫٠٥ إلى ١٫٠، أو **سالبٌ** أي «اتبع الجهاز».
+     *
+     * والسالبُ هو الأصل: لا يُمسّ سطوعُ أحدٍ حتى يطلبه بنفسه.
+     *
+     * وهو **سطوعُ النافذة لا سطوعُ النظام**: يسري ما دامت شاشةُ المصحف
+     * ظاهرةً ويرجع الجهازُ إلى حاله فور الخروج منها. ولو غُيّر سطوعُ
+     * النظام لخرج أثرُه إلى التطبيقات كلِّها، وهذا ليس ما يطلبه من أراد
+     * أن يُظلم صفحةَ قراءته ليلاً.
+     */
+    var brightness: Float
+        get() = sp.getFloat(KEY_BRIGHT, -1f)
+        set(v) = sp.edit().putFloat(KEY_BRIGHT, v).apply()
+
+    /**
+     * تلوينُ التجويد — في **نمط النصّ** وحدَه.
+     *
+     *  وصفحةُ المصحف تُرسم بخطوط QCF: رموزُ صفحةٍ لا حروفَ يونيكود، فلا
+     *  يُعرف أين الحرفُ من الرمز. ويُقال ذلك في الإعدادات صراحةً ولا
+     *  يُترك ليكتشفه من بدّل النمطَ فلم يجد شيئاً.
+     */
+    var tajweed: Boolean
+        get() = sp.getBoolean(KEY_TAJWEED, false)
+        set(v) = sp.edit().putBoolean(KEY_TAJWEED, v).apply()
+
     var lastPage: Int
         get() = sp.getInt(KEY_PAGE, 1).coerceIn(1, 604)
         set(v) = sp.edit().putInt(KEY_PAGE, v.coerceIn(1, 604)).apply()
@@ -77,6 +111,8 @@ class MushafPrefs(context: Context) {
         const val KEY_ASKED = "asked"
         const val KEY_ALLOW = "allow"
         const val KEY_HINT = "hint_seen"
+        const val KEY_BRIGHT = "brightness"
+        const val KEY_TAJWEED = "tajweed"
     }
 }
 

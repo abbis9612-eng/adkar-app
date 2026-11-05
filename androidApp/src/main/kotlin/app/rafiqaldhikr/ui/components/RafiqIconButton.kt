@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,11 @@ fun RafiqIconButton(
             .border(1.dp, rc.ink.copy(alpha = 0.10f), RafiqShape.item)
             .clickable(onClick = onClick)
             .minimumInteractiveComponentSize()
-            .semantics { contentDescription = label },
+            .semantics {
+                contentDescription = label
+                // بلا Role يقرؤه TalkBack نصّاً لا زرّاً، فلا يقول «انقر مرّتين».
+                role = Role.Button
+            },
         contentAlignment = Alignment.Center,
     ) { content() }
 }

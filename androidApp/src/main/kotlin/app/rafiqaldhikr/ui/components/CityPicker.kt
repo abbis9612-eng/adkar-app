@@ -10,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
@@ -57,10 +59,10 @@ fun CityPickerSheet(
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 12.dp)) {
 
-            Text("اختر مدينتك", style = RafiqType.titleM, color = rc.ink)
+            Text(stringResource(R.string.city_pick_title), style = RafiqType.titleM, color = rc.ink)
             Spacer(Modifier.height(4.dp))
             Text(
-                "تُحسب المواقيت من إحداثيات المدينة المختارة.",
+                stringResource(R.string.city_pick_note),
                 style = RafiqType.bodyS, color = rc.inkMed,
             )
             Spacer(Modifier.height(14.dp))
@@ -73,7 +75,7 @@ fun CityPickerSheet(
                     .padding(horizontal = 14.dp, vertical = 12.dp)
             ) {
                 if (query.isEmpty()) {
-                    Text("ابحث بالعربية أو بالإنجليزية…", style = RafiqType.body, color = rc.inkLight)
+                    Text(stringResource(R.string.city_search_hint), style = RafiqType.body, color = rc.inkLight)
                 }
                 BasicTextField(
                     value = query,

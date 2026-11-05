@@ -14,6 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -27,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.FirstHint
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.components.NeedsLocation
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
@@ -84,6 +89,11 @@ fun QiblaScreen(
                 title  = stringResource(R.string.qibla_title),
                 onBack = {navController.popBackStack()},
             )
+            //  تلميحٌ في موضعه لا جولةٌ في أوّل التطبيق — انظر `FirstHint`.
+            FirstHint(
+                "qibla", R.string.hint_qibla,
+                Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            )
 
             Column(
                 modifier            = Modifier.fillMaxSize().padding(24.dp),
@@ -95,7 +105,7 @@ fun QiblaScreen(
                     // NoLocationContent كانت نصّاً ميّتاً: isLocationKnown لم تكن
                     // تصير false أبداً لأن الاحتياطيّ كان يملأ الإحداثيات دوماً.
                     !state.isLocationKnown    -> NeedsLocation(
-                        message = "اتجاه القبلة يُحسب من موقعك، وسهمٌ يشير من مدينةٍ أخرى يشير إلى غير الكعبة."
+                        message = stringResource(R.string.qibla_needs_location)
                     )
                     state.error != null       -> ErrorContent(state.error!!, rc)
                     else                      -> QiblaCompassContent(
@@ -111,6 +121,8 @@ fun QiblaScreen(
 }
 
 /* ══════════════════════════════════════════════════════════════
+ *  التوقيع: الكعبةُ مرسومةً بحزامها وبابها — تدور مع الهاتف، وتُصيب حين تُصيب
+ *
    ممرُّ النور
 
    كان سهماً يشير — وسهمٌ يشير يترك صاحبَه يحزر متى استقام. فصار
@@ -144,8 +156,31 @@ private fun QiblaCompassContent(
         tween(320), label = "qiblaAccent",
     )
 
+    /*  البوصلةُ كلُّها كانت `Canvas` بلا دلالاتٍ واحدة.
+     *
+     *  أي أنّ مستعمل TalkBack لا يسمع شيئاً على شاشة القبلة إطلاقاً: لا
+     *  الاتّجاه، ولا كم بقي، ولا أنّه استقام. وهي شاشةٌ الغرضُ منها كلُّه
+     *  توجيهٌ — فمن لا يبصر أحوجُ الناس إليها.
+     *
+     *  والنصُّ حيٌّ يتغيّر مع الدوران، فيقرأ قارئُ الشاشة تقدّمَه.  */
+    val spoken = when {
+        aligned  -> stringResource(R.string.qibla_a11y_aligned)
+        else     -> stringResource(
+            R.string.qibla_a11y_turn,
+            kotlin.math.abs(delta).toInt().localized(ar),
+            stringResource(
+                if (delta > 0) R.string.qibla_a11y_left else R.string.qibla_a11y_right
+            ),
+        )
+    }
+
     Column(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = spoken
+                liveRegion = LiveRegionMode.Polite
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* الحالة */
@@ -165,10 +200,10 @@ private fun QiblaCompassContent(
             Spacer(Modifier.width(9.dp))
             Text(
                 when {
-                    !state.trustworthy -> "لا نُعلن الاتّجاه حتى تستقرّ البوصلة"
-                    aligned -> "ثبتَ الاتّجاه — استقبِلْ وصلِّ"
-                    near    -> "اقتربت — حرّكه ببطء"
-                    else    -> "أدِرِ الهاتفَ حتى تدخل الكعبةُ في الممرّ"
+                    !state.trustworthy -> stringResource(R.string.qibla_wait_steady)
+                    aligned -> stringResource(R.string.qibla_aligned)
+                    near    -> stringResource(R.string.qibla_near)
+                    else    -> stringResource(R.string.qibla_turn_hint)
                 },
                 style = RafiqType.bodyS,
                 color = if (aligned) rc.emerald else rc.inkMed,
@@ -180,16 +215,20 @@ private fun QiblaCompassContent(
         QiblaDial(delta = delta, heading = state.deviceHeading, aligned = aligned, accent = accent, rc = rc)
 
         Spacer(Modifier.height(6.dp))
-        Text("فرقُ الاتّجاه الآن", style = RafiqType.bodyS, color = rc.gold)
+        Text(stringResource(R.string.qibla_delta_label), style = RafiqType.bodyS, color = rc.gold)
         if (aligned) {
-            Text("استقبِلْ وصلِّ", style = RafiqType.hero, color = rc.emerald)
+            //  «استقبل وصلِّ» كلامُنا — بخطّ الواجهة لا بحرف النصّ المرويّ.
+            Text(stringResource(R.string.qibla_face_and_pray), style = RafiqType.nida, color = rc.emerald)
         } else {
             Row(verticalAlignment = Alignment.Bottom) {
+                /*  رقمٌ لا كلام: `display` بأرقامٍ متساوية العرض —
+                 *  الزاويةُ تتغيّر مع كلّ حركةِ يد، وكانت تُكتب بالأميري
+                 *  بأرقامٍ متفاوتةٍ فيرتجف السطرُ يميناً وشمالاً. */
                 Text("${kotlin.math.abs(delta).roundToInt().localized(ar)}°",
-                    style = RafiqType.hero, color = rc.emerald)
+                    style = RafiqType.display, color = rc.emerald)
                 Spacer(Modifier.width(7.dp))
                 Text(
-                    if (delta > 0) "يميناً" else "يساراً",
+                    if (delta > 0) stringResource(R.string.qibla_rightward) else stringResource(R.string.qibla_leftward),
                     style = RafiqType.titleM, color = rc.emerald,
                     modifier = Modifier.padding(bottom = 6.dp),
                 )
@@ -201,8 +240,8 @@ private fun QiblaCompassContent(
 
         Spacer(Modifier.height(9.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Fact("${state.qiblaBearing.roundToInt().localized(ar)}°", "زاويةُ القبلة", Modifier.weight(1f), rc)
-            Fact(state.distanceKm.localized(ar), "كم إلى مكّة", Modifier.weight(1f), rc)
+            Fact("${state.qiblaBearing.roundToInt().localized(ar)}°", stringResource(R.string.qibla_bearing), Modifier.weight(1f), rc)
+            Fact(state.distanceKm.localized(ar), stringResource(R.string.qibla_distance), Modifier.weight(1f), rc)
         }
     }
 }
@@ -287,9 +326,12 @@ private fun QiblaDial(
             size = Size(s * 2, s * 2),
             cornerRadius = CornerRadius(6.dp.toPx()),
         )
-        drawRect(rc.goldLight, Offset(k.x - s, k.y - s + s * 0.5f), Size(s * 2, s * 0.42f))
+        //  حزامُ الكعبة وبابُها بـ[kaabaGold] لا [goldLight]: الجسمُ ينقلب
+        //  بين الوضعين، والذهبُ العامُّ لا ينقلب معه فيختفيان في الليل.
+        //  والبابُ بشفافيّةٍ فوق الجسم — فيُفرَّق عن الحزام بلا لونٍ رابع.
+        drawRect(rc.kaabaGold, Offset(k.x - s, k.y - s + s * 0.5f), Size(s * 2, s * 0.42f))
         drawRoundRect(
-            Color(0xFFE0C37A),
+            rc.kaabaGold.copy(alpha = 0.70f),
             topLeft = Offset(k.x - s * 0.32f, k.y + s * 0.30f),
             size = Size(s * 0.64f, s * 0.70f),
             cornerRadius = CornerRadius(1.5.dp.toPx()),
@@ -314,16 +356,16 @@ private fun TrustGates(state: QiblaViewModel.UiState, rc: RafiqPalette) {
             RafiqIcon(RIcon.Check, 19.dp, rc.emerald)
             Spacer(Modifier.width(9.dp))
             Column {
-                Text("لا نُعلن الاتّجاه قبل أن تصدق الاثنتان",
+                Text(stringResource(R.string.qibla_gates),
                     style = RafiqType.label, color = rc.ink)
-                Text("وبوصلةُ الهاتف تخطئ قربَ المعدن والكهرباء.",
+                Text(stringResource(R.string.qibla_metal_warning),
                     style = RafiqType.bodyS, color = rc.inkMed)
             }
         }
         Spacer(Modifier.height(11.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Gate("البوصلةُ مضبوطة", state.compassTrusted, Modifier.weight(1f), rc)
-            Gate("القراءةُ ثابتة", state.readingSteady, Modifier.weight(1f), rc)
+            Gate(stringResource(R.string.qibla_gate_calibrated), state.compassTrusted, Modifier.weight(1f), rc)
+            Gate(stringResource(R.string.qibla_gate_steady), state.readingSteady, Modifier.weight(1f), rc)
         }
     }
 }
@@ -371,9 +413,9 @@ private fun Fact(value: String, label: String, modifier: Modifier, rc: RafiqPale
 private fun NoCompassContent(rc: RafiqPalette) {
     IcoCompass(80.dp, rc.error, off = true)
     Spacer(Modifier.height(16.dp))
-    Text("البوصلة غير متوفرة", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
+    Text(stringResource(R.string.qibla_no_sensor), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = rc.ink)
     Spacer(Modifier.height(8.dp))
-    Text("جهازك لا يدعم مستشعر البوصلة", textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
+    Text(stringResource(R.string.qibla_no_sensor_body), textAlign = TextAlign.Center, color = rc.inkMed, style = RafiqType.body)
 }
 
 @Composable

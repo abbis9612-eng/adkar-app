@@ -28,4 +28,24 @@ class DayCompanionRepositoryImpl(private val db: RafiqDatabase) : DayCompanionRe
         withContext(Dispatchers.IO) {
             db.dayStationLogQueries.complete(date, station, Clock.System.now().toEpochMilliseconds())
         }
+
+    override suspend fun uncompleteStation(date: String, station: String) =
+        withContext(Dispatchers.IO) {
+            db.dayStationLogQueries.uncomplete(date, station)
+        }
+
+    override fun getIntentions(date: String): Flow<Set<String>> =
+        db.dayIntentionQueries.getByDate(date)
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { it.toSet() }
+
+    override suspend fun setIntentions(date: String, items: Set<String>) =
+        withContext(Dispatchers.IO) {
+            val at = Clock.System.now().toEpochMilliseconds()
+            db.transaction {
+                db.dayIntentionQueries.clearDate(date)
+                items.forEach { db.dayIntentionQueries.add(date, it, at) }
+            }
+        }
 }

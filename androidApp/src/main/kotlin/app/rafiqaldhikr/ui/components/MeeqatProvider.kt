@@ -42,10 +42,23 @@ class MeeqatViewModel(
     private val _times = MutableStateFlow<PrayerTimesResult?>(null)
     val times: StateFlow<PrayerTimesResult?> = _times.asStateFlow()
 
-    init { refresh() }
+    /*  المواقيتُ تتبع التفضيلات ولا تُقرأ مرّةً واحدة.
+     *
+     *  كان `init { refresh() }` و`getPrefs().first()` — أي لقطةً واحدةً
+     *  عند إنشاء الـViewModel، ولا شيء ينادي `refresh()` بعدها أبداً.
+     *  فمن فتح التطبيق قبل أن يُحدَّد موقعُه بقي ورقُه بلا ضوءِ وقتٍ حتى
+     *  يُعاد تشغيل التطبيق، ومن بدّل طريقةَ الحساب لم يتغيّر عنده شيء.
+     */
+    init {
+        viewModelScope.launch {
+            prefsRepo.getPrefs().collect { if (it != null) recompute() }
+        }
+    }
 
-    fun refresh() = viewModelScope.launch {
-        val prefs = prefsRepo.getPrefs().first()
+    fun refresh() = viewModelScope.launch { recompute() }
+
+    private suspend fun recompute() {
+        val prefs = prefsRepo.getPrefs().first() ?: return
         val res = getPrayerTimes(
             lat           = prefs.lastKnownLat,
             lng           = prefs.lastKnownLng,
@@ -79,8 +92,19 @@ fun ProvideMeeqat(
 
     var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
+        var day = nowMs / 86_400_000L
         while (true) {
             nowMs = System.currentTimeMillis()
+            /*  عبورُ منتصف الليل يستوجب حساباً جديداً.
+             *
+             *  النبضةُ كانت تُحرّك `nowMs` وحدَها، والمواقيتُ محسوبةٌ ليومٍ
+             *  بعينه. فمن ترك التطبيق مفتوحاً عبر منتصف الليل بقي ورقُه
+             *  مصبوغاً بمواقيت أمس.  */
+            val today = nowMs / 86_400_000L
+            if (today != day) {
+                day = today
+                vm.refresh()
+            }
             delay(30_000)
         }
     }

@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import app.rafiqaldhikr.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -18,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import app.rafiq.domain.model.DailyProgressInfo
+import app.rafiq.domain.model.dayFill
 import app.rafiq.domain.repository.ProgressRepository
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import app.rafiqaldhikr.ui.theme.NumbersStyle
@@ -68,22 +72,12 @@ class DaysGridViewModel(
             progressRepo.getRange(first.toString(), today.toString()).collect { rows ->
                 val byDate = rows.associateBy { it.date }
                 _fills.value = (0 until DaysShown).map { i ->
-                    fillOf(byDate[first.plus(i, DateTimeUnit.DAY).toString()])
+                    dayFill(byDate[first.plus(i, DateTimeUnit.DAY).toString()])
                 }
             }
         }
     }
 
-    private fun fillOf(p: DailyProgressInfo?): Float {
-        if (p == null) return 0f
-        var score = 0f
-        if (p.morningDone) score += 1f
-        if (p.eveningDone) score += 1f
-        if (p.quranPages   > 0) score += 1f
-        if (p.tasbeehCount > 0) score += 1f
-        score += (p.prayersLogged.coerceIn(0, 5).toFloat() / 5f)
-        return (score / 5f).coerceIn(0f, 1f)
-    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -108,7 +102,7 @@ fun DaysGrid(
                 color = rc.gold,
             )
             Text(
-                "يوماً متّصلاً — أطول سلسلة ${streakLongest.toString().localizedDigits(ar)}",
+                stringResource(R.string.days_streak, streakLongest.toString().localizedDigits(ar)),
                 style = RafiqType.bodyS, color = rc.inkMed,
                 modifier = Modifier.padding(bottom = 5.dp),
             )
@@ -117,7 +111,7 @@ fun DaysGrid(
         Spacer(Modifier.height(10.dp))
 
         Text(
-            "آخر ${DaysShown.toString().localizedDigits(ar)} يوماً — كل مربّعٍ يومٌ، وارتفاع الحبر ما خُطّ منه",
+            stringResource(R.string.days_caption, DaysShown.toString().localizedDigits(ar)),
             style = RafiqType.caption, color = rc.inkMed,
         )
 
@@ -139,20 +133,29 @@ fun DaysGrid(
 @Composable
 private fun Leaves(fills: List<Float>) {
     val done = fills.count { it >= 0.999f }
+    val ctx = LocalContext.current
     Column(
         Modifier
             .fillMaxWidth()
             .semantics {
-                contentDescription = "دفتر آخر ${fills.size} يوماً — $done منها مكتملة"
+                contentDescription = ctx.getString(R.string.days_a11y, fills.size, done)
             },
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        fills.chunked(15).forEach { row ->
+        /*  اليومُ يُعرف بموضعه في القائمة لا بمطابقة مرجع.
+         *
+         *  كان الشرط `row === fills.chunked(15).last()` — و`chunked` تُنشئ
+         *  قائمةً جديدةً في كل نداء، فمقارنةُ المرجع `===` تكذب **دائماً**.
+         *  فلم تكن ورقةُ اليوم تُميَّز بحلقتها الزمرّدية قطّ، ولا في مرّة.
+         */
+        val rows = fills.chunked(15)
+        val todayIndex = fills.lastIndex
+        rows.forEachIndexed { rowIndex, row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 row.forEachIndexed { i, f ->
                     Leaf(
                         fill = f,
-                        isToday = row === fills.chunked(15).last() && i == row.lastIndex,
+                        isToday = rowIndex * 15 + i == todayIndex,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -203,6 +206,6 @@ private fun Legend() {
             }
         }
         Spacer(Modifier.width(2.dp))
-        Text("من ورقةٍ بيضاء إلى ورقةٍ مكتملة", style = RafiqType.caption, color = rc.inkMed)
+        Text(stringResource(R.string.days_legend), style = RafiqType.caption, color = rc.inkMed)
     }
 }

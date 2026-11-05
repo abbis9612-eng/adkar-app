@@ -17,9 +17,9 @@ SELECT * FROM Surah WHERE number = :number;
 
 search:
 SELECT * FROM Surah
-WHERE name_ar    LIKE '%' || :query || '%'
-   OR name_en    LIKE '%' || :query || '%'
-   OR name_translit LIKE '%' || :query || '%';
+WHERE name_ar    LIKE '%' || :query || '%' ESCAPE '\'
+   OR name_en    LIKE '%' || :query || '%' ESCAPE '\'
+   OR name_translit LIKE '%' || :query || '%' ESCAPE '\';
 
 count:
 SELECT COUNT(*) FROM Surah;

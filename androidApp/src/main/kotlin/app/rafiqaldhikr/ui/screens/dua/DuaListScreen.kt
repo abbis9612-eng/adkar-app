@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.rafiqaldhikr.ui.components.EmptyState
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.IcoHeart
 import app.rafiqaldhikr.ui.theme.LocalRafiqColors
 import org.koin.androidx.compose.koinViewModel
@@ -56,7 +57,13 @@ fun DuaListScreen(
                 onBack = { navController.popBackStack() },
             )
 
-            if (!state.isLoading && state.duas.isEmpty()) {
+            /*  `isLoading` تخصّ التصنيفات لا الأدعية — فكانت «لا أدعية»
+             *  تومض قبل وصول القائمة. و`duasLoading` تخصّ هذا التصنيف. */
+            if (state.duasLoading) {
+                LoadingState()
+                return@Column
+            }
+            if (state.duas.isEmpty()) {
                 EmptyState(message = stringResource(R.string.dua_empty))
                 return@Column
             }

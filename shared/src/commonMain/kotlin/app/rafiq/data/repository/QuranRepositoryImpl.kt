@@ -32,6 +32,12 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
             .mapToList(Dispatchers.IO)
             .map { it.map { a -> a.toDomain() } }
 
+    override suspend fun getAyah(surah: Int, ayah: Int): AyahInfo? =
+        withContext(Dispatchers.IO) {
+            db.ayahQueries.getAyah(surah.toLong(), ayah.toLong())
+                .executeAsOneOrNull()?.toDomain()
+        }
+
     override fun searchAyahs(query: String): Flow<List<AyahInfo>> =
         db.ayahQueries.searchSimple(query)
             .asFlow()
@@ -68,7 +74,8 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
                 ayah       = ayah.toLong(),
                 page       = page.toLong(),
                 created_at = Clock.System.now().toEpochMilliseconds(),
-                note       = null
+                note       = null,
+                kind       = "mark",
             )
         }
 
@@ -87,6 +94,84 @@ class QuranRepositoryImpl(private val db: RafiqDatabase) : QuranRepository {
             db.quranBookmarkQueries.exists(surah.toLong(), ayah.toLong())
                 .executeAsOne() > 0L
         }
+
+    override suspend fun ayahNote(surah: Int, ayah: Int): String? =
+        withContext(Dispatchers.IO) {
+            db.quranBookmarkQueries.getNote(surah.toLong(), ayah.toLong())
+                .executeAsOneOrNull()?.note?.takeIf { it.isNotBlank() }
+        }
+
+    /*  الملاحظةُ تُكتب على آيةٍ قد لا تكون مُعلَّمةً بعد.
+     *
+     *  فيُنشَأ لها صفٌّ أوّلاً (`INSERT OR IGNORE` فلا يُمسّ صفٌّ قائم)
+     *  ثمّ تُحدَّث. ولولا ذلك ضاعت كتابةُ من كتب ملاحظةً قبل أن يُعلّم.
+     *
+     *  والفارغةُ تُكتب null لا سلسلةً فارغة: `note` حقلٌ يحتمل الغياب،
+     *  والفراغُ غيابٌ لا قيمة. */
+    override suspend fun setAyahNote(surah: Int, ayah: Int, page: Int, note: String?) =
+        withContext(Dispatchers.IO) {
+            db.quranBookmarkQueries.upsertNote(
+                surah      = surah.toLong(),
+                ayah       = ayah.toLong(),
+                page       = page.toLong(),
+                created_at = Clock.System.now().toEpochMilliseconds(),
+            )
+            db.quranBookmarkQueries.updateNote(
+                note  = note?.trim()?.takeIf { it.isNotEmpty() },
+                surah = surah.toLong(),
+                ayah  = ayah.toLong(),
+            )
+        }
+
+    /*  موضعُ الوقوف **واحدٌ لا يتعدّد**.
+     *
+     *  فوضعُ موضعٍ جديد يمحو القديمَ أوّلاً. ولو تُرك يتراكم لصار قائمةَ
+     *  مواضعَ لا موضعاً — وذاك عملُ «العلامة» لا عملُه.
+     *
+     *  وإن كانت الآيةُ معلَّمةً أصلاً فلا تُحوَّل إلى موضعِ وقوف: علامتُها
+     *  مقصودةٌ لصاحبها، ونقلُها إلى ما يُزاح غداً إتلافٌ لها. فيُترك
+     *  الصفُّ كما هو ولا يُوضع موضعٌ على تلك الآية.
+     */
+    override fun stopMark(): Flow<QuranBookmark?> =
+        db.quranBookmarkQueries.getStop()
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { it?.toDomain() }
+
+    override suspend fun setStop(surah: Int, ayah: Int, page: Int) =
+        withContext(Dispatchers.IO) {
+            db.transaction {
+                /*  الصفُّ قائمٌ على هذه الآية؟ لا يُلمَس **ولا يُمحى
+                 *  الموضعُ القديم**.
+                 *
+                 *  وكان `clearStops()` يسبق الإدخال: فإن كانت الآيةُ
+                 *  معلَّمةً من قبلُ منع `UNIQUE(surah, ayah)` الإدخالَ
+                 *  بـ`OR IGNORE`، فيضيع الموضعُ القديمُ ولا يُكتب الجديد
+                 *  — ويُقال لصاحبه «وقفتَ هنا» وما وقف شيءٌ.
+                 *
+                 *  والعلامةُ لا تُحوَّل موضعاً: قد يكون عليها حاشيةٌ
+                 *  كتبها، وتحويلُها إتلافٌ لها. */
+                if (db.quranBookmarkQueries.exists(surah.toLong(), ayah.toLong())
+                        .executeAsOne() > 0L
+                ) {
+                    return@transaction
+                }
+                db.quranBookmarkQueries.clearStops()
+                db.quranBookmarkQueries.insert(
+                    surah      = surah.toLong(),
+                    ayah       = ayah.toLong(),
+                    page       = page.toLong(),
+                    created_at = Clock.System.now().toEpochMilliseconds(),
+                    note       = null,
+                    kind       = "stop",
+                )
+                //  `INSERT OR IGNORE` لا يفعل شيئاً إن كان الصفُّ قائماً
+                //  علامةً — فتُترك علامتُه ولا تُحوَّل.
+            }
+        }
+
+    override suspend fun clearStop() =
+        withContext(Dispatchers.IO) { db.quranBookmarkQueries.clearStops() }
 
     override suspend fun getTafsir(surah: Int, ayah: Int): String? =
         withContext(Dispatchers.IO) {

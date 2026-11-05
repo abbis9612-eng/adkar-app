@@ -3,6 +3,9 @@ package app.rafiqaldhikr.ui.screens.adhkar
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -16,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -23,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiqaldhikr.ui.components.EmptyState
 import app.rafiqaldhikr.ui.components.ErrorState
 import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RIcon
@@ -30,6 +35,9 @@ import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.RafiqIconButton
 import app.rafiqaldhikr.ui.navigation.RafiqRoute
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import app.rafiqaldhikr.R
 import app.rafiqaldhikr.ui.theme.*
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
@@ -59,6 +67,16 @@ fun DhikrReadingScreen(
 ) {
     val rc = LocalRafiqColors.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pinned by viewModel.pinned.collectAsStateWithLifecycle()
+    var showReminderFor by remember { mutableStateOf<Long?>(null) }
+
+    showReminderFor?.let { id ->
+        ReminderSheet(
+            current = pinned[id]?.meeqat.orEmpty(),
+            onPick = { viewModel.setReminder(id, it) },
+            onDismiss = { showReminderFor = null },
+        )
+    }
     val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(category) { viewModel.loadCategory(category) }
@@ -72,19 +90,39 @@ fun DhikrReadingScreen(
                 onRetry = { viewModel.loadCategory(category) },
             )
 
+            /*  الاحتفاءُ يحلّ محلَّ القراءة في المكدّس، لا يُوضع فوقها.
+             *
+             *  كان `navigate` عارياً: يعود القارئُ من الاحتفاء إلى شاشةٍ
+             *  حالتُها ما تزال «تمّ الكلّ»، فينطلق الانتقالُ ثانيةً، وزرُّ
+             *  النظام مثلُه. والشريطُ السفليُّ مخفيٌّ على الشاشتين معاً،
+             *  فكانت الحلقةُ لا تُكسر إلا بقتل التطبيق.  */
             uiState.isAllCompleted -> LaunchedEffect(Unit) {
-                navController.navigate(RafiqRoute.Celebration.route)
+                viewModel.consumeCompletion()
+                navController.navigate(RafiqRoute.Celebration.route) {
+                    popUpTo(RafiqRoute.DhikrReading.route) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
 
             uiState.adhkar.isNotEmpty() -> {
-                val dhikr = uiState.adhkar[uiState.currentIndex]
+                // getOrNull لا فهرسة عارية: الـFlow قد يُعيد قائمةً أقصر بعد
+                // أن تقدّم tap() الفهرس، فتنهار الشاشة بـIndexOutOfBounds.
+                val dhikr = uiState.adhkar.getOrNull(uiState.currentIndex)
+                    ?: uiState.adhkar.first()
                 val done  = uiState.currentCount >= dhikr.count
+                val pin = pinned[dhikr.id]
+                // يُقرأ خارج `semantics{}` — تلك لامبدا غير مركَّبة.
+                val tapHint = stringResource(R.string.dhikr_a11y, uiState.currentCount, dhikr.count)
 
                 Column(
                     Modifier
                         .fillMaxSize()
                         // كل الشاشة هدف اللمس — لا زرّ صغير
+                        /*  الشاشةُ كلُّها تعدّ — **ما لم يكتمل العدد**.
+                         *  فإذا اكتمل سكنت، ولا ينتقل شيءٌ إلّا بزرٍّ
+                         *  يضغطه صاحبُه: النصُّ لا يختفي تحت الإصبع. */
                         .clickable(
+                            enabled = !done,
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -93,8 +131,7 @@ fun DhikrReadingScreen(
                         }
                         .statusBarsPadding()
                         .semantics {
-                            contentDescription =
-                                "اضغط في أيّ مكان للعدّ. ${uiState.currentCount} من ${dhikr.count}"
+                            contentDescription = tapHint
                         },
                 ) {
                     TopRow(
@@ -126,21 +163,84 @@ fun DhikrReadingScreen(
 
                         Spacer(Modifier.height(14.dp))
 
-                        Text(
-                            listOfNotNull(
-                                dhikr.source.takeIf { it.isNotBlank() },
-                                dhikr.sourceGrade.takeIf { it.isNotBlank() },
-                            ).joinToString(" · "),
-                            style = RafiqType.caption,
-                            color = rc.inkMed,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        /*  الدرجةُ أوّلاً ثمّ التخريج.
+                         *
+                         *  التخريجُ في الأذكار المستورَدة فقرةٌ كاملةٌ بأرقام
+                         *  الأحاديث والأجزاء — تُنقل كما هي ولا تُختصر، لكنّها
+                         *  تُعرض أخفَّ من الدرجة وبثلاثة أسطرٍ حدّاً حتى لا
+                         *  تُزاحم الذكرَ نفسَه. */
+                        /*  ★ و⏰ — التثبيتُ والتذكير.
+                         *
+                         *  والتذكيرُ **بالميقات لا بالساعة**: «بعد المغرب»
+                         *  صحيحةٌ في كلّ بلدٍ وفصل، و«٦:٣٠» تنفع في بلدٍ
+                         *  وفصلٍ واحدٍ ثمّ تُعطَّل. */
+                        Row(
+                            Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 2.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            PinDot(
+                                icon = if (pin != null) RIcon.Check else RIcon.Bookmark,
+                                on = pin != null,
+                                label = stringResource(
+                                    if (pin != null) R.string.pin_remove else R.string.pin_add,
+                                ),
+                                rc = rc,
+                            ) { viewModel.togglePin(dhikr.id, pin != null) }
+                            Spacer(Modifier.width(10.dp))
+                            PinDot(
+                                icon = RIcon.Bell,
+                                on = pin?.hasReminder == true,
+                                label = stringResource(R.string.pin_remind),
+                                rc = rc,
+                            ) { showReminderFor = dhikr.id }
+                        }
 
-                        if (dhikr.virtue.isNotBlank()) {
+                        if (dhikr.sourceGrade.isNotBlank()) {
+                            Text(
+                                dhikr.sourceGrade,
+                                style = RafiqType.caption,
+                                color = rc.gold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                        if (dhikr.source.isNotBlank()) {
+                            Spacer(Modifier.height(3.dp))
+                            Text(
+                                dhikr.source,
+                                style = RafiqType.caption,
+                                color = rc.inkLight,
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+
+                        /*  ترجمةُ المعنى لمن لا يقرأ العربية.
+                         *
+                         *  النصُّ العربيُّ فوقها يبقى دائماً ولا يُستبدَل:
+                         *  من يذكر الله يذكره بلفظه، وهذه ليفهم ما يقول.
+                         *  ولا تظهر إلّا في الواجهة الإنجليزية. */
+                        val english = !LocalContext.current.resources.getBoolean(R.bool.is_rtl)
+                        if (english && dhikr.textEn.isNotBlank()) {
+                            Spacer(Modifier.height(14.dp))
+                            Text(
+                                dhikr.textEn,
+                                style = RafiqType.bodyS,
+                                color = rc.inkMed,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+
+                        val virtue = if (english && dhikr.virtueEn.isNotBlank()) dhikr.virtueEn
+                                     else dhikr.virtue
+                        if (virtue.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                dhikr.virtue,
+                                virtue,
                                 style = RafiqType.bodyS,
                                 color = rc.inkMed,
                                 textAlign = TextAlign.Center,
@@ -155,19 +255,58 @@ fun DhikrReadingScreen(
                         Spacer(Modifier.height(14.dp))
 
                         Text(
-                            when {
-                                !done -> stringResource(R.string.dhikr_tap_anywhere)
-                                uiState.currentIndex < uiState.adhkar.lastIndex -> stringResource(R.string.dhikr_done_next)
-                                else -> stringResource(R.string.dhikr_section_done)
-                            },
+                            if (done) stringResource(R.string.dhikr_done_wait)
+                            else stringResource(R.string.dhikr_tap_anywhere),
                             style = RafiqType.caption,
                             color = if (done) rc.gold else rc.inkMed,
+                            textAlign = TextAlign.Center,
                         )
+
+                        /*  التراجعُ يظهر متى وُجد ما يُتراجَع عنه. وهو
+                         *  خافتٌ عمداً: بابُ تصحيحٍ لا بابُ عمل. */
+                        if (uiState.currentCount > 0) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                stringResource(R.string.dhikr_undo),
+                                style = RafiqType.bodyS,
+                                color = rc.inkMed,
+                                textDecoration = TextDecoration.Underline,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { viewModel.undo() }
+                                    .padding(horizontal = 16.dp, vertical = 13.dp),
+                            )
+                        }
+
+                        if (done) {
+                            Spacer(Modifier.height(16.dp))
+                            val last = uiState.currentIndex >= uiState.adhkar.lastIndex
+                            Text(
+                                stringResource(
+                                    if (last) R.string.dhikr_finish
+                                    else R.string.dhikr_next_explicit,
+                                ),
+                                style = RafiqType.label,
+                                color = rc.onEmeraldFill,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp, 16.dp, 26.dp, 16.dp))
+                                    .background(rc.emeraldFill)
+                                    .clickable { viewModel.next() }
+                                    .padding(vertical = 16.dp),
+                            )
+                        }
 
                         Spacer(Modifier.height(28.dp))
                     }
                 }
             }
+
+            /*  تصنيفٌ بلا محتوى كان يعطي شاشةً بيضاء صامتة: لا تحميل ولا
+             *  خطأ ولا سطر. وهي حالةٌ واقعة — تُفتح الشاشة قبل أن تكتمل
+             *  تعبئةُ القاعدة في أوّل تشغيل.  */
+            else -> EmptyState(message = stringResource(R.string.adhkar_empty_category))
         }
     }
 }
@@ -193,12 +332,14 @@ private fun TopRow(title: String, onBack: () -> Unit) {
 
 @Composable
 private fun Beads(total: Int, current: Int) {
+    // يُقرأ خارج `semantics{}` — تلك لامبدا غير مركَّبة.
+    val label = stringResource(R.string.dhikr_of_total, current + 1, total)
     val rc = LocalRafiqColors.current
     Row(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp)
-            .semantics { contentDescription = "الذكر ${current + 1} من $total" },
+            .semantics { contentDescription = label },
         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -268,7 +409,7 @@ private fun CountRing(count: Int, target: Int) {
                 style = RafiqType.display, color = rc.ink,
             )
             Text(
-                "من ${target.toString().localizedDigits(LocalArabicNumerals.current)}",
+                stringResource(R.string.dhikr_of, target.toString().localizedDigits(LocalArabicNumerals.current)),
                 style = RafiqType.caption, color = rc.inkMed,
             )
         }
@@ -294,3 +435,90 @@ private fun getCategoryTitle(category: String): String = stringResource(
         else      -> R.string.nav_tasbeeh
     }
 )
+
+/** زرُّ تثبيتٍ صغير — مملوءٌ حين يكون مفعَّلاً. */
+@Composable
+private fun PinDot(
+    icon: RIcon,
+    on: Boolean,
+    label: String,
+    rc: app.rafiqaldhikr.ui.theme.RafiqPalette,
+    onClick: () -> Unit,
+) {
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .background(if (on) rc.emeraldFill else androidx.compose.ui.graphics.Color.Transparent)
+            .border(1.dp, if (on) rc.emeraldFill else rc.divider, CircleShape)
+            .clickable(onClick = onClick)
+            .defaultMinSize(minHeight = 40.dp)
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RafiqIcon(icon, 15.dp, if (on) rc.onEmeraldFill else rc.inkMed)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            label,
+            style = RafiqType.metaS,
+            color = if (on) rc.onEmeraldFill else rc.inkMed,
+            maxLines = 1,
+        )
+    }
+}
+
+/**
+ * ورقةُ اختيار ميقات التذكير.
+ *
+ * ستّةُ مواقيتَ ولا ساعاتٍ — وسطرٌ سابعٌ ينزع التذكير. ولا ليلَ هنا:
+ * أذكارُ النوم لها تذكيرُها المبنيُّ أصلاً بعد العشاء.
+ */
+@Composable
+private fun ReminderSheet(
+    current: String,
+    onPick: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val rc = LocalRafiqColors.current
+    val options = listOf(
+        "" to stringResource(R.string.pin_none),
+        "fajr" to stringResource(R.string.fajr),
+        "duha" to stringResource(R.string.meeqat_duha),
+        "dhuhr" to stringResource(R.string.dhuhr),
+        "asr" to stringResource(R.string.asr),
+        "maghrib" to stringResource(R.string.maghrib),
+        "isha" to stringResource(R.string.isha),
+    )
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        containerColor = rc.card,
+        title = {
+            Text(stringResource(R.string.pin_remind), style = RafiqType.titleM, color = rc.ink)
+        },
+        text = {
+            Column {
+                options.forEach { (key, label) ->
+                    val on = key == current
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onPick(key); onDismiss() }
+                            .defaultMinSize(minHeight = 48.dp)
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            if (key.isEmpty()) label
+                            else stringResource(R.string.pin_after, label),
+                            style = RafiqType.body,
+                            color = if (on) rc.emerald else rc.ink,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (on) RafiqIcon(RIcon.Check, 17.dp, rc.emerald)
+                    }
+                }
+            }
+        },
+    )
+}

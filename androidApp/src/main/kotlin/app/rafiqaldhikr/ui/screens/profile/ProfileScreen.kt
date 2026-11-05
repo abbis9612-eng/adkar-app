@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.rafiq.domain.model.dayFill
 import app.rafiqaldhikr.ui.components.IcoMosque
 import app.rafiqaldhikr.ui.components.RIcon
 import app.rafiqaldhikr.ui.components.RafiqIcon
@@ -37,6 +38,7 @@ import kotlin.math.*
 import app.rafiqaldhikr.ui.theme.RafiqType
 import app.rafiqaldhikr.ui.theme.RafiqShape
 import app.rafiqaldhikr.ui.theme.BorderIdle
+import app.rafiqaldhikr.ui.components.LoadingState
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.components.rafiqCard
 import app.rafiqaldhikr.ui.theme.stillableFloat
@@ -226,7 +228,18 @@ private fun TodayRow(label: String, value: String, isAchieved: Boolean, isLast: 
 @Composable
 private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressInfo>, todayIdx: Int) {
     val rc = LocalRafiqColors.current
-    val days = listOf("س", "ح", "ن", "ث", "ر", "خ", "ج")
+
+    /*  حرفُ اليوم يُشتقّ من تاريخِ الصفّ لا من موضعه في القائمة.
+     *
+     *  كانت `days[idx]` — أي الحرفُ الأوّلُ لأوّل صفٍّ مهما كان يومُه.
+     *  و`ProgressRepository.getRange` يُرجع الأيّامَ التي لها صفٌّ في
+     *  القاعدة وحدَها، فأسبوعٌ فيه ثلاثةُ أيّامٍ مسجَّلة كان يُسمّيها
+     *  «السبت والأحد والاثنين» أيّاً كانت. والحسابُ الصحيح موجودٌ أصلاً
+     *  في `AwraqViewModel.weekdayIndex` — يُعاد استعماله لا يُكتب ثانية.  */
+    val letters = app.rafiqaldhikr.util.weekdayLetters()
+    fun letterOf(dateIso: String): String = runCatching {
+        letters[app.rafiqaldhikr.util.weekdayIndex(kotlinx.datetime.LocalDate.parse(dateIso))]
+    }.getOrDefault("")
 
     Row(
         Modifier
@@ -235,12 +248,15 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        weekProgress.takeLast(7).forEachIndexed { idx, day ->
-            val score = ((if (day.morningDone) 1 else 0) +
-                    (if (day.eveningDone) 1 else 0) +
-                    day.prayersLogged.toInt().coerceAtMost(5))
-            val filled = score >= 5
-            val isToday = idx == weekProgress.size - 1
+        val week = weekProgress.takeLast(7)
+        week.forEachIndexed { idx, day ->
+            /*  كانت هذه ثالثةَ صيغةٍ لسؤالٍ واحد: صباحٌ + مساءٌ + عددُ
+             *  الصلوات، و«مكتمل» عند ٥ — فمن صلّى الخمسَ ولم يذكر شيئاً
+             *  يُقال له يومُك تامّ. والحسابُ الآن في `dayFill` وحدَه. */
+            val fill   = dayFill(day)
+            val score  = (fill * 5f).toInt()
+            val filled = fill >= 1f
+            val isToday = idx == week.lastIndex
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
@@ -269,11 +285,9 @@ private fun WeekCircles(weekProgress: List<app.rafiq.domain.model.DailyProgressI
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                if (idx < days.size) {
-                    Text(days[idx],
-                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
-                }
+                Text(letterOf(day.date),
+                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isToday) rc.gold else rc.inkMed, style = RafiqType.micro)
             }
         }
     }
@@ -326,6 +340,16 @@ fun ProfileScreen(
     val rc = LocalRafiqColors.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
+    /*  `isLoading` كانت تُحسب في `ProfileViewModel` منذ أوّل يوم و**لا
+     *  يقرؤها أحدٌ من الشاشات الأربع** التي تشاركه. فيفتح المستخدمُ
+     *  الشاشةَ فيرى أصفاراً — سلسلةٌ صفر، أيّامٌ صفر — ثمّ تُصحَّح بعد
+     *  إطارٍ أو إطارين. والصفرُ الكاذبُ في شاشةِ مواظبةٍ ليس بطيئاً
+     *  فحسب: هو يقول لصاحب الأربعين يوماً إنّه بدأ اليوم. */
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize().background(rc.bg)) { LoadingState() }
+        return
+    }
 
     Box(
         Modifier.fillMaxSize().background(rc.bg)
@@ -422,10 +446,13 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ═══ QUICK LINKS ═══
-            // التقرير الأسبوعي والحديقة والمشاركة مؤجَّلة إلى ما بعد V1:
-            // الشاشات موجودة (@HiddenInV1) لكن لا مدخل لها — القرار في FINISH_PLAN.md ط٠.
-            // «أوراقي» خرجت من التأجيل بطلبٍ صريح، ولها مدخلها أدناه.
+            /*  ═══ روابطُ سريعة ═══
+             *
+             *  كانت التقريرُ والحديقةُ والمشاركةُ والتنفّسُ موسومةً
+             *  `@HiddenInV1` بلا مدخل: أربعُ شاشاتٍ في الشجرة يُترجمها
+             *  المترجمُ ويحملها المستخدمُ في الـAPK ولا سبيلَ إليها.
+             *  أُصلحت عيوبُها (الحساب، الأسبوع، الحركة، الصورة) فرُفع
+             *  الإخفاءُ وصار لكلٍّ بابُها هنا. */
             SectionHeader(stringResource(R.string.quick_links))
             Spacer(Modifier.height(10.dp))
 
@@ -445,6 +472,35 @@ fun ProfileScreen(
                     },
                     label = stringResource(R.string.stat_detailed),
                 ) { navController.navigate(RafiqRoute.Statistics.route) }
+
+                /*  «سنتك» — المرآة.
+                 *
+                 *  وأيقونتُها شبكةُ المرآة نفسُها مصغَّرة: ستَّ عشرةَ خانةً
+                 *  بأعماقٍ مختلفة، فتُعرف الشاشةُ من رمزها قبل اسمها. */
+                QuickLinkCard(
+                    icon = {
+                        Canvas(Modifier.size(18.dp)) {
+                            val w = size.width
+                            val c = w / 5.4f
+                            val g = (w - c * 4) / 3f
+                            val depths = listOf(
+                                0f, 0.3f, 0.7f, 1f,
+                                0.5f, 1f, 0.2f, 0.8f,
+                                1f, 0.6f, 0f, 0.4f,
+                                0.9f, 0.3f, 1f, 0.7f,
+                            )
+                            depths.forEachIndexed { i, d ->
+                                val x = (i % 4) * (c + g)
+                                val y = (i / 4) * (c + g)
+                                drawRect(
+                                    rc.emerald.copy(alpha = 0.18f + d * 0.82f),
+                                    Offset(x, y), Size(c, c),
+                                )
+                            }
+                        }
+                    },
+                    label = stringResource(R.string.mirror_title),
+                ) { navController.navigate(RafiqRoute.Mirror.route) }
 
                 QuickLinkCard(
                     icon = {
@@ -466,8 +522,28 @@ fun ProfileScreen(
                             }
                         }
                     },
-                    label = "أوراقي",
+                    label = stringResource(R.string.profile_title),
                 ) { navController.navigate(RafiqRoute.Achievements.route) }
+
+                QuickLinkCard(
+                    icon = { RafiqIcon(RIcon.Moon, 18.dp, rc.emerald) },
+                    label = stringResource(R.string.report_title),
+                ) { navController.navigate(RafiqRoute.WeeklyReport.route) }
+
+                QuickLinkCard(
+                    icon = { Text("🌿", fontSize = 15.sp) },
+                    label = stringResource(R.string.garden_title),
+                ) { navController.navigate(RafiqRoute.Garden.route) }
+
+                QuickLinkCard(
+                    icon = { RafiqIcon(RIcon.Heart, 18.dp, rc.emerald) },
+                    label = stringResource(R.string.breath_title),
+                ) { navController.navigate(RafiqRoute.Breathing.route) }
+
+                QuickLinkCard(
+                    icon = { app.rafiqaldhikr.ui.components.IcoShare(18.dp, rc.emerald) },
+                    label = stringResource(R.string.share_title),
+                ) { navController.navigate(RafiqRoute.ShareCard.route) }
             }
 
             Spacer(Modifier.height(28.dp))
