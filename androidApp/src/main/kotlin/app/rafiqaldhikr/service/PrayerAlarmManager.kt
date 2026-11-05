@@ -47,6 +47,13 @@ class PrayerAlarmManager(private val context: Context) {
         const val SNOOZE_MS      = 10 * 60_000L
         const val END_PREFIX     = "end:"
 
+        /*  اللوحُ الطائف خارجَ التطبيق — إشعارٌ قبل الصلاة بعشر دقائق.
+         *  ومعرّفاتُه ١٢٠–١٢٤. وداخلَ التطبيق يظهر اللوحُ نفسُه بلا إشعار. */
+        const val LAWH_ID_BASE = 120
+        const val LAWH_LEAD_MS = 10 * 60_000L
+        const val LAWH_PREFIX  = "lawh:"
+        private val FIVE = listOf("fajr", "dhuhr", "asr", "maghrib", "isha")
+
         fun endIdOf(prayer: String): Int? = when (prayer) {
             "fajr"    -> END_FAJR_ID
             "dhuhr"   -> END_DHUHR_ID
@@ -67,6 +74,16 @@ class PrayerAlarmManager(private val context: Context) {
             val end = ends[p]
             if (!enabled || end == null) cancelOne(id)
             else schedulePrayer(END_PREFIX + p, end - END_LEAD_MS, id)
+        }
+    }
+
+    /** يجدول إشعارَ اللوح قبل كلِّ صلاة — أو يُلغيه إن أُطفئ. */
+    fun scheduleLawh(prayerTimes: Map<String, Long>, enabled: Boolean) {
+        FIVE.forEachIndexed { i, p ->
+            val id = LAWH_ID_BASE + i
+            val at = prayerTimes[p]
+            if (!enabled || at == null) cancelOne(id)
+            else schedulePrayer(LAWH_PREFIX + p, at - LAWH_LEAD_MS, id, endAt = at)
         }
     }
 
@@ -227,7 +244,7 @@ class PrayerAlarmManager(private val context: Context) {
                 FAJR_ID, DHUHR_ID, ASR_ID, MAGHRIB_ID, ISHA_ID,
                 ADHKAR_MORNING_ID, ADHKAR_EVENING_ID, ADHKAR_SLEEP_ID,
                 END_FAJR_ID, END_DHUHR_ID, END_ASR_ID, END_MAGHRIB_ID,
-            ) + pinIds.map { (PIN_ID_BASE + it).toInt() }
+            ) + (0 until 5).map { LAWH_ID_BASE + it } + pinIds.map { (PIN_ID_BASE + it).toInt() }
         ).forEach { id ->
             val intent  = Intent(context, PrayerAlarmReceiver::class.java)
             val pending = PendingIntent.getBroadcast(

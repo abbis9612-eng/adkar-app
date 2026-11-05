@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -166,6 +167,7 @@ class MainActivity : AppCompatActivity() {
                     active = onboardingCompleted == true &&
                         currentRoute == RafiqRoute.Home.route,
                 ) {
+                androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
                 Scaffold(
                     containerColor = LocalRafiqColors.current.bg,
                     // الشاشات تتكفل بـ statusBarsPadding بنفسها — منع ازدواج الحشوة
@@ -190,6 +192,13 @@ class MainActivity : AppCompatActivity() {
                             modifier            = Modifier.padding(innerPadding)
                         )
                     }
+                }
+                /*  اللوحُ الطائف — فوق الشاشات كلِّها، قبل الصلاة بعشر
+                 *  دقائق. لا في الترحيب: من لم يبدأ بعدُ لا يُقاطَع. */
+                app.rafiqaldhikr.ui.components.LawhHost(
+                    allowed = onboardingCompleted == true &&
+                        currentRoute != RafiqRoute.Onboarding.route,
+                )
                 }
                 }
                }

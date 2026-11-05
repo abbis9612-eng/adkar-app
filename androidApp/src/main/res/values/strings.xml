@@ -1084,4 +1084,21 @@
     <string name="notif_end_snooze">ذكّرني بعد ١٠د</string>
     <string name="notif_end_row">قبل خروج الوقت</string>
     <string name="notif_end_desc">قبل آخر الوقت بعشرين دقيقة إن لم تُسجَّل الصلاة — عدا العشاء، لاختلاف العلماء في آخر وقتها</string>
+
+    <!-- اللوحُ الطائف -->
+    <string name="lawh_call_m">أَخِي الكَرِيم</string>
+    <string name="lawh_call_f">أُخْتِي الكَرِيمَة</string>
+    <string name="lawh_before">قبل %1$s</string>
+    <string name="lawh_plain">%2$s بعد %1$dد. لا تشغل فكرك بشيءٍ الآن — ضَعْ ما تحمله، تجده بعدها إن كان يستحقّ.</string>
+    <string name="lawh_from_quran">من كتاب الله</string>
+    <string name="lawh_from_hadith">من حديث رسول الله ﷺ</string>
+    <string name="lawh_go">أنا ذاهبٌ إليها</string>
+    <string name="lawh_snooze">أجِّل ٥ د</string>
+    <string name="lawh_surah_23">المؤمنون %1$s</string>
+    <string name="lawh_surah_2">البقرة %1$s</string>
+    <string name="notif_channel_lawh">قبل الصلاة</string>
+    <string name="lawh_setting">اللوح قبل الصلاة</string>
+    <string name="lawh_setting_desc">لوحٌ ينزل قبل كلّ صلاةٍ بعشر دقائق، وإشعارٌ إن كان التطبيقُ مغلقاً</string>
+    <string name="lawh_sister">النداء: «أختي الكريمة»</string>
+    <string name="lawh_sister_desc">بدل «أخي الكريم»</string>
 </resources>

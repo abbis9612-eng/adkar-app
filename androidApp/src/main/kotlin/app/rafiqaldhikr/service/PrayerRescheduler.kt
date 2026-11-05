@@ -113,6 +113,12 @@ class PrayerRescheduler(
             enabled = prefs.end_reminder == 1L,
         )
 
+        //  اللوحُ الطائف — مفتاحُه في تفضيلات اللوح لا في القاعدة
+        alarmManager.scheduleLawh(
+            alarmMap,
+            enabled = app.rafiqaldhikr.ui.components.LawhPrefs.enabled(context),
+        )
+
         /*  تذكيراتُ الأذكار المثبَّتة — تُجدوَل مع مواقيت اليوم نفسِها.
          *
          *  وموضعُها هنا لا في شاشةٍ: هذا هو الموضعُ الذي يُنادى عند

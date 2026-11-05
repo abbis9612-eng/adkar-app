@@ -178,6 +178,51 @@ fun NotificationSettingsScreen(
                     Spacer(Modifier.height(6.dp))
                 }
 
+                /*  اللوحُ الطائف — مفتاحُه وصيغةُ ندائه.
+                 *
+                 *  في تفضيلات اللوح لا في القاعدة: حالةُ عرض، لا بيانٌ يُصدَّر.
+                 *  وتبديلُه يُعيد الجدولة ليُلغى إشعارُه أو يُجدوَل فوراً. */
+                Spacer(Modifier.height(16.dp))
+                val lctx = androidx.compose.ui.platform.LocalContext.current
+                var lawhOn by remember { mutableStateOf(app.rafiqaldhikr.ui.components.LawhPrefs.enabled(lctx)) }
+                var sister by remember { mutableStateOf(app.rafiqaldhikr.ui.components.LawhPrefs.sister(lctx)) }
+                Column(Modifier.fillMaxWidth().rafiqCard()) {
+                    listOf(
+                        Triple(R.string.lawh_setting, R.string.lawh_setting_desc, lawhOn),
+                        Triple(R.string.lawh_sister, R.string.lawh_sister_desc, sister),
+                    ).forEachIndexed { i, (titleRes, descRes, checked) ->
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stringResource(titleRes), color = rc.ink, style = RafiqType.body)
+                                Text(stringResource(descRes), style = RafiqType.bodyS, color = rc.inkMed)
+                            }
+                            Switch(
+                                checked = checked,
+                                enabled = i == 0 || lawhOn,
+                                onCheckedChange = { v ->
+                                    if (i == 0) {
+                                        lawhOn = v
+                                        app.rafiqaldhikr.ui.components.LawhPrefs.setEnabled(lctx, v)
+                                        vm.rescheduleNow()
+                                    } else {
+                                        sister = v
+                                        app.rafiqaldhikr.ui.components.LawhPrefs.setSister(lctx, v)
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = rc.card,
+                                    checkedTrackColor = rc.emerald,
+                                    uncheckedThumbColor = rc.inkLight,
+                                    uncheckedTrackColor = rc.divider
+                                )
+                            )
+                        }
+                    }
+                }
+
                 /*  دقّةُ التنبيه — حالٌ يجب أن يراها صاحبُه.
                  *
                  *  التطبيق يستهدف SDK 36، وأندرويد يسحب إذنَ التنبيه الدقيق

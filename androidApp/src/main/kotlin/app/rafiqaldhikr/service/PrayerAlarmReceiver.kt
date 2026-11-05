@@ -43,6 +43,11 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             )
             return
         }
+        if (prayerName.startsWith(PrayerAlarmManager.LAWH_PREFIX)) {
+            showLawh(context, prayerName.removePrefix(PrayerAlarmManager.LAWH_PREFIX), notifId,
+                intent.getLongExtra("end_at", 0L))
+            return
+        }
         if (prayerName.startsWith(END_ACTION)) {
             onEndAction(context, prayerName.removePrefix(END_ACTION), notifId, intent)
             return
@@ -217,6 +222,76 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                         pendingResult.finish()
                     }
                 }
+            }
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       اللوحُ الطائف خارجَ التطبيق — الكلامُ نفسُه في إشعار
+
+       ومن كان في التطبيق رأى اللوحَ فوق شاشته (`LawhHost`)، فلا يُضاف
+       إليه إشعارٌ بالشيء نفسِه.
+    ═══════════════════════════════════════════════════════════════ */
+
+    private fun inForeground(): Boolean = runCatching {
+        val info = android.app.ActivityManager.RunningAppProcessInfo()
+        android.app.ActivityManager.getMyMemoryState(info)
+        info.importance <= android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    }.getOrDefault(false)
+
+    private fun showLawh(context: Context, prayer: String, notifId: Int, prayerAt: Long) {
+        if (inForeground()) return
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                val texts = app.rafiqaldhikr.ui.components.LawhStore.load(context)
+                val doy = kotlinx.datetime.Clock.System.now()
+                    .toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).date.dayOfYear
+                val five = listOf("fajr", "dhuhr", "asr", "maghrib", "isha")
+                val t = texts.getOrNull((doy + five.indexOf(prayer).coerceAtLeast(0)) % texts.size.coerceAtLeast(1))
+                val name = when (prayer) {
+                    "isha" -> context.getString(R.string.isha)
+                    else -> prayerLabel(context, prayer)
+                }
+                val sister = app.rafiqaldhikr.ui.components.LawhPrefs.sister(context)
+                val minutes = ((prayerAt - System.currentTimeMillis()) / 60_000L).toInt().coerceAtLeast(1)
+                val plain = context.getString(R.string.lawh_plain, minutes, name)
+                val body = buildString {
+                    append(plain)
+                    if (t != null) append("\n\n").append(t.text).append("\n— ").append(t.source)
+                }
+
+                val channelId = "lawh_channel"
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.getSystemService(NotificationManager::class.java).createNotificationChannel(
+                        NotificationChannel(channelId, context.getString(R.string.notif_channel_lawh),
+                            NotificationManager.IMPORTANCE_HIGH),
+                    )
+                }
+                val tapPending = PendingIntent.getActivity(
+                    context, notifId,
+                    Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+                val notification = NotificationCompat.Builder(context, channelId)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle(context.getString(
+                        if (sister) R.string.lawh_call_f else R.string.lawh_call_m))
+                    .setContentText(plain)
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setAutoCancel(true)
+                    .setTimeoutAfter((prayerAt - System.currentTimeMillis()).coerceAtLeast(60_000L))
+                    .setContentIntent(tapPending)
+                    .build()
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                    NotificationManagerCompat.from(context).notify(notifId, notification)
+                }
+            } finally {
+                pendingResult.finish()
             }
         }
     }

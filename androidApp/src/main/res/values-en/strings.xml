@@ -1059,4 +1059,21 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="notif_end_snooze">Remind me in 10m</string>
     <string name="notif_end_row">Before the time ends</string>
     <string name="notif_end_desc">20 minutes before a prayer\'s time ends, if not logged — except Isha, whose end time scholars differ on</string>
+
+    <!-- اللوحُ الطائف -->
+    <string name="lawh_call_m">Dear brother</string>
+    <string name="lawh_call_f">Dear sister</string>
+    <string name="lawh_before">Before %1$s</string>
+    <string name="lawh_plain">%2$s in %1$dm. Don\'t occupy your mind with anything now — set down what you carry; you\'ll find it after, if it deserves it.</string>
+    <string name="lawh_from_quran">From the Book of Allah</string>
+    <string name="lawh_from_hadith">From the Messenger of Allah ﷺ</string>
+    <string name="lawh_go">I\'m going to it</string>
+    <string name="lawh_snooze">Snooze 5m</string>
+    <string name="lawh_surah_23">al-Mu\'minun %1$s</string>
+    <string name="lawh_surah_2">al-Baqarah %1$s</string>
+    <string name="notif_channel_lawh">Before the prayer</string>
+    <string name="lawh_setting">Slate before the prayer</string>
+    <string name="lawh_setting_desc">A slate drops 10 minutes before each prayer, and a notification if the app is closed</string>
+    <string name="lawh_sister">Address me as a sister</string>
+    <string name="lawh_sister_desc">Instead of “Dear brother”</string>
 </resources>

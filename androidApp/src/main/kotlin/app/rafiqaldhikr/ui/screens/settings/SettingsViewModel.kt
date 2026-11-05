@@ -111,6 +111,10 @@ class SettingsViewModel(
         }
     }
 
+    /** بعد تبديل مفتاحٍ ليس في القاعدة (اللوح) — الجدولةُ تتبعه فوراً. */
+    fun rescheduleNow() {
+        viewModelScope.launch { runCatching { rescheduler.reschedule() } }
+    }
     fun setEndReminder(enabled: Boolean) {
         viewModelScope.launch {
             prefsRepo.updateEndReminder(enabled)
