@@ -25,3 +25,7 @@ DELETE FROM DayStationLog;
 -- لا تغيير في البنية، فلا ترحيل.
 uncomplete:
 DELETE FROM DayStationLog WHERE date = :date AND station = :station;
+
+-- للتصدير: «فعلتُها» ومهامُّ المحطّات كلُّها — سجلُّ عبادته لا حالةُ عرض.
+getAll:
+SELECT * FROM DayStationLog ORDER BY date;

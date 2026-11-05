@@ -85,6 +85,14 @@ private data class ExportedLastRead(
     val page: Long,
 )
 
+/** صفٌّ من `DayStationLog` أو `DayIntention` — تاريخٌ ومفتاحٌ ولحظة. */
+@Serializable
+private data class ExportedDayMark(
+    val date: String,
+    val key: String,
+    val at: Long,
+)
+
 @Serializable
 private data class RafiqExport(
     val formatVersion: Int,
@@ -99,6 +107,10 @@ private data class RafiqExport(
     val quranLastRead: ExportedLastRead?,
     val favoriteDuas: List<String>,
     val unlockedAchievements: List<String> = emptyList(),
+    /*  حقلان أُضيفا بافتراضيٍّ فارغ — فالصيغةُ تبقى ١: ملفٌّ قديمٌ بلاهما
+     *  يُقرأ كما كان، ونسخةٌ أقدمُ تتجاهلهما بـ`ignoreUnknownKeys`. */
+    val dayStations: List<ExportedDayMark> = emptyList(),
+    val dayIntentions: List<ExportedDayMark> = emptyList(),
 )
 
 class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository {
@@ -191,6 +203,12 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             },
             favoriteDuas = db.duaQueries.getFavorites().executeAsList().map { it.text_ar },
             unlockedAchievements = db.achievementQueries.getAll().executeAsList().map { it.key },
+            dayStations = db.dayStationLogQueries.getAll().executeAsList().map {
+                ExportedDayMark(it.date, it.station, it.completed_at)
+            },
+            dayIntentions = db.dayIntentionQueries.getAll().executeAsList().map {
+                ExportedDayMark(it.date, it.item, it.created_at)
+            },
         )
 
         json.encodeToString(RafiqExport.serializer(), export)
@@ -345,6 +363,10 @@ class UserDataRepositoryImpl(private val db: RafiqDatabase) : UserDataRepository
             }
 
             data.unlockedAchievements.forEach { db.achievementQueries.unlock(it, 0L) }
+
+            //  محاسبةُ الأيّام وعزمُها — دمجٌ بـINSERT OR IGNORE كسجلّ الصلاة
+            data.dayStations.forEach { db.dayStationLogQueries.complete(it.date, it.key, it.at) }
+            data.dayIntentions.forEach { db.dayIntentionQueries.add(it.date, it.key, it.at) }
 
             /*  المفضّلةُ تُطابَق بالنصّ لا بالمعرّف.
              *

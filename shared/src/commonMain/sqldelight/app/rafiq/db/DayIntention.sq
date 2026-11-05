@@ -19,3 +19,7 @@ DELETE FROM DayIntention WHERE date = :date;
 
 deleteAll:
 DELETE FROM DayIntention;
+
+-- للتصدير.
+getAll:
+SELECT * FROM DayIntention ORDER BY date;
