@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 
 class PrayerTimesViewModel(
@@ -39,7 +40,9 @@ class PrayerTimesViewModel(
         val isLoading:  Boolean            = true,
         val error:      String?            = null,
         /** لا إحداثيات محفوظة — الشاشة تطلب الموقع بدل عرض أوقات ليست للمستخدم. */
-        val needsLocation: Boolean         = false
+        val needsLocation: Boolean         = false,
+        /** صلواتُ المسجد في الأيّام السبعة الأخيرة — أقدمُها أوّلاً، واليومُ آخرُها. */
+        val masjidWeek: List<Pair<kotlinx.datetime.LocalDate, Int>> = emptyList(),
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -126,6 +129,41 @@ class PrayerTimesViewModel(
             prayerRepo.getByDate(today).collect { logs ->
                 _uiState.update { it.copy(prayerLogs = logs) }
             }
+        }
+
+        weekJob?.cancel()
+        weekJob = viewModelScope.launch {
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val days = (6 downTo 0).map { today.minus(kotlinx.datetime.DatePeriod(days = it)) }
+            prayerRepo.getRange(days.first().toString(), today.toString()).collect { logs ->
+                val byDay = logs.filter { it.inMasjid }.groupingBy { it.date }.eachCount()
+                _uiState.update { s -> s.copy(masjidWeek = days.map { it to (byDay[it.toString()] ?: 0) }) }
+            }
+        }
+    }
+
+    private var weekJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * نافذةُ اللوحة: لم تُسجَّل ← صلّيتُ ← في المسجد ← لم تُسجَّل.
+     *
+     * والضغطةُ الثالثةُ تمحو الصلاةَ والمسجدَ معاً — من ضغط خطأً يدور
+     * إلى البداية بلا زرٍّ آخر.
+     */
+    fun cycle(prayerName: String) {
+        val entry = _uiState.value.prayerLogs.find { it.prayerName == prayerName }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+        viewModelScope.launch {
+            when {
+                entry?.inMasjid == true -> {
+                    prayerRepo.setInMasjid(today, prayerName, false)
+                    prayerRepo.logPrayer(today, prayerName, false)
+                }
+                entry?.prayed == true -> prayerRepo.setInMasjid(today, prayerName, true)
+                else -> prayerRepo.logPrayer(today, prayerName, true)
+            }
+            progressRepo.ensureExists(today)
+            progressRepo.updatePrayers(today, prayerRepo.getPrayedCount(today, today))
         }
     }
 

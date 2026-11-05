@@ -49,10 +49,25 @@ import app.rafiqaldhikr.ui.theme.BorderIdle
 import app.rafiqaldhikr.ui.components.RafiqTopBar
 import app.rafiqaldhikr.ui.utils.toEasternArabicNumerals
 import app.rafiqaldhikr.ui.utils.localized
+import app.rafiqaldhikr.ui.utils.localizedDigits
+import androidx.compose.runtime.saveable.rememberSaveable
 import app.rafiqaldhikr.ui.utils.LocalArabicNumerals
 import app.rafiqaldhikr.ui.theme.NumbersStyle
 import app.rafiqaldhikr.ui.components.RafiqIcon
 import app.rafiqaldhikr.ui.components.RIcon
+
+/* ═══════════════════════════════════════════════════════════════════
+   مواقيتُ الصلاة
+
+ *  التوقيع: لوحةُ المسجد — نوافذُ تتقلّب أرقامُها، وعند الأذان تُجاب جملةً جملة
+
+   اللوحةُ المعلّقة في كلّ مسجد، والنافذةُ هي الزرّ: «صلّيتُ» ثمّ «في
+   المسجد». وعند الأذان تنفتح تحتها إجابةُ المؤذّن بلفظ حديث عمر في صحيح
+   مسلم — انظر `MosqueBoard.kt` و`Ijaba.kt`.
+═══════════════════════════════════════════════════════════════════ */
+
+/** نافذةُ «حان الأذان»: من دخول الوقت اثنتا عشرةَ دقيقة. */
+private const val ADHAN_WINDOW_MS = 12 * 60_000L
 
 @Composable
 fun PrayerTimesScreen(
@@ -61,6 +76,10 @@ fun PrayerTimesScreen(
     locationVm: app.rafiqaldhikr.ui.components.LocationRequestViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // التاريخُ الهجريُّ من حسابه الواحد في الرئيسية — بإزاحة صاحبه
+    val homeVm: app.rafiqaldhikr.ui.screens.home.HomeViewModel = koinViewModel()
+    val hijri = homeVm.uiState.collectAsStateWithLifecycle().value.hijriDate
+        .localizedDigits(LocalArabicNumerals.current)
     val rc = LocalRafiqColors.current
 
     Box(
@@ -80,7 +99,8 @@ fun PrayerTimesScreen(
             )
             else -> PrayerTimesContent(
                 state = state,
-                onMarkPrayed = { name, prayed -> viewModel.markPrayed(name, prayed) },
+                onCycle = { viewModel.cycle(it) },
+                hijri = hijri,
                 onRefresh = { viewModel.refresh() },
                 onPickCity = { locationVm.saveCity(it) },
                 navController = navController,
@@ -93,7 +113,8 @@ fun PrayerTimesScreen(
 @Composable
 private fun PrayerTimesContent(
     state: PrayerTimesViewModel.UiState,
-    onMarkPrayed: (String, Boolean) -> Unit,
+    onCycle: (String) -> Unit,
+    hijri: String,
     onRefresh: () -> Unit,
     onPickCity: (app.rafiq.domain.model.City) -> Unit,
     navController: NavHostController,
@@ -181,55 +202,53 @@ private fun PrayerTimesContent(
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                // Prayer progress badge
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RafiqShape.item)
-                        .background(rc.emeraldFill)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            /*  «٥» كانت مكتوبةً بالأرقام العربية مهما اختار
-                                المستخدم لغةَ الأرقام — فيقرأ «3 / ٥».  */
-                            stringResource(
-                                R.string.prayer_logged_count,
-                                prayedCount.localized(LocalArabicNumerals.current),
-                                5.localized(LocalArabicNumerals.current),
-                            ),
-                            fontWeight = FontWeight.Bold,
-                            color = rc.onEmeraldFill, style = RafiqType.bodyS)
-                        Text(
-                            methodLabel(state.method) + " · " + madhabLabel(state.madhab),
-                            color = Color.White.copy(alpha = 0.8f), style = RafiqType.caption,
-                        )
-                    }
-                }
             }
 
-            // Prayer cards
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                rows.forEach { row ->
-                    PrayerCard(
-                        row      = row,
-                        isPrayed = row.loggable &&
-                            (state.prayerLogs.find { it.prayerName == row.key }?.prayed ?: false),
-                        isNext   = row.key == nextKey,
-                        isPast   = row.timeMs <= nowMs,
-                        onToggle = { current -> onMarkPrayed(row.key, !current) },
-                        rc = rc,
-                    )
-                }
+            /*  اللوحة — وعند الأذان إجابةُ المؤذّن تحتها.
+             *
+             *  «حان الأذانُ» = اثنتا عشرةَ دقيقةً من دخول الوقت: التطبيقُ
+             *  لا يسمع الأذان، يعرف وقتَه المحسوب، وأذانُ المسجد قد يتأخّر
+             *  دقائق — فتبقى الإجابةُ مفتوحةً ويمشي صاحبُها على سرعته. */
+            var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+            LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(1000); nowMs = System.currentTimeMillis() } }
+            val five = rows.filter { it.loggable }
+            val adhan = five.lastOrNull { nowMs >= it.timeMs && nowMs - it.timeMs < ADHAN_WINDOW_MS }
+            val next = five.firstOrNull { it.timeMs > nowMs }
+            val nextMs = next?.timeMs ?: (times.fajr + 86_400_000L)
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            var ijaba by remember { mutableStateOf<Ijaba?>(null) }
+            LaunchedEffect(Unit) { ijaba = IjabaStore.load(ctx) }
+            var step by rememberSaveable(adhan?.key, adhan?.timeMs) { mutableIntStateOf(0) }
 
+            MosqueBoard(
+                windows = rows.map { BoardWindow(it.key, it.name, it.timeMs, it.loggable) },
+                logs = state.prayerLogs,
+                hijri = hijri,
+                subtitle = methodLabel(state.method) + " · " + madhabLabel(state.madhab),
+                nextKey = next?.key,
+                nextName = next?.name ?: stringResource(R.string.fajr),
+                leftSec = (nextMs - nowMs) / 1000,
+                adhanKey = adhan?.key,
+                adhanName = adhan?.name.orEmpty(),
+                onWindow = onCycle,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Text(
+                stringResource(R.string.board_legend),
+                style = RafiqType.metaS, color = rc.inkMed,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+            val ij = ijaba
+            if (adhan != null && ij != null) {
+                Text(stringResource(R.string.ijaba_title, adhan.name), style = RafiqType.titleL, color = rc.ink,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp))
+                IjabaSteps(ij, step, onStep = { step++ })
+            }
+            Spacer(Modifier.height(14.dp))
+            MasjidWeek(state.masjidWeek)
+
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
                 Spacer(Modifier.height(4.dp))
                 Text(stringResource(R.string.times_approximate),
                     color = rc.inkMed,
@@ -272,117 +291,6 @@ data class PrayerRowData(
     val loggable: Boolean,
 )
 
-@Composable
-private fun PrayerCard(
-    row: PrayerRowData,
-    isPrayed: Boolean,
-    isNext: Boolean,
-    isPast: Boolean,
-    onToggle: (Boolean) -> Unit,
-    rc: RafiqPalette,
-) {
-    val ar = LocalArabicNumerals.current
-    val tint = when (row.light) {
-        LightKey.NIGHT -> rc.lightNight
-        LightKey.DAWN  -> rc.lightDusk
-        LightKey.DAY   -> rc.goldLight
-        LightKey.WARM  -> rc.lightDusk
-        LightKey.DUSK  -> rc.lightDusk
-    }
-    val wash = when (row.light) {
-        LightKey.NIGHT -> rc.tintNight
-        LightKey.DAY   -> rc.tintGold
-        else           -> rc.tintDusk
-    }
-    val bg by animateColorAsState(
-        if (isNext) rc.emeraldPastel else rc.card, tween(300), label = "prayerRowBg",
-    )
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RafiqShape.card)
-            .background(bg)
-            .border(1.dp, if (isNext) rc.emerald.copy(alpha = 0.30f) else rc.divider, RafiqShape.card)
-            .then(if (row.loggable) Modifier.clickable { onToggle(isPrayed) } else Modifier)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            Modifier.size(42.dp).clip(RoundedCornerShape(13.dp)).background(wash),
-            contentAlignment = Alignment.Center,
-        ) {
-            RafiqIcon(
-                when (row.light) {
-                    LightKey.NIGHT -> RIcon.Moon
-                    LightKey.DAY   -> RIcon.Sun
-                    else           -> RIcon.Sunset
-                },
-                20.dp, tint,
-            )
-        }
-        Spacer(Modifier.width(13.dp))
-        Column(Modifier.weight(1f)) {
-            Text(row.name, style = RafiqType.titleM,
-                color = if (isNext) rc.emerald else rc.ink)
-            Text(
-                when {
-                    isPrayed -> stringResource(R.string.prayer_logged)
-                    isNext   -> stringResource(R.string.next_prayer)
-                    !row.loggable && isPast -> stringResource(R.string.prayer_past)
-                    !row.loggable -> stringResource(R.string.prayer_fajr_edge)
-                    isPast   -> stringResource(R.string.prayer_time_passed)
-                    else     -> stringResource(R.string.action_later)
-                },
-                style = RafiqType.caption,
-                color = if (isPrayed || isNext) rc.emerald else rc.inkMed,
-            )
-        }
-        Text(
-            formatTime(row.timeMs, ar),
-            style = NumbersStyle,
-            fontSize = 18.sp,
-            color = if (isNext) rc.emerald else if (isPast) rc.inkMed else rc.ink,
-        )
-        if (row.loggable) {
-            Spacer(Modifier.width(12.dp))
-            Box(
-                Modifier
-                    .size(27.dp)
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(if (isPrayed) rc.emerald else Color.Transparent)
-                    .border(
-                        1.5.dp,
-                        if (isPrayed) rc.emerald else rc.divider,
-                        RoundedCornerShape(9.dp),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (isPrayed) RafiqIcon(RIcon.Check, 15.dp, rc.onEmerald)
-            }
-        }
-    }
-}
-
-
-/**
- * كان `SimpleDateFormat` مع `Locale("ar")` — وهو لا يعطي أرقاماً عربيةً
- * شرقية على أندرويد الحديث: ICU يختار اللاتينية لـ`ar` ما لم يُطلب
- * `ar-u-nu-arab` صراحةً. فكان المستخدم يقرأ «03:59 ص» في تطبيقٍ كلُّه
- * عربيّ. الآن تُنسَّق بالإنكليزية ثمّ تُحوَّل الأرقامُ يدوياً، والعلامةُ
- * «ص/م» تُكتب صراحةً لا تُترك للنظام.
- */
-private fun formatTime(epochMs: Long, arabic: Boolean): String {
-    val sdf = SimpleDateFormat("hh:mm", Locale.US)
-    val cal = java.util.Calendar.getInstance().apply { timeInMillis = epochMs }
-    val pm = cal.get(java.util.Calendar.AM_PM) == java.util.Calendar.PM
-    val body = sdf.format(Date(epochMs))
-    return if (arabic) "${body.toEasternArabicNumerals()} ${if (pm) "م" else "ص"}"
-    else "$body ${if (pm) "PM" else "AM"}"
-}
-
-// الدالتان صارتا @Composable لتتمكّنا من stringResource: كانتا تُرجعان
-// نصّاً عربياً ثابتاً فيظهر بالعربية حتى في الواجهة الإنجليزية.
 @Composable
 private fun madhabLabel(madhab: String): String =
     stringResource(if (madhab == "hanafi") R.string.madhab_hanafi else R.string.madhab_shafi)

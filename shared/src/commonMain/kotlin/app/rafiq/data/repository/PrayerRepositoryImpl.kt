@@ -26,6 +26,18 @@ class PrayerRepositoryImpl(private val db: RafiqDatabase) : PrayerRepository {
             .mapToList(Dispatchers.IO)
             .map { it.map { p -> p.toDomain() } }
 
+    override suspend fun setInMasjid(date: String, prayerName: String, inMasjid: Boolean) =
+        withContext(Dispatchers.IO) {
+            val now = Clock.System.now().toEpochMilliseconds()
+            db.transaction {
+                if (inMasjid) {
+                    db.prayerLogQueries.insertNew(date, prayerName, 1L, now, 1L, 0L)
+                    db.prayerLogQueries.updatePrayed(prayed = 1L, marked_at = now, date = date, prayer_name = prayerName)
+                }
+                db.prayerLogQueries.updateMasjid(if (inMasjid) 1L else 0L, date, prayerName)
+            }
+        }
+
     override suspend fun logPrayer(date: String, prayerName: String, prayed: Boolean) =
         withContext(Dispatchers.IO) {
             val now = Clock.System.now().toEpochMilliseconds()

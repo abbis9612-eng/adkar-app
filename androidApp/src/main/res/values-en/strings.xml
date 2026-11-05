@@ -1076,4 +1076,22 @@ Prayer times are computed on-device with the adhan library (MIT).</string>
     <string name="lawh_setting_desc">A slate drops 10 minutes before each prayer, and a notification if the app is closed</string>
     <string name="lawh_sister">Address me as a sister</string>
     <string name="lawh_sister_desc">Instead of “Dear brother”</string>
+
+    <!-- لوحةُ المسجد وإجابةُ المؤذّن -->
+    <string name="board_next_in">%1$s in</string>
+    <string name="board_adhan_now">It is time</string>
+    <string name="board_adhan">%1$s adhan</string>
+    <string name="board_tap_hint">Tap its window when you pray</string>
+    <string name="win_prayed">✓ Prayed</string>
+    <string name="win_masjid">At the mosque</string>
+    <string name="win_next">Next</string>
+    <string name="win_sunrise">Not logged</string>
+    <string name="board_legend">Tap: prayed · twice: at the mosque · third: clear</string>
+    <string name="masjid_week">At the mosque this week</string>
+    <string name="masjid_week_sub">%1$s of %2$s · each lamp is a prayer</string>
+    <string name="ijaba_title">%1$s adhan now</string>
+    <string name="ijaba_sub">Repeat what the muezzin says — tap each phrase as you say it</string>
+    <string name="ijaba_muezzin">Muezzin: %1$s</string>
+    <string name="ijaba_then">Then — as in the hadith</string>
+    <string name="ijaba_after">After the adhan</string>
 </resources>

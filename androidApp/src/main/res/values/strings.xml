@@ -1101,4 +1101,22 @@
     <string name="lawh_setting_desc">لوحٌ ينزل قبل كلّ صلاةٍ بعشر دقائق، وإشعارٌ إن كان التطبيقُ مغلقاً</string>
     <string name="lawh_sister">النداء: «أختي الكريمة»</string>
     <string name="lawh_sister_desc">بدل «أخي الكريم»</string>
+
+    <!-- لوحةُ المسجد وإجابةُ المؤذّن -->
+    <string name="board_next_in">%1$s بعد</string>
+    <string name="board_adhan_now">حان الآن</string>
+    <string name="board_adhan">أذان %1$s</string>
+    <string name="board_tap_hint">اضغط نافذتَه حين تصلّي</string>
+    <string name="win_prayed">✓ صلّيتُ</string>
+    <string name="win_masjid">في المسجد</string>
+    <string name="win_next">القادمة</string>
+    <string name="win_sunrise">لا تُسجَّل</string>
+    <string name="board_legend">ضغطة: صلّيتُ · ضغطتان: في المسجد · ثالثة: تُمحى</string>
+    <string name="masjid_week">في المسجد هذا الأسبوع</string>
+    <string name="masjid_week_sub">%1$s من %2$s · كلُّ مصباحٍ صلاة</string>
+    <string name="ijaba_title">أذانُ %1$s الآن</string>
+    <string name="ijaba_sub">قُل مثلَ ما يقول المؤذّن — واضغط الجملةَ حين تقولها</string>
+    <string name="ijaba_muezzin">المؤذِّن: %1$s</string>
+    <string name="ijaba_then">ثمّ — كما في الحديث</string>
+    <string name="ijaba_after">وبعد الأذان</string>
 </resources>

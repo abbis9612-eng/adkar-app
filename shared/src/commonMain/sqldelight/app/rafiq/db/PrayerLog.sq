@@ -51,3 +51,8 @@ DELETE FROM PrayerLog;
 -- استعلامٌ جديدٌ على الجدول نفسِه — لا تغيير في البنية، فلا ترحيل.
 getRange:
 SELECT * FROM PrayerLog WHERE date BETWEEN :start AND :end ORDER BY date;
+
+-- «في المسجد» من لوحة المواقيت. العمودُ قائمٌ منذ الترحيل الأوّل ولا
+-- واجهةَ تكتبه — استعلامٌ جديدٌ على الجدول نفسِه، فلا ترحيل.
+updateMasjid:
+UPDATE PrayerLog SET in_masjid = :in_masjid WHERE date = :date AND prayer_name = :prayer_name;
